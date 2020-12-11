@@ -17,7 +17,7 @@ class DocumentsController < ApplicationController
       redirect_to document_path(document) and return
     end
 
-    @documents = Document.search @term, @district.documents
+    @documents = Document.search(@term, @district.documents).page(params[:page])
   end
 
   def suggest

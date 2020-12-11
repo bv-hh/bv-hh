@@ -1,7 +1,7 @@
 .document
   h2.h1
-    = @document.number
-    .float-right= link_to @document.allris_url do
+    strong= @document.number
+    .float-right= link_to @document.allris_url, target: '_blank' do
       = icon(:fas, 'external-link-alt')
   h1.h2
     = @document.title.html_safe

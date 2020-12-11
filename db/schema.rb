@@ -10,11 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_11_204656) do
+ActiveRecord::Schema.define(version: 2020_12_11_221121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
+
+  create_table "agenda_items", force: :cascade do |t|
+    t.bigint "meeting_id"
+    t.bigint "document_id"
+    t.string "title"
+    t.string "number"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["document_id"], name: "index_agenda_items_on_document_id"
+    t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
+  end
 
   create_table "districts", force: :cascade do |t|
     t.string "name"
@@ -44,6 +55,20 @@ ActiveRecord::Schema.define(version: 2020_12_11_204656) do
     t.index ["number"], name: "index_documents_on_number"
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+  end
+
+  create_table "meetings", force: :cascade do |t|
+    t.bigint "district_id"
+    t.string "title"
+    t.string "committee"
+    t.date "date"
+    t.string "time"
+    t.string "room"
+    t.string "location"
+    t.integer "allris_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["district_id"], name: "index_meetings_on_district_id"
   end
 
 end

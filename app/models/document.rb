@@ -5,6 +5,9 @@ class Document < ApplicationRecord
 
   belongs_to :district
 
+  has_many :agenda_items
+  has_many :meetings, through: :agenda_items
+
   validates :allris_id, presence: true
 
   scope :latest_first, -> { order(number: :desc) }
@@ -69,26 +72,6 @@ class Document < ApplicationRecord
     raise 'Allris ID missing' if allris_id.blank?
 
     "#{district.allris_base_url}/bi/vo020.asp?VOLFDNR=#{allris_id}"
-  end
-
-  SANITIZER = Rails::Html::SafeListSanitizer.new
-  SCRUBBER = Rails::Html::TargetScrubber.new
-  SCRUBBER.tags = %w[font tabref div iframe h1 h2]
-  SCRUBBER.attributes = %w[class target cellpadding cellspacing width height start type]
-
-  XPATHS_TO_REMOVE = %w{.//script .//form comment()}
-
-  def clean_html(node)
-    return nil if node.nil?
-
-    node.xpath(*XPATHS_TO_REMOVE).remove
-    cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
-    cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '')
-    cleaned
-  end
-
-  def retrieve_xpath_div(html, xpath_content)
-    clean_html(html.xpath("//span[contains(text(), '#{xpath_content}')]").first&.ancestors('div')&.first)&.sub(xpath_content, '')
   end
 
   def to_param
