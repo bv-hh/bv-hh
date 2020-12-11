@@ -1,0 +1,45 @@
+doctype html
+
+html lang='de'
+  head
+    title Bezirkspolitik in Hamburg
+
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"
+
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_link_tag 'application', media: 'all'
+    = javascript_include_tag 'application'
+
+  - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
+  body class=css_classes
+    .navbar.navbar-dark.navbar-expand-md
+      .container
+        = link_to 'Bezirke-HH', root_with_district_path, class: 'navbar-brand'
+
+        button.navbar-toggler type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+          span.navbar-toggler-icon
+        .collapse.navbar-collapse#navbarNavDropdown
+          = form_tag search_documents_path, method: :get, class: 'form-inline my-2 my-lg-0' do
+            = text_field_tag :q, nil, class: 'form-control mr-sm-2', type: :search, placeholder: 'Suche',
+                data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
+            button.btn.btn-primary.my-2.my-sm-0 type="submit"
+              = icon('fas', 'search')
+
+          ul.navbar-nav.mr-auto
+            li.nav-item
+              = link_to 'Drucksachen', documents_path, class: 'nav-link'
+            li.nav-item
+              = link_to 'Sitzungen', '#', class: 'nav-link'
+          ul.navbar-nav
+            li.nav-item.dropdown
+              a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+                = @district.name
+              .dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
+                - District.by_name.each do |district|
+                  = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
+
+    .container.py-4
+      = yield

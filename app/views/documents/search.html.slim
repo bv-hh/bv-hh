@@ -1,0 +1,11 @@
+h1
+  | Suchergebnisse für '#{@term}'
+
+.documents
+  - @documents.each do |document|
+    .document.row
+      = link_to document.number, document_path(document)
+      = link_to highlight(document.title, @term), document_path(document)
+
+      .excerpt
+        = highlight excerpt(document.full_text, @term, radius: 100), @term

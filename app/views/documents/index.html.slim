@@ -1,0 +1,13 @@
+.documents
+  h1.h2
+    ' Alle Dokumente
+
+    small.text-muted= number_with_delimiter @documents.total_count
+
+  - @documents.each do |document|
+    .document.row
+      .col= link_to document.number, document_path(document)
+      .col= document.title.html_safe
+
+  .mt-5
+    = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

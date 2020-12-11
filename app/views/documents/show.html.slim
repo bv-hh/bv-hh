@@ -1,0 +1,21 @@
+.document
+  h2.h1
+    = @document.number
+    .float-right= link_to @document.allris_url do
+      = icon(:fas, 'external-link-alt')
+  h1.h2
+    = @document.title.html_safe
+  h3.text-muted
+    small= @document.kind
+
+  .card.mt-3
+    .card-header.font-weight-bold Sachverhalt
+    .card-body
+      = @document.content.html_safe
+
+  - if @document.resolution.present?
+    .card.mt-3
+      .card-header.font-weight-bold Petitum/Beschluss
+      .card-body
+        = @document.resolution.html_safe
+

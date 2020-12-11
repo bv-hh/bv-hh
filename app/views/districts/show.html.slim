@@ -1,0 +1,19 @@
+.district
+  .row
+    .documents.col-sm
+      .card
+        .card-header Aktuelle Drucksachen
+        .card-body
+          table.table
+            tbody
+              - @documents.each do |document|
+                tr
+                  td.text-nowrap
+                    = link_to document_path(document) do
+                      strong= document.number
+                  td
+                    = link_to document_path(document) do
+                      = document.title.html_safe
+
+    .meetings.col-sm
+
