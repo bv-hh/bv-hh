@@ -89,11 +89,6 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  # Restrict access¶
-  config.basic_auth = OpenStruct.new
-  config.basic_auth.username = 'BV2020'
-  config.basic_auth.password = 'Kümmelstraße'
-
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
   # middleware. The `delay` is used to determine how long to wait after a write
