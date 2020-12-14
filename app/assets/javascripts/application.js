@@ -5,8 +5,6 @@
 //= require popper
 //= require bootstrap-sprockets
 
-//= require corejs-typeahead
-
 //= require chartkick
 //= require Chart.bundle
 

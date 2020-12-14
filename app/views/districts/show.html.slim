@@ -11,6 +11,8 @@
                   td.text-nowrap
                     = link_to meeting_path(meeting) do
                       strong= l meeting.date
+                    br
+                    = meeting.time
                   td
                     = link_to meeting_path(meeting) do
                       = meeting.title.html_safe
