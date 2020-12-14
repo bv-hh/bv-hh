@@ -82,6 +82,7 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (~> 1.5)
       xpath (~> 3.2)
+    chartkick (3.4.2)
     childprocess (3.0.0)
     concurrent-ruby (1.1.7)
     connection_pool (2.2.3)
@@ -93,6 +94,8 @@ GEM
       sassc (>= 1.11)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
+    groupdate (5.2.1)
+      activesupport (>= 5)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.1)
@@ -274,7 +277,9 @@ DEPENDENCIES
   bootstrap4-kaminari-views
   byebug
   capybara (>= 2.15)
+  chartkick
   font-awesome-sass (~> 5.15.1)
+  groupdate
   image_processing (~> 1.2)
   jbuilder (~> 2.7)
   jquery-rails

@@ -1,5 +1,20 @@
 .district
   .row
+    .meetings.col-sm
+      .card
+        .card-header Aktuelle Sitzungen
+        .card-body
+          table.table
+            tbody
+              - @meetings.each do |meeting|
+                tr class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
+                  td.text-nowrap
+                    = link_to meeting_path(meeting) do
+                      strong= l meeting.date
+                  td
+                    = link_to meeting_path(meeting) do
+                      = meeting.title.html_safe
+
     .documents.col-sm
       .card
         .card-header Aktuelle Drucksachen
@@ -15,5 +30,4 @@
                     = link_to document_path(document) do
                       = document.title.html_safe
 
-    .meetings.col-sm
 

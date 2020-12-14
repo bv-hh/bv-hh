@@ -6,9 +6,13 @@
 //= require bootstrap-sprockets
 
 //= require corejs-typeahead
-//
+
+//= require chartkick
+//= require Chart.bundle
+
 //= require_self
 
+/*
 $(function() {
   var suggestSource = $('input.search-input').data('suggest');
   var searchSource = $('input.search-input').data('search');
@@ -53,4 +57,4 @@ $(function() {
   });
 
 };
-
+*/

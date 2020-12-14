@@ -8,6 +8,10 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :meetings, only: %i[index show]
+
+    resource :statistics, only: :show
+
     root to: 'districts#show', as: :root_with_district
   end
 

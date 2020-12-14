@@ -1,5 +1,6 @@
 
 class Document < ApplicationRecord
+  include Parsing
 
   NON_PUBLIC = 'Keine Information verf&uuml;gbar'
 
@@ -11,6 +12,7 @@ class Document < ApplicationRecord
   validates :allris_id, presence: true
 
   scope :latest_first, -> { order(number: :desc) }
+  scope :proposals, -> (name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
 
   default_scope -> { where(non_public: false) }
 
@@ -61,11 +63,13 @@ class Document < ApplicationRecord
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
 
-    self.full_text = ActionController::Base.helpers.strip_tags(self.content)
+    self.full_text = strip_tags(self.content)
     if self.resolution.present?
       self.full_text += ' '
-      self.full_text += ActionController::Base.helpers.strip_tags(self.resolution)
+      self.full_text += strip_tags(self.resolution)
     end
+
+    self
   end
 
   def allris_url

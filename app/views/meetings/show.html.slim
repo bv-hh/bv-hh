@@ -1,0 +1,36 @@
+h2.h1
+  strong= l @meeting.date
+  .float-right= link_to @meeting.allris_url, target: '_blank' do
+    = icon(:fas, 'external-link-alt')
+h1.h2
+  = @meeting.title.html_safe
+h3.text-muted
+  small
+    => @meeting.time
+    ' Uhr,
+    = @meeting.room
+    ',
+    => @meeting.location
+
+table.table.mt-4
+  thead
+    th TOP
+    th Titel
+    th Drucksache
+    th
+
+  tbody
+    - @meeting.agenda_items.by_number.each do |item|
+      tr
+        td
+          strong= item.number
+        td
+          - if item.document
+            = link_to document_path(item.document) do
+              = item.title.html_safe
+          - else
+            = item.title.html_safe
+        td
+          - if item.document
+            = link_to document_path(item.document) do
+              strong= item.document.number

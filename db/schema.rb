@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_11_221121) do
+ActiveRecord::Schema.define(version: 2020_12_14_083016) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -30,9 +30,10 @@ ActiveRecord::Schema.define(version: 2020_12_11_221121) do
   create_table "districts", force: :cascade do |t|
     t.string "name"
     t.string "allris_base_url"
-    t.integer "oldest_allris_id"
+    t.integer "oldest_allris_document_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.date "oldest_allris_meeting_date"
   end
 
   create_table "documents", force: :cascade do |t|
