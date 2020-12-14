@@ -27,3 +27,4 @@ production:
   database: bezirkr
   password: <%= Rails.application.credentials.dig(:production, :postgres_password) %>
   pool: 25
+  host: localhost

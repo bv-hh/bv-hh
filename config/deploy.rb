@@ -17,7 +17,7 @@ set :migration_role, :web
 set :assets_roles, [:web]
 
 append :linked_files, 'config/master.key'
-append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'data', 'vendor/bundle', 'public/system'
+append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'data', 'vendor/bundle', 'public/system', '.bundle'
 
 namespace :deploy do
 
