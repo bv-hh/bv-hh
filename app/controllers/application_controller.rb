@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
 
   protected
 
-  def basic_auth¶
+  def basic_auth
     authenticate_or_request_with_http_basic do |username, password|
       username == Rails.configuration.basic_auth.username &&
         password == Rails.configuration.basic_auth.password
