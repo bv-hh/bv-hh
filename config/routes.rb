@@ -1,5 +1,18 @@
 Rails.application.routes.draw do
 
+  require 'sidekiq/web'
+  require 'sidekiq-scheduler/web'
+
+  auth = Rails.application.credentials.dig(Rails.env.to_sym, :sidekiq_auth)
+  if auth.present?
+    Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+      ActiveSupport::SecurityUtils.secure_compare(username, auth[:username]) &
+        ActiveSupport::SecurityUtils.secure_compare(password, auth[:password])
+    end
+  end
+
+  mount Sidekiq::Web => '/sidekiq'
+
   scope '(:district)' do
     resources :documents, only: %i[index show] do
       collection do

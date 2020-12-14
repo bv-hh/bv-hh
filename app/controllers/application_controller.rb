@@ -9,7 +9,8 @@ class ApplicationController < ActionController::Base
   def basic_auth
     auth = Rails.application.credentials.dig(Rails.env.to_sym, :basic_auth)
     authenticate_or_request_with_http_basic do |username, password|
-      username == auth[:username] && password == auth[:password]
+      ActiveSupport::SecurityUtils.secure_compare(username, auth[:username]) &
+        ActiveSupport::SecurityUtils.secure_compare(password, auth[:password])
     end
   end
 

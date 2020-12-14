@@ -33,7 +33,7 @@ namespace :deploy do
     end
 
     on roles(:worker) do
-      execute :sudo, :systemctl, :restart, "'app-worker@*'"
+      execute :sudo, :systemctl, :restart, "'app-worker'"
     end
   end
 
