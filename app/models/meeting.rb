@@ -1,3 +1,4 @@
+require 'open-uri'
 
 class Meeting < ApplicationRecord
   include Parsing

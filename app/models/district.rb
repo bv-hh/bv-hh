@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class District < ApplicationRecord
 
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'

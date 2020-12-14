@@ -1,3 +1,4 @@
+require 'open-uri'
 
 class Document < ApplicationRecord
   include Parsing
