@@ -11,10 +11,10 @@ h1.h2
     tbody
       - @committees.each do |committee|
         tr
-          td.text-nowrap
+          td
             = link_to committee_path(committee) do
               strong= committee
-          td
+          td.text-nowrap
             - meeting = Meeting.complete.committee(committee).latest_first.first
             = link_to meeting_path(meeting) do
               = l meeting.date
