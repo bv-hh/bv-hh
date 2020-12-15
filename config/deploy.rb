@@ -39,6 +39,8 @@ namespace :deploy do
 
 end
 
+after 'deploy:publishing', 'deploy:restart'
+
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 

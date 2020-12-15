@@ -3,11 +3,11 @@ class DocumentsController < ApplicationController
   MAX_SUGGESTIONS = 10
 
   def index
-    @documents = @district.documents.latest_first.page(params[:page])
+    @documents = @district.documents.complete.latest_first.page(params[:page])
   end
 
   def show
-    @document = @district.documents.find(params[:id]&.split('-')&.last)
+    @document = @district.documents.complete.find(params[:id]&.split('-')&.last)
   end
 
   def search
@@ -17,7 +17,16 @@ class DocumentsController < ApplicationController
       redirect_to document_path(document) and return
     end
 
-    @documents = Document.search(@term, @district.documents).page(params[:page])
+    @kinds = Document.distinct.order(:kind).pluck(:kind)
+
+    root = @district.documents.complete
+
+    if params[:kind].present?
+      @kind = params[:kind]
+      root = root.where(kind: @kind)
+    end
+
+    @documents = Document.search(@term, root).page(params[:page])
   end
 
   def suggest

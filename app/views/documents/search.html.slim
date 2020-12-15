@@ -3,6 +3,19 @@ h1
 
   small.text-muted= number_with_delimiter @documents.total_count
 
+h4.my-3 Suche verfeinern
+= form_tag search_documents_path, method: :get do
+  = hidden_field_tag :q, @term
+  .row
+    .col
+      .form-group
+        label for="kind"
+          | Drucksachenart
+        = select_tag :kind, options_for_select(@kinds, @kind), include_blank: 'Alle Drucksachenarten', class: 'form-control'
+    .col
+  button.btn.btn-primary type="submit"
+    Filter Anwenden
+
 table.table.mt-4
   thead
     th Drucksache

@@ -14,6 +14,7 @@ class Document < ApplicationRecord
 
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, -> (name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
+  scope :complete, -> { where.not(title: nil) }
 
   default_scope -> { where(non_public: false) }
 
