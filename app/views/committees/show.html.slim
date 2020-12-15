@@ -1,14 +1,12 @@
-h1.h2
-  ' Alle Sitzungen
-
-  small.text-muted= number_with_delimiter @meetings.total_count
+h2.h1
+  strong= @committee
 
 .table-responsive
   table.table.mt-4
     thead
       th Datum
       th Titel
-      th Gremium
+      th TOPs
       th
 
     tbody
@@ -23,10 +21,9 @@ h1.h2
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
           td
-            = link_to meeting.committee, committee_path(meeting.committee), class: 'text-secondary'
+            = meeting.agenda_items.count
           td
             = link_to meeting.allris_url, target: '_blank' do
               = icon(:fas, 'external-link-alt')
 
-.mt-5
-  = paginate @meetings, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"
+

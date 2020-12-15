@@ -1,0 +1,27 @@
+h1.h2
+  ' Gremien / Ausschüsse
+
+.table-responsive
+  table.table.mt-4
+    thead
+      th Name
+      th Nächste Sitzung
+      th
+
+    tbody
+      - @committees.each do |committee|
+        tr
+          td.text-nowrap
+            = link_to committee_path(committee) do
+              strong= committee
+          td
+            - meeting = Meeting.complete.committee(committee).latest_first.first
+            = link_to meeting_path(meeting) do
+              = l meeting.date
+            br
+            = meeting.time
+          td
+            = link_to meeting.allris_url, target: '_blank' do
+              = icon(:fas, 'external-link-alt')
+
+

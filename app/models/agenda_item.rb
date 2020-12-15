@@ -6,4 +6,5 @@ class AgendaItem < ApplicationRecord
   validates :meeting, presence: true
 
   scope :by_number, -> { order(number: :asc) }
+  scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
 end

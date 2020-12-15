@@ -11,6 +11,8 @@ h3.text-muted
     = @meeting.room
     ',
     => @meeting.location
+    br
+    = link_to @meeting.committee, committee_path(@meeting.committee), class: 'text-secondary'
 
 .table-responsive
   table.table.mt-4

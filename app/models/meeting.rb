@@ -11,6 +11,7 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
+  scope :committee, -> (committee) { where(committee: committee) }
 
   def retrieve_from_allris
     html = Nokogiri::HTML.parse(URI.open(allris_url), nil, 'ISO-8859-1')
