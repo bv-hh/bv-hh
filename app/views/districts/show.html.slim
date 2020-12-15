@@ -17,6 +17,8 @@
                     = link_to meeting_path(meeting) do
                       = meeting.title.html_safe
 
+          = link_to 'Alle Sitzungen', meetings_path
+
     .documents.col-sm
       .card
         .card-header Aktuelle Drucksachen
@@ -31,5 +33,7 @@
                   td
                     = link_to document_path(document) do
                       = document.title.html_safe
+
+          = link_to 'Alle Drucksachen', documents_path
 
 
