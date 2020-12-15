@@ -17,7 +17,7 @@ class DocumentsController < ApplicationController
       redirect_to document_path(document) and return
     end
 
-    @kinds = Document.distinct.order(:kind).pluck(:kind)
+    @kinds = @district.documents.distinct.order(:kind).pluck(:kind)
 
     root = @district.documents.complete
 
