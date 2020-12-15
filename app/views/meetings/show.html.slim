@@ -12,25 +12,26 @@ h3.text-muted
     ',
     => @meeting.location
 
-table.table.mt-4
-  thead
-    th TOP
-    th Titel
-    th Drucksache
-    th
+.table-responsive
+  table.table.mt-4
+    thead
+      th TOP
+      th Titel
+      th Drucksache
+      th
 
-  tbody
-    - @meeting.agenda_items.by_number.each do |item|
-      tr
-        td
-          strong= item.number
-        td
-          - if item.document
-            = link_to document_path(item.document) do
+    tbody
+      - @meeting.agenda_items.by_number.each do |item|
+        tr
+          td
+            strong= item.number
+          td
+            - if item.document
+              = link_to document_path(item.document) do
+                = item.title.html_safe
+            - else
               = item.title.html_safe
-          - else
-            = item.title.html_safe
-        td
-          - if item.document
-            = link_to document_path(item.document) do
-              strong= item.document.number
+          td
+            - if item.document
+              = link_to document_path(item.document) do
+                strong= item.document.number

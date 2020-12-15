@@ -3,26 +3,27 @@ h1.h2
 
   small.text-muted= number_with_delimiter @documents.total_count
 
-table.table.mt-4
-  thead
-    th Drucksache
-    th Titel
-    th Art
-    th
+.table-responsive
+  table.table.mt-4
+    thead
+      th Drucksache
+      th Titel
+      th Art
+      th
 
-  tbody
-    - @documents.each do |document|
-      tr
-        td.text-nowrap
-          = link_to document_path(document) do
-            strong= document.number
-        td
-          = link_to document_path(document) do
-            =document.title.html_safe
-        td.text-muted= document.kind
-        td
-          = link_to document.allris_url, target: '_blank' do
-            = icon(:fas, 'external-link-alt')
+    tbody
+      - @documents.each do |document|
+        tr
+          td.text-nowrap
+            = link_to document_path(document) do
+              strong= document.number
+          td
+            = link_to document_path(document) do
+              =document.title.html_safe
+          td.text-muted= document.kind
+          td
+            = link_to document.allris_url, target: '_blank' do
+              = icon(:fas, 'external-link-alt')
 
 .mt-5
   = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

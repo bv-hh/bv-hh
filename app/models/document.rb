@@ -62,6 +62,7 @@ class Document < ApplicationRecord
     self.kind = clean_html(html.css('td.text4').first)
 
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
+    self.content = retrieve_xpath_div(html, 'Sachverhalt') if content.nil?
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
 
