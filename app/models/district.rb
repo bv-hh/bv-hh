@@ -43,12 +43,11 @@ class District < ApplicationRecord
   end
 
   def check_for_meeting_updates
-    oldest_meeting_date = [oldest_allris_meeting_date, meetings.minimum(:date) || 10.years.ago].max
+    oldest_meeting_date = [oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max
 
     current_date = (Time.zone.now + 1.month).beginning_of_month
 
     while current_date >= oldest_meeting_date
-      puts current_date
       source = URI.open(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}", &:read)
       html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
