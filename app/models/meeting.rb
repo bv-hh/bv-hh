@@ -7,7 +7,7 @@ class Meeting < ApplicationRecord
 
   belongs_to :district
 
-  has_many :agenda_items
+  has_many :agenda_items, dependent: :destroy
 
   validates :district, presence: true
 
@@ -15,8 +15,8 @@ class Meeting < ApplicationRecord
   scope :complete, -> { where.not(title: nil) }
   scope :committee, ->(committee) { where(committee: committee) }
 
-  def retrieve_from_allris
-    html = Nokogiri::HTML.parse(URI.open(allris_url), nil, 'ISO-8859-1')
+  def retrieve_from_allris # rubocop:disable Metrics/AbcSize
+    html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
 
     full_title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
     self.title = full_title.split('Bitte beachten Sie:').first.squish
@@ -29,6 +29,12 @@ class Meeting < ApplicationRecord
     self.room = html.css('td.text2')[2].text
     self.location = clean_html(html.css('td.text2')[3])
 
+    retrieve_agenda_items(html)
+
+    self
+  end
+
+  def retrieve_agenda_items(html)
     html.css('tr.zl11,tr.zl12').each do |line|
       agenda_item = agenda_items.build
       agenda_item.number = line.css('td.text4').text
@@ -40,8 +46,6 @@ class Meeting < ApplicationRecord
       allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
       agenda_item.document = district.documents.find_by(allris_id: allris_id)
     end
-
-    self
   end
 
   def allris_url

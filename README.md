@@ -1,3 +1,5 @@
+![Build Status](https://github.com/bezirkr/bezirkr/workflows/main/badge.svg)
+
 # Bezirke-HH
 
 Eine alternative Weboberfläche für den Sitzungsdienst (Parlamentsdatenbank) der Hamburger Bezirksversammlungen.

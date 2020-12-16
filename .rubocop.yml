@@ -103,6 +103,9 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+Metrics/AbcSize:
+  Max: 25
+
 Naming/VariableNumber:
   Enabled: false
 

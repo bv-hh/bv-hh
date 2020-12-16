@@ -3,8 +3,8 @@
 class CheckForUpdatesJob < ApplicationJob
   def perform(district = nil)
     if district.nil?
-      District.find_each do |district|
-        CheckForUpdatesJob.perform_later(district)
+      District.find_each do |d|
+        CheckForUpdatesJob.perform_later(d)
       end
     else
       perform_for(district)

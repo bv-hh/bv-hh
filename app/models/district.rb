@@ -8,8 +8,8 @@ class District < ApplicationRecord
 
   # OLDEST_ALLRIS_ID = 1007791 # 1.1.2019 HH-Nord
 
-  has_many :documents
-  has_many :meetings
+  has_many :documents, dependent: :destroy
+  has_many :meetings, dependent: :destroy
 
   validates :name, presence: true
   validates :allris_base_url, presence: true
@@ -27,7 +27,7 @@ class District < ApplicationRecord
   end
 
   def check_for_document_updates
-    source = URI.open(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL, &:read)
+    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     latest_link = html.css('tr.zl12 a').first['href']
@@ -43,13 +43,13 @@ class District < ApplicationRecord
     end
   end
 
-  def check_for_meeting_updates
+  def check_for_meeting_updates # rubocop:disable Metrics/AbcSize
     oldest_meeting_date = [oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max
 
     current_date = (Time.zone.now + 1.month).beginning_of_month
 
     while current_date >= oldest_meeting_date
-      source = URI.open(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}", &:read)
+      source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}"))
       html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
       html.css('tr.zl12 a,tr.zl11 a,tr.zl16 a,tr.zl17 a').each do |link|

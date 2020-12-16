@@ -9,7 +9,7 @@ class Document < ApplicationRecord
 
   belongs_to :district
 
-  has_many :agenda_items
+  has_many :agenda_items, dependent: :nullify
   has_many :meetings, through: :agenda_items
 
   validates :allris_id, presence: true
@@ -49,8 +49,8 @@ class Document < ApplicationRecord
     query.order(ordering)
   end
 
-  def retrieve_from_allris
-    source = URI.open(allris_url, &:read)
+  def retrieve_from_allris # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
+    source = Net::HTTP.get(URI(allris_url))
 
     if source.include? NON_PUBLIC
       self.non_public = true

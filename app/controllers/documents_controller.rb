@@ -14,7 +14,7 @@ class DocumentsController < ApplicationController
   def search
     @term = params[:q] || ''
 
-    if document = @district.documents.find_by(number: @term)
+    if (document = @district.documents.find_by(number: @term))
       redirect_to document_path(document) and return
     end
 
@@ -40,6 +40,6 @@ class DocumentsController < ApplicationController
         number: document.number,
       }
     end
-    render json: articles
+    render json: documents
   end
 end
