@@ -1,5 +1,4 @@
 class CommitteesController < ApplicationController
-
   def index
     @committees = @district.meetings.distinct.order(:committee).pluck(:committee)
   end

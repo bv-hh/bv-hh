@@ -3,7 +3,7 @@ require 'open-uri'
 class Document < ApplicationRecord
   include Parsing
 
-  NON_PUBLIC = 'Keine Information verf&uuml;gbar'
+  NON_PUBLIC = 'Keine Information verf&uuml;gbar'.freeze
 
   belongs_to :district
 
@@ -13,10 +13,10 @@ class Document < ApplicationRecord
   validates :allris_id, presence: true
 
   scope :latest_first, -> { order(number: :desc) }
-  scope :proposals, -> (name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
-  scope :small_inquiries, -> (name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
-  scope :large_inquiries, -> (name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
-  scope :state_inquiries, -> (name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :proposals, ->(name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
+  scope :small_inquiries, ->(name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :large_inquiries, ->(name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :state_inquiries, ->(name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
 
   default_scope -> { where(non_public: false) }
@@ -43,7 +43,7 @@ class Document < ApplicationRecord
     query = root || Document.all
     query = query.where('documents.title ILIKE :term OR documents.number ILIKE :term', term: "#{term.downcase}%")
 
-    ordering = sanitize_sql_for_order [Arel.sql('(CASE WHEN documents.number ILIKE :term THEN 2 ELSE 0 END) + (CASE WHEN documents.title ILIKE ? THEN 1 ELSE 0 END) DESC, documents.title'), term: "#{term}%"]
+    ordering = sanitize_sql_for_order [Arel.sql('(CASE WHEN documents.number ILIKE :term THEN 2 ELSE 0 END) + (CASE WHEN documents.title ILIKE ? THEN 1 ELSE 0 END) DESC, documents.title'), { term: "#{term}%" }]
     query.order(ordering)
   end
 
@@ -71,7 +71,7 @@ class Document < ApplicationRecord
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
 
-    self.full_text = strip_tags(self.content) || ''
+    self.full_text = strip_tags(content) || ''
     if self.resolution.present?
       self.full_text += ' '
       self.full_text += strip_tags(self.resolution)

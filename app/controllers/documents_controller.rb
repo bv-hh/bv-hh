@@ -1,5 +1,4 @@
 class DocumentsController < ApplicationController
-
   MAX_SUGGESTIONS = 10
 
   def index
@@ -31,7 +30,7 @@ class DocumentsController < ApplicationController
 
   def suggest
     documents = Document.prefix_search(params[:q], @district.documents).limit(MAX_SUGGESTIONS).load
-    documents = documents.map do |article|
+    documents = documents.map do |_article|
       {
         id: document.id,
         path: document_path(document),

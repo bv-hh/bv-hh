@@ -1,5 +1,4 @@
 class DistrictsController < ApplicationController
-
   def show
     redirect_to root_with_district_path(district: District.first) and return if @district.nil?
 

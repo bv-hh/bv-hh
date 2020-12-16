@@ -1,24 +1,13 @@
-# README
+# Bezirke-HH
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Eine alternative Weboberfläche für den Sitzungsdienst (Parlamentsdatenbank) der Hamburger Bezirksversammlungen.
 
-Things you may want to cover:
+## Lokale Installation
 
-* Ruby version
+Um Bezirke-HH lokal zu installieren und daran zu entwickeln, sind diese Dinge nötig:
 
-* System dependencies
+- Ruby
+- PostgreSQL
+- NodeJS
+- Redis
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...

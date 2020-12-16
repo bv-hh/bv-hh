@@ -6,15 +6,14 @@ module Parsing
   SCRUBBER.tags = %w[font tabref div iframe h1 h2 a]
   SCRUBBER.attributes = %w[class target cellpadding cellspacing width height start type]
 
-  XPATHS_TO_REMOVE = %w{.//script .//form comment()}
+  XPATHS_TO_REMOVE = %w[.//script .//form comment()].freeze
 
   def clean_html(node)
     return nil if node.nil?
 
     node.xpath(*XPATHS_TO_REMOVE).remove
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
-    cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '')
-    cleaned
+    cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '')
   end
 
   def retrieve_xpath_div(html, xpath_content)

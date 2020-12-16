@@ -1,5 +1,4 @@
 class CheckForUpdatesJob < ApplicationJob
-
   def perform(district = nil)
     if district.nil?
       District.find_each do |district|

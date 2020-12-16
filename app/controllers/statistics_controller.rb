@@ -1,13 +1,12 @@
 class StatisticsController < ApplicationController
-
   PARTIES = {
     'CDU' => '#222',
     'SPD' => '#dc3545',
     'Grüne' => '#28a745',
-    'FDP' =>'#ffc107', 
+    'FDP' => '#ffc107',
     'Linke' => '#c535dc',
-    'AfD' =>'#17a2b8', 
-  }
+    'AfD' => '#17a2b8'
+  }.freeze
 
   def show
     @proposals = make_chart_data('Anträge') do |party|
@@ -33,7 +32,7 @@ class StatisticsController < ApplicationController
         name: party,
         color: color,
         data: {
-          caption => block.call(party),
+          caption => block.call(party)
         }
       }
     end

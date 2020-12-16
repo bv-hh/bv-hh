@@ -1,9 +1,8 @@
 require 'open-uri'
 
 class District < ApplicationRecord
-
-  ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
-  ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' #?MM=12&YY=2020
+  ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'.freeze
+  ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp'.freeze # ?MM=12&YY=2020
 
   # OLDEST_ALLRIS_ID = 1007791 # 1.1.2019 HH-Nord
 
@@ -20,7 +19,7 @@ class District < ApplicationRecord
   end
 
   def self.lookup(path)
-    @districts ||= District.all.inject({}) {|l, d| l[d.name.parameterize] = d; l }
+    @districts ||= District.all.each_with_object({}) { |d, l| l[d.name.parameterize] = d; }
 
     @districts[path.parameterize]
   end
@@ -58,8 +57,7 @@ class District < ApplicationRecord
         UpdateMeetingJob.perform_later(meeting)
       end
 
-      current_date = current_date - 1.month
+      current_date -= 1.month
     end
   end
-
 end

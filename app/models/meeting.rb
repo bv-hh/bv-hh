@@ -11,7 +11,7 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
-  scope :committee, -> (committee) { where(committee: committee) }
+  scope :committee, ->(committee) { where(committee: committee) }
 
   def retrieve_from_allris
     html = Nokogiri::HTML.parse(URI.open(allris_url), nil, 'ISO-8859-1')
@@ -28,15 +28,15 @@ class Meeting < ApplicationRecord
     self.location = clean_html(html.css('td.text2')[3])
 
     html.css('tr.zl11,tr.zl12').each do |line|
-      agenda_item = self.agenda_items.build
+      agenda_item = agenda_items.build
       agenda_item.number = line.css('td.text4').text
       agenda_item.title = line.css('td')[3].text
       document_link = line.css('td[nowrap=nowrap] a')[1]
-      if document_link
-        allris_id = document_link['href']
-        allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
-        agenda_item.document = district.documents.find_by(allris_id: allris_id)
-      end
+      next unless document_link
+
+      allris_id = document_link['href']
+      allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
+      agenda_item.document = district.documents.find_by(allris_id: allris_id)
     end
 
     self

@@ -1,5 +1,4 @@
 class ApplicationController < ActionController::Base
-
   before_action :basic_auth, if: proc { Rails.application.credentials.dig(Rails.env.to_sym, :basic_auth) }
 
   before_action :lookup_district

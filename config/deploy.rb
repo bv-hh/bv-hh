@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock "~> 3.14.1"
+lock '~> 3.14.1'
 
 set :application, 'bezirkr'
 set :repo_url, 'git@github.com:tbk303/bezirkr.git'
@@ -20,7 +20,6 @@ append :linked_files, 'config/master.key'
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'data', 'vendor/bundle', 'public/system', '.bundle'
 
 namespace :deploy do
-
   task :restart do
     on roles(:web) do
       within release_path do
@@ -36,7 +35,6 @@ namespace :deploy do
       execute :sudo, :systemctl, :restart, "'app-worker'"
     end
   end
-
 end
 
 after 'deploy:publishing', 'deploy:restart'
