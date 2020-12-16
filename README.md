@@ -1,4 +1,4 @@
-![Build Status](https://github.com/tbk303/bezirkr/workflows/main/badge.svg)
+![Build Status](https://github.com/tbk303/bezirkr/workflows/CI/badge.svg)
 
 # Bezirke-HH
 
