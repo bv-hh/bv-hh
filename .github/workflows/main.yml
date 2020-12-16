@@ -1,0 +1,198 @@
+name: CI
+
+on: [push]
+
+jobs:
+  cancel_redundant_builds:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.4.0
+      with:
+        access_token: ${{ github.token }}
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+
+    - name: Run rubocop
+      run: bundle exec rubocop -p
+
+  assets:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+
+    - name: Precompile assets
+      run: bundle exec rails assets:precompile
+
+  test_unit:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: bezirkr
+          POSTGRES_PASSWORD: bezirkr
+        ports:
+        - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: --entrypoint redis-server
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - name: Install system dependencies via apt
+      run: sudo apt-get update && sudo apt-get install --fix-missing -y rsync
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+
+    - name: Cache npm
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-npm
+      with:
+        path: ./node_modules
+        key: ${{ env.cache-name }}-v1-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ env.cache-name }}-
+
+    - name: Install js dependencies
+      run: yarn
+
+    - name: Prepare DB
+      run: bundle exec rake db:create
+      env:
+        RAILS_ENV: test
+    - name: Load schema
+      run: bundle exec rake db:schema:load
+      env:
+        RAILS_ENV: test
+
+    - name: Run unit tests
+      run: bundle exec rake test
+      env:
+        COVERAGE: on
+        CI: on
+
+    - name: Store test results
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: Test Results
+        path: test/reports
+    - name: Store logs
+      uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: Logs
+        path: log
+
+
+  test_system:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: bezirkr
+          POSTGRES_PASSWORD: bezirkr
+        ports:
+        - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis
+        ports:
+        - 6379:6379
+        options: --entrypoint redis-server
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+
+    - name: Install system dependencies via apt
+      run: sudo apt-get update && sudo apt-get install --fix-missing -y rsync
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+
+    - name: Cache npm
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-npm
+      with:
+        path: ./node_modules
+        key: ${{ env.cache-name }}-v1-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ env.cache-name }}-
+
+    - name: Install js dependencies
+      run: yarn
+
+    - name: Prepare DB
+      run: bundle exec rake db:create
+      env:
+        RAILS_ENV: test
+    - name: Load schema
+      run: bundle exec rake db:schema:load
+      env:
+        RAILS_ENV: test
+
+    - name: Update Chromedriver
+      run: bundle exec rails webdrivers:chromedriver:update
+      env:
+        RAILS_ENV: test
+
+    - name: Run system tests
+      run: bundle exec rails test:system
+      env:
+        COVERAGE: on
+        CI: on
+        RAILS_ENV: test
+
+    - name: Store screenshots
+      uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: Screenshots
+        path: tmp/screenshots
+    - name: Store test results
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: Test Results
+        path: test/reports
+    - name: Store logs
+      uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: Logs
+        path: log
+
