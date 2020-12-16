@@ -14,9 +14,9 @@ class Document < ApplicationRecord
 
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, -> (name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
-  scope :small_inquiries, -> (name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('title ILIKE ?', '%#{name}%') }
-  scope :large_inquiries, -> (name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('title ILIKE ?', '%#{name}%') }
-  scope :state_inquiries, -> (name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', '%#{name}%') }
+  scope :small_inquiries, -> (name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :large_inquiries, -> (name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :state_inquiries, -> (name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
 
   default_scope -> { where(non_public: false) }
