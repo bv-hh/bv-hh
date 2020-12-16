@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StatisticsController < ApplicationController
   PARTIES = {
     'CDU' => '#222',
@@ -5,7 +7,7 @@ class StatisticsController < ApplicationController
     'Grüne' => '#28a745',
     'FDP' => '#ffc107',
     'Linke' => '#c535dc',
-    'AfD' => '#17a2b8'
+    'AfD' => '#17a2b8',
   }.freeze
 
   def show
@@ -26,14 +28,14 @@ class StatisticsController < ApplicationController
     end
   end
 
-  def make_chart_data(caption, &block)
+  def make_chart_data(caption)
     PARTIES.map do |party, color|
       {
         name: party,
         color: color,
         data: {
-          caption => block.call(party)
-        }
+          caption => yield(party),
+        },
       }
     end
   end

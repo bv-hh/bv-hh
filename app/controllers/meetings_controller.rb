@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MeetingsController < ApplicationController
   def index
     @meetings = @district.meetings.latest_first.page(params[:page])

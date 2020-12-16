@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CheckForUpdatesJob < ApplicationJob
   def perform(district = nil)
     if district.nil?

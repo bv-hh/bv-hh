@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'open-uri'
 
 class Document < ApplicationRecord
   include Parsing
 
-  NON_PUBLIC = 'Keine Information verf&uuml;gbar'.freeze
+  NON_PUBLIC = 'Keine Information verf&uuml;gbar'
 
   belongs_to :district
 

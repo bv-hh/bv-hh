@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   before_action :basic_auth, if: proc { Rails.application.credentials.dig(Rails.env.to_sym, :basic_auth) }
 

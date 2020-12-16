@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DocumentsController < ApplicationController
   MAX_SUGGESTIONS = 10
 
@@ -35,7 +37,7 @@ class DocumentsController < ApplicationController
         id: document.id,
         path: document_path(document),
         title: document.title,
-        number: document.number
+        number: document.number,
       }
     end
     render json: articles

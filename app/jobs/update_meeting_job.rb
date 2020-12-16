@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UpdateMeetingJob < ApplicationJob
   def perform(meeting)
     meeting.agenda_items.delete_all

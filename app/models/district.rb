@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'open-uri'
 
 class District < ApplicationRecord
-  ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'.freeze
-  ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp'.freeze # ?MM=12&YY=2020
+  ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
+  ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
 
   # OLDEST_ALLRIS_ID = 1007791 # 1.1.2019 HH-Nord
 
@@ -19,7 +21,7 @@ class District < ApplicationRecord
   end
 
   def self.lookup(path)
-    @districts ||= District.all.each_with_object({}) { |d, l| l[d.name.parameterize] = d; }
+    @districts ||= District.all.index_by { |d| d.name.parameterize; }
 
     @districts[path.parameterize]
   end

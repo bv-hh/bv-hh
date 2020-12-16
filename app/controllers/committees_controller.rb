@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CommitteesController < ApplicationController
   def index
     @committees = @district.meetings.distinct.order(:committee).pluck(:committee)
