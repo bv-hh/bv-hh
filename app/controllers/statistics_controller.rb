@@ -1,42 +1,41 @@
 class StatisticsController < ApplicationController
 
+  PARTIES = {
+    'CDU' => '#222',
+    'SPD' => '#dc3545',
+    'Grüne' => '#28a745',
+    'FDP' =>'#ffc107', 
+    'Linke' => '#c535dc',
+    'AfD' =>'#17a2b8', 
+  }
+
   def show
-    @proposals = [{
-      name: 'CDU',
-      color: '#222',
-      data: {
-        "Anträge" => @district.documents.proposals('CDU').count,
+    @proposals = make_chart_data('Anträge') do |party|
+      @district.documents.proposals(party).count
+    end
+
+    @small_inquiries = make_chart_data('Anfragen') do |party|
+      @district.documents.small_inquiries(party).count
+    end
+
+    @large_inquiries = make_chart_data('Anfragen') do |party|
+      @district.documents.large_inquiries(party).count
+    end
+
+    @state_inquiries = make_chart_data('Anfragen') do |party|
+      @district.documents.state_inquiries(party).count
+    end
+  end
+
+  def make_chart_data(caption, &block)
+    PARTIES.map do |party, color|
+      {
+        name: party,
+        color: color,
+        data: {
+          caption => block.call(party),
+        }
       }
-    }, {
-      name: 'SPD',
-      color: '#dc3545',
-      data: {
-        "Anträge" => @district.documents.proposals('SPD').count,
-      }
-    }, {
-      name: 'Grüne',
-      color: '#28a745',
-      data: {
-        "Anträge" => @district.documents.proposals('Grüne').count,
-      }
-    }, {
-      name: 'FDP',
-      color: '#ffc107',
-      data: {
-        "Anträge" => @district.documents.proposals('FDP').count,
-      }
-    }, {
-      name: 'Linke',
-      color: '#c535dc',
-      data: {
-        "Anträge" => @district.documents.proposals('Linke').count,
-      }
-    }, {
-      name: 'AfD',
-      color: '#17a2b8',
-      data: {
-        "Anträge" => @district.documents.proposals('AfD').count,
-      }
-     }]
+    end
   end
 end
