@@ -16,8 +16,8 @@ class Document < ApplicationRecord
 
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, ->(name) { where('title ILIKE ?', '%Antrag%').where('title ILIKE ?', "%#{name}%") }
-  scope :small_inquiries, ->(name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
-  scope :large_inquiries, ->(name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :small_inquiries, ->(name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('author ILIKE ?', "%#{name}%") }
+  scope :large_inquiries, ->(name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('author ILIKE ?', "%#{name}%") }
   scope :state_inquiries, ->(name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
 
@@ -65,6 +65,8 @@ class Document < ApplicationRecord
 
     self.title = clean_html(html.css('td.text1').first)
     self.kind = clean_html(html.css('td.text4').first)
+
+    self.author = clean_html(html.css('td.text4')[1]) if kind.include?('Kleine Anfrage') || kind.include?('Große Anfrage')
 
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
     self.content = retrieve_xpath_div(html, 'Sachverhalt') if content.nil?

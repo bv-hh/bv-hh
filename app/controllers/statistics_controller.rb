@@ -22,10 +22,6 @@ class StatisticsController < ApplicationController
     @large_inquiries = make_chart_data('Anfragen') do |party|
       @district.documents.large_inquiries(party).count
     end
-
-    @state_inquiries = make_chart_data('Anfragen') do |party|
-      @district.documents.state_inquiries(party).count
-    end
   end
 
   def make_chart_data(caption)
