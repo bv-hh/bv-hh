@@ -41,7 +41,7 @@ before_fork do
   ActiveRecord::Base.connection_pool.disconnect! if defined?(ActiveRecord)
 end
 
-on_worker_book do
+on_worker_boot do
   ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
 end
 
