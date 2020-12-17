@@ -20,6 +20,7 @@ class Document < ApplicationRecord
   scope :large_inquiries, ->(name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('author ILIKE ?', "%#{name}%") }
   scope :state_inquiries, ->(name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
+  scope :include_meetings, -> { includes(:meetings).joins(:meetings).merge(Meeting.latest_first) }
 
   default_scope -> { where(non_public: false) }
 

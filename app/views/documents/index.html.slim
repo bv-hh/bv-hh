@@ -7,8 +7,8 @@ h1.h2
   table.table.mt-4
     thead
       th Drucksache
-      th Titel
-      th Art
+      th Titel / Art
+      th Befassung
       th
 
     tbody
@@ -19,8 +19,14 @@ h1.h2
               strong= document.number
           td
             = link_to document_path(document) do
-              =document.title.html_safe
-          td.text-muted= document.kind
+              = document.title.html_safe
+            br
+            span.text-secondary= document.kind
+          td
+            - if (meeting = document.meetings.first)
+              = link_to meeting.committee, meeting_path(meeting), class: 'text-secondary'
+              br
+              = l meeting.date
           td
             = link_to document.allris_url, target: '_blank' do
               = icon(:fas, 'external-link-alt')

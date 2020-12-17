@@ -19,8 +19,8 @@ h4.my-3 Suche verfeinern
 table.table.mt-4
   thead
     th Drucksache
-    th Titel / Exzerpt
-    th Art
+    th Titel / Art / Exzerpt
+    th Befassung
     th
 
   tbody
@@ -32,11 +32,17 @@ table.table.mt-4
         td
           = link_to document_path(document) do
             = highlight(document.title.html_safe, @term)
+          br
+          span.text-secondary= document.kind
 
           p.excerpt.mt-2
             = highlight excerpt(document.full_text, @term, radius: 100), @term
 
-        td.text-muted= document.kind
+        td
+          - if (meeting = document.meetings.first)
+            = link_to meeting.committee, meeting_path(meeting), class: 'text-secondary'
+            br
+            = l meeting.date
         td
           = link_to document.allris_url, target: '_blank' do
             = icon(:fas, 'external-link-alt')

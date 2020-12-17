@@ -4,7 +4,7 @@ class DocumentsController < ApplicationController
   MAX_SUGGESTIONS = 10
 
   def index
-    @documents = @district.documents.complete.latest_first.page(params[:page])
+    @documents = @district.documents.complete.include_meetings.latest_first.page(params[:page])
   end
 
   def show
@@ -20,7 +20,7 @@ class DocumentsController < ApplicationController
 
     @kinds = @district.documents.distinct.order(:kind).pluck(:kind)
 
-    root = @district.documents.complete
+    root = @district.documents.complete.include_meetings
 
     if params[:kind].present?
       @kind = params[:kind]
