@@ -15,7 +15,7 @@ module Parsing
 
     node.xpath(*XPATHS_TO_REMOVE).remove
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
-    cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '')
+    cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '')
   end
 
   def retrieve_xpath_div(html, xpath_content)

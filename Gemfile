@@ -9,7 +9,7 @@ ruby '2.7.1'
 gem 'pg'
 gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
 # Use Puma as the app server
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 5.1'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks

@@ -169,7 +169,7 @@ GEM
     pg (1.2.3)
     popper_js (1.16.0)
     public_suffix (4.0.6)
-    puma (4.3.7)
+    puma (5.1.1)
       nio4r (~> 2.0)
     raabro (1.4.0)
     rack (2.2.3)
@@ -333,7 +333,7 @@ DEPENDENCIES
   listen (~> 3.2)
   nokogiri
   pg
-  puma (~> 4.1)
+  puma (~> 5.1)
   rails (~> 6.0.3, >= 6.0.3.4)
   rails-i18n
   rubocop
