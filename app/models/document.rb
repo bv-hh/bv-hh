@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'open-uri'
+require 'net/http'
 
 class Document < ApplicationRecord
   include Parsing

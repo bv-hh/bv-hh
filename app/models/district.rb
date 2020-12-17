@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'open-uri'
+require 'net/http'
 
 class District < ApplicationRecord
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
