@@ -13,7 +13,9 @@ h1.h2
         tr
           td
             = link_to committee_path(committee) do
-              strong= committee.name
+              strong>= committee.name
+            - if committee.inactive?
+              span.badge.badge-secondary Inaktiv
           td.text-nowrap
             - meeting = committee.meetings.complete.latest_first.first
             = link_to meeting_path(meeting) do
