@@ -62,4 +62,16 @@ class District < ApplicationRecord
       current_date -= 1.month
     end
   end
+
+  def update_documents
+    documents.where('created_at > ?', 1.month.ago).find_each do |document|
+      UpdateDocumentJob.perform_later(document)
+    end
+  end
+
+  def update_meetings
+    meetings.where('date > ?', Time.zone.now).find_each do |meeting|
+      UpdateMeetingJob.perform_later(meeting)
+    end
+  end
 end
