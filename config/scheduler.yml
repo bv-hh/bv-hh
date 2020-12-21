@@ -1,4 +1,5 @@
 check_for_updates_job:
   cron: "42 * * * *"
-  class: "CheckForUpdatesJob"
 
+update_changing_content_job:
+  cron: "42 3 * * *"

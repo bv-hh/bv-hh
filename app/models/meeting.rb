@@ -20,7 +20,7 @@ class Meeting < ApplicationRecord
     html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
 
     full_title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
-    self.title = full_title.split('Bitte beachten Sie:').first.squish
+    self.title = full_title.split('Bitte beachten Sie').first.squish
 
     html = html.css('table.risdeco').first
 
