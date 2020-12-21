@@ -1,6 +1,9 @@
 h2.h1
   strong= @committee.name
 
+h5.text-muted Anzahl Drucksachen im Verlauf
+= column_chart @documents_timeline, height: '100px'
+
 .table-responsive
   table.table.mt-4
     thead
