@@ -24,7 +24,7 @@ class StatisticsController < ApplicationController
     end
 
     @proposals_timeline = @district.documents.joins(agenda_items: :meeting).proposals
-                                   .where('meetings.date' => [13.months.ago.beginning_of_month, 1.month.ago.end_of_month])
+                                   .where('meetings.date' => (13.months.ago.beginning_of_month .. 1.month.ago.end_of_month))
                                    .group_by_month('meetings.date').count
   end
 
