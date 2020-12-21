@@ -2,7 +2,7 @@
 
 class CommitteesController < ApplicationController
   def index
-    @committees = @district.committees.open.order(:order)
+    @committees = @district.committees.open.order(:inactive, :order)
   end
 
   def show

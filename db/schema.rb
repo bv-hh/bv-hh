@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_21_201133) do
+ActiveRecord::Schema.define(version: 2020_12_21_212341) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(version: 2020_12_21_201133) do
     t.boolean "public", default: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "inactive", default: false
     t.index ["allris_id"], name: "index_committees_on_allris_id"
     t.index ["district_id"], name: "index_committees_on_district_id"
   end
