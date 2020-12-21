@@ -12,7 +12,7 @@ class StatisticsController < ApplicationController
 
   def show
     @proposals = make_chart_data('Anträge') do |party|
-      @district.documents.proposals(party).count
+      @district.documents.proposals_by(party).count
     end
 
     @small_inquiries = make_chart_data('Anfragen') do |party|
@@ -22,6 +22,10 @@ class StatisticsController < ApplicationController
     @large_inquiries = make_chart_data('Anfragen') do |party|
       @district.documents.large_inquiries(party).count
     end
+
+    @proposals_timeline = @district.documents.joins(agenda_items: :meeting).proposals.
+      where('meetings.date' => [13.months.ago.beginning_of_month, 1.month.ago.end_of_month]).
+      group_by_month('meetings.date').count
   end
 
   def make_chart_data(caption)
