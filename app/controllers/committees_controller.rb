@@ -2,11 +2,10 @@
 
 class CommitteesController < ApplicationController
   def index
-    @committees = @district.meetings.distinct.order(:committee).pluck(:committee)
+    @committees = @district.committees.open.order(:order)
   end
 
   def show
-    @committee = params[:id]
-    @meetings = @district.meetings.where(committee: params[:id]).latest_first
+    @committee = @district.committees.find(params[:id])
   end
 end

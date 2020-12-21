@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_144337) do
+ActiveRecord::Schema.define(version: 2020_12_21_201133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -25,6 +25,18 @@ ActiveRecord::Schema.define(version: 2020_12_17_144337) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
+  end
+
+  create_table "committees", force: :cascade do |t|
+    t.bigint "district_id"
+    t.integer "allris_id"
+    t.string "name"
+    t.integer "order", default: 0
+    t.boolean "public", default: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["allris_id"], name: "index_committees_on_allris_id"
+    t.index ["district_id"], name: "index_committees_on_district_id"
   end
 
   create_table "districts", force: :cascade do |t|
@@ -70,6 +82,9 @@ ActiveRecord::Schema.define(version: 2020_12_17_144337) do
     t.integer "allris_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "committee_id"
+    t.index ["allris_id"], name: "index_meetings_on_allris_id"
+    t.index ["committee_id"], name: "index_meetings_on_committee_id"
     t.index ["district_id"], name: "index_meetings_on_district_id"
   end
 

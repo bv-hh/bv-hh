@@ -10,6 +10,7 @@ class District < ApplicationRecord
 
   has_many :documents, dependent: :destroy
   has_many :meetings, dependent: :destroy
+  has_many :committees, dependent: :destroy
 
   validates :name, presence: true
   validates :allris_base_url, presence: true

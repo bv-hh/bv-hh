@@ -6,6 +6,7 @@ class Meeting < ApplicationRecord
   include Parsing
 
   belongs_to :district
+  belongs_to :committee
 
   has_many :agenda_items, dependent: :destroy
 
@@ -23,7 +24,12 @@ class Meeting < ApplicationRecord
 
     html = html.css('table.risdeco').first
 
-    self.committee = clean_html(html.css('td.text1')[1])
+    committee_link = html.css('td.text1 a').first
+    committee_allris_id = committee_link['href']
+    committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1].to_i
+    committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
+    committee.update!(name: clean_html(committee_link))
+    self.committee = committee
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
     self.time = html.css('td.text2')[1].text
     self.room = html.css('td.text2')[2].text

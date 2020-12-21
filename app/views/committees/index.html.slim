@@ -13,7 +13,7 @@ h1.h2
         tr
           td
             = link_to committee_path(committee) do
-              strong= committee
+              strong= committee.name
           td.text-nowrap
             - meeting = @district.meetings.complete.committee(committee).latest_first.first
             = link_to meeting_path(meeting) do
