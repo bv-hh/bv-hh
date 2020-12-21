@@ -14,7 +14,6 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
-  scope :committee, ->(committee) { where(committee: committee) }
 
   def retrieve_from_allris # rubocop:disable Metrics/AbcSize
     html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
