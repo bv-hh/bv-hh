@@ -23,7 +23,7 @@ h1.h2
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
           td
-            = link_to meeting.committee, committee_path(meeting.committee), class: 'text-secondary'
+            = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
           td
             = link_to meeting.allris_url, target: '_blank' do
               = icon(:fas, 'external-link-alt')
