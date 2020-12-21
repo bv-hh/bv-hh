@@ -28,7 +28,7 @@ class Document < ApplicationRecord
   def self.search(term, root = nil)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
     exact_term = terms.join(' & ')
-    prefix_term = terms.map{|t| "#{t}:*"}.join(' & ')
+    prefix_term = terms.map { |t| "#{t}:*" }.join(' & ')
     search = <<~SQL.squish
       (setweight(to_tsvector('german', documents.title),'A') ||
       setweight(to_tsvector('german', documents.title),'A') ||
