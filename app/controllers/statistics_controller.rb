@@ -23,9 +23,7 @@ class StatisticsController < ApplicationController
       @district.documents.large_inquiries(party).count
     end
 
-    @proposals_timeline = @district.documents.joins(agenda_items: :meeting).proposals
-                                   .where('meetings.date' => (13.months.ago.beginning_of_month .. 1.month.ago.end_of_month))
-                                   .group_by_month('meetings.date').count
+    @proposals_timeline = @district.documents.proposals.in_last_12_months.group_by_month('meetings.date').count
   end
 
   def make_chart_data(caption)
