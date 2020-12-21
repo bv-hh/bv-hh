@@ -12,7 +12,7 @@ h3.text-muted
     ',
     => @meeting.location
     br
-    = link_to @meeting.committee, committee_path(@meeting.committee), class: 'text-secondary'
+    = link_to @meeting.committee.name, committee_path(@meeting.committee), class: 'text-secondary'
 
 .table-responsive
   table.table.mt-4

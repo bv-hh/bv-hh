@@ -24,7 +24,7 @@ h1.h2
             span.text-secondary= document.kind
           td
             - if (meeting = document.meetings.first)
-              = link_to meeting.committee, meeting_path(meeting), class: 'text-secondary'
+              = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
               br
               = l meeting.date
           td

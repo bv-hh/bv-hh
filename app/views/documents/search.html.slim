@@ -40,7 +40,7 @@ table.table.mt-4
 
         td
           - if (meeting = document.meetings.first)
-            = link_to meeting.committee, meeting_path(meeting), class: 'text-secondary'
+            = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
             br
             = l meeting.date
         td
