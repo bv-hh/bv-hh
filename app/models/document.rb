@@ -31,7 +31,6 @@ class Document < ApplicationRecord
   def self.search(term, root = nil)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
     exact_term = terms.join(' & ')
-    prefix_term = terms.map { |t| "#{t}:*" }.join(' & ')
     search = <<~SQL.squish
       (setweight(to_tsvector('german', documents.title),'A') ||
       setweight(to_tsvector('german', documents.title),'A') ||
@@ -41,7 +40,6 @@ class Document < ApplicationRecord
     query = root || Document.all
     query_base = query
     query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
-    query = query.or(query_base.where("#{search} @@ to_tsquery('german', ?)", prefix_term))
     query = query.or(query_base.where(number: term))
 
     ordering = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?)) DESC, documents.title"), exact_term]
