@@ -6,7 +6,7 @@ class Meeting < ApplicationRecord
   include Parsing
 
   belongs_to :district
-  belongs_to :committee
+  belongs_to :committee, optional: true
 
   has_many :agenda_items, dependent: :destroy
 
@@ -18,8 +18,7 @@ class Meeting < ApplicationRecord
   def retrieve_from_allris # rubocop:disable Metrics/AbcSize
     html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
 
-    full_title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
-    self.title = full_title.split('Bitte beachten Sie').first.squish
+    self.title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
 
     html = html.css('table.risdeco').first
 

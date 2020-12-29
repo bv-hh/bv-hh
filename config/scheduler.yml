@@ -1,5 +1,5 @@
-check_for_updates_job:
+CheckForUpdatesJob:
   cron: "42 * * * *"
 
-update_changing_content_job:
+UpdateChangingContentJob:
   cron: "42 3 * * *"
