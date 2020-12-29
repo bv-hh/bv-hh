@@ -1,0 +1,6 @@
+---
+:concurrency: 2
+:queues:
+  - default
+  - documents
+  - meetings
