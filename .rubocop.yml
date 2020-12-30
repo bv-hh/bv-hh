@@ -104,7 +104,7 @@ Metrics/ParameterLists:
   CountKeywordArgs: false
 
 Metrics/AbcSize:
-  Max: 25
+  Max: 30
 
 Naming/VariableNumber:
   Enabled: false

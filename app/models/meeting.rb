@@ -15,7 +15,7 @@ class Meeting < ApplicationRecord
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
 
-  def retrieve_from_allris # rubocop:disable Metrics/AbcSize
+  def retrieve_from_allris! # rubocop:disable Metrics/AbcSize
     html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
 
     self.title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
@@ -35,10 +35,12 @@ class Meeting < ApplicationRecord
 
     retrieve_agenda_items(html)
 
-    self
+    save!
   end
 
   def retrieve_agenda_items(html)
+    agenda_items.delete_all
+
     html.css('tr.zl11,tr.zl12').each do |line|
       agenda_item = agenda_items.build
       agenda_item.number = line.css('td.text4').text
@@ -56,5 +58,9 @@ class Meeting < ApplicationRecord
     raise 'Allris ID missing' if allris_id.blank?
 
     "#{district.allris_base_url}/bi/to010.asp?SILFDNR=#{allris_id}"
+  end
+
+  def update_later!
+    UpdateMeetingJob.perform_later(self)
   end
 end
