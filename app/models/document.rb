@@ -6,6 +6,7 @@ class Document < ApplicationRecord
   include Parsing
 
   NON_PUBLIC = 'Keine Information verf&uuml;gbar'
+  AUTH_REDIRECT = 'noauth.asp'
 
   belongs_to :district
 
@@ -59,9 +60,9 @@ class Document < ApplicationRecord
   def retrieve_from_allris # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
     source = Net::HTTP.get(URI(allris_url))
 
-    if source.include? NON_PUBLIC
+    if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
       self.non_public = true
-      return
+      return self
     end
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
