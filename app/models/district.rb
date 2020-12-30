@@ -47,7 +47,7 @@ class District < ApplicationRecord
   def check_for_meeting_updates # rubocop:disable Metrics/AbcSize
     oldest_meeting_date = [oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max
 
-    current_date = (Time.zone.now + 1.month).beginning_of_month
+    current_date = (Time.zone.now + 2.months).beginning_of_month
 
     while current_date >= oldest_meeting_date
       source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}"))
