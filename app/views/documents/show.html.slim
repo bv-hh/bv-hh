@@ -31,3 +31,16 @@ h3.text-muted
     .card-body
       = @document.resolution.html_safe
 
+- if @document.attached.present?
+  .card.mt-3
+    .card-header.font-weight-bold Anhänge
+    .card-body
+      = @document.attached.html_safe
+
+      .mt-3
+        - @document.attachments.by_name.each do |attachment|
+          = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
+          br
+
+
+

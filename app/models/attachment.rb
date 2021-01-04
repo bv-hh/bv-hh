@@ -5,4 +5,6 @@ class Attachment < ApplicationRecord
   belongs_to :document
 
   has_one_attached :file
+
+  scope :by_name, -> { order(:name) }
 end

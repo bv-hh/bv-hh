@@ -113,12 +113,23 @@ class Document < ApplicationRecord
 
       next if attachments.exists?(name: name)
 
-      attachment = attachments.create! name: name, district: district
-      attachment.file.attach(io: URI.parse("#{district.allris_base_url}/bi/#{href}").open, filename: File.basename(uri.path))
-      attachment.save!
+      filename = File.basename(uri.path)
+      tempfile = Tempfile.new(filename.split('.'))
+      tempfile.binmode
 
-      extract = attachment.file.open { |tmp| SimpleTextExtract.extract(tempfile: tmp) }
-      attachment.update! content: extract
+      begin
+        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
+        IO.copy_stream(io, tempfile)
+
+        extract = SimpleTextExtract.extract(filepath: tempfile.path)
+        attachment = attachments.create! name: name, district: district, content: extract
+
+        tempfile.rewind
+        attachment.file.attach(io: tempfile, filename: filename)
+      ensure
+        tempfile.close
+        tempfile.unlink
+      end
     end
   end
 
