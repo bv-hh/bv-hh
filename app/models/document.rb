@@ -103,7 +103,7 @@ class Document < ApplicationRecord
 
   require 'open-uri'
 
-  def retrieve_attachments(html)
+  def retrieve_attachments(html) # rubocop:disable Metrics/AbcSize
     upper_table = html.css('table.tk1').first
     upper_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
       href = attachment_link['href']
