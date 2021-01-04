@@ -65,14 +65,10 @@ class District < ApplicationRecord
   end
 
   def update_documents
-    documents.where('created_at > ?', 1.month.ago).find_each do |document|
-      UpdateDocumentJob.perform_later(document)
-    end
+    documents.where('created_at > ?', 1.month.ago).find_each(&:update_later!)
   end
 
   def update_meetings
-    meetings.where('date > ?', Time.zone.now).find_each do |meeting|
-      UpdateMeetingJob.perform_later(meeting)
-    end
+    meetings.where('date > ?', Time.zone.now).find_each(&:update_later!)
   end
 end

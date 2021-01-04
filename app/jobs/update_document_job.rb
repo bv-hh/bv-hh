@@ -4,7 +4,6 @@ class UpdateDocumentJob < ApplicationJob
   queue_as :documents
 
   def perform(document)
-    document.retrieve_from_allris
-    document.save!
+    document.retrieve_from_allris!
   end
 end

@@ -12,6 +12,7 @@ class Document < ApplicationRecord
 
   has_many :agenda_items, dependent: :nullify
   has_many :meetings, through: :agenda_items
+  has_many :attachments, dependent: :destroy
 
   validates :allris_id, presence: true
 
@@ -57,9 +58,7 @@ class Document < ApplicationRecord
     query.order(ordering)
   end
 
-  def retrieve_from_allris # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
-    source = Net::HTTP.get(URI(allris_url))
-
+  def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
       self.non_public = true
       return self
@@ -71,31 +70,66 @@ class Document < ApplicationRecord
 
     html = html.css('table.risdeco').first
 
+    retrieve_meta(html)
+    retrieve_body(html)
+
+    save!
+
+    retrieve_attachments(html)
+  end
+
+  def retrieve_meta(html)
     self.title = clean_html(html.css('td.text1').first)
     self.kind = clean_html(html.css('td.text4').first)
 
     self.author = clean_html(html.css('td.text4')[1]) if kind.include?('Kleine Anfrage') || kind.include?('Große Anfrage')
+  end
 
+  def retrieve_body(html) # rubocop:disable Metrics/AbcSize
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
     self.content = retrieve_xpath_div(html, 'Sachverhalt') if content.nil?
     self.content = retrieve_xpath_div(html, 'Hintergrund:') if content.nil?
     self.content = clean_html(html.css('td[bgcolor=white] > div')[0]) if content.nil?
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
+    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
 
     self.full_text = strip_tags(content) || ''
     if self.resolution.present?
       self.full_text += ' '
       self.full_text += strip_tags(self.resolution)
     end
+  end
 
-    self
+  require 'open-uri'
+
+  def retrieve_attachments(html)
+    upper_table = html.css('table.tk1').first
+    upper_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
+      href = attachment_link['href']
+      uri = URI.parse(href)
+
+      name = attachment_link.text
+
+      next if attachments.exists?(name: name)
+
+      attachment = attachments.create! name: name, district: district
+      attachment.file.attach(io: URI.parse("#{district.allris_base_url}/bi/#{href}").open, filename: File.basename(uri.path))
+      attachment.save!
+
+      extract = attachment.file.open { |tmp| SimpleTextExtract.extract(tempfile: tmp) }
+      attachment.update! content: extract
+    end
   end
 
   def allris_url
     raise 'Allris ID missing' if allris_id.blank?
 
     "#{district.allris_base_url}/bi/vo020.asp?VOLFDNR=#{allris_id}"
+  end
+
+  def update_later!
+    UpdateDocumentJob.perform_later(self)
   end
 
   def to_param

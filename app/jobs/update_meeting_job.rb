@@ -4,8 +4,6 @@ class UpdateMeetingJob < ApplicationJob
   queue_as :meetings
 
   def perform(meeting)
-    meeting.agenda_items.delete_all
-    meeting.retrieve_from_allris
-    meeting.save!
+    meeting.retrieve_from_allris!
   end
 end
