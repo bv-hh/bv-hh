@@ -2,7 +2,7 @@
 
 # BV-HH
 
-[https://bv-hh.de]
+https://bv-hh.de
 
 Eine alternative Weboberfläche für den Sitzungsdienst (Parlamentsdatenbank) der Hamburger Bezirksversammlungen.
 
