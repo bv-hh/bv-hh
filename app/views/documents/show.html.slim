@@ -3,7 +3,7 @@ h2.h1
   .float-right= link_to @document.allris_url, target: '_blank' do
     = icon(:fas, 'external-link-alt')
 h1.h2
-  = @document.title.html_safe
+  = simple_format(@document.title)
 h3.text-muted
   small= @document.kind
 
@@ -23,19 +23,19 @@ h3.text-muted
 .card.mt-3
   .card-header.font-weight-bold Sachverhalt
   .card-body
-    == Rinku.auto_link(@document.content, :all, 'target="_blank"')
+    == document_format(@document, :content)
 
 - if @document.resolution.present?
   .card.mt-3
     .card-header.font-weight-bold Petitum/Beschluss
     .card-body
-      == Rinku.auto_link(@document.resolution, :all, 'target="_blank"')
+      == document_format(@document, :resolution)
 
 - if @document.attached.present?
   .card.mt-3
     .card-header.font-weight-bold Anhänge
     .card-body
-      == Rinku.auto_link(@document.attached, :all, 'target="_blank"')
+      == document_format(@document, :attached)
 
       .mt-3
         - @document.attachments.by_name.each do |attachment|

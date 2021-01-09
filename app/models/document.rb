@@ -58,6 +58,10 @@ class Document < ApplicationRecord
     query.order(ordering)
   end
 
+  def self.format_document(content)
+    link_documents(content)
+  end
+
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
       self.non_public = true
@@ -79,7 +83,7 @@ class Document < ApplicationRecord
   end
 
   def retrieve_meta(html)
-    self.title = clean_html(html.css('td.text1').first)
+    self.title = clean_linebreaks(clean_html(html.css('td.text1').first))
     self.kind = clean_html(html.css('td.text4').first)
 
     self.author = clean_html(html.css('td.text4')[1]) if kind.include?('Kleine Anfrage') || kind.include?('Große Anfrage')

@@ -18,6 +18,10 @@ module Parsing
     cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '')
   end
 
+  def clean_linebreaks(html)
+    html.gsub('<br>', "\n").gsub('<br/>', "\n").gsub("\r", '').squish
+  end
+
   def retrieve_xpath_div(html, xpath_content)
     clean_html(html.xpath("//span[contains(text(), '#{xpath_content}')]").first&.ancestors('div')&.first)&.sub(xpath_content, '')
   end
