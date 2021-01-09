@@ -7,9 +7,9 @@
     hr.my-4
     p
       | Um in einen anderen Bezirk zu wechseln, nutzen Sie
-        das Menü oben rechts. Unter "Drucksachen" finden Sie alle Drucksachen aus allen Gremien chronologisch sortiert. Über "Sitzungen"
-        gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen. Über "Gremien" können Sie eine Übersicht der jeweils
-        nächsten Sitzungstermine einsehen.
+        das Menü oben rechts. Unter "#{link_to 'Drucksachen', documents_path}" finden Sie alle Drucksachen aus allen Gremien chronologisch
+        sortiert. Über "#{link_to 'Sitzungen', meetings_path}" gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen.
+        Über "#{link_to 'Gremien', committees_path}" können Sie eine Übersicht der jeweils nächsten Sitzungstermine einsehen.
     p
       strong
         ' Wichtig!
