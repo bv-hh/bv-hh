@@ -45,7 +45,7 @@ class District < ApplicationRecord
   end
 
   def check_for_meeting_updates # rubocop:disable Metrics/AbcSize
-    oldest_meeting_date = [oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max
+    oldest_meeting_date = ([oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max - 1.month).beginning_of_month
 
     current_date = (Time.zone.now + 2.months).beginning_of_month
 
