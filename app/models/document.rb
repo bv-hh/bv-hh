@@ -5,6 +5,10 @@ require 'net/http'
 class Document < ApplicationRecord
   include Parsing
 
+  SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)']
+  LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG']
+  STATE_INQUIRY_TYPES = ['Anfrage nach § 27 BezVG', 'Anfrage gem. § 27 BezVG']
+
   NON_PUBLIC = 'Keine Information verf&uuml;gbar'
   AUTH_REDIRECT = 'noauth.asp'
 
@@ -19,11 +23,11 @@ class Document < ApplicationRecord
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, -> { where('kind ILIKE ?', '%Antrag%') }
   scope :proposals_by, ->(name) { proposals.where('title ILIKE ?', "%#{name}%") }
-  scope :small_inquiries, ->(name) { where(kind: 'Kleine Anfrage nach § 24 BezVG').where('author ILIKE ?', "%#{name}%") }
-  scope :large_inquiries, ->(name) { where(kind: 'Große Anfrage nach § 24 BezVG').where('author ILIKE ?', "%#{name}%") }
-  scope :state_inquiries, ->(name) { where(kind: 'Anfrage nach § 27 BezVG').where('title ILIKE ?', "%#{name}%") }
+  scope :small_inquiries, ->(name) { where(kind: SMALL_INQUIRY_TYPES).where('author ILIKE ?', "%#{name}%") }
+  scope :large_inquiries, ->(name) { where(kind: LARGE_INQUIRY_TYPES).where('author ILIKE ?', "%#{name}%") }
+  scope :state_inquiries, ->(name) { where(kind: STATE_INQUIRY_TYPES).where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
-  scope :include_meetings, -> { includes(:meetings).joins(:meetings).merge(Meeting.latest_first) }
+  scope :include_meetings, -> { includes(:meetings).left_joins(:meetings).merge(Meeting.latest_first) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_12_months, -> { in_date_range(13.months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
