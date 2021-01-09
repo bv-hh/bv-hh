@@ -29,9 +29,9 @@ class Document < ApplicationRecord
   scope :complete, -> { where.not(title: nil) }
   scope :include_meetings, -> { includes(:meetings).left_joins(:meetings).merge(Meeting.latest_first) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
-  scope :in_last_12_months, -> { in_date_range(13.months.ago.beginning_of_month..1.month.ago.end_of_month) }
+  scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
-  scope :since_number, ->(number) { where('number >= ?', number) }
+  scope :since_number, ->(number) { where('documents.number >= ?', number) }
 
   default_scope -> { where(non_public: false) }
 
