@@ -23,19 +23,19 @@ h3.text-muted
 .card.mt-3
   .card-header.font-weight-bold Sachverhalt
   .card-body
-    = @document.content.html_safe
+    == Rinku.auto_link(@document.content, :all, 'target="_blank"')
 
 - if @document.resolution.present?
   .card.mt-3
     .card-header.font-weight-bold Petitum/Beschluss
     .card-body
-      = @document.resolution.html_safe
+      == Rinku.auto_link(@document.resolution, :all, 'target="_blank"')
 
 - if @document.attached.present?
   .card.mt-3
     .card-header.font-weight-bold Anhänge
     .card-body
-      = @document.attached.html_safe
+      == Rinku.auto_link(@document.attached, :all, 'target="_blank"')
 
       .mt-3
         - @document.attachments.by_name.each do |attachment|

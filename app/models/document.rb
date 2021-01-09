@@ -103,7 +103,7 @@ class Document < ApplicationRecord
 
   require 'open-uri'
 
-  def retrieve_attachments(html) # rubocop:disable Metrics/AbcSize
+  def retrieve_attachments(html)
     upper_table = html.css('table.tk1').first
     upper_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
       href = attachment_link['href']
@@ -114,23 +114,21 @@ class Document < ApplicationRecord
       next if attachments.exists?(name: name)
 
       filename = File.basename(uri.path)
-      tempfile = Tempfile.new(filename.split('.'))
-      tempfile.binmode
+      io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
 
-      begin
-        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
-        IO.copy_stream(io, tempfile)
-
-        extract = SimpleTextExtract.extract(filepath: tempfile.path)
-        attachment = attachments.create! name: name, district: district, content: extract
-
-        tempfile.rewind
-        attachment.file.attach(io: tempfile, filename: filename)
-      ensure
-        tempfile.close
-        tempfile.unlink
-      end
+      attachment = attachments.create! name: name, district: district
+      attachment.file.attach(io: io, filename: filename)
+      attachment.extract_later!
     end
+  end
+
+  def retrieve_attachments!
+    source = Net::HTTP.get(URI(allris_url))
+    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = html.css('table.risdeco').first
+
+    retrieve_attachments(html)
+    save!
   end
 
   def allris_url
