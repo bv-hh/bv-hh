@@ -1,5 +1,6 @@
-module DocumentsHelper
+# frozen_string_literal: true
 
+module DocumentsHelper
   DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4})/
 
   def link_documents(content, district)
@@ -22,5 +23,4 @@ module DocumentsHelper
 
     Rinku.auto_link(content, :all, 'target="_blank"')
   end
-
 end

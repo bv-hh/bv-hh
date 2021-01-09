@@ -19,7 +19,7 @@ module Parsing
   end
 
   def clean_linebreaks(html)
-    html.gsub('<br>', "\n").gsub('<br/>', "\n").gsub("\r", '').squish
+    html.gsub('<br>', "\n").gsub('<br/>', "\n").delete("\r").squish
   end
 
   def retrieve_xpath_div(html, xpath_content)
