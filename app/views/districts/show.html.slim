@@ -8,8 +8,15 @@
     p
       | Um in einen anderen Bezirk zu wechseln, nutzen Sie
         das Menü oben rechts. Unter "Drucksachen" finden Sie alle Drucksachen aus allen Gremien chronologisch sortiert. Über "Sitzungen"
-        gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen. Über "Gremien" können Sie eine Übersicht aller Gremien
-        und der jeweils nächsten Sitzungstermine einsehen.
+        gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen. Über "Gremien" können Sie eine Übersicht der jeweils
+        nächsten Sitzungstermine einsehen.
+    p
+      strong
+        ' Wichtig!
+      ' Dies ist keine offizielle Seite der Stadt Hamburg, sondern nur eine Kopie der Informationen aus dem offiziellen
+        Ratsinformationssystem unter
+      - allris_url = "#{@district.allris_base_url}/bi/allris.net.asp"
+      = link_to allris_url, allris_url, target: '_blank'
   .row
     .meetings.col-sm
       .card

@@ -23,6 +23,8 @@ class StatisticsController < ApplicationController
       @district.documents.large_inquiries(party).count
     end
 
+    @total_documents = @district.documents.since_number(@district.first_legislation_number).count
+    @documents_timeline = @district.documents.in_last_12_months.group_by_month('meetings.date').count
     @proposals_timeline = @district.documents.proposals.in_last_12_months.group_by_month('meetings.date').count
   end
 

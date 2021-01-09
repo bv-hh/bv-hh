@@ -1,6 +1,15 @@
 h1.h2
   ' Statistiken
 
+h3.mt-5 Anzahl Drucksachen in der aktuellen Wahlperiode
+
+p.h1
+  strong= number_with_delimiter @total_documents
+
+h3.mt-5 Drucksachen im zeitlichen Verlauf
+
+= column_chart @documents_timeline
+
 h3.mt-5 Anzahl Anträge
 
 = column_chart @proposals
