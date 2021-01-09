@@ -4,7 +4,7 @@
 lock '~> 3.14.1'
 
 set :application, 'bezirkr'
-set :repo_url, 'git@github.com:tbk303/bezirkr.git'
+set :repo_url, 'git@github.com:bv-hh/bv-hh.git'
 
 current_branch = `git branch`.match(/\* (\S+)\s/m)[1]
 set :branch, ENV['branch'] || current_branch || 'master'
