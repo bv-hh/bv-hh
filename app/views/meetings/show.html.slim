@@ -23,7 +23,7 @@ h3.text-muted
       th
 
     tbody
-      - @meeting.agenda_items.by_number.each do |item|
+      - @agenda_items.each do |item|
         tr
           td
             strong= item.number
