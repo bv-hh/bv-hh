@@ -14,11 +14,13 @@ h3.text-muted
       tr
         th Beratungsreihenfolge
         th Gremium
+        th TOP
     tbody
       - agenda_items.each do |item|
         tr
           td= l item.meeting.date
           td= link_to item.meeting.committee.name, meeting_path(item.meeting)
+          td= link_to item.number, meeting_path(item.meeting)
 
 .card.mt-3
   .card-header.font-weight-bold Sachverhalt
