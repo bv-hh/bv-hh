@@ -153,4 +153,8 @@ class Document < ApplicationRecord
   def to_param
     "#{title.parameterize}-#{id}"
   end
+
+  def complete?
+    title.present?
+  end
 end
