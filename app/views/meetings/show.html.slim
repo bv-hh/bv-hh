@@ -28,12 +28,12 @@ h3.text-muted
           td
             strong= item.number
           td
-            - if item.document
+            - if item.document && item.document.complete?
               = link_to document_path(item.document) do
                 = item.title.html_safe
             - else
               = item.title.html_safe
           td
-            - if item.document
+            - if item.document && item.document.complete?
               = link_to document_path(item.document) do
                 strong= item.document.number

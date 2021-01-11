@@ -57,7 +57,9 @@ class Meeting < ApplicationRecord
 
       allris_id = document_link['href']
       allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
-      agenda_item.document = district.documents.find_by(allris_id: allris_id)
+      document = district.documents.find_or_create_by!(allris_id: allris_id)
+      document.update_later!
+      agenda_item.document = document
     end
   end
 
