@@ -15,27 +15,34 @@ class Meeting < ApplicationRecord
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
 
-  def retrieve_from_allris! # rubocop:disable Metrics/AbcSize
+  def retrieve_from_allris!
     html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
 
     self.title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
 
     html = html.css('table.risdeco').first
 
+    retrieve_committee(html)
+    retrieve_meta(html)
+    retrieve_agenda_items(html)
+
+    save!
+  end
+
+  def retrieve_committee(html)
     committee_link = html.css('td.text1 a').first
     committee_allris_id = committee_link['href']
     committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1].to_i
     committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
     committee.update!(name: clean_html(committee_link))
     self.committee = committee
+  end
+
+  def retrieve_meta(html)
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
     self.time = html.css('td.text2')[1].text
     self.room = html.css('td.text2')[2]&.text
     self.location = clean_html(html.css('td.text2')[3])
-
-    retrieve_agenda_items(html)
-
-    save!
   end
 
   def retrieve_agenda_items(html)
