@@ -30,7 +30,7 @@ class Meeting < ApplicationRecord
     self.committee = committee
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
     self.time = html.css('td.text2')[1].text
-    self.room = html.css('td.text2')[2].text
+    self.room = html.css('td.text2')[2]&.text
     self.location = clean_html(html.css('td.text2')[3])
 
     retrieve_agenda_items(html)
