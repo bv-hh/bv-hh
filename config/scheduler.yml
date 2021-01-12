@@ -2,4 +2,4 @@ CheckForUpdatesJob:
   cron: "42 * * * *"
 
 UpdateChangingContentJob:
-  cron: "42 3 * * *"
+  cron: "23 */2 * * *"
