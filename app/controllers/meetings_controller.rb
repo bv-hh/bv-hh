@@ -7,6 +7,6 @@ class MeetingsController < ApplicationController
 
   def show
     @meeting = @district.meetings.find(params[:id])
-    @agenda_items = @meeting.agenda_items.sort_by{|i| i.number.gsub(/[^0-9,^\.]/, '').split('.').map(&:to_i) }
+    @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
   end
 end
