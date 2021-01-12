@@ -27,7 +27,7 @@ class Document < ApplicationRecord
   scope :large_inquiries, ->(name) { where(kind: LARGE_INQUIRY_TYPES).where('author ILIKE ?', "%#{name}%") }
   scope :state_inquiries, ->(name) { where(kind: STATE_INQUIRY_TYPES).where('title ILIKE ?', "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
-  scope :include_meetings, -> { includes(:meetings).left_joins(:meetings).merge(Meeting.latest_first) }
+  scope :include_meetings, -> { includes(:meetings).left_joins(:meetings) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
