@@ -10,6 +10,10 @@
 
 //= require_self
 
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 /*
 $(function() {
   var suggestSource = $('input.search-input').data('suggest');
