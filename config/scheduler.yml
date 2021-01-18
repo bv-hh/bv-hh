@@ -6,3 +6,6 @@ UpdateChangingContentJob:
 
 UpdateTodaysMeetingsJob:
   cron: "7 * * * *"
+
+GenerateSitemapJob:
+  cron: "59 2 * * *"
