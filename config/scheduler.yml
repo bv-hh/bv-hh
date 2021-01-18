@@ -3,3 +3,6 @@ CheckForUpdatesJob:
 
 UpdateChangingContentJob:
   cron: "23 */2 * * *"
+
+UpdateTodaysMeetingsJob:
+  cron: "7 * * * *"

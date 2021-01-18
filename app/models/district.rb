@@ -64,11 +64,4 @@ class District < ApplicationRecord
     end
   end
 
-  def update_documents
-    documents.where('created_at > ?', 1.month.ago).find_each(&:update_later!)
-  end
-
-  def update_meetings
-    meetings.where('date > ?', Time.zone.now).find_each(&:update_later!)
-  end
 end
