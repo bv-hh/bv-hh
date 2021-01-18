@@ -1,11 +1,11 @@
 CheckForUpdatesJob:
-  cron: "42 * * * *"
+  cron: "0 42 * * * *"
 
 UpdateChangingContentJob:
-  cron: "23 */2 * * *"
+  cron: "0 23 */2 * * *"
 
 UpdateTodaysMeetingsJob:
-  cron: "7 * * * *"
+  cron: "0 7 * * * *"
 
 GenerateSitemapJob:
-  cron: "59 2 * * *"
+  cron: "0 59 2 * * *"
