@@ -18,7 +18,7 @@
       - allris_url = "#{@district.allris_base_url}/bi/allris.net.asp"
       = link_to allris_url, allris_url, target: '_blank'
   .row
-    .meetings.col-sm
+    .meetings.col-sm.mb-3
       .card
         .card-header Aktuelle Sitzungen
         .card-body
@@ -31,13 +31,13 @@
                       strong= l meeting.date
                     br
                     = meeting.time
-                  td
+                  td.text-break
                     = link_to meeting_path(meeting) do
                       = meeting.title.html_safe
 
           = link_to 'Alle Sitzungen', meetings_path
 
-    .documents.col-sm
+    .documents.col-sm.mb-3
       .card
         .card-header Aktuelle Drucksachen
         .card-body
@@ -48,7 +48,7 @@
                   td.text-nowrap
                     = link_to document_path(document) do
                       strong= document.number
-                  td
+                  td.text-break
                     = link_to document_path(document) do
                       = document.title.html_safe
 
