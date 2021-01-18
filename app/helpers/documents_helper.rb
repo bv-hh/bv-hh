@@ -10,7 +10,7 @@ module DocumentsHelper
     content.gsub DOCUMENT_NUMBER_PATTERN do |number|
       document = documents[number]
       if document
-        link_to number, document_path(document)
+        link_to number, document_path(document), title: document.title, data: { toggle: :tooltip, placement: :bottom }
       else
         number
       end

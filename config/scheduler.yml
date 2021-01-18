@@ -3,3 +3,9 @@ CheckForUpdatesJob:
 
 UpdateChangingContentJob:
   cron: "23 */2 * * *"
+
+UpdateTodaysMeetingsJob:
+  cron: "7 * * * *"
+
+GenerateSitemapJob:
+  cron: "59 2 * * *"
