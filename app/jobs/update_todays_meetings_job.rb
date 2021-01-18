@@ -12,6 +12,6 @@ class UpdateTodaysMeetingsJob < ApplicationJob
   end
 
   def perform_for(district)
-    district.meetings.where('date = ?', Date.today).find_each(&:update_later!)
+    district.meetings.where(date: Time.zone.today).find_each(&:update_later!)
   end
 end

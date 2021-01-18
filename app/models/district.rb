@@ -63,5 +63,4 @@ class District < ApplicationRecord
       current_date -= 1.month
     end
   end
-
 end
