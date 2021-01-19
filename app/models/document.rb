@@ -147,7 +147,7 @@ class Document < ApplicationRecord
   end
 
   def update_later!
-    UpdateDocumentJob.perform_later(self)
+    UpdateDocumentJob.perform_later(self) if needs_update?
   end
 
   def to_param
@@ -156,5 +156,9 @@ class Document < ApplicationRecord
 
   def complete?
     title.present?
+  end
+
+  def needs_update?
+    !complete? || (updated_at < 4.hours.ago)
   end
 end
