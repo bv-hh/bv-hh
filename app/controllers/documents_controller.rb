@@ -27,7 +27,10 @@ class DocumentsController < ApplicationController
       root = root.where(kind: @kind)
     end
 
-    @documents = Document.search(@term, root).page(params[:page])
+    @ordering = :date if params[:ordering] == 'date'
+    @ordering ||= :relevance
+
+    @documents = Document.search(@term, root, @ordering).page(params[:page])
   end
 
   def suggest
