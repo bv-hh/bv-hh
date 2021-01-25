@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bv-hh.de/sitemap.xml.gz
+Sitemap: https://bv-hh.de/system/sitemap.xml.gz
