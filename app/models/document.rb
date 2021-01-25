@@ -35,7 +35,7 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
-  def self.search(term, root = nil)
+  def self.search(term, root = nil, ordering = :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
     exact_term = terms.join(' & ')
 
@@ -49,8 +49,14 @@ class Document < ApplicationRecord
     query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
     query = query.or(query_base.where(number: term))
 
-    ordering = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?)) DESC, documents.number DESC"), exact_term]
-    query.order(ordering)
+    if ordering == :relevance
+      ordering = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?)) DESC, documents.number DESC"), exact_term]
+      query.order(ordering)
+    elsif ordering == :date
+      query.order(number: :desc)
+    else
+      raise "Unknown ordering #{ordering}"
+    end
   end
 
   def self.prefix_search(term, root = nil)
