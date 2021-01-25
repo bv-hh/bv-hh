@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
 
   mount Sidekiq::Web => '/sidekiq'
-  mount Blazer::Engine, at: "blazer"
+  mount Blazer::Engine, at: 'blazer'
 
   scope '(:district)' do
     resources :documents, only: %i[index show] do
