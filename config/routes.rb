@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   require 'sidekiq/web'
   require 'sidekiq-scheduler/web'
 
-  auth = Rails.application.credentials.dig(Rails.env.to_sym, :sidekiq_auth)
+  auth = Rails.application.credentials.dig(Rails.env.to_sym, :admin_auth)
   if auth.present?
     Sidekiq::Web.use Rack::Auth::Basic do |username, password|
       ActiveSupport::SecurityUtils.secure_compare(username, auth[:username]) &
@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   end
 
   mount Sidekiq::Web => '/sidekiq'
+  mount Blazer::Engine, at: "blazer"
 
   scope '(:district)' do
     resources :documents, only: %i[index show] do
