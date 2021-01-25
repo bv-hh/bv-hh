@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_12_210637) do
+ActiveRecord::Schema.define(version: 2021_01_20_193104) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -90,6 +90,9 @@ ActiveRecord::Schema.define(version: 2021_01_12_210637) do
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
   end
 
+  create_table "attachment_searches", force: :cascade do |t|
+  end
+
   create_table "attachments", force: :cascade do |t|
     t.bigint "district_id"
     t.bigint "document_id"
@@ -97,8 +100,13 @@ ActiveRecord::Schema.define(version: 2021_01_12_210637) do
     t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index "((setweight(to_tsvector('german'::regconfig, (name)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, content), 'B'::\"char\")))", name: "attachments_expr_idx", using: :gin
+    t.index ["content"], name: "content_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["content"], name: "content_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["district_id"], name: "index_attachments_on_district_id"
     t.index ["document_id"], name: "index_attachments_on_document_id"
+    t.index ["name"], name: "name_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["name"], name: "name_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
   create_table "committees", force: :cascade do |t|
