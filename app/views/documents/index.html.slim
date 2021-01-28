@@ -28,8 +28,7 @@ h1.h2
               br
               = l meeting.date
           td
-            = link_to document.allris_url, target: '_blank' do
-              = icon(:fas, 'external-link-alt')
+            = allris_link document.allris_url
 
 .mt-5
   = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

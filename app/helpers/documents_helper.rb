@@ -23,4 +23,13 @@ module DocumentsHelper
 
     Rinku.auto_link(content, :all, 'target="_blank"')
   end
+
+  def highlight_multi_excerpt(text, terms)
+    multiple_terms = terms.squish.split
+    multi_excerpt = multiple_terms.map do |term|
+      excerpt(text, term, radius: 100)
+    end.join(' ')
+
+    highlight(multi_excerpt, multiple_terms)
+  end
 end

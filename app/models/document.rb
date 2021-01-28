@@ -35,22 +35,36 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
-  def self.search(term, root = nil)
+  def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
     exact_term = terms.join(' & ')
 
     search = <<~SQL.squish
       (setweight(to_tsvector('german', documents.title),'A') ||
-      setweight(to_tsvector('german', documents.full_text), 'B'))
+      setweight(to_tsvector('german', documents.full_text), 'B')
     SQL
 
     query = root || Document.all
-    query_base = query
-    query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
-    query = query.or(query_base.where(number: term))
 
-    ordering = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?)) DESC, documents.number DESC"), exact_term]
-    query.order(ordering)
+    if attachments
+      query = query.left_outer_joins(:attachments)
+      search += " || setweight(to_tsvector('german', coalesce(attachments.content, '')), 'C'))"
+    else
+      search += ')'
+    end
+
+    if order == :relevance
+      order = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?))"), exact_term]
+    elsif order == :date
+      order = 'documents.number'
+    else
+      raise "Invalid order #{order}"
+    end
+
+    query = query.distinct('documents.id').select("#{order} AS ranking, documents.*")
+    query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
+
+    query.order('ranking DESC')
   end
 
   def self.prefix_search(term, root = nil)
@@ -160,5 +174,9 @@ class Document < ApplicationRecord
 
   def needs_update?
     !complete? || (updated_at < 4.hours.ago)
+  end
+
+  def attachments_content
+    ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
   end
 end

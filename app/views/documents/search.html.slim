@@ -1,51 +1,61 @@
-h1
+h1.mb-4
   ' Suchergebnisse für '#{@term}'
 
-  small.text-muted= number_with_delimiter @documents.total_count
-
-h4.my-3 Suche verfeinern
 = form_tag search_documents_path, method: :get do
   = hidden_field_tag :q, @term
   .row
-    .col
+    .col-12.col-lg
       .form-group
-        label for="kind"
-          | Drucksachenart
         = select_tag :kind, options_for_select(@kinds, @kind), include_blank: 'Alle Drucksachenarten', class: 'form-control'
-    .col
-  button.btn.btn-primary type="submit"
-    Filter Anwenden
+    .col-6.col-lg
+      .form-group.form-check.mt-1
+        => check_box_tag :attachments, 'true', @attachments
+        label for="attachments"
+          | Auch Anhänge
+    .col-6.col-lg
+      .form-group.form-check.mt-1
+        => check_box_tag :all_districts, 'true', @all_districts
+        label for="all_districts"
+          | Alle Bezirke
+    .col-6.col-lg
+      => select_tag :order, options_for_select([['Nach Relevanz', :relevance], ['Nach Datum', :date]], @order), class: 'form-control'
+    .col-12.col-lg.text-right
+      button.btn.btn-primary.text-nowrap type="submit"
+        | Suche aktualisieren
 
-table.table.mt-4
-  thead
-    th Drucksache
-    th Titel / Art / Exzerpt
-    th Befassung
-    th
+.row.mt-4.font-weight-bold
+  .col-2.col-lg-1.border-bottom.py-2 Drs.
+  .col.col-lg-7.border-bottom.py-2 Titel / Art / Exzerpt
+  .col.border-bottom.py-2 Befassung
+  .col-1.border-bottom
 
-  tbody
-    - @documents.each do |document|
-      tr
-        td.text-nowrap
-          = link_to document_path(document) do
-            strong= highlight(document.number, @term)
-        td
-          = link_to document_path(document) do
-            = highlight(document.title.html_safe, @term)
-          br
-          span.text-secondary= document.kind
-
-          p.excerpt.mt-2
-            = highlight excerpt(document.full_text, @term, radius: 100), @term
-
+- @documents.uniq.each do |document|
+  .row.pt-3.border-top
+    .col-2.col-lg-1.text-nowrap
+      = link_to document_path(document), title: document.ranking do
+        strong= highlight(document.number, @term)
+    .col.col-lg-7
+      = link_to document_path(document) do
+        = highlight(strip_tags(document.title), @term)
+      br
+      span.text-secondary= document.kind
+    .col-1.order-lg-last.text-right
+      = allris_link(document.allris_url)
+    .w-100.d-block.d-lg-none
+    .col.offset-2.offset-lg-0.pt-2.pt-lg-0
         td
           - if (meeting = document.meetings.first)
             = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
             br
             = l meeting.date
-        td
-          = link_to document.allris_url, target: '_blank' do
-            = icon(:fas, 'external-link-alt')
+
+  .row.mt-2
+    .col.offset-2.offset-lg-1
+      p
+        = highlight_multi_excerpt(document.full_text, @term)
+      - if @attachments
+        p.excerpt.mt-2
+          = highlight_multi_excerpt(document.attachments_content, @term)
 
 .mt-5
   = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

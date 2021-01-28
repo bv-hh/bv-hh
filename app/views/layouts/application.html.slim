@@ -15,7 +15,7 @@ html lang='de'
 
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
-    .navbar.navbar-dark.navbar-expand-md
+    .navbar.navbar-dark.navbar-expand-md.fixed-top
       .container
         = link_to 'BV-HH', root_with_district_path, class: 'navbar-brand'
 
@@ -23,7 +23,7 @@ html lang='de'
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNavDropdown
           = form_tag search_documents_path, method: :get, class: 'form-inline my-2 my-lg-0' do
-            = text_field_tag :q, nil, class: 'form-control mr-sm-2', type: :search, placeholder: 'Suche',
+            = text_field_tag :q, @term, class: 'form-control mr-sm-2', type: :search, placeholder: 'Suche',
                 data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
             button.btn.btn-primary.my-2.my-sm-0 type="submit"
               = icon('fas', 'search')
@@ -45,7 +45,7 @@ html lang='de'
                 - District.by_name.each do |district|
                   = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
 
-    .container.py-4
+    .container.py-4.mt-5
       = yield
 
     footer
@@ -53,3 +53,7 @@ html lang='de'
         ' Anmerkungen & Ideen? Auf
         strong>= link_to 'GitHub', 'https://github.com/bv-hh/bv-hh', class: 'text-secondary'
         ' mitarbeiten!
+
+        .float-right
+          => link_to 'Datenschutz', privacy_path, class: 'px-1 text-reset'
+          = link_to 'Impressum', imprint_path, class: 'px-1 text-reset'

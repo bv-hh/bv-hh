@@ -25,8 +25,7 @@ h1.h2
           td
             = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
           td
-            = link_to meeting.allris_url, target: '_blank' do
-              = icon(:fas, 'external-link-alt')
+            = allris_link meeting.allris_url
 
 .mt-5
   = paginate @meetings, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

@@ -1,7 +1,7 @@
 h2.h1
   strong= l @meeting.date
-  .float-right= link_to @meeting.allris_url, target: '_blank' do
-    = icon(:fas, 'external-link-alt')
+  .float-right= allris_link @meeting.allris_url
+
 h1.h2
   = @meeting.title.html_safe
 h3.text-muted
