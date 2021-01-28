@@ -23,7 +23,6 @@ h1.h2
             br
             = meeting.time
           td
-            = link_to meeting.allris_url, target: '_blank' do
-              = icon(:fas, 'external-link-alt')
+            = allris_link meeting.allris_url
 
 

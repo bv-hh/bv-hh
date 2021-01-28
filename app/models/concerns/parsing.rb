@@ -5,7 +5,7 @@ module Parsing
 
   SANITIZER = Rails::Html::SafeListSanitizer.new
   SCRUBBER = Rails::Html::TargetScrubber.new
-  SCRUBBER.tags = %w[font tabref div iframe h1 h2 a]
+  SCRUBBER.tags = %w[font tabref div iframe h1 h2]
   SCRUBBER.attributes = %w[class target cellpadding cellspacing width height start type]
 
   XPATHS_TO_REMOVE = %w[.//script .//form comment()].freeze

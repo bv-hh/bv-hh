@@ -90,6 +90,9 @@ ActiveRecord::Schema.define(version: 2021_01_25_110600) do
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
   end
 
+  create_table "attachment_searches", force: :cascade do |t|
+  end
+
   create_table "attachments", force: :cascade do |t|
     t.bigint "district_id"
     t.bigint "document_id"

@@ -15,6 +15,9 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
   mount Blazer::Engine, at: 'blazer'
 
+  get '/imprint' => 'pages#imprint', as: :imprint
+  get '/privacy' => 'pages#privacy', as: :privacy
+
   scope '(:district)' do
     resources :documents, only: %i[index show] do
       collection do

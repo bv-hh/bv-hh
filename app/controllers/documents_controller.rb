@@ -19,19 +19,16 @@ class DocumentsController < ApplicationController
       redirect_to document_path(document) and return
     end
 
+    set_search_options
+
+    root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
+
+    root = root.where(kind: @kind) if @kind
+    root = root.joins(:attachments) if @attachments
+
     @kinds = @district.documents.distinct.order(:kind).pluck(:kind)
 
-    root = @district.documents.complete.include_meetings
-
-    if params[:kind].present?
-      @kind = params[:kind]
-      root = root.where(kind: @kind)
-    end
-
-    @ordering = :date if params[:ordering] == 'date'
-    @ordering ||= :relevance
-
-    @documents = Document.search(@term, root, @ordering).page(params[:page])
+    @documents = Document.search(@term, root: root, order: @order, attachments: @attachments).page(params[:page])
   end
 
   def suggest
@@ -45,5 +42,17 @@ class DocumentsController < ApplicationController
       }
     end
     render json: documents
+  end
+
+  protected
+
+  def set_search_options
+    @order = :date if params[:order] == 'date'
+    @order ||= :relevance
+
+    @attachments = params[:attachments] == 'true'
+    @all_districts = params[:all_districts] == 'true'
+
+    @kind = params[:kind] if params[:kind].present? && @kinds.include?(params[:kind])
   end
 end
