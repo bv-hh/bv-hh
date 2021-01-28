@@ -9,6 +9,7 @@ class DocumentsController < ApplicationController
 
   def show
     @document = @district.documents.complete.find(params[:id]&.split('-')&.last)
+    redirect_to(document_path(@document), status: :moved_permanently) and return unless request.path == document_path(@document)
   end
 
   def search
