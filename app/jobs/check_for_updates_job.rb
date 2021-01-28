@@ -6,6 +6,8 @@ class CheckForUpdatesJob < ApplicationJob
       District.find_each do |d|
         CheckForUpdatesJob.perform_later(d)
       end
+
+      AgendaItem.where(meeting_id: nil).delete_all
     else
       perform_for(district)
     end

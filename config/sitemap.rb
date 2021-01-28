@@ -2,6 +2,8 @@
 
 SitemapGenerator::Sitemap.default_host = 'https://bv-hh.de'
 
+SitemapGenerator::Sitemap.sitemaps_path = 'system/'
+
 SitemapGenerator::Sitemap.create do
   add '/home', changefreq: 'daily', priority: 0.9
   add '/contact_us', changefreq: 'weekly'
