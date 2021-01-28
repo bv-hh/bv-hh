@@ -18,6 +18,8 @@ class Document < ApplicationRecord
   has_many :meetings, through: :agenda_items
   has_many :attachments, dependent: :destroy
 
+  has_many_attached :images
+
   validates :allris_id, presence: true
 
   scope :latest_first, -> { order(number: :desc) }
@@ -91,6 +93,7 @@ class Document < ApplicationRecord
     save!
 
     retrieve_attachments(html)
+    retrieve_images(html)
   end
 
   def retrieve_meta(html)
@@ -143,6 +146,26 @@ class Document < ApplicationRecord
     html = html.css('table.risdeco').first
 
     retrieve_attachments(html)
+    save!
+  end
+
+  def retrieve_images(html)
+    main_content = html.xpath('.//title[contains(., "ALLRIS® Office Integration")]/following-sibling::div')
+    main_content.css('img').each do |image_tag|
+      src = image_tag['src']&.squish
+      if src.present?
+        io = URI.parse("#{district.allris_base_url}/bi/#{src}").open
+        images.attach(io: io, filename: File.basename(src))
+      end
+    end
+  end
+
+  def retrieve_images!
+    source = Net::HTTP.get(URI(allris_url))
+    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = html.css('table.risdeco').first
+
+    retrieve_images(html)
     save!
   end
 
