@@ -32,10 +32,10 @@ h1.mb-4
 - @documents.uniq.each do |document|
   .row.pt-3.border-top
     .col-2.col-lg-1.text-nowrap
-      = link_to document_path(document), title: document.ranking do
+      = link_to document_path(document, district: document.district), title: document.ranking do
         strong= highlight(document.number, @term)
     .col.col-lg-7
-      = link_to document_path(document) do
+      = link_to document_path(document, district: document.district) do
         = highlight(strip_tags(document.title), @term)
       br
       span.text-secondary= document.kind
@@ -45,7 +45,7 @@ h1.mb-4
     .col.offset-2.offset-lg-0.pt-2.pt-lg-0
         td
           - if (meeting = document.meetings.first)
-            = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
+            = link_to meeting.committee.name, meeting_path(meeting, district: meeting.district), class: 'text-secondary'
             br
             = l meeting.date
 
