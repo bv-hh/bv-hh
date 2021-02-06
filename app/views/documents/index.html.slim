@@ -3,32 +3,30 @@ h1.h2
 
   small.text-muted= number_with_delimiter @documents.total_count
 
-.table-responsive
-  table.table.mt-4
-    thead
-      th Drucksache
-      th Titel / Art
-      th Befassung
-      th
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2 Drs.
+  .col.col-lg-7.py-2 Titel / Art
+  .col-10.col-lg.offset-2.offset-lg-0.py-2 Befassung
+  .col-1
 
-    tbody
-      - @documents.each do |document|
-        tr
-          td.text-nowrap
-            = link_to document_path(document) do
-              strong= document.number
-          td
-            = link_to document_path(document) do
-              = document.title.html_safe
-            br
-            span.text-secondary= document.kind
-          td
-            - if (meeting = document.meetings.first)
-              = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
-              br
-              = l meeting.date
-          td
-            = allris_link document.allris_url
+- @documents.each do |document|
+  .row.pt-3.border-top
+    .col-2.col-lg-1.text-nowrap
+      = link_to document_path(document) do
+        strong= document.number
+    .col.col-lg-7
+      = link_to document_path(document) do
+        = document.title.html_safe
+      br
+      span.text-secondary= document.kind
+    .col-1.order-lg-last.text-right
+      = allris_link(document.allris_url)
+    .w-100.d-block.d-lg-none
+    .col.offset-2.offset-lg-0.pt-2.pt-lg-0
+      - if (meeting = document.meetings.first)
+        = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
+        br
+        = l meeting.date
 
 .mt-5
   = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

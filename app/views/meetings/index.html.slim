@@ -3,29 +3,28 @@ h1.h2
 
   small.text-muted= number_with_delimiter @meetings.total_count
 
-.table-responsive
-  table.table.mt-4
-    thead
-      th Datum
-      th Titel
-      th Gremium
-      th
+.row.mt-4.border-bottom.font-weight-bold
+  .col-3.col-lg-2.py-2 Datum
+  .col.col-lg-6.py-2 Titel
+  .col-10.col-lg.offset-3.offset-lg-0.py-2 Gremium
+  .col-1
 
-    tbody
-      - @meetings.each do |meeting|
-        tr class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
-          td.text-nowrap
-            = link_to meeting_path(meeting) do
-              strong= l meeting.date
-            br
-            = meeting.time
-          td
-            = link_to meeting_path(meeting) do
-              = meeting.title.html_safe
-          td
-            = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
-          td
-            = allris_link meeting.allris_url
+
+- @meetings.each do |meeting|
+  .row.pt-3.border-top class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
+    .col-3.col-lg-2
+      = link_to meeting_path(meeting) do
+        strong= l meeting.date
+      br
+      = meeting.time
+    .col-7.col-lg-6
+      = link_to meeting_path(meeting) do
+        = meeting.title.html_safe
+    .col-2.col-lg-1.order-lg-last.text-right
+        = allris_link meeting.allris_url
+    .w-100.d-block.d-lg-none
+    .col-9.col-lg.offset-3.offset-lg-0.pt-2.pt-lg-0
+      = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
 
 .mt-5
   = paginate @meetings, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"

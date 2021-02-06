@@ -23,11 +23,11 @@ h1.mb-4
       button.btn.btn-primary.text-nowrap type="submit"
         | Suche aktualisieren
 
-.row.mt-4.font-weight-bold
-  .col-2.col-lg-1.border-bottom.py-2 Drs.
-  .col.col-lg-7.border-bottom.py-2 Titel / Art / Exzerpt
-  .col.border-bottom.py-2 Befassung
-  .col-1.border-bottom
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2 Drs.
+  .col.col-lg-7.py-2 Titel / Art
+  .col-10.col-lg.offset-2.offset-lg-0.py-2 Befassung
+  .col-1
 
 - @documents.uniq.each do |document|
   .row.pt-3.border-top

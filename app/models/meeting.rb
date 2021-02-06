@@ -49,8 +49,11 @@ class Meeting < ApplicationRecord
     agenda_items.delete_all
 
     html.css('tr.zl11,tr.zl12').each do |line|
+      number = line.css('td.text4').text
+      next if number.blank?
+
       agenda_item = agenda_items.build
-      agenda_item.number = line.css('td.text4').text
+      agenda_item.number = number
       agenda_item.title = line.css('td')[3].text
       document_link = line.css('td[nowrap=nowrap] a')[1]
       next unless document_link

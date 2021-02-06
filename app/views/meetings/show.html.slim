@@ -14,26 +14,24 @@ h3.text-muted
     br
     = link_to @meeting.committee.name, committee_path(@meeting.committee), class: 'text-secondary'
 
-.table-responsive
-  table.table.mt-4
-    thead
-      th TOP
-      th Titel
-      th Drucksache
-      th
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2 TOP
+  .col.col-lg-7.py-2 Titel
+  .col.py-2.text-right Drucksache
 
-    tbody
-      - @agenda_items.each do |item|
-        tr
-          td
-            strong= item.number
-          td
-            - if item.document && item.document.complete?
-              = link_to document_path(item.document) do
-                = item.title.html_safe
-            - else
-              = item.title.html_safe
-          td
-            - if item.document && item.document.complete?
-              = link_to document_path(item.document) do
-                strong= item.document.number
+- @agenda_items.each do |item|
+  .row.pt-3.border-top
+    .col-2.col-lg-1.py-1.text-nowrap
+      strong= item.number
+
+    .col.col-lg-9.py-1
+      - if item.document && item.document.complete?
+        = link_to document_path(item.document) do
+          = item.title.html_safe
+      - else
+        = item.title.html_safe
+
+    .col-10.col-sm-2.offset-2.offset-sm-0.text-right
+      - if item.document && item.document.complete?
+        = link_to document_path(item.document) do
+          strong= item.document.number
