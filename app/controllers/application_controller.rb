@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   before_action :basic_auth, if: proc { Rails.application.credentials.dig(Rails.env.to_sym, :basic_auth) }
 
   before_action :lookup_district
+  after_action :track_event
 
   protected
 
@@ -26,5 +27,9 @@ class ApplicationController < ActionController::Base
 
   def without_district
     redirect_to url_for(district: nil), status: :moved_permanently and return false if params[:district].present?
+  end
+
+  def track_event
+    ahoy.track 'Action', request.path_parameters
   end
 end
