@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
   mount Blazer::Engine, at: 'blazer'
 
+  get '/about' => 'pages#about', as: :about
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy
 

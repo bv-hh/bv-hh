@@ -17,9 +17,14 @@ class ApplicationController < ActionController::Base
 
   def lookup_district
     @district = District.lookup(params[:district]) if params[:district].present?
+    @district = District.first if @district.blank?
   end
 
   def default_url_options
     { district: @district&.name&.parameterize }
+  end
+
+  def without_district
+    redirect_to url_for(district: nil), status: :moved_permanently and return false if params[:district].present?
   end
 end

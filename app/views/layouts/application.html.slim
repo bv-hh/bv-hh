@@ -55,5 +55,6 @@ html lang='de'
         ' mitarbeiten!
 
         .float-right
-          => link_to 'Datenschutz', privacy_path, class: 'px-1 text-reset'
-          = link_to 'Impressum', imprint_path, class: 'px-1 text-reset'
+          => link_to 'Was soll das ganze?', about_path(district: nil), class: 'px-1 text-reset'
+          => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
+          = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
