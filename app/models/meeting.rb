@@ -5,6 +5,9 @@ require 'net/http'
 class Meeting < ApplicationRecord
   include Parsing
 
+  OBJECT_MOVED = 'Object moved'
+  AUTH_REDIRECT = 'noauth.asp'
+
   belongs_to :district
   belongs_to :committee, optional: true
 
@@ -15,8 +18,12 @@ class Meeting < ApplicationRecord
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
 
-  def retrieve_from_allris!
-    html = Nokogiri::HTML.parse(Net::HTTP.get(URI(allris_url)), nil, 'ISO-8859-1')
+  def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
+    if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
+      return nil
+    end
+
+    html = Nokogiri::HTML.parse(source, nil, 'ISO-8859-1')
 
     self.title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
 
@@ -32,7 +39,10 @@ class Meeting < ApplicationRecord
   def retrieve_committee(html)
     committee_link = html.css('td.text1 a').first
     committee_allris_id = committee_link['href']
-    committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1].to_i
+    committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1]
+    if committee_allris_id.nil?
+      committee_allris_id = committee_allris_id = committee_allris_id[/PALFDNR=(\d+)/, 1]
+    end
     committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
     committee.update!(name: clean_html(committee_link))
     self.committee = committee
