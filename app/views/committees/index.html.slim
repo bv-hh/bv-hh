@@ -6,6 +6,7 @@ h1.h2
     thead
       th Name
       th Nächste Sitzung
+      th Durchschnittliche Dauer
       th
 
     tbody
@@ -22,6 +23,11 @@ h1.h2
               = l meeting.date
             br
             = l meeting.start_time
+          td
+            - if committee.average_duration
+              = "#{number_with_precision(committee.average_duration.to_f / 3600, precision: 2)} h"
+            - else
+              | -
           td
             = allris_link meeting.allris_url
 

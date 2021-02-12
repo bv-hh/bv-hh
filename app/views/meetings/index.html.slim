@@ -16,7 +16,10 @@ h1.h2
       = link_to meeting_path(meeting) do
         strong= l meeting.date
       br
-      = l meeting.start_time
+      => l meeting.start_time
+      - if meeting.end_time
+        ' -
+        = l meeting.end_time
     .col-7.col-lg-6
       = link_to meeting_path(meeting) do
         = meeting.title.html_safe

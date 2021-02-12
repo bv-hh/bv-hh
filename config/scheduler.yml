@@ -12,3 +12,6 @@ UpdateTodaysMeetingsJob:
 
 GenerateSitemapJob:
   cron: "0 59 2 * * *"
+
+UpdateAverageDurationsJob:
+  cron: "0 23 1 1 * *"
