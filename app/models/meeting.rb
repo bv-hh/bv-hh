@@ -50,7 +50,9 @@ class Meeting < ApplicationRecord
 
   def retrieve_meta(html)
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
-    self.time = html.css('td.text2')[1].text
+    time = html.css('td.text2')[1].text
+    self.start_time = time&.split('-').first&.squish
+    self.end_time = time&.split('-').last&.squish
     self.room = html.css('td.text2')[2]&.text
     self.location = clean_html(html.css('td.text2')[3])
   end

@@ -23,7 +23,7 @@ h2.h1
             = link_to meeting_path(meeting) do
               strong= l meeting.date
             br
-            = meeting.time
+            = l meeting.start_time
           td
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe

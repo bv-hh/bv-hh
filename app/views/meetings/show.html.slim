@@ -6,7 +6,7 @@ h1.h2
   = @meeting.title.html_safe
 h3.text-muted
   small
-    => @meeting.time
+    => l @meeting.start_time
     ' Uhr,
     = @meeting.room
     ',

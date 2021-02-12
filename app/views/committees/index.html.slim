@@ -21,7 +21,7 @@ h1.h2
             = link_to meeting_path(meeting) do
               = l meeting.date
             br
-            = meeting.time
+            = l meeting.start_time
           td
             = allris_link meeting.allris_url
 
