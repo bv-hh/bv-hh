@@ -37,9 +37,9 @@ class Meeting < ApplicationRecord
 
   def retrieve_committee(html)
     committee_link = html.css('td.text1 a').first
-    committee_allris_id = committee_link['href']
-    committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1]
-    committee_allris_id = committee_allris_id = committee_allris_id[/PALFDNR=(\d+)/, 1] if committee_allris_id.nil?
+    committee_href = committee_link['href']
+    committee_allris_id = committee_href[/AULFDNR=(\d+)/, 1]
+    committee_allris_id = committee_href[/PALFDNR=(\d+)/, 1] if committee_allris_id.nil?
     committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
     committee.update!(name: clean_html(committee_link))
     self.committee = committee
