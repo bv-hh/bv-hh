@@ -1,5 +1,8 @@
-CheckForUpdatesJob:
+CheckForDocumentUpdatesJob:
   cron: "0 42 * * * *"
+
+CheckForMeetingUpdatesJob:
+  cron: "0 42 16 * * *"
 
 UpdateChangingContentJob:
   cron: "0 23 */4 * * *"

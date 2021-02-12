@@ -6,6 +6,9 @@ class UpdateTodaysMeetingsJob < ApplicationJob
       District.find_each do |d|
         UpdateTodaysMeetingsJob.perform_later(d)
       end
+
+      # Purge stale agenda items
+      AgendaItem.where(meeting_id: nil).delete_all
     else
       perform_for(district)
     end
