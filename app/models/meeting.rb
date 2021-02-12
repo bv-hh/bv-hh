@@ -19,9 +19,7 @@ class Meeting < ApplicationRecord
   scope :complete, -> { where.not(title: nil) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
-    if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
-      return nil
-    end
+    return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
 
     html = Nokogiri::HTML.parse(source, nil, 'ISO-8859-1')
 
@@ -40,9 +38,7 @@ class Meeting < ApplicationRecord
     committee_link = html.css('td.text1 a').first
     committee_allris_id = committee_link['href']
     committee_allris_id = committee_allris_id[/AULFDNR=(\d+)/, 1]
-    if committee_allris_id.nil?
-      committee_allris_id = committee_allris_id = committee_allris_id[/PALFDNR=(\d+)/, 1]
-    end
+    committee_allris_id = committee_allris_id = committee_allris_id[/PALFDNR=(\d+)/, 1] if committee_allris_id.nil?
     committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
     committee.update!(name: clean_html(committee_link))
     self.committee = committee
@@ -51,8 +47,8 @@ class Meeting < ApplicationRecord
   def retrieve_meta(html)
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
     time = html.css('td.text2')[1].text
-    self.start_time = time&.split('-').first&.squish
-    self.end_time = time&.split('-').last&.squish
+    self.start_time = time.split('-').first&.squish
+    self.end_time = time.split('-')&.last&.squish
     self.room = html.css('td.text2')[2]&.text
     self.location = clean_html(html.css('td.text2')[3])
   end

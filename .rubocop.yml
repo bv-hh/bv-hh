@@ -103,6 +103,9 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+Metrics/CyclomaticComplexity:
+  Max: 10
+
 Metrics/AbcSize:
   Max: 30
 
