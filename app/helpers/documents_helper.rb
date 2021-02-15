@@ -46,4 +46,27 @@ module DocumentsHelper
 
     highlight(multi_excerpt, multiple_terms)
   end
+
+  def structured_data_for_document(document)
+    {
+      "@context": 'http://schema.org',
+      "@type": 'Article',
+      mainEntityOfPage: {
+        "@type": 'WebPage',
+        "@id": document_url(document),
+      },
+      headline: document.title.squish,
+      image: [],
+      articleBody: document.full_text.squish,
+      articleSection: document.district.name,
+      datePublished: document.created_at.iso8601,
+      dateModified: document.updated_at.iso8601,
+      publisher: {
+        "@type": 'Organization',
+        name: "Bezirksversammlung #{document.district.name}",
+      },
+      isAccessibleForFree: 'True',
+      description: strip_tags(document.content).squish.truncate(200),
+    }
+  end
 end
