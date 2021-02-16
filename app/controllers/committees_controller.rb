@@ -8,5 +8,6 @@ class CommitteesController < ApplicationController
   def show
     @committee = @district.committees.find(params[:id])
     @documents_timeline = @district.documents.committee(@committee).in_last_months(12).group_by_month('meetings.date').count
+    @title = "#{@committee.name} - #{@committee.district.name}"
   end
 end
