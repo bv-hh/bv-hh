@@ -91,7 +91,7 @@ class Document < ApplicationRecord
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
-    self.number = html.css('h1').first&.text&.gsub('Drucksache -', '')&.squish
+    self.number = html.css('h1').first&.text&.gsub('Drucksache -', '')&.gsub('Vorlage -', '')&.squish
 
     html = html.css('table.risdeco').first
 
