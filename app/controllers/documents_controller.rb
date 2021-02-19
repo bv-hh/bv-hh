@@ -18,7 +18,7 @@ class DocumentsController < ApplicationController
   def search
     @term = params[:q] || ''
 
-    if (document = @district.documents.find_by(number: @term))
+    if @district.present? && (document = @district.documents.find_by(number: @term))
       redirect_to document_path(document) and return
     end
 
@@ -29,7 +29,7 @@ class DocumentsController < ApplicationController
     root = root.where(kind: @kind) if @kind
     root = root.joins(:attachments) if @attachments
 
-    @kinds = @district.documents.distinct.order(:kind).pluck(:kind)
+    @kinds = (@district.present? ? @district.documents.distinct.order(:kind).pluck(:kind) : [])
 
     @documents = Document.search(@term, root: root, order: @order, attachments: @attachments).page(params[:page])
   end
@@ -54,7 +54,7 @@ class DocumentsController < ApplicationController
     @order ||= :relevance
 
     @attachments = params[:attachments] == 'true'
-    @all_districts = params[:all_districts] == 'true'
+    @all_districts = params[:all_districts] == 'true' || @district.blank?
 
     @kind = params[:kind] if params[:kind].present? && @kinds.include?(params[:kind])
   end

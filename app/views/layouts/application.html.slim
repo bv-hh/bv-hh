@@ -23,7 +23,7 @@ html lang='de'
   body class=css_classes
     .navbar.navbar-dark.navbar-expand-md.fixed-top
       .container-lg.px-0
-        = link_to 'BV-HH', root_with_district_path, class: 'navbar-brand d-md-none d-lg-inline'
+        = link_to 'BV-HH', root_path, class: 'navbar-brand d-md-none d-lg-inline'
 
         button.navbar-toggler type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
           span.navbar-toggler-icon
@@ -46,7 +46,10 @@ html lang='de'
           ul.navbar-nav
             li.nav-item.dropdown
               a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-                = @district.name
+                - if @district.present?
+                  = @district.name
+                - else
+                  | Bezirk wählen
               .dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
                 - District.by_name.each do |district|
                   = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'

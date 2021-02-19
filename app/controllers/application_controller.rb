@@ -18,7 +18,6 @@ class ApplicationController < ActionController::Base
 
   def lookup_district
     @district = District.lookup(params[:district]) if params[:district].present?
-    @district = District.first if @district.blank?
   end
 
   def default_url_options

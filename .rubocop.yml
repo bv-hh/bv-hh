@@ -109,6 +109,9 @@ Metrics/CyclomaticComplexity:
 Metrics/AbcSize:
   Max: 30
 
+Metrics/PerceivedComplexity:
+  Max: 10
+
 Naming/VariableNumber:
   Enabled: false
 
