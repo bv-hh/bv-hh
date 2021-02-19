@@ -1,0 +1,25 @@
+.district
+  .jumbotron
+    h1.display-4 Moin!
+    p.lead
+      | BV-HH.de bietet einen übersichtlichen und schnellen Zugang zu allen öffentlichen Dokumenten der Hamburger Bezirksversammlungen.
+        Bitte wählen Sie unten einen der Hamburger Bezirke aus!
+    hr.my-4
+    p
+      strong
+        ' Wichtig!
+      ' Dies ist keine offizielle Seite der Stadt Hamburg, sondern nur eine Kopie der Informationen aus den offiziellen
+        Ratsinformationssystemen der Bezirke. Nur dort sind verbindliche Informationen und Dokumente zu finden!
+      ' Aber
+      = link_to 'wozu soll das hier gut sein?', about_path
+
+  .row
+    - District.all.each do |district|
+      .col-12.col-sm-6.col-md-4.col-lg-3.mb-4
+        .card
+          .card-body
+            = link_to root_with_district_path(district) do
+              h5.card-title= district.name
+            p.card-text
+              => number_with_delimiter district.documents.complete.count
+              | Drucksachen
