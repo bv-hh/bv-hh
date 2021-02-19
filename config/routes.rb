@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy
 
+  root to: 'pages#home'
+
   scope '(:district)' do
     resources :documents, only: %i[index show] do
       collection do
@@ -35,6 +37,4 @@ Rails.application.routes.draw do
 
     root to: 'districts#show', as: :root_with_district
   end
-
-  root to: 'districts#show'
 end

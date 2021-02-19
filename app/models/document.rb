@@ -86,6 +86,7 @@ class Document < ApplicationRecord
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
       self.non_public = true
+      save!
       return self
     end
 
