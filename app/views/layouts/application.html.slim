@@ -36,13 +36,13 @@ html lang='de'
 
           ul.navbar-nav.mr-auto
             li.nav-item
-              = link_to 'Drucksachen', documents_path, class: 'nav-link'
+              = link_to 'Drucksachen', documents_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
-              = link_to 'Sitzungen', meetings_path, class: 'nav-link'
+              = link_to 'Sitzungen', meetings_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
-              = link_to 'Gremien', committees_path, class: 'nav-link'
+              = link_to 'Gremien', committees_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
-              = link_to 'Statistik', statistics_path, class: 'nav-link'
+              = link_to 'Statistik', statistics_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
           ul.navbar-nav
             li.nav-item.dropdown
               a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
