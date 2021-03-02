@@ -3,7 +3,12 @@
 
 //= require jquery
 //= require popper
-//= require bootstrap-sprockets
+
+//= require bootstrap/util
+//= require bootstrap/dropdown
+//= require bootstrap/collapse
+//= require bootstrap/tooltip
+
 
 //= require chartkick
 //= require Chart.bundle
