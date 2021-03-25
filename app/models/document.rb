@@ -119,6 +119,8 @@ class Document < ApplicationRecord
     self.content = clean_html(html.css('td[bgcolor=white] > div')[0]) if content.nil?
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
+    self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
+    self.resolution ||= retrieve_xpath_div(html, 'Petitum/')
     self.attached = retrieve_xpath_div(html, 'Anlage/n:')
 
     self.full_text = strip_tags(content) || ''
