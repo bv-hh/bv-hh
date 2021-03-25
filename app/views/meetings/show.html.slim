@@ -3,7 +3,7 @@ h2.h1
   .float-right= allris_link @meeting.allris_url
 
 h1.h2
-  = @meeting.title.html_safe
+  = Rinku.auto_link(@meeting.title, :all, 'target="_blank"').html_safe
 h3.text-muted
   small
     => l @meeting.start_time
