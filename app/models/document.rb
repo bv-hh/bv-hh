@@ -121,6 +121,7 @@ class Document < ApplicationRecord
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/')
+    self.resolution ||= retrieve_xpath_div(html, 'Petitum')
     self.attached = retrieve_xpath_div(html, 'Anlage/n:')
 
     self.full_text = strip_tags(content) || ''
