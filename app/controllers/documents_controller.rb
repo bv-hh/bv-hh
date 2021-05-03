@@ -8,8 +8,9 @@ class DocumentsController < ApplicationController
   end
 
   def show
-    @document = @district.documents.complete.find(params[:id]&.split('-')&.last)
-    redirect_to(document_path(@document), status: :moved_permanently) and return unless request.path == document_path(@document)
+    @document = Document.complete.find(params[:id]&.split('-')&.last)
+    full_document_path = document_path(@document, district: @document.district)
+    redirect_to(full_document_path, status: :moved_permanently) and return unless request.path == full_document_path
 
     @title = "#{@document.number} - #{helpers.strip_tags(@document.title).squish.truncate(50)} - #{@district.name}"
     @meta_description = helpers.strip_tags(@document.content).squish.truncate(150)
