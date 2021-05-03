@@ -9,11 +9,11 @@ SitemapGenerator::Sitemap.create do
   add '/contact_us', changefreq: 'weekly'
 
   Document.complete.find_each do |document|
-    add document_path(document), priority: 0.9
+    add document_path(document, district: document.district.name.parameterize), priority: 0.9
   end
 
   Meeting.complete.find_each do |meeting|
-    add meeting_path(meeting), priority: 0.5
+    add meeting_path(meeting, district: meeting.district.name.parameterize), priority: 0.5
   end
 
   District.all.each do |district|
