@@ -69,7 +69,7 @@ module DocumentsHelper
         name: "Bezirksversammlung #{document.district.name}",
       },
       isAccessibleForFree: 'True',
-      description: strip_tags(document.content).squish.truncate(200),
+      description: strip_tags(document.content)&.squish&.truncate(200) || '',
     }
   end
 end
