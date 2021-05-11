@@ -12,8 +12,8 @@ class DocumentsController < ApplicationController
     full_document_path = document_path(@document, district: @document.district)
     redirect_to(full_document_path, status: :moved_permanently) and return unless request.path == full_document_path
 
-    @title = "#{@document.number} - #{helpers.strip_tags(@document.title).squish.truncate(50)} - #{@district.name}"
-    @meta_description = helpers.strip_tags(@document.content).squish.truncate(150)
+    @title = "#{@document.number} - #{helpers.strip_tags(@document.title)&.squish&.truncate(50)} - #{@district.name}"
+    @meta_description = helpers.strip_tags(@document.content)&.squish&.truncate(150)
   end
 
   def search
