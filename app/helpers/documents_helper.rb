@@ -32,6 +32,9 @@ module DocumentsHelper
 
   def document_format(document, attribute)
     content = document.send(attribute.to_sym)
+
+    return '' if content.nil?
+
     content = link_documents(content, document.district)
     content = link_images(content, document)
 
