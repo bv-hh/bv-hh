@@ -11,6 +11,8 @@ class StatisticsController < ApplicationController
   }.freeze
 
   def show
+    @title = "Statistiken zur Bezirkspolitik in #{@district.name}"
+
     set_charts
 
     @total_documents = @district.documents.since_number(@district.first_legislation_number).count

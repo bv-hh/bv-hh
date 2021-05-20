@@ -3,6 +3,7 @@
 class CommitteesController < ApplicationController
   def index
     @committees = @district.committees.open.order(:inactive, :order)
+    @title = "Gremien und Ausschüsse der Bezirksversammlung #{@district.name}"
   end
 
   def show

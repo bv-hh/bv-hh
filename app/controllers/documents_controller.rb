@@ -5,6 +5,7 @@ class DocumentsController < ApplicationController
 
   def index
     @documents = @district.documents.complete.include_meetings.latest_first.page(params[:page])
+    @title = "Drucksachen der Bezirksversammlung #{@district.name} und ihrer Gremien"
   end
 
   def show
