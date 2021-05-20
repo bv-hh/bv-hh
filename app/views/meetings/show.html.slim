@@ -6,8 +6,9 @@ h1.h2
   = Rinku.auto_link(@meeting.title, :all, 'target="_blank"').html_safe
 h3.text-muted
   small
-    => l @meeting.start_time
-    ' Uhr,
+    - if @meeting.start_time.present?
+      => l @meeting.start_time
+      ' Uhr,
     = @meeting.room
     ',
     => @meeting.location
