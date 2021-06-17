@@ -285,8 +285,9 @@ GEM
       sidekiq (>= 3)
       thwait
       tilt (>= 1.4.0)
-    simple_text_extract (1.1.0)
+    simple_text_extract (1.2.0)
       roo (~> 2.8.2)
+      rubyzip (>= 1.0.0)
       spreadsheet (~> 1.1.8)
     sitemap_generator (6.1.2)
       builder (~> 3.0)
