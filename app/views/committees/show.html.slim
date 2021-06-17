@@ -22,8 +22,9 @@ h2.h1
           td.text-nowrap
             = link_to meeting_path(meeting) do
               strong= l meeting.date
-            br
-            = l meeting.start_time
+            - if meeting.start_time.present?
+              br
+              = l meeting.start_time
           td
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
