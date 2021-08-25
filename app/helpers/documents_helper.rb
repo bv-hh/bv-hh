@@ -60,7 +60,7 @@ module DocumentsHelper
       },
       headline: document.title.squish,
       image: [],
-      articleBody: document.full_text.squish,
+      articleBody: document.full_text&.squish || '',
       articleSection: document.district.name,
       datePublished: document.created_at.iso8601,
       dateModified: document.updated_at.iso8601,
