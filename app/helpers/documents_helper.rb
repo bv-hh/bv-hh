@@ -52,11 +52,11 @@ module DocumentsHelper
 
   def structured_data_for_document(document)
     {
-      "@context": 'http://schema.org',
-      "@type": 'Article',
+      '@context': 'http://schema.org',
+      '@type': 'Article',
       mainEntityOfPage: {
-        "@type": 'WebPage',
-        "@id": document_url(document),
+        '@type': 'WebPage',
+        '@id': document_url(document),
       },
       headline: document.title.squish,
       image: [],
@@ -65,7 +65,7 @@ module DocumentsHelper
       datePublished: document.created_at.iso8601,
       dateModified: document.updated_at.iso8601,
       publisher: {
-        "@type": 'Organization',
+        '@type': 'Organization',
         name: "Bezirksversammlung #{document.district.name}",
       },
       isAccessibleForFree: 'True',
