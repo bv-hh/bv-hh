@@ -42,6 +42,9 @@ gem 'kaminari'
 
 gem 'slim-rails'
 
+gem 'caxlsx'
+gem 'caxlsx_rails'
+
 gem 'font-awesome-sass', '~> 5.15.1'
 
 gem 'sprockets', '~> 4'

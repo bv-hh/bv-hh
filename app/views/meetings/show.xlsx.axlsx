@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: I18n.l(@meeting.date)) do |sheet|
+  @agenda_items.each_with_index do |item, index|
+    row = []
+    row << item.number
+    row << item.title
+
+    if item.document.present?
+      row << item.document.number
+      row << item.document.allris_url
+      sheet.add_hyperlink(location: item.document.allris_url, ref: "D#{index + 1}")
+    end
+
+    sheet.add_row row
+  end
+end

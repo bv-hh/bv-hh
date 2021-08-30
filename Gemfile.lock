@@ -110,6 +110,14 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
+    caxlsx (3.1.0)
+      htmlentities (~> 4.3, >= 4.3.4)
+      marcel (~> 1.0)
+      nokogiri (~> 1.10, >= 1.10.4)
+      rubyzip (>= 1.3.0, < 3)
+    caxlsx_rails (0.6.2)
+      actionpack (>= 3.1)
+      caxlsx (>= 3.0)
     chartkick (4.0.5)
     childprocess (3.0.0)
     concurrent-ruby (1.1.9)
@@ -132,6 +140,7 @@ GEM
       activesupport (>= 5.0)
     groupdate (5.2.2)
       activesupport (>= 5)
+    htmlentities (4.3.4)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.1)
@@ -357,6 +366,8 @@ DEPENDENCIES
   capistrano-rails
   capistrano-rbenv
   capybara (>= 2.15)
+  caxlsx
+  caxlsx_rails
   chartkick
   font-awesome-sass (~> 5.15.1)
   groupdate

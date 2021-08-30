@@ -8,13 +8,19 @@ class MeetingsController < ApplicationController
 
   def show
     @meeting = Meeting.complete.find(params[:id])
-
-    full_meeting_path = meeting_path(@meeting, district: @meeting.district)
-    redirect_to(full_meeting_path, status: :moved_permanently) and return unless request.path == full_meeting_path
-
-    set_meta(@meeting)
-
     @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
+
+    respond_to do |format|
+      format.html do
+        full_meeting_path = meeting_path(@meeting, district: @meeting.district)
+        redirect_to(full_meeting_path, status: :moved_permanently) and return unless request.path == full_meeting_path
+
+        set_meta(@meeting)
+      end
+      format.xlsx do
+        response.headers['Content-Disposition'] = "attachment; filename=\"#{I18n.l(@meeting.date)} - #{@meeting.title}.xlsx\""
+      end
+    end
   end
 
   private

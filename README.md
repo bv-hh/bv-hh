@@ -21,8 +21,8 @@ Nach der lokalen Installation muss mindestens ein Bezirk angelegt werden. Siehe 
 und `oldest_allris_meeting_date` geben an, wie weit zurück in die Vergangenheit Daten von Allris synchronisiert werden sollen. Zum lokalen
 Entwickeln ist ein Monat zurück locker ausreichend (dauert sonst sehr lange).
 
-Sobald ein Bezirk angelegt wurde, einmal auf der Rails Console dies ausführen: `CheckForUpdatesJob.perform_now(District.first)`. Damit sollten
-ausreichend Testdaten synchronisiert werden.
+Sobald ein Bezirk angelegt wurde, einmal auf der Rails Console dies ausführen: `CheckForDocumentUpdatesJob.perform_now(District.first)` bzw.
+`CheckForMeetingUpdatesJob.perform_now(District.first)`. Damit sollten ausreichend Testdaten synchronisiert werden.
 
 Danach kann die lokale Umgebung ganz normal per `rails s` gestartet werden.
 

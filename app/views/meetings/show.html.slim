@@ -16,7 +16,9 @@ h3.text-muted
     = link_to @meeting.committee.name, committee_path(@meeting.committee), class: 'text-secondary'
 
 .row.mt-4.border-bottom.font-weight-bold
-  .col-2.col-lg-1.py-2 TOP
+  .col-2.col-lg-1.py-2
+    ' TOP
+    = link_to icon(:far, 'file-excel'), meeting_path(@meeting, format: :xlsx), title: 'Tagesordnung als Excel-Datei herunterladen'
   .col.col-lg-7.py-2 Titel
   .col.py-2.text-right Drucksache
 
@@ -36,3 +38,4 @@ h3.text-muted
       - if item.document && item.document.complete?
         = link_to document_path(item.document) do
           strong= item.document.number
+
