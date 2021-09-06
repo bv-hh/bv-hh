@@ -30,9 +30,9 @@ class Meeting < ApplicationRecord
 
     retrieve_committee(html)
     retrieve_meta(html)
-    retrieve_agenda_items(html)
-
     save!
+
+    retrieve_agenda_items(html)
   end
 
   def retrieve_committee(html)
@@ -55,23 +55,25 @@ class Meeting < ApplicationRecord
   end
 
   def retrieve_agenda_items(html)
-    agenda_items.delete_all
+    agenda_items.delete_all if self.date >= Time.zone.today
 
     html.css('tr.zl11,tr.zl12').each do |line|
       number = line.css('td.text4').text
       next if number.blank?
 
-      agenda_item = agenda_items.build
-      agenda_item.number = number
+      agenda_item = agenda_items.find_or_initialize_by(number: number)
+      agenda_item.allris_id = line.css('input[name=TOLFDNR]')&.first&.[](:value)
       agenda_item.title = line.css('td')[3].text
       document_link = line.css('td[nowrap=nowrap] a')[1]
-      next unless document_link
+      if document_link.present?
+        allris_id = document_link['href']
+        allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
+        document = district.documents.find_or_create_by!(allris_id: allris_id)
+        document.update_later! unless document.complete?
+        agenda_item.document = document
+      end
 
-      allris_id = document_link['href']
-      allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
-      document = district.documents.find_or_create_by!(allris_id: allris_id)
-      document.update_later! unless document.complete?
-      agenda_item.document = document
+      agenda_item.save
     end
   end
 

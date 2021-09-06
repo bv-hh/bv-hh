@@ -18,7 +18,7 @@ class DocumentsController < ApplicationController
   end
 
   def search
-    @term = params[:q] || ''
+    @term = (params[:q] || '').strip
 
     if @district.present? && (document = @district.documents.find_by(number: @term))
       redirect_to document_path(document) and return

@@ -23,6 +23,11 @@ class MeetingsController < ApplicationController
     end
   end
 
+  def minutes
+    @meeting = Meeting.complete.find(params[:id])
+    @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
+  end
+
   private
 
   def set_meta(meeting)

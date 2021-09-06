@@ -29,7 +29,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :meetings, only: %i[index show]
+    resources :meetings, only: %i[index show] do
+      member do
+        get :minutes
+      end
+    end
 
     resources :committees, only: %i[index show]
 

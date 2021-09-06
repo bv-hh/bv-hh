@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_12_200415) do
+ActiveRecord::Schema.define(version: 2021_09_06_210010) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -51,6 +51,10 @@ ActiveRecord::Schema.define(version: 2021_02_12_200415) do
     t.string "number"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "minutes"
+    t.integer "allris_id"
+    t.string "decision"
+    t.text "result"
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
   end

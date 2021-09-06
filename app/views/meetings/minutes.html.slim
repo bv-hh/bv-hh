@@ -1,0 +1,27 @@
+h2.h1
+  strong Protokoll
+
+h1.h2
+  => @meeting.title
+  ' vom
+  = l @meeting.date
+
+
+- @agenda_items.each do |item|
+  .row.mt-3
+    .col-10
+      a.anchor name=item.id
+      h3.h6
+        strong
+          => item.number
+          = item.title.html_safe
+    .col-2.text-right
+      - if item.document && item.document.complete?
+        = link_to document_path(item.document) do
+          strong= item.document.number
+  - if item.minutes.present? || item.result.present?
+    .row
+      .col-12
+        = meeting_format(item.minutes, @meeting)
+        = meeting_format(item.result, @meeting)
+
