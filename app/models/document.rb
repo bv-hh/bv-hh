@@ -135,11 +135,14 @@ class Document < ApplicationRecord
 
   def retrieve_attachments(html)
     upper_table = html.css('table.tk1').first
+
+    current_attachment_names = []
     upper_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
       href = attachment_link['href']
       uri = URI.parse(href)
 
       name = attachment_link.text
+      current_attachment_names << name
 
       next if attachments.exists?(name: name)
 
@@ -149,6 +152,11 @@ class Document < ApplicationRecord
       attachment = attachments.create! name: name, district: district
       attachment.file.attach(io: io, filename: filename)
       attachment.extract_later!
+    end
+
+    # Clean up and remove attachments that are not present anymore
+    attachments.each do |attachment|
+      attachment.destroy! unless current_attachment_names.include?(attachment.name)
     end
   end
 
