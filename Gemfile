@@ -35,7 +35,7 @@ gem 'sidekiq-scheduler'
 
 gem 'nokogiri'
 
-gem 'bootstrap', '~> 4.6'
+gem 'bootstrap', '~> 5.1'
 
 gem 'bootstrap4-kaminari-views'
 gem 'kaminari'
