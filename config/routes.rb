@@ -19,6 +19,10 @@ Rails.application.routes.draw do
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy
 
+  get '/not_found' => 'errors#not_found', as: :foo
+  get '/404' => 'errors#not_found', as: :not_found
+  get '/500' => 'errors#exception', as: :exception
+
   root to: 'pages#home'
 
   scope '(:district)' do
@@ -29,7 +33,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :meetings, only: %i[index show]
+    resources :meetings, only: %i[index show] do
+      member do
+        get :minutes, path: 'protokoll'
+      end
+    end
 
     resources :committees, only: %i[index show]
 

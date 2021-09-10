@@ -2,12 +2,12 @@
 
 class MeetingsController < ApplicationController
   def index
-    @meetings = @district.meetings.complete.latest_first.page(params[:page])
+    @meetings = @district.meetings.complete.latest_first.includes(:agenda_items).page(params[:page])
     @title = "Sitzungstermine/Sitzungskalender der Bezirksversammlung #{@district.name} und ihrer Gremien"
   end
 
   def show
-    @meeting = Meeting.complete.find(params[:id])
+    @meeting = Meeting.complete.find(params[:id]&.split('-')&.last)
     @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
 
     respond_to do |format|
@@ -21,6 +21,12 @@ class MeetingsController < ApplicationController
         response.headers['Content-Disposition'] = "attachment; filename=\"#{I18n.l(@meeting.date)} - #{@meeting.title}.xlsx\""
       end
     end
+  end
+
+  def minutes
+    @meeting = Meeting.complete.find(params[:id]&.split('-')&.last)
+    @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
+    @title = "Protokoll #{@meeting.title} vom #{I18n.l @meeting.date}"
   end
 
   private
