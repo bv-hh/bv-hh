@@ -154,9 +154,15 @@ class Document < ApplicationRecord
       attachment.extract_later!
     end
 
-    # Clean up and remove attachments that are not present anymore
+    clean_up_attachments(current_attachment_names)
+  end
+
+  def clean_up_attachments(current_attachment_names)
     attachments.each do |attachment|
-      attachment.destroy! unless current_attachment_names.include?(attachment.name)
+      unless current_attachment_names.include?(attachment.name)
+        attachment.file&.purge_later
+        attachment.destroy!
+      end
     end
   end
 

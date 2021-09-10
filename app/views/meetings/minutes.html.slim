@@ -1,27 +1,34 @@
-h2.h1
+h1.h1
   strong Protokoll
-
-h1.h2
-  => @meeting.title
-  ' vom
-  = l @meeting.date
+  br
+  span.h2
+    = link_to meeting_path(@meeting), class: 'text-secondary' do
+      => @meeting.title
+      ' vom
+      = l @meeting.date
 
 
 - @agenda_items.each do |item|
-  .row.mt-3
-    .col-10
+  .row.mt-4 class=(item.logged? ? nil : 'border-bottom pb-3')
+    .col-12
       a.anchor name=item.id
-      h3.h6
+      h2.h5
         strong
           => item.number
+
+        - if item.document && item.document.complete?
+          '-
+          => link_to document_path(item.document), title: item.document.title do
+            strong= item.document.number
+        = meeting_result_badge(item)
+        - if item.allris_url.present?
+          .float-right= allris_link(item.allris_url)
+      h3.h6
+        strong
           = item.title.html_safe
-    .col-2.text-right
-      - if item.document && item.document.complete?
-        = link_to document_path(item.document) do
-          strong= item.document.number
-  - if item.minutes.present? || item.result.present?
-    .row
+  - if item.logged?
+    .row.border-bottom.pb-3
       .col-12
-        = meeting_format(item.minutes, @meeting)
-        = meeting_format(item.result, @meeting)
+        == meeting_format(item.minutes, @meeting)
+        == meeting_format(item.result, @meeting)
 

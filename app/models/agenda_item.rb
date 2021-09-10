@@ -10,11 +10,12 @@ class AgendaItem < ApplicationRecord
 
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
+  scope :logged, -> { where.not(allris_id: nil) }
 
   def retrieve_from_allris!(source = nil)
     return if allris_id.blank?
 
-    source = Net::HTTP.get(URI(allris_url))
+    source ||= Net::HTTP.get(URI(allris_url))
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
     html = html.css('table.risdeco').first
@@ -29,12 +30,16 @@ class AgendaItem < ApplicationRecord
   end
 
   def allris_url
-    raise 'Allris ID missing' if allris_id.blank?
+    return nil if allris_id.blank?
 
     "#{meeting.district.allris_base_url}/bi/to020.asp?TOLFDNR=#{allris_id}"
   end
 
   def update_later!
     UpdateAgendaItemJob.perform_later(self)
+  end
+
+  def logged?
+    Nokogiri::HTML.parse(minutes).text.present? || Nokogiri::HTML.parse(result).text.present?
   end
 end

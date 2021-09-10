@@ -21,7 +21,12 @@ h3.text-muted
       .col.col-lg-8.border-bottom.py-2
         = link_to item.meeting.committee.name, meeting_path(item.meeting)
       .col-2.border-bottom.py-2
-        = link_to item.number, meeting_path(item.meeting)
+        - if item.allris_id.present?
+          => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+            strong= item.number
+          = meeting_result_badge(item)
+        - else
+          = item.number
 
 .card.mt-3
   .card-header.font-weight-bold Sachverhalt

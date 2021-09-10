@@ -24,14 +24,14 @@ h3.text-muted
 
 - @agenda_items.each do |item|
   .row.pt-3.border-top
-    .col-2.col-lg-1.py-1.text-nowrap
-      strong
-        - if item.allris_id.present?
-          = link_to item.number, minutes_meeting_path(@meeting, anchor: item.id)
-        - else
-          = item.number
+    .col-2.col-lg-1.py-1
+      - if item.allris_id.present?
+        strong.text-nowrap=> link_to item.number, minutes_meeting_path(@meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip }
+      - else
+        strong.text-nowrap= item.number
 
     .col.col-lg-9.py-1
+      => meeting_result_badge(item)
       - if item.document && item.document.complete?
         = link_to document_path(item.document) do
           = item.title.html_safe

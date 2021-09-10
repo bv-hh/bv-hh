@@ -14,5 +14,8 @@ class UpdateChangingContentJob < ApplicationJob
   def perform_for(district)
     district.documents.where('created_at > ?', 1.week.ago).find_each(&:update_later!)
     district.meetings.where('date >= ?', Time.zone.today).find_each(&:update_later!)
+
+    past_meetings = Meeting.where.not(id: Meeting.joins(:agenda_items).where.not(agenda_items: { allris_id: nil }).distinct)
+    past_meetings.where('date <= ?', 30.days.ago).find_each(&:update_later!)
   end
 end
