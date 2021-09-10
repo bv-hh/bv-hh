@@ -11,6 +11,11 @@ class AgendaItem < ApplicationRecord
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
   scope :logged, -> { where.not(allris_id: nil) }
+  scope :incomplete, lambda {
+    joins(:meeting).where.not(allris_id: nil)
+                   .where('meetings.date <= ? AND meetings.date >= ?', 30.days.ago, 270.days.ago)
+                   .where(minutes: nil, result: nil)
+  }
 
   def retrieve_from_allris!(source = nil)
     return if allris_id.blank?
