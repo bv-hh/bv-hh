@@ -19,6 +19,10 @@ document.addEventListener("turbolinks:load", function() {
   $('[data-toggle="tooltip"]').tooltip();
 });
 
+document.addEventListener("turbolinks:before-cache", function () {
+  $('[data-toggle="tooltip"]').tooltip('hide');
+});
+
 /*
 $(function() {
   var suggestSource = $('input.search-input').data('suggest');
