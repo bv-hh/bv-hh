@@ -4,6 +4,8 @@
   - default
   - documents
   - meetings
+  - agenda_items
   - attachments
   - active_storage_analysis
+  - active_storage_purge
   - ahoy
