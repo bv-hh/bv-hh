@@ -73,9 +73,9 @@ class Document < ApplicationRecord
     term = '' if term.nil?
 
     query = root || Document.all
-    query = query.where('documents.title ILIKE :term OR documents.number ILIKE :term', term: "#{term.downcase}%")
+    query = query.where('documents.title ILIKE :term OR documents.number ILIKE :term', term: "%#{term.downcase}%")
 
-    ordering = sanitize_sql_for_order [Arel.sql('(CASE WHEN documents.number ILIKE :term THEN 2 ELSE 0 END) + (CASE WHEN documents.title ILIKE ? THEN 1 ELSE 0 END) DESC, documents.title'), { term: "#{term}%" }]
+    ordering = sanitize_sql_for_order [Arel.sql('(CASE WHEN documents.number ILIKE ? THEN 2 ELSE 0 END) + (CASE WHEN documents.title ILIKE ? THEN 1 ELSE 0 END) DESC, documents.title'), "#{term}%", "#{term}%"]
     query.order(ordering)
   end
 

@@ -9,6 +9,7 @@
 //= require bootstrap/collapse
 //= require bootstrap/tooltip
 
+//= require corejs-typeahead
 
 //= require chartkick
 //= require Chart.bundle
@@ -17,14 +18,14 @@
 
 document.addEventListener("turbolinks:load", function() {
   $('[data-toggle="tooltip"]').tooltip();
+  initSearch();
 });
 
 document.addEventListener("turbolinks:before-cache", function () {
   $('[data-toggle="tooltip"]').tooltip('hide');
 });
 
-/*
-$(function() {
+function initSearch() {
   var suggestSource = $('input.search-input').data('suggest');
   var searchSource = $('input.search-input').data('search');
 
@@ -32,7 +33,7 @@ $(function() {
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('title'),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
-        url: suggestSource
+        url: suggestSource,
         wildcard: 'QUERY'
       }
   });
@@ -49,18 +50,16 @@ $(function() {
         template += '"' + query.query + '" im Volltext suchen';
         template += '</a> (Enter)</div>';
         return template;
+      },
+      suggestion: function(suggestion) {
+        var template = '<div class="suggestion"><span class="title">' + suggestion.title + '</span> <br/>';
+
+        template += '<span class="meta"><span class="district">' + suggestion.district + '</span> <span class="kind"> / ' + suggestion.kind + '</span>';
+        template += ' <span class="number">' + suggestion.number + '</span></span></div>'
+
+        return template;
       }
     },
-    suggestion: function(suggestion) {
-      var template = '<div class="suggestion"><span class="title">' + suggestion.title + '</span> <span class="icd">' + suggestion.icd + '</span><br/>';
-      if (suggestion.synonyms) {
-        template += '<span class="synonyms">' + suggestion.synonyms + '</span><br/>';
-      }
-
-      template += '<span class="meta"><span class="department">' + suggestion.department + '</span> / <span class="type">' + suggestion.type + '</span></span></div>';
-
-      return template;
-    }
   });
 
   typeahead.on('typeahead:select', function(ev, suggestion) {
@@ -68,4 +67,3 @@ $(function() {
   });
 
 };
-*/

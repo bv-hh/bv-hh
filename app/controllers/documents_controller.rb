@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DocumentsController < ApplicationController
+  skip_after_action :track_event, only: :suggest
+
   MAX_SUGGESTIONS = 10
 
   def index
@@ -37,13 +39,16 @@ class DocumentsController < ApplicationController
   end
 
   def suggest
-    documents = Document.prefix_search(params[:q], @district.documents).limit(MAX_SUGGESTIONS).load
-    documents = documents.map do |_article|
+    root = @district&.documents || Document.all
+    documents = Document.prefix_search(params[:q], root.includes(:district)).limit(MAX_SUGGESTIONS).load
+    documents = documents.map do |document|
       {
         id: document.id,
         path: document_path(document),
         title: document.title,
         number: document.number,
+        district: document.district.name,
+        kind: document.kind,
       }
     end
     render json: documents

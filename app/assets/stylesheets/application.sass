@@ -5,6 +5,8 @@ $blue: #003064
 $light-blue: #005ca9
 $gray: #f0f0f0
 
+$mark: #fcf8e3
+
 $primary: $red
 $link-color: $light-blue
 
@@ -30,3 +32,58 @@ a.anchor
   position: relative
   top: -100px
   visibility: hidden
+
+
+span.twitter-typeahead
+
+  .tt-menu
+    @extend .dropdown-menu
+
+  .tt-suggestion
+    @extend .dropdown-item
+    @extend .py-2
+    cursor: pointer
+    line-height: normal
+
+  .tt-suggestion.tt-cursor
+    @extend .dropdown-item.active
+
+  .tt-highlight
+    padding: .2em
+    background-color: $mark
+
+  .input-group &
+    display: flex !important
+    align-items: center
+    position: relative
+    flex: 1 1 auto
+    width: 1%
+
+    .tt-menu, .tt-hint, .tt-input
+      width: 100%
+
+  .title
+    max-width: 70vw
+    text-overflow: ellipsis
+    overflow: hidden
+    display: inline-block
+
+    +media-breakpoint-up(sm)
+      max-width: 80vw
+    +media-breakpoint-up(xl)
+      max-width: 900px
+
+  .number
+    font-weight: bold
+    color: $red
+
+  .meta
+    font-size: small
+    color: $secondary
+
+  .kind
+    display: none
+
+    +media-breakpoint-up(sm)
+      display: inline
+

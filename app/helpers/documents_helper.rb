@@ -23,7 +23,7 @@ module DocumentsHelper
       src = Regexp.last_match(1)&.squish
       image = document.images.attachments.find { |a| a.filename == File.basename(src) }
       if image.present?
-        "img src=\"#{rails_blob_path(image)}\""
+        "img src=\"#{rails_blob_path(image)}\" class=\"img-fluid\""
       else
         'span'
       end
