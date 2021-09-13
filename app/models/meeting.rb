@@ -37,6 +37,8 @@ class Meeting < ApplicationRecord
 
   def retrieve_committee(html)
     committee_link = html.css('td.text1 a').first
+    return if committee_link.nil?
+
     committee_href = committee_link['href']
     committee_allris_id = committee_href[/AULFDNR=(\d+)/, 1]
     committee_allris_id = committee_href[/PALFDNR=(\d+)/, 1] if committee_allris_id.nil?

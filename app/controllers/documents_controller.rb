@@ -52,8 +52,8 @@ class DocumentsController < ApplicationController
   protected
 
   def set_search_options
-    @order = :date if params[:order] == 'date'
-    @order ||= :relevance
+    @order = :relevance if params[:order] == 'relevance'
+    @order ||= :date
 
     @attachments = params[:attachments] == 'true'
     @all_districts = params[:all_districts] == 'true' || @district.blank?

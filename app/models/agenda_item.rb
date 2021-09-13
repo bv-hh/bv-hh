@@ -23,6 +23,8 @@ class AgendaItem < ApplicationRecord
     source ||= Net::HTTP.get(URI(allris_url))
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    return if html.blank?
+
     html = html.css('table.risdeco').first
 
     decision_text = html.css('td.text3')&.first&.text&.squish
