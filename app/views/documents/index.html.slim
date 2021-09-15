@@ -6,7 +6,7 @@ h1.h2
 .row.mt-4.border-bottom.font-weight-bold
   .col-2.col-lg-1.py-2 Drs.
   .col.col-lg-7.py-2 Titel / Art
-  .col-10.col-lg.offset-2.offset-lg-0.py-2 Befassung
+  .col-10.col-lg.offset-2.offset-lg-0.py-2 Letzte Befassung
   .col-1
 
 - @documents.each do |document|
@@ -23,7 +23,7 @@ h1.h2
       = allris_link(document.allris_url)
     .w-100.d-block.d-lg-none
     .col.offset-2.offset-lg-0.pt-2.pt-lg-0
-      - if (meeting = document.meetings.first)
+      - if (meeting = document.meetings.latest_first.first)
         = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
         br
         = l meeting.date

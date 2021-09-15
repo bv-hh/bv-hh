@@ -22,13 +22,12 @@ h1.h2
           ' -
           = l meeting.end_time
     .col-7.col-lg-6
-      - if meeting.logged?
-        => link_to minutes_meeting_path(meeting), title: "Protokoll vom #{l meeting.date}", data: { toggle: :tooltip } do
-          = icon(:far, 'file-powerpoint')
       = link_to meeting_path(meeting) do
         = meeting.title.html_safe
     .col-2.col-lg-1.order-lg-last.text-right
-        = allris_link meeting.allris_url
+      - if meeting.logged?
+        => meeting_minutes_link(meeting)
+      = allris_link meeting.allris_url
     .w-100.d-block.d-lg-none
     .col-9.col-lg.offset-3.offset-lg-0.pt-2.pt-lg-0
       = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
