@@ -13,17 +13,17 @@ module MeetingHelper
     icon, color = case agenda_item.decision
     when 'zur Kenntnis genommen'
       %w[dot-circle secondary]
-    when 'ungeändert beschlossen', 'beschlossen'
+    when 'ungeändert beschlossen', 'beschlossen', 'ungeändert beschlossen / überwiesen'
       %w[check-circle success]
-    when 'geändert beschlossen'
+    when 'geändert beschlossen', 'geändert beschlossen / überwiesen'
       %w[check-circle info]
-    when 'vertagt', 'an Ausschuss überwiesen'
+    when 'vertagt', 'an Ausschuss überwiesen', 'an Fachausschuss verwiesen', 'vertagt / verbleibt'
       %w[arrow-alt-circle-right warning]
     when 'zurückgestellt'
       %w[arrow-alt-circle-left warning]
     when 'abgelehnt'
       %w[times-circle danger]
-    when 'zurückgezogen'
+    when 'zurückgezogen', 'zurückgezogen / erledigt'
       %w[arrow-alt-circle-down secondary]
     else
       return nil
