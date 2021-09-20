@@ -73,7 +73,7 @@ GEM
       execjs
     bcrypt (3.1.16)
     bindex (0.8.1)
-    blazer (2.4.3)
+    blazer (2.4.5)
       activerecord (>= 5)
       chartkick (>= 3.2)
       railties (>= 5)
@@ -217,7 +217,7 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.4.1)
+    rails-html-sanitizer (1.4.2)
       loofah (~> 2.3)
     rails-i18n (6.0.0)
       i18n (>= 0.7, < 2)
