@@ -9,7 +9,7 @@ ruby '2.7.1'
 gem 'pg'
 gem 'rails', '~> 6.1.4'
 # Use Puma as the app server
-gem 'puma', '~> 5.4'
+gem 'puma', '~> 5.5'
 gem 'sd_notify' # Required by puma for systemd integration
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
