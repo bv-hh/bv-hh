@@ -14,6 +14,7 @@ SitemapGenerator::Sitemap.create do
 
   Meeting.complete.find_each do |meeting|
     add meeting_path(meeting, district: meeting.district.name.parameterize), priority: 0.5
+    add minutes_meeting_path(meeting, district: meeting.district.name.parameterize)
   end
 
   District.all.each do |district|

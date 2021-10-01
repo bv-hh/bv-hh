@@ -25,6 +25,10 @@ class MeetingsController < ApplicationController
 
   def minutes
     @meeting = Meeting.complete.find(params[:id]&.split('-')&.last)
+
+    full_meeting_minutes_path = minutes_meeting_path(@meeting, district: @meeting.district)
+    redirect_to(full_meeting_minutes_path, status: :moved_permanently) and return unless request.path == full_meeting_minutes_path
+
     @agenda_items = @meeting.agenda_items.sort_by { |i| i.number.gsub(/[^0-9,^.]/, '').split('.').map(&:to_i) }
     @title = "Protokoll #{@meeting.title} vom #{I18n.l @meeting.date}"
   end
