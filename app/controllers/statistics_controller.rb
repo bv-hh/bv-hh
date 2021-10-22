@@ -7,7 +7,7 @@ class StatisticsController < ApplicationController
     'Grüne' => '#28a745',
     'FDP' => '#ffc107',
     'Linke' => '#c535dc',
-    'AfD' => '#17a2b8',
+    'AfD' => '#7d5100',
   }.freeze
 
   def show
