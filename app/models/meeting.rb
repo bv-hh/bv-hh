@@ -13,8 +13,6 @@ class Meeting < ApplicationRecord
 
   has_many :agenda_items, dependent: :destroy
 
-  validates :district, presence: true
-
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
   scope :with_duration, -> { where.not(start_time: nil, end_time: nil) }
