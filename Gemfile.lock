@@ -300,7 +300,7 @@ GEM
       roo (~> 2.8.2)
       rubyzip (>= 1.0.0)
       spreadsheet (~> 1.1.8)
-    sitemap_generator (6.1.2)
+    sitemap_generator (6.2.1)
       builder (~> 3.0)
     slim (4.1.0)
       temple (>= 0.7.6, < 0.9)
