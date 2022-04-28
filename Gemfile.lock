@@ -62,7 +62,7 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
-    ahoy_matey (4.0.2)
+    ahoy_matey (4.0.3)
       activesupport (>= 5.2)
       device_detector
       safely_block (>= 0.2.1)
@@ -124,7 +124,7 @@ GEM
     concurrent-ruby (1.1.10)
     connection_pool (2.2.5)
     crass (1.0.6)
-    device_detector (1.0.6)
+    device_detector (1.0.7)
     e2mmap (0.1.0)
     errbase (0.2.2)
     erubi (1.10.0)
