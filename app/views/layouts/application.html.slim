@@ -59,11 +59,18 @@ html lang='de'
 
     footer
       .container.py-5.border-top.text-secondary
-        ' Anmerkungen & Ideen? Auf
-        strong>= link_to 'GitHub', 'https://github.com/bv-hh/bv-hh', class: 'text-secondary'
-        ' mitarbeiten!
-
         .float-right
-          => link_to 'Was soll das ganze?', about_path(district: nil), class: 'px-1 text-reset'
-          => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
-          = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
+          p
+            = link_to 'Was soll das ganze?', about_path(district: nil), class: 'px-1 text-reset'
+            => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
+            = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
+
+        p
+          ' Anmerkungen & Ideen? Auf
+          strong>= link_to 'GitHub', 'https://github.com/bv-hh/bv-hh', class: 'text-secondary'
+          ' mitarbeiten!
+        p
+          small
+            ' Hosting gesponsert von:
+            = link_to 'Fortytools - Software für Gebäudereiniger', 'https://www.fortytools.com/software-fuer-gebaeudereinigung'
+

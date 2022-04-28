@@ -7,7 +7,7 @@ set :application, 'bezirkr'
 set :repo_url, 'git@github.com:bv-hh/bv-hh.git'
 
 current_branch = `git branch`.match(/\* (\S+)\s/m)[1]
-set :branch, ENV['branch'] || current_branch || 'master'
+set :branch, ENV.fetch('branch', nil) || current_branch || 'master'
 
 set :deploy_to, '/home/deploy/app'
 
