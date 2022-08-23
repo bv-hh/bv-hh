@@ -72,6 +72,7 @@ GEM
     autoprefixer-rails (10.2.0.0)
       execjs
     bcrypt (3.1.18)
+    bcrypt_pbkdf (1.1.0)
     bindex (0.8.1)
     blazer (2.6.4)
       activerecord (>= 5)
@@ -125,6 +126,7 @@ GEM
     connection_pool (2.2.5)
     crass (1.0.6)
     device_detector (1.0.7)
+    ed25519 (1.3.0)
     errbase (0.2.2)
     erubi (1.10.0)
     et-orbi (1.2.7)
@@ -359,6 +361,7 @@ PLATFORMS
 DEPENDENCIES
   ahoy_matey
   bcrypt (~> 3.1.18)
+  bcrypt_pbkdf
   blazer
   bootsnap (>= 1.4.2)
   bootstrap (~> 4.6)
@@ -372,6 +375,7 @@ DEPENDENCIES
   caxlsx
   caxlsx_rails
   chartkick
+  ed25519
   font-awesome-sass (~> 5.15.1)
   groupdate
   image_processing (~> 1.12)
