@@ -33,14 +33,14 @@ class DocumentsController < ApplicationController
       redirect_to document_path(document) and return
     end
 
+    @kinds = (@district.present? ? @district.documents.distinct.order(:kind).pluck(:kind) : [])
+
     set_search_options
 
     root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
 
     root = root.where(kind: @kind) if @kind
     root = root.joins(:attachments) if @attachments
-
-    @kinds = (@district.present? ? @district.documents.distinct.order(:kind).pluck(:kind) : [])
 
     @documents = Document.search(@term, root: root, order: @order, attachments: @attachments).page(params[:page])
   end
