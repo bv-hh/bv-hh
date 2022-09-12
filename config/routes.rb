@@ -30,10 +30,16 @@ Rails.application.routes.draw do
       collection do
         get :search
         get :suggest
+
+        get :allris
       end
     end
 
     resources :meetings, only: %i[index show] do
+      collection do
+        get :allris
+      end
+
       member do
         get :minutes, path: 'protokoll'
       end

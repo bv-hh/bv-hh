@@ -23,6 +23,13 @@ class MeetingsController < ApplicationController
     end
   end
 
+  def allris
+    redirect_to root_path and return if @district.blank?
+
+    @meeting = @district.meetings.find_by!(allris_id: params[:allris_id])
+    redirect_to(meeting_path(@meeting, district: @meeting.district))
+  end
+
   def minutes
     @meeting = Meeting.complete.find(params[:id]&.split('-')&.last)
 

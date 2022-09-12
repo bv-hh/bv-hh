@@ -19,6 +19,13 @@ class DocumentsController < ApplicationController
     @meta_description = helpers.strip_tags(@document.content)&.squish&.truncate(150)
   end
 
+  def allris
+    redirect_to root_path and return if @district.blank?
+
+    @document = @district.documents.find_by!(allris_id: params[:allris_id])
+    redirect_to(document_path(@document, district: @document.district))
+  end
+
   def search
     @term = (params[:q] || '').strip
 
