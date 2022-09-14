@@ -5,6 +5,7 @@ class AgendaItem < ApplicationRecord
 
   belongs_to :meeting
   belongs_to :document, optional: true
+  has_one :district, through: :meeting
 
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }

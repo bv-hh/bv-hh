@@ -45,6 +45,12 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :agenda_items, only: [] do
+      collection do
+        get :allris
+      end
+    end
+
     resources :committees, only: %i[index show]
 
     resource :statistics, only: :show
