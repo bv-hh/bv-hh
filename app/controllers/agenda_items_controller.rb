@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class AgendaItemsController < ApplicationController
-
   def allris
     redirect_to root_path and return if @district.blank?
 
