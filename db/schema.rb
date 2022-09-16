@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_06_210010) do
+ActiveRecord::Schema.define(version: 2022_09_16_155749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(version: 2021_09_06_210010) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
+    t.string "checksum"
     t.datetime "created_at", null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
@@ -106,16 +106,17 @@ ActiveRecord::Schema.define(version: 2021_09_06_210010) do
 
   create_table "attachments", force: :cascade do |t|
     t.bigint "district_id"
-    t.bigint "document_id"
+    t.bigint "attachable_id"
     t.string "name"
     t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "attachable_type"
     t.index "((setweight(to_tsvector('german'::regconfig, (name)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, content), 'B'::\"char\")))", name: "attachments_expr_idx", using: :gin
+    t.index ["attachable_id"], name: "index_attachments_on_attachable_id"
     t.index ["content"], name: "content_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["content"], name: "content_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["district_id"], name: "index_attachments_on_district_id"
-    t.index ["document_id"], name: "index_attachments_on_document_id"
     t.index ["name"], name: "name_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["name"], name: "name_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end

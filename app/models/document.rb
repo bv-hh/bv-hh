@@ -16,7 +16,7 @@ class Document < ApplicationRecord
 
   has_many :agenda_items, dependent: :nullify
   has_many :meetings, through: :agenda_items
-  has_many :attachments, dependent: :destroy
+  has_many :attachments, as: :attachable, dependent: :destroy
 
   has_many_attached :images
 

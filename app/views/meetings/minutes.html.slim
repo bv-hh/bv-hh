@@ -26,9 +26,19 @@ h1.h1
       h3.h6
         strong
           = item.title.html_safe
-  - if item.logged?
+  - if item.logged? || item.attachments.present?
     .row.border-bottom.pb-3
       .col-12
-        == meeting_format(item.minutes, @meeting)
-        == meeting_format(item.result, @meeting)
+        - if item.logged?
+          == meeting_format(item.minutes, @meeting)
+          == meeting_format(item.result, @meeting)
 
+        - if item.attachments.present?
+          - if item.logged?
+            br
+          p
+            strong Anlagen
+            br
+            - item.attachments.by_name.each do |attachment|
+              = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
+              br

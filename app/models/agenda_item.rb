@@ -6,6 +6,7 @@ class AgendaItem < ApplicationRecord
   belongs_to :meeting
   belongs_to :document, optional: true
   has_one :district, through: :meeting
+  has_many :attachments, as: :attachable, dependent: :destroy
 
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
@@ -15,6 +16,8 @@ class AgendaItem < ApplicationRecord
                    .where('meetings.date <= ? AND meetings.date >= ?', 30.days.ago, 270.days.ago)
                    .where(minutes: nil, result: nil)
   }
+
+  require 'open-uri'
 
   def retrieve_from_allris!(source = nil)
     return if allris_id.blank?
@@ -32,7 +35,31 @@ class AgendaItem < ApplicationRecord
     self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]"))
     self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]"))
 
+    retrieve_attachments(html)
     save!
+  end
+
+  def retrieve_attachments(html)
+    attachment_table = html.xpath("//table[preceding-sibling::a[@name='allrisBS'] and following-sibling::a[@name='allrisAE']]")
+    if attachment_table
+      current_attachment_names = []
+      attachment_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
+        href = attachment_link['href']
+        uri = URI.parse(href)
+
+        name = attachment_link.text
+        current_attachment_names << name
+
+        next if attachments.exists?(name: name)
+
+        filename = File.basename(uri.path)
+        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
+
+        attachment = attachments.create! name: name, district: district
+        attachment.file.attach(io: io, filename: filename)
+        attachment.extract_later!
+      end
+    end
   end
 
   def allris_url
