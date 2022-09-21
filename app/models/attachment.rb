@@ -2,7 +2,7 @@
 
 class Attachment < ApplicationRecord
   belongs_to :district
-  belongs_to :document
+  belongs_to :attachable, polymorphic: true
 
   has_one_attached :file
 
