@@ -5,6 +5,7 @@ require 'net/http'
 class District < ApplicationRecord
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
   ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
+  ALLRIS_GROUPS_URL = '/bi/fr010.asp'
 
   # OLDEST_ALLRIS_ID = 1007791 # 1.1.2019 HH-Nord
 
@@ -12,6 +13,7 @@ class District < ApplicationRecord
   has_many :meetings, dependent: :destroy
   has_many :agenda_items, through: :meetings
   has_many :committees, dependent: :destroy
+  has_many :groups, dependent: :destroy
 
   validates :name, presence: true
   validates :allris_base_url, presence: true
@@ -62,6 +64,18 @@ class District < ApplicationRecord
       end
 
       current_date -= 1.month
+    end
+  end
+
+  def check_for_group_updates
+    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_GROUPS_URL))
+    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+
+    html.css('tr.zl12 input[name=FRLFDNR],tr.zl11 input[name=FRLFDN]').each do |input|
+      group_allris_id = input['value']
+      group = groups.find_or_create_by(allris_id: group_allris_id)
+
+      UpdateGroupJob.perform_later(group)
     end
   end
 end
