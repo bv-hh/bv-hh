@@ -121,7 +121,6 @@ GEM
       actionpack (>= 3.1)
       caxlsx (>= 3.0)
     chartkick (4.2.1)
-    childprocess (4.1.0)
     concurrent-ruby (1.1.10)
     connection_pool (2.3.0)
     crass (1.0.6)
@@ -284,8 +283,7 @@ GEM
       sprockets-rails
       tilt
     sd_notify (0.1.1)
-    selenium-webdriver (4.6.1)
-      childprocess (>= 0.5, < 5.0)
+    selenium-webdriver (4.7.1)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
