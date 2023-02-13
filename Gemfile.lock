@@ -196,7 +196,7 @@ GEM
     pg (1.4.5)
     popper_js (1.16.1)
     public_suffix (5.0.0)
-    puma (6.0.0)
+    puma (6.1.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.6.2)
@@ -383,7 +383,7 @@ DEPENDENCIES
   listen (~> 3.7)
   nokogiri
   pg
-  puma (~> 6.0)
+  puma (~> 6.1)
   rails (~> 6.1.5)
   rails-i18n
   rinku
