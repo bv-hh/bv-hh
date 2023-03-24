@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_16_155749) do
+ActiveRecord::Schema.define(version: 2022_09_28_202123) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -177,6 +177,16 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
+  create_table "committee_members", force: :cascade do |t|
+    t.string "kind"
+    t.bigint "members_id"
+    t.bigint "committees_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["committees_id"], name: "index_committee_members_on_committees_id"
+    t.index ["members_id"], name: "index_committee_members_on_members_id"
+  end
+
   create_table "committees", force: :cascade do |t|
     t.bigint "district_id"
     t.integer "allris_id"
@@ -225,6 +235,16 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
+  create_table "groups", force: :cascade do |t|
+    t.string "name"
+    t.integer "allris_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.date "expired_at"
+    t.bigint "district_id"
+    t.index ["district_id"], name: "index_groups_on_district_id"
+  end
+
   create_table "meetings", force: :cascade do |t|
     t.bigint "district_id"
     t.string "title"
@@ -242,6 +262,18 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.index ["allris_id"], name: "index_meetings_on_allris_id"
     t.index ["committee_id"], name: "index_meetings_on_committee_id"
     t.index ["district_id"], name: "index_meetings_on_district_id"
+  end
+
+  create_table "members", force: :cascade do |t|
+    t.string "name"
+    t.string "short_name"
+    t.string "kind"
+    t.integer "allris_id"
+    t.bigint "groups_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["groups_id"], name: "index_members_on_groups_id"
+    t.index ["short_name"], name: "index_members_on_short_name"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

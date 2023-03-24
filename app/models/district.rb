@@ -71,9 +71,9 @@ class District < ApplicationRecord
     source = Net::HTTP.get(URI(allris_base_url + ALLRIS_GROUPS_URL))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
-    html.css('tr.zl12 input[name=FRLFDNR],tr.zl11 input[name=FRLFDN]').each do |input|
+    html.css('tr.zl12 input[name=FRLFDNR],tr.zl11 input[name=FRLFDNR]').each do |input|
       group_allris_id = input['value']
-      group = groups.find_or_create_by(allris_id: group_allris_id)
+      group = groups.find_or_create_by!(allris_id: group_allris_id)
 
       UpdateGroupJob.perform_later(group)
     end
