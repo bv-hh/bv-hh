@@ -15,6 +15,8 @@ class District < ApplicationRecord
   has_many :committees, dependent: :destroy
   has_many :groups, dependent: :destroy
 
+  has_many :members, through: :groups
+
   validates :name, presence: true
   validates :allris_base_url, presence: true
 

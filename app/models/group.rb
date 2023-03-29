@@ -12,14 +12,30 @@ class Group < ApplicationRecord
     html = Nokogiri::HTML.parse(source, nil, 'ISO-8859-1')
 
     expired = html.css('h3.mark3').first&.text
-    if expired.present? && expired.include?('Enddatum')
-      self.expired_at = expired.gsub('Enddatum:', '').strip
+    if expired.present? && expired.include?('Endedatum')
+      self.expired_at = expired.gsub('Endedatum:', '').squish
       save! and return
     end
 
-    self.name = html.css('h1').first&.text&.strip
+    self.name = html.css('h1').first&.text&.squish
 
     save!
+
+    retrieve_members(html)
+  end
+
+  def retrieve_members(html)
+    html.css('tr.zl11,tr.zl12').each do |line|
+      link = line.css('a').first
+      next if link.blank?
+      member_allris_id = link['href'][/KPLFDNR=(\d+)/, 1].to_i
+      member = members.find_or_initialize_by(allris_id: member_allris_id)
+      member.name = link.text.squish
+      member.kind = line.css('td.text1').text
+      member.save!
+    end
+
+    nil
   end
 
   def allris_url

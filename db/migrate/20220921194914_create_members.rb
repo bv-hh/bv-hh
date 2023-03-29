@@ -12,7 +12,7 @@ class CreateMembers < ActiveRecord::Migration[6.1]
       t.string :short_name, index: true
       t.string :kind
       t.integer :allris_id
-      t.references :groups
+      t.references :group
 
       t.timestamps
     end
@@ -20,8 +20,8 @@ class CreateMembers < ActiveRecord::Migration[6.1]
     create_table :committee_members do |t|
       t.string :kind
 
-      t.references :members
-      t.references :committees
+      t.references :member
+      t.references :committee
 
       t.timestamps
     end

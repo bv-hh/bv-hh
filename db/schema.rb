@@ -179,12 +179,12 @@ ActiveRecord::Schema.define(version: 2022_09_28_202123) do
 
   create_table "committee_members", force: :cascade do |t|
     t.string "kind"
-    t.bigint "members_id"
-    t.bigint "committees_id"
+    t.bigint "member_id"
+    t.bigint "committee_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["committees_id"], name: "index_committee_members_on_committees_id"
-    t.index ["members_id"], name: "index_committee_members_on_members_id"
+    t.index ["committee_id"], name: "index_committee_members_on_committee_id"
+    t.index ["member_id"], name: "index_committee_members_on_member_id"
   end
 
   create_table "committees", force: :cascade do |t|
@@ -269,10 +269,10 @@ ActiveRecord::Schema.define(version: 2022_09_28_202123) do
     t.string "short_name"
     t.string "kind"
     t.integer "allris_id"
-    t.bigint "groups_id"
+    t.bigint "group_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["groups_id"], name: "index_members_on_groups_id"
+    t.index ["group_id"], name: "index_members_on_group_id"
     t.index ["short_name"], name: "index_members_on_short_name"
   end
 
