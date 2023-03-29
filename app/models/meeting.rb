@@ -15,7 +15,7 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
-  scope :with_duration, -> { where.not(start_time: nil, end_time: nil) }
+  scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)

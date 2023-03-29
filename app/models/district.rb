@@ -23,7 +23,7 @@ class District < ApplicationRecord
   end
 
   def self.lookup(path)
-    @districts ||= District.all.index_by { |d| d.name.parameterize; }
+    @districts ||= District.all.index_by { |d| d.name.parameterize }
 
     @districts[path.parameterize]
   end
