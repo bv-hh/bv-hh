@@ -9,7 +9,7 @@ ruby '2.7.1'
 gem 'pg'
 gem 'rails', '~> 6.1.5'
 # Use Puma as the app server
-gem 'puma', '~> 5.6'
+gem 'puma', '~> 6.1'
 gem 'sd_notify' # Required by puma for systemd integration
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
@@ -75,14 +75,14 @@ end
 
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'listen', '~> 3.7'
+  gem 'listen', '~> 3.8'
   gem 'rubocop'
   gem 'rubocop-rails'
   gem 'rubocop-performance'
   gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'spring-watcher-listen', '~> 2.1.0'
 
   gem 'capistrano'
   gem 'capistrano-bundler'
