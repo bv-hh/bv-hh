@@ -23,7 +23,7 @@ jobs:
         bundler-cache: true
 
     - name: Run rubocop
-      run: bundle exec rubocop -p
+      run: bundle exec rubocop
 
   assets:
     runs-on: ubuntu-latest
