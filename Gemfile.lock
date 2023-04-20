@@ -139,7 +139,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    groupdate (6.1.0)
+    groupdate (6.2.0)
       activesupport (>= 5.2)
     htmlentities (4.3.4)
     i18n (1.12.0)
