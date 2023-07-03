@@ -71,7 +71,7 @@ GEM
     ast (2.4.2)
     autoprefixer-rails (10.4.7.0)
       execjs (~> 2)
-    bcrypt (3.1.18)
+    bcrypt (3.1.19)
     bcrypt_pbkdf (1.1.0)
     bindex (0.8.1)
     blazer (2.6.5)
@@ -362,7 +362,7 @@ PLATFORMS
 
 DEPENDENCIES
   ahoy_matey
-  bcrypt (~> 3.1.18)
+  bcrypt (~> 3.1.19)
   bcrypt_pbkdf
   blazer
   bootsnap (>= 1.4.2)
