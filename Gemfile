@@ -7,7 +7,7 @@ ruby '2.7.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'pg'
-gem 'rails', '~> 6.1.5'
+gem 'rails', '~> 7.0.6'
 # Use Puma as the app server
 gem 'puma', '~> 6.3'
 gem 'sd_notify' # Required by puma for systemd integration
