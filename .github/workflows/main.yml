@@ -165,11 +165,6 @@ jobs:
       env:
         RAILS_ENV: test
 
-    - name: Update Chromedriver
-      run: bundle exec rails webdrivers:chromedriver:update
-      env:
-        RAILS_ENV: test
-
     - name: Run system tests
       run: bundle exec rails test:system
       env:
