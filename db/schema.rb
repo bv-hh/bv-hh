@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_16_155749) do
-
+ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -21,7 +20,7 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -33,7 +32,7 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.text "metadata"
     t.bigint "byte_size", null: false
     t.string "checksum"
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
@@ -49,8 +48,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.bigint "document_id"
     t.string "title"
     t.string "number"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "minutes"
     t.integer "allris_id"
     t.string "decision"
@@ -64,7 +63,7 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.bigint "user_id"
     t.string "name"
     t.jsonb "properties"
-    t.datetime "time"
+    t.datetime "time", precision: nil
     t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
     t.index ["properties"], name: "index_ahoy_events_on_properties", opclass: :jsonb_path_ops, using: :gin
     t.index ["user_id"], name: "index_ahoy_events_on_user_id"
@@ -96,7 +95,7 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "app_version"
     t.string "os_version"
     t.string "platform"
-    t.datetime "started_at"
+    t.datetime "started_at", precision: nil
     t.index ["user_id"], name: "index_ahoy_visits_on_user_id"
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
   end
@@ -109,8 +108,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.bigint "attachable_id"
     t.string "name"
     t.text "content"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "attachable_type"
     t.index "((setweight(to_tsvector('german'::regconfig, (name)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, content), 'B'::\"char\")))", name: "attachments_expr_idx", using: :gin
     t.index ["attachable_id"], name: "index_attachments_on_attachable_id"
@@ -126,7 +125,7 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.bigint "query_id"
     t.text "statement"
     t.string "data_source"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["query_id"], name: "index_blazer_audits_on_query_id"
     t.index ["user_id"], name: "index_blazer_audits_on_user_id"
   end
@@ -140,9 +139,9 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.text "slack_channels"
     t.string "check_type"
     t.text "message"
-    t.datetime "last_run_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "last_run_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_checks_on_creator_id"
     t.index ["query_id"], name: "index_blazer_checks_on_query_id"
   end
@@ -151,8 +150,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.bigint "dashboard_id"
     t.bigint "query_id"
     t.integer "position"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["dashboard_id"], name: "index_blazer_dashboard_queries_on_dashboard_id"
     t.index ["query_id"], name: "index_blazer_dashboard_queries_on_query_id"
   end
@@ -160,8 +159,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
   create_table "blazer_dashboards", force: :cascade do |t|
     t.bigint "creator_id"
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_dashboards_on_creator_id"
   end
 
@@ -172,9 +171,19 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.text "statement"
     t.string "data_source"
     t.string "status"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
+  end
+
+  create_table "committee_members", force: :cascade do |t|
+    t.string "kind"
+    t.bigint "member_id"
+    t.bigint "committee_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["committee_id"], name: "index_committee_members_on_committee_id"
+    t.index ["member_id"], name: "index_committee_members_on_member_id"
   end
 
   create_table "committees", force: :cascade do |t|
@@ -183,8 +192,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "name"
     t.integer "order", default: 0
     t.boolean "public", default: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "inactive", default: false
     t.integer "average_duration"
     t.index ["allris_id"], name: "index_committees_on_allris_id"
@@ -195,8 +204,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "name"
     t.string "allris_base_url"
     t.integer "oldest_allris_document_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.date "oldest_allris_meeting_date"
     t.string "first_legislation_number"
   end
@@ -208,8 +217,8 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "title"
     t.text "content"
     t.text "resolution"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "kind"
     t.boolean "non_public", default: false
     t.text "full_text"
@@ -225,6 +234,16 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
+  create_table "groups", force: :cascade do |t|
+    t.string "name"
+    t.integer "allris_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.date "expired_at"
+    t.bigint "district_id"
+    t.index ["district_id"], name: "index_groups_on_district_id"
+  end
+
   create_table "meetings", force: :cascade do |t|
     t.bigint "district_id"
     t.string "title"
@@ -234,14 +253,26 @@ ActiveRecord::Schema.define(version: 2022_09_16_155749) do
     t.string "room"
     t.string "location"
     t.integer "allris_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "committee_id"
     t.time "start_time"
     t.time "end_time"
     t.index ["allris_id"], name: "index_meetings_on_allris_id"
     t.index ["committee_id"], name: "index_meetings_on_committee_id"
     t.index ["district_id"], name: "index_meetings_on_district_id"
+  end
+
+  create_table "members", force: :cascade do |t|
+    t.string "name"
+    t.string "short_name"
+    t.string "kind"
+    t.integer "allris_id"
+    t.bigint "group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_members_on_group_id"
+    t.index ["short_name"], name: "index_members_on_short_name"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
