@@ -50,13 +50,13 @@ class AgendaItem < ApplicationRecord
         name = attachment_link.text
         current_attachment_names << name
 
-        next if attachments.exists?(name: name)
+        next if attachments.exists?(name:)
 
         filename = File.basename(uri.path)
         io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
 
-        attachment = attachments.create! name: name, district: district
-        attachment.file.attach(io: io, filename: filename)
+        attachment = attachments.create!(name:, district:)
+        attachment.file.attach(io:, filename:)
         attachment.extract_later!
       end
     end
