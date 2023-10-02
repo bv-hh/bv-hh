@@ -3,6 +3,8 @@
 class Committee < ApplicationRecord
   belongs_to :district
   has_many :meetings, dependent: :nullify
+  has_many :committee_members, dependent: :destroy
+  has_many :members, through: :committee_members
 
   scope :open, -> { where(public: true) }
   scope :active, -> { where(inactive: false) }
@@ -17,4 +19,5 @@ class Committee < ApplicationRecord
 
     save!
   end
+
 end
