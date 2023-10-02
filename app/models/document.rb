@@ -23,8 +23,8 @@ class Document < ApplicationRecord
   validates :allris_id, presence: true
 
   scope :latest_first, -> { order(number: :desc) }
-  scope :proposals, -> { where('kind ILIKE ?', '%Antrag%') }
-  scope :proposals_by, ->(name) { proposals.where('title ILIKE ?', "%#{name}%") }
+  scope :proposals, -> { where('documents.kind ILIKE ?', '%Antrag%') }
+  scope :proposals_by, ->(name) { proposals.where('documents.title ILIKE ?', "%#{name}%") }
   scope :small_inquiries, ->(name) { where(kind: SMALL_INQUIRY_TYPES).where('author ILIKE ?', "%#{name}%") }
   scope :large_inquiries, ->(name) { where(kind: LARGE_INQUIRY_TYPES).where('author ILIKE ?', "%#{name}%") }
   scope :state_inquiries, ->(name) { where(kind: STATE_INQUIRY_TYPES).where('title ILIKE ?', "%#{name}%") }
