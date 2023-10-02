@@ -110,6 +110,8 @@ GEM
     capistrano-rbenv (2.2.0)
       capistrano (~> 3.1)
       sshkit (~> 1.3)
+    capistrano-yarn (2.0.2)
+      capistrano (~> 3.0)
     capybara (3.39.2)
       addressable
       matrix
@@ -391,6 +393,7 @@ DEPENDENCIES
   capistrano-bundler
   capistrano-rails
   capistrano-rbenv
+  capistrano-yarn
   capybara (>= 2.15)
   caxlsx
   caxlsx_rails
