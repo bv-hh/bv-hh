@@ -56,7 +56,7 @@ class District < ApplicationRecord
 
       html.css('tr.zl12 a,tr.zl11 a,tr.zl16 a,tr.zl17 a').each do |link|
         allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
-        meeting = meetings.find_or_create_by!(allris_id: allris_id)
+        meeting = meetings.find_or_create_by!(allris_id:)
 
         UpdateMeetingJob.perform_later(meeting)
       end
