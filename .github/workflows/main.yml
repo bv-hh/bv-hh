@@ -35,6 +35,19 @@ jobs:
       with:
         bundler-cache: true
 
+    - name: Cache npm
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-npm
+      with:
+        path: ./node_modules
+        key: ${{ env.cache-name }}-v1-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ env.cache-name }}-
+
+    - name: Install js dependencies
+      run: yarn
+
     - name: Precompile assets
       run: bundle exec rails assets:precompile
 
