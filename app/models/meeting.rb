@@ -70,14 +70,14 @@ class Meeting < ApplicationRecord
     number = line.css('td.text4').text
     return nil if number.blank?
 
-    agenda_item = agenda_items.find_or_initialize_by(number: number)
+    agenda_item = agenda_items.find_or_initialize_by(number:)
     agenda_item.allris_id = line.css('input[name=TOLFDNR]')&.first&.[](:value)
     agenda_item.title = line.css('td')[3].text
     document_link = line.css('td[nowrap=nowrap] a')[1]
     if document_link.present?
       allris_id = document_link['href']
       allris_id = allris_id[/VOLFDNR=(\d+)/, 1].to_i
-      document = district.documents.find_or_create_by!(allris_id: allris_id)
+      document = district.documents.find_or_create_by!(allris_id:)
       document.update_later! unless document.complete?
       agenda_item.document = document
     end

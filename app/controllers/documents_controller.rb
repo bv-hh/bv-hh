@@ -42,7 +42,7 @@ class DocumentsController < ApplicationController
     root = root.where(kind: @kind) if @kind
     root = root.joins(:attachments) if @attachments
 
-    @documents = Document.search(@term, root: root, order: @order, attachments: @attachments).page(params[:page])
+    @documents = Document.search(@term, root:, order: @order, attachments: @attachments).page(params[:page])
   end
 
   def suggest
