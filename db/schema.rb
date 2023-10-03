@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -224,6 +224,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
     t.text "full_text"
     t.string "author"
     t.text "attached"
+    t.string "extracted_locations", default: [], array: true
+    t.datetime "locations_extracted_at", precision: nil
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["district_id"], name: "index_documents_on_district_id"

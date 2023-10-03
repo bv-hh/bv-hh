@@ -34,6 +34,7 @@ class Document < ApplicationRecord
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
 
   default_scope -> { where(non_public: false) }
 
