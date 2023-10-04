@@ -17,8 +17,8 @@ Um BV-HH lokal zu installieren und daran zu entwickeln, sind diese Dinge nötig:
 
 ## NER Modell herunterladen
 
-Für die Analyze der Texte wird ein neuronales Netz verwendet. Das nötige Modell muss hier
-heruntergeladen werden:
+Für die Analyze der Texte mittels NLP wird ein neuronales Netz verwendet.
+Das nötige Modell muss hier heruntergeladen werden:
 
 https://github.com/mit-nlp/MITIE/releases/download/v0.4/MITIE-models-v0.2-German.tar.bz2
 
