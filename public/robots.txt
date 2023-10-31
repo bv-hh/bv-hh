@@ -1,6 +1,3 @@
-User-agent: Googlebot
-Disallow: /rails/active_storage/
-
 User-agent: *
 Allow: /
 
