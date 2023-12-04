@@ -141,9 +141,9 @@ GEM
     et-orbi (1.2.7)
       tzinfo
     execjs (2.8.1)
-    ffi (1.15.5)
-    font-awesome-sass (5.15.1)
-      sassc (>= 1.11)
+    ffi (1.16.3)
+    font-awesome-sass (6.5.1)
+      sassc (~> 2.0)
     fugit (1.8.1)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
@@ -399,7 +399,7 @@ DEPENDENCIES
   caxlsx_rails
   chartkick
   ed25519
-  font-awesome-sass (~> 5.15.1)
+  font-awesome-sass (~> 6.5.1)
   groupdate
   image_processing (~> 1.12)
   jbuilder (~> 2.11)
