@@ -43,7 +43,8 @@ class MeetingsController < ApplicationController
   private
 
   def set_meta(meeting)
-    @title = "#{I18n.l(meeting.date)} - Sitzung #{meeting.committee.name} - #{meeting.district.name}"
+    committee_title = meeting.committee&.name || meeting.title
+    @title = "#{I18n.l(meeting.date)} - #{committee_title} - #{meeting.district.name}"
     @meta_description = "#{I18n.l(meeting.start_time, default: '--:--')} Uhr, #{meeting.room}, #{meeting.location} #{helpers.strip_tags(meeting.title).squish.truncate(120)}"
   end
 end

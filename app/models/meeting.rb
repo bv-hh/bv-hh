@@ -14,7 +14,7 @@ class Meeting < ApplicationRecord
   has_many :agenda_items, dependent: :destroy
 
   scope :latest_first, -> { order(date: :desc) }
-  scope :complete, -> { where.not(title: nil) }
+  scope :complete, -> { where.not(title: nil).joins(:committee) }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
@@ -62,7 +62,7 @@ class Meeting < ApplicationRecord
       next if agenda_item.nil?
 
       agenda_item.save
-      agenda_item.update_later! if agenda_item.allris_id.present?
+      #agenda_item.update_later! if agenda_item.allris_id.present?
     end
   end
 

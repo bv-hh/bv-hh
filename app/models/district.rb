@@ -48,20 +48,50 @@ class District < ApplicationRecord
   def check_for_meeting_updates # rubocop:disable Metrics/AbcSize
     oldest_meeting_date = ([oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max - 1.month).beginning_of_month
 
-    current_date = 2.months.from_now.beginning_of_month
+    current_date = 6.months.from_now.beginning_of_month
+    day = nil
 
     while current_date >= oldest_meeting_date
       source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}"))
       html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
-      html.css('tr.zl12 a,tr.zl11 a,tr.zl16 a,tr.zl17 a').each do |link|
-        allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
-        meeting = meetings.find_or_create_by!(allris_id:)
+      html.css('table.tl1 tr').each do |row|
+        next_day = row.css('td').try(:[], 1)
+        next if next_day.nil?
 
-        UpdateMeetingJob.perform_later(meeting)
+        next_day = next_day.text&.squish.presence
+        day = next_day.to_i if next_day.present?
+
+        puts current_date
+        puts next_day
+        puts day
+
+        link = row.css('a').first
+        if link.present?
+          allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
+          meeting = meetings.find_or_create_by!(allris_id:)
+
+          UpdateMeetingJob.perform_later(meeting)
+        else
+          input = row.css('input[name=SILFDNR]').first
+          if input.present?
+            allris_id = input&.[](:value)
+            meeting = meetings.find_or_create_by!(allris_id:)
+            next if meeting.date.present?
+
+            meeting.date = Date.new(current_date.year, current_date.month, day)
+            time = row.css('td')[2].text
+            meeting.start_time = time.split('-').first&.squish
+            meeting.title = row.css('td')[5].text&.squish
+            meeting.room = row.css('td.text4').first&.text
+            meeting.save!
+          end
+        end
       end
 
       current_date -= 1.month
     end
   end
+
+
 end
