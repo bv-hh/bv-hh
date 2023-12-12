@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
+ActiveRecord::Schema[7.0].define(version: 2023_12_12_203118) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -98,6 +98,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
     t.datetime "started_at", precision: nil
     t.index ["user_id"], name: "index_ahoy_visits_on_user_id"
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
+    t.index ["visitor_token", "started_at"], name: "index_ahoy_visits_on_visitor_token_and_started_at"
   end
 
   create_table "attachment_searches", force: :cascade do |t|
@@ -224,6 +225,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_145837) do
     t.text "full_text"
     t.string "author"
     t.text "attached"
+    t.string "extracted_locations", default: [], array: true
+    t.datetime "locations_extracted_at", precision: nil
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["district_id"], name: "index_documents_on_district_id"
