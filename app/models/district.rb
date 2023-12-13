@@ -45,53 +45,66 @@ class District < ApplicationRecord
     end
   end
 
-  def check_for_meeting_updates # rubocop:disable Metrics/AbcSize
-    oldest_meeting_date = ([oldest_allris_meeting_date, meetings.maximum(:date) || 10.years.ago].max - 1.month).beginning_of_month
+  def check_for_meeting_updates
+    oldest_meeting_date = ([oldest_allris_meeting_date, meetings.complete.maximum(:date) || 10.years.ago].max - 1.month).beginning_of_month
 
     current_date = 6.months.from_now.beginning_of_month
-    day = nil
 
     while current_date >= oldest_meeting_date
-      source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{current_date.month}&YY=#{current_date.year}"))
-      html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
-
-      html.css('table.tl1 tr').each do |row|
-        next_day = row.css('td').try(:[], 1)
-        next if next_day.nil?
-
-        next_day = next_day.text&.squish.presence
-        day = next_day.to_i if next_day.present?
-
-        puts current_date
-        puts next_day
-        puts day
-
-        link = row.css('a').first
-        if link.present?
-          allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
-          meeting = meetings.find_or_create_by!(allris_id:)
-
-          UpdateMeetingJob.perform_later(meeting)
-        else
-          input = row.css('input[name=SILFDNR]').first
-          if input.present?
-            allris_id = input&.[](:value)
-            meeting = meetings.find_or_create_by!(allris_id:)
-            next if meeting.date.present?
-
-            meeting.date = Date.new(current_date.year, current_date.month, day)
-            time = row.css('td')[2].text
-            meeting.start_time = time.split('-').first&.squish
-            meeting.title = row.css('td')[5].text&.squish
-            meeting.room = row.css('td.text4').first&.text
-            meeting.save!
-          end
-        end
-      end
+      check_for_meetings_in_month(current_date)
 
       current_date -= 1.month
     end
   end
 
+  def check_for_meetings_in_month(month)
+    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}"))
+    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
+    day = nil
+
+    html.css('table.tl1 tr').each do |row|
+      next_day = row.css('td').try(:[], 1)
+      next if next_day.nil?
+
+      next_day = next_day.text&.squish.presence
+      day = next_day.to_i if next_day.present?
+      date = Date.new(month.year, month.month, day)
+
+      extract_meeting_from_row(date, row)
+    end
+  end
+
+  def extract_meeting_from_row(date, row)
+    link = row.css('a').first
+    if link.present?
+      update_meeting_with_agenda(link)
+    else
+      update_meeting_without_agenda(date, row)
+    end
+  end
+
+  def update_meeting_with_agenda(link)
+    allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
+    meeting = meetings.find_or_create_by!(allris_id:)
+
+    UpdateMeetingJob.perform_later(meeting)
+  end
+
+  def update_meeting_without_agenda(date, row)
+    input = row.css('input[name=SILFDNR]').first
+
+    if input.present?
+      allris_id = input&.[](:value)
+      meeting = meetings.find_or_create_by!(allris_id:)
+      return if meeting.date.present?
+
+      meeting.date = date
+      time = row.css('td')[2].text
+      meeting.start_time = time.split('-').first&.squish
+      meeting.title = row.css('td')[5].text&.squish
+      meeting.room = row.css('td.text4').first&.text
+      meeting.save!
+    end
+  end
 end
