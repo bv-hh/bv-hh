@@ -1,5 +1,26 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: agenda_items
+#
+#  id          :bigint           not null, primary key
+#  decision    :string
+#  minutes     :text
+#  number      :string
+#  result      :text
+#  title       :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  allris_id   :integer
+#  document_id :bigint
+#  meeting_id  :bigint
+#
+# Indexes
+#
+#  index_agenda_items_on_document_id  (document_id)
+#  index_agenda_items_on_meeting_id   (meeting_id)
+#
 class AgendaItem < ApplicationRecord
   include Parsing
 

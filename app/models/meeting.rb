@@ -1,5 +1,30 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: meetings
+#
+#  id           :bigint           not null, primary key
+#  committee    :string
+#  date         :date
+#  end_time     :time
+#  location     :string
+#  room         :string
+#  start_time   :time
+#  time         :string
+#  title        :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  allris_id    :integer
+#  committee_id :bigint
+#  district_id  :bigint
+#
+# Indexes
+#
+#  index_meetings_on_allris_id     (allris_id)
+#  index_meetings_on_committee_id  (committee_id)
+#  index_meetings_on_district_id   (district_id)
+#
 require 'net/http'
 
 class Meeting < ApplicationRecord

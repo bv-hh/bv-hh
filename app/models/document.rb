@@ -1,5 +1,37 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: documents
+#
+#  id                     :bigint           not null, primary key
+#  attached               :text
+#  author                 :string
+#  content                :text
+#  extracted_locations    :string           default([]), is an Array
+#  full_text              :text
+#  kind                   :string
+#  locations_extracted_at :datetime
+#  non_public             :boolean          default(FALSE)
+#  number                 :string
+#  resolution             :text
+#  title                  :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  allris_id              :integer
+#  district_id            :bigint
+#
+# Indexes
+#
+#  documents_expr_idx              (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::"char")))) USING gin
+#  full_text_gin_trgm_idx          (full_text) USING gin
+#  full_text_gist_trgm_idx         (full_text) USING gist
+#  index_documents_on_allris_id    (allris_id)
+#  index_documents_on_district_id  (district_id)
+#  index_documents_on_number       (number)
+#  title_gin_trgm_idx              (title) USING gin
+#  title_gist_trgm_idx             (title) USING gist
+#
 require 'net/http'
 
 class Document < ApplicationRecord

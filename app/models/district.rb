@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: districts
+#
+#  id                         :bigint           not null, primary key
+#  allris_base_url            :string
+#  first_legislation_number   :string
+#  name                       :string
+#  oldest_allris_meeting_date :date
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  oldest_allris_document_id  :integer
+#
 require 'net/http'
 
 class District < ApplicationRecord
