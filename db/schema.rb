@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_12_203118) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_17_102905) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -54,8 +54,13 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_12_203118) do
     t.integer "allris_id"
     t.string "decision"
     t.text "result"
+    t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::\"char\")))", name: "agenda_items_expr_idx", using: :gin
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
+    t.index ["minutes"], name: "agenda_items_minutes_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["minutes"], name: "agenda_items_minutes_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+    t.index ["title"], name: "agenda_items_title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["title"], name: "agenda_items_title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
   create_table "ahoy_events", force: :cascade do |t|
