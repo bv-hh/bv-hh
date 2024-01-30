@@ -28,10 +28,10 @@ html lang='de'
         button.navbar-toggler type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNavDropdown
-          = form_tag search_documents_path, method: :get, class: 'form-inline my-2 my-md-0' do
-            = text_field_tag :q, @term, class: 'form-control mr-2 search-input', type: :search, placeholder: 'Suche',
+          = form_tag search_documents_path, method: :get, class: 'd-flex' do
+            = text_field_tag :q, @term, class: 'form-control me-2 search-input', type: :search, placeholder: 'Suche',
                 data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
-            button.btn.btn-primary.my-2.my-sm-0 type="submit"
+            button.btn.btn-primary type="submit"
               = icon('fas', 'search')
 
           ul.navbar-nav.mr-auto
@@ -43,6 +43,9 @@ html lang='de'
               = link_to 'Gremien', committees_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
               = link_to 'Statistik', statistics_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
+            li.nav-item
+              = link_to 'Kalender', calendar_path, class: "nav-link"
+
           ul.navbar-nav
             li.nav-item.dropdown
               a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
@@ -50,9 +53,10 @@ html lang='de'
                   = @district.name
                 - else
                   | Bezirk wählen
-              .dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
-                - District.by_name.each do |district|
-                  = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
+              ul.dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
+                - District.by_order.each do |district|
+                  li
+                    = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
 
     .container.py-4.mt-5
       = yield

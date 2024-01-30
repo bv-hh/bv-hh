@@ -5,7 +5,6 @@
 # Table name: meetings
 #
 #  id           :bigint           not null, primary key
-#  committee    :string
 #  date         :date
 #  end_time     :time
 #  location     :string
@@ -34,13 +33,14 @@ class Meeting < ApplicationRecord
   AUTH_REDIRECT = 'noauth.asp'
 
   belongs_to :district
-  belongs_to :committee, optional: true
+  belongs_to :committee
 
   has_many :agenda_items, dependent: :destroy
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil).joins(:committee) }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
+  scope :in_month, -> (date) { where(date: (date.beginning_of_month..date.end_of_month)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)

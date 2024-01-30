@@ -1,0 +1,11 @@
+.years
+  - @years.each do |year|
+    - btn_type = @date.year == year ? 'secondary' : 'default'
+    = link_to year, calendar_path(year: year, month: @date.month), class: "btn btn-#{btn_type}"
+
+.months
+  - (1..12).each do |month|
+    - btn_type = @date.month == month ? 'secondary' : 'default'
+    = link_to month, calendar_path(month: month, year: @date.year), class: "btn btn-#{btn_type}"
+
+

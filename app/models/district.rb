@@ -9,6 +9,7 @@
 #  first_legislation_number   :string
 #  name                       :string
 #  oldest_allris_meeting_date :date
+#  order                      :integer          default(0)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #  oldest_allris_document_id  :integer
@@ -16,6 +17,9 @@
 require 'net/http'
 
 class District < ApplicationRecord
+
+  ORDER = ['Hamburg-Mitte', 'Altona', 'Eimsbüttel', 'Hamburg-Nord', 'Wandsbek', 'Bergedorf', 'Harburg']
+
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
   ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
 
@@ -30,6 +34,7 @@ class District < ApplicationRecord
   validates :allris_base_url, presence: true
 
   scope :by_name, -> { order(:name) }
+  scope :by_order, -> { order(:order) }
 
   def to_param
     name.parameterize
@@ -109,15 +114,20 @@ class District < ApplicationRecord
 
     if input.present?
       allris_id = input&.[](:value)
-      meeting = meetings.find_or_create_by!(allris_id:)
-      return if meeting.date.present?
+      return if allris_id.blank?
+
+      meeting = meetings.find_or_initialize_by(allris_id:)
+      return unless meeting.new_record?
 
       meeting.date = date
       time = row.css('td')[2].text
       meeting.start_time = time.split('-').first&.squish
       meeting.title = row.css('td')[5].text&.squish
       meeting.room = row.css('td.text4').first&.text
-      meeting.save!
+      if committee = meetings.find_by(title: meeting.title)&.committee
+        meeting.committee = committee
+        meeting.save!
+      end
     end
   end
 end
