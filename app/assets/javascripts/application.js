@@ -4,10 +4,7 @@
 //= require jquery
 //= require popper
 
-//= require bootstrap/util
-//= require bootstrap/dropdown
-//= require bootstrap/collapse
-//= require bootstrap/tooltip
+//= require bootstrap
 
 //= require corejs-typeahead
 
@@ -17,12 +14,15 @@
 //= require_self
 
 document.addEventListener("turbolinks:load", function() {
-  $('[data-toggle="tooltip"]').tooltip();
+  let tooltipelements = document.querySelectorAll("[data-bs-toggle='tooltip']");
+  tooltipelements.forEach((el) => {
+    new bootstrap.Tooltip(el);
+  });
   initSearch();
 });
 
 document.addEventListener("turbolinks:before-cache", function () {
-  $('[data-toggle="tooltip"]').tooltip('hide');
+  $('[data-bs-toggle="tooltip"]').tooltip('hide');
 });
 
 function initSearch() {

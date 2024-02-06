@@ -1,6 +1,6 @@
 h2.h1
   strong= l @meeting.date
-  .float-right
+  .float-end
     - if @meeting.logged?
       => meeting_minutes_link(@meeting)
     = allris_link @meeting.allris_url

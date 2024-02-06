@@ -2,20 +2,20 @@ h1.h2
   ' Kalender
 
   small.text-muted
-    = "Bezirk #{@district.name}"
+    => "Bezirk #{@district.name}"
 
-= render partial: :date_selector
+= render partial: 'date_selector'
 
 .row.mt-4.border-bottom.font-weight-bold
-  .col-2.col-lg-1.py-2 Datum
-  .col.col-lg-6.py-2 Titel
-  .col-10.col-lg.offset-3.offset-lg-0.py-2 Gremium
-  .col-1
+  .col-2.col-lg-1.py-2
+    strong Datum
+  .col.col-lg-6.py-2
+    strong Titel/Ort
 
 - (@date.beginning_of_month..@date.end_of_month).each do |day|
-  - day_type = day.wday.in?([6, 0]) ? 'bg-info text-light' : nil
+  - day_type = day.wday.in?([6, 0]) ? 'bg-info' : nil
   - day_type = 'bg-warning' if day == Time.zone.now.to_date
-  .row.pt-3.border-top class=day_type
+  .row.pt-3.border-top.bg-opacity-25 class=day_type
     .col-2.col-lg-1
       => "#{day.day}."
       = l(day, format: '%a')
@@ -24,6 +24,9 @@ h1.h2
     .col
       - if meetings.present?
         - meetings.sort_by{|meeting| meeting.committee.order}.each do |meeting|
-          = link_to meeting.title, meeting_path(meeting)
-          span.text-muted= meeting.location
-          br
+          p
+            => link_to meeting.title, meeting_path(meeting)
+            span.text-muted
+            = meeting.room
+            br
+            = meeting.location

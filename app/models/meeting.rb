@@ -33,7 +33,7 @@ class Meeting < ApplicationRecord
   AUTH_REDIRECT = 'noauth.asp'
 
   belongs_to :district
-  belongs_to :committee
+  belongs_to :committee, optional: true
 
   has_many :agenda_items, dependent: :destroy
 
