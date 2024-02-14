@@ -30,7 +30,7 @@ h1
         .col.text-truncate
           - district_meetings = meetings.select{|meeting| meeting.district == district}
           - if district_meetings.present?
-            - district_meetings.sort_by{|meeting| meeting.committee.order}.each do |meeting|
+            - district_meetings.sort_by{|meeting| meeting.committee&.order || 100}.each do |meeting|
               div.text-truncate data-bs-toggle='tooltip' title=meeting.committee.name
                 = link_to meeting.committee.name, meeting_path(meeting, district: district)
     - else

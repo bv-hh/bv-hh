@@ -23,7 +23,7 @@ h1
 
     .col
       - if meetings.present?
-        - meetings.sort_by{|meeting| meeting.committee.order}.each do |meeting|
+        - meetings.sort_by{|meeting| meeting.committee&.order || 100}.each do |meeting|
           p
             => link_to meeting.title, meeting_path(meeting)
             span.text-muted
