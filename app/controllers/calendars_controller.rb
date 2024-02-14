@@ -1,7 +1,12 @@
-class CalendarsController < ApplicationController
+# frozen_string_literal: true
 
+class CalendarsController < ApplicationController
   def show
-    @date = (Date.new(params[:year].to_i, params[:month].to_i, 1) rescue nil) || Date.today.beginning_of_month
+    @date = begin
+      Date.new(params[:year].to_i, params[:month].to_i, 1)
+    rescue
+      nil
+    end || Time.zone.today.beginning_of_month
     @meetings = (@district&.meetings || Meeting.all).includes(:district, :committee)
 
     @years = (@meetings.minimum(:date).year..@meetings.maximum(:date).year)
