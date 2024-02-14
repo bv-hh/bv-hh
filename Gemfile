@@ -30,7 +30,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'ahoy_matey'
 
-gem 'sidekiq', '~> 6.5'
+gem 'sidekiq', '~> 7.2'
 gem 'sidekiq-scheduler'
 
 gem 'nokogiri'
