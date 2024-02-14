@@ -4,7 +4,7 @@ class AddOrderToDistricts < ActiveRecord::Migration[7.1]
 
     reversible do |dir|
       dir.up do
-        District::ORDER.each_with_index do |index, district|
+        District::ORDER.each_with_index do |district, index|
           District.find_by(name: district)&.update!(order: index)
         end
       end

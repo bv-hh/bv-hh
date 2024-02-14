@@ -38,7 +38,7 @@ class Meeting < ApplicationRecord
   has_many :agenda_items, dependent: :destroy
 
   scope :latest_first, -> { order(date: :desc) }
-  scope :complete, -> { where.not(title: nil).joins(:committee) }
+  scope :complete, -> { where.not(title: nil) }
   scope :with_agenda, -> { complete.joins(:agenda_items).distinct }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
   scope :in_month, ->(date) { where(date: date.all_month) }
