@@ -26,6 +26,7 @@ class Committee < ApplicationRecord
 
   scope :open, -> { where(public: true) }
   scope :active, -> { where(inactive: false) }
+  scope :by_order, -> { order(:order) }
 
   def update_average_duration!
     total_duration = 0
