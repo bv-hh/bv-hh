@@ -41,6 +41,7 @@ class Meeting < ApplicationRecord
   scope :complete, -> { where.not(title: nil).joins(:committee) }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
   scope :in_month, ->(date) { where(date: date.all_month) }
+  scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)

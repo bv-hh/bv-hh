@@ -1,6 +1,6 @@
 .district
   .p-5.mb-4.bg-light.rounded-3
-    h1.display-4 Moin!
+    h1 Moin!
     p.lead
       | BV-HH.de bietet einen übersichtlichen und schnellen Zugang zu allen öffentlichen Dokumenten der Hamburger Bezirksversammlungen.
         Aktuell sehen Sie Drucksachen, Sitzungen und mehr aus <b>#{@district.name}</b>.
@@ -17,7 +17,10 @@
         Ratsinformationssystem unter
       - allris_url = "#{@district.allris_base_url}/bi/allris.net.asp"
       = link_to allris_url, allris_url, target: '_blank'
-      ' . Aber
+      ' . Über das Symbol
+      => allris_icon
+      ' gelangen Sie zur jeweiligen Quelle. Nur dort sind verbindliche Informationen und Dokumente zu finden!
+      ' Aber
       = link_to 'wozu soll das gut sein?', about_path
   .row
     .meetings.col-sm.mb-3

@@ -24,7 +24,7 @@ h1.h2
     .col-7.col-lg-6
       = link_to meeting_path(meeting) do
         = meeting.title.html_safe
-    .col-2.col-lg-1.order-lg-last.text-right
+    .col-2.col-lg-1.order-lg-last.text-end
       - if meeting.logged?
         => meeting_minutes_link(meeting)
       - if meeting.committee

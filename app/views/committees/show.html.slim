@@ -13,7 +13,7 @@ h2.h1
     thead
       th Datum
       th Titel
-      th.text-right TOPs
+      th.text-end TOPs
       th
 
     tbody
@@ -28,9 +28,9 @@ h2.h1
           td
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
-          td.text-right
+          td.text-end
             = meeting.agenda_items.count
-          td.text-right.text-nowrap
+          td.text-end.text-nowrap
             - if meeting.logged?
               => meeting_minutes_link(meeting)
             = allris_link meeting.allris_url
