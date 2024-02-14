@@ -30,7 +30,9 @@ html lang='de'
         .collapse.navbar-collapse#navbarNavDropdown
           = form_tag search_documents_path, method: :get, class: 'form-inline my-2 my-md-0' do
             = text_field_tag :q, @term, class: 'form-control mr-2 search-input', type: :search, placeholder: 'Suche',
-                data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
+                data: {suggest_documents: suggest_documents_path(q: 'QUERY'),
+                suggest_minutes: suggest_agenda_items_path(q: 'QUERY'),
+                search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
             button.btn.btn-primary.my-2.my-sm-0 type="submit"
               = icon('fas', 'search')
 
