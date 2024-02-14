@@ -115,17 +115,21 @@ class District < ApplicationRecord
       allris_id = input&.[](:value)
       return if allris_id.blank?
 
-      meeting = meetings.find_or_initialize_by(allris_id:)
+      update_meeting_from_row(allris_id, date, row)
+    end
+  end
 
-      meeting.date = date
-      time = row.css('td')[2].text
-      meeting.start_time = time.split('-').first&.squish
-      meeting.title = row.css('td')[5].text&.squish
-      meeting.room = row.css('td.text4').first&.text
-      if (committee = meetings.find_by(title: meeting.title)&.committee)
-        meeting.committee = committee
-        meeting.save!
-      end
+  def update_meeting_from_row(allris_id, date, row)
+    meeting = meetings.find_or_initialize_by(allris_id:)
+
+    meeting.date = date
+    time = row.css('td')[2].text
+    meeting.start_time = time.split('-').first&.squish
+    meeting.title = row.css('td')[5].text&.squish
+    meeting.room = row.css('td.text4').first&.text
+    if (committee = meetings.find_by(title: meeting.title)&.committee)
+      meeting.committee = committee
+      meeting.save!
     end
   end
 end

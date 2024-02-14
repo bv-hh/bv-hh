@@ -17,7 +17,7 @@ h2.h1
       th
 
     tbody
-      - @committee.meetings.latest_first.each do |meeting|
+      - @committee.meetings.with_agenda.latest_first.each do |meeting|
         tr class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
           td.text-nowrap
             = link_to meeting_path(meeting) do

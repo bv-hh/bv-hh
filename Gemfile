@@ -37,7 +37,7 @@ gem 'nokogiri'
 
 gem 'bootstrap', '~> 5.3'
 
-gem 'bootstrap4-kaminari-views'
+gem 'bootstrap5-kaminari-views'
 gem 'kaminari'
 
 gem 'slim-rails'

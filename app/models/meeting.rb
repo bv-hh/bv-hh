@@ -39,8 +39,10 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil).joins(:committee) }
+  scope :with_agenda, -> { complete.joins(:agenda_items).distinct }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
   scope :in_month, ->(date) { where(date: date.all_month) }
+  scope :in_future, -> { where(date: Time.zone.today..) }
   scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))

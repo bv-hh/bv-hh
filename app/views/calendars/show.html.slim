@@ -21,7 +21,7 @@ h1
   - day_type = day.wday.in?([6, 0]) ? 'bg-info' : nil
   - day_type = 'bg-warning' if day == Time.zone.now.to_date
   .row.border-top.bg-opacity-25 class=day_type
-    .col-2.col-lg-1.pt-3
+    .col-2.col-lg-1.py-1
       => "#{day.day}."
       = l(day, format: '%a')
 

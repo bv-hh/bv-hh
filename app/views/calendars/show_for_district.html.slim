@@ -15,7 +15,7 @@ h1
 - (@date.beginning_of_month..@date.end_of_month).each do |day|
   - day_type = day.wday.in?([6, 0]) ? 'bg-info' : nil
   - day_type = 'bg-warning' if day == Time.zone.now.to_date
-  .row.pt-3.border-top.bg-opacity-25 class=day_type
+  .row.py-1.border-top.bg-opacity-25 class=day_type
     .col-2.col-lg-1
       => "#{day.day}."
       = l(day, format: '%a')
@@ -27,6 +27,5 @@ h1
           p
             => link_to meeting.title, meeting_path(meeting)
             span.text-muted
-            = meeting.room
             br
-            = meeting.location
+            = [meeting.location, meeting.room].reject(&:blank?).join(' | ')
