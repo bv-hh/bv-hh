@@ -129,7 +129,7 @@ class District < ApplicationRecord
     meeting.room = row.css('td.text4').first&.text
     if (committee = meetings.find_by(title: meeting.title)&.committee)
       meeting.committee = committee
-      meeting.save!
     end
+    meeting.save!
   end
 end
