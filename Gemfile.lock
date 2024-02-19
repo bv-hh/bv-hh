@@ -230,11 +230,13 @@ GEM
     nokogiri (1.16.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    nokogiri (1.16.2-x86_64-linux)
+      racc (~> 1.4)
     parallel (1.24.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    pg (1.5.4)
+    pg (1.5.5)
     popper_js (2.11.8)
     psych (5.1.2)
       stringio
