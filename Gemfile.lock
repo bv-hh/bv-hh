@@ -247,7 +247,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.7.3)
-    rack (2.2.8)
+    rack (2.2.8.1)
     rack-session (1.0.2)
       rack (< 3)
     rack-test (2.1.0)
@@ -294,7 +294,8 @@ GEM
       ffi (~> 1.0)
     rdoc (6.6.2)
       psych (>= 4.0.0)
-    redis (4.8.1)
+    redis-client (0.20.0)
+      connection_pool
     regexp_parser (2.9.0)
     reline (0.4.2)
       io-console (~> 0.5)
@@ -349,10 +350,11 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sidekiq (6.5.12)
-      connection_pool (>= 2.2.5, < 3)
-      rack (~> 2.0)
-      redis (>= 4.5.0, < 5)
+    sidekiq (7.2.2)
+      concurrent-ruby (< 2)
+      connection_pool (>= 2.3.0)
+      rack (>= 2.2.4)
+      redis-client (>= 0.19.0)
     sidekiq-scheduler (5.0.3)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 6, < 8)
@@ -456,7 +458,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
-  sidekiq (~> 6.5)
+  sidekiq (~> 7.2)
   sidekiq-scheduler
   simple_text_extract
   sitemap_generator
