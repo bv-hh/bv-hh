@@ -10,7 +10,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   %i[imprint privacy about].each do |action|
     test "GET #{action}" do
-      get send("#{action}_path".to_sym)
+      get send(:"#{action}_path")
       assert_response :success
     end
   end
