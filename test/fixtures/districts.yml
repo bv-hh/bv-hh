@@ -1,5 +1,6 @@
 
 hamburg_nord:
+  id: 1
   name: Hamburg-Nord
   allris_base_url: https://sitzungsdienst-hamburg-nord.hamburg.de
   oldest_allris_document_id: 1013060
