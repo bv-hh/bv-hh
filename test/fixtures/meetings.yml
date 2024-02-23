@@ -1,6 +1,6 @@
 
 rega_ewi_oct:
-  district: hamburg-nord
+  district: hamburg_nord
   title: Sitzung des Regionalausschusses Eppendorf-Winterhude
   date: 2023-10-09
   time:
@@ -12,7 +12,7 @@ rega_ewi_oct:
   end_time: 2000-01-01 19:15:00
 
 bv_oct:
-  district: hamburg-nord
+  district: hamburg_nord
   title: Sitzung der Bezirksversammlung
   date: 2023-10-12
   time:
