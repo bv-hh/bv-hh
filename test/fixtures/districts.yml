@@ -1,0 +1,8 @@
+
+hamburg_nord:
+  name: Hamburg-Nord
+  allris_base_url: https://sitzungsdienst-hamburg-nord.hamburg.de
+  oldest_allris_document_id: 1013060
+  oldest_allris_meeting_date: 2023-08-01
+  first_legislation_number: 21-0001
+  order: 3

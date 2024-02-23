@@ -1,0 +1,24 @@
+
+rega_ewi_oct:
+  district: hamburg-nord
+  title: Sitzung des Regionalausschusses Eppendorf-Winterhude
+  date: 2023-10-09
+  time:
+  room: Großer Sitzungssaal
+  location: Robert - Koch - Straße 17, 20249 Hamburg
+  allris_id: 1002680
+  committee: rega_ewi
+  start_time: 2000-01-01 18:00:00
+  end_time: 2000-01-01 19:15:00
+
+bv_oct:
+  district: hamburg-nord
+  title: Sitzung der Bezirksversammlung
+  date: 2023-10-12
+  time:
+  room: Großer Sitzungssaal
+  location: Robert - Koch - Straße 17, 20249 Hamburg
+  allris_id: 1002626
+  committee: bv
+  start_time: 2000-01-01 18:00:00
+  end_time: 2000-01-01 19:58:00
