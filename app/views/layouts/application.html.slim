@@ -21,16 +21,17 @@ html lang='de'
 
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
-    .navbar.navbar-dark.navbar-expand-md.fixed-top
-      .container-lg.px-0
+    nav.navbar.navbar-dark.navbar-expand-md.fixed-top
+      .container-lg
         = link_to 'BV-HH', root_path, class: 'navbar-brand d-md-none d-lg-inline'
 
-        button.navbar-toggler type="button" data-bs-toggle="collapse" data-target="#navbarNavDropdown"
+        button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNavDropdown
           = form_tag search_documents_path, method: :get, class: 'd-flex' do
-            = text_field_tag :q, @term, class: 'form-control me-2 search-input', type: :search, placeholder: 'Suche',
-                data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
+            .me-2.d-inline-block
+              = text_field_tag :q, @term, class: 'form-control search-input', type: :search, placeholder: 'Suche',
+                  data: {suggest: suggest_documents_path(q: 'QUERY'), search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
             button.btn.btn-primary type="submit"
               = icon('fas', 'search')
 
