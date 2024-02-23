@@ -3,7 +3,6 @@
 require 'test_helper'
 
 class MeetingsControllerTest < ActionDispatch::IntegrationTest
-
   test 'GET index' do
     get meetings_path(district: districts.first)
     assert_response :success
