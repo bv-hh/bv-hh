@@ -2,8 +2,7 @@
 
 require 'test_helper'
 
-class DistrictsControllerTest < ActionController::TestCase
-
+class DistrictsControllerTest < ActionDispatch::IntegrationTest
   test 'GET show without district' do
     get :show
     assert_redirected_to root_with_district_path(districts(:hamburg_nord))
