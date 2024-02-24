@@ -1,6 +1,6 @@
 
 document_7:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013280
   number: 21-4776
   title: 'Eingabe: Heilwigstraße, Verkehrssicherheit, Tempo 30-Zone'
@@ -27,7 +27,7 @@ document_7:
   locations_extracted_at:
 
 document_227:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1012983
   number: 21-4512
   title: Umbenennung der Hindenburgstraße und -brücke sowie Aberkennung der Ehrenbürgerschaft
@@ -145,7 +145,7 @@ document_227:
   locations_extracted_at:
 
 document_66:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013221
   number: 21-4728
   title: Drucksache 1. Verschickung Martinistraße-Ost (zwischen Tarpenbekstraße und
@@ -184,7 +184,7 @@ document_66:
   locations_extracted_at:
 
 document_80:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013207
   number: 21-4714
   title: Grünanlage Martinistraße - Errichtung einer Bewegungsinsel und Einbau von
@@ -239,7 +239,7 @@ document_80:
   locations_extracted_at:
 
 document_161:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013126
   number: 21-4477.1.1
   title: Fahrradbügel im Heidberg 50-54 (Winterhude) Stellungnahme des Bezirksamtes
@@ -322,7 +322,7 @@ document_161:
   locations_extracted_at:
 
 document_26:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013261
   number: 21-4391.4
   title: Nachverfolgung Beschlüsse
@@ -360,7 +360,7 @@ document_26:
   locations_extracted_at:
 
 document_6:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013281
   number: 21-1881.1
   title: Beteiligungsverfahren bei Straßenplanungen Umgang mit Fristsetzungen
@@ -405,7 +405,7 @@ document_6:
   locations_extracted_at:
 
 document_4:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013283
   number: 21-4777
   title: Fäll-Liste Grünanlagenbäume 2023/24 - Nachmeldungen 30.08.2023 - 05.10.2023
@@ -450,7 +450,7 @@ document_4:
   locations_extracted_at:
 
 document_170:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013117
   number: 21-4498.1.1
   title: U Saarlandstraße Schneller zum Bahnsteig Stellungnahme der Behörde für Verkehr
@@ -556,7 +556,7 @@ document_170:
   locations_extracted_at:
 
 document_56:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013231
   number: 21-4736
   title: 'Eingaben: Gesamtanliegen zur Robinienbaumgruppe i.d. Falkenried-Terrassen'
@@ -581,7 +581,7 @@ document_56:
   locations_extracted_at:
 
 document_536:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013287
   number: 21-4781
   title: 'Straßenverkehrsbehördliche Anordnung vom 29.09.2023 für den RegA EWi: Lattenkamp
@@ -618,7 +618,7 @@ document_536:
   locations_extracted_at:
 
 document_166:
-  district_id: 1
+  district: hamburg_nord
   allris_id: 1013121
   number: 21-4526.2
   title: Referent:innenanforderung zum Thema "Hinweis auf erhebliche Gefahrenstelle
