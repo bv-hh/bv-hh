@@ -4,6 +4,12 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 
+if ENV['CI']
+  puts 'Running on CI'
+  require 'minitest/ci'
+  Minitest::Ci.report_dir = Rails.root.join('test/reports')
+end
+
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
   parallelize(workers: :number_of_processors)

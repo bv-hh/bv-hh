@@ -99,16 +99,16 @@ jobs:
       run: yarn
 
     - name: Prepare DB
-      run: bundle exec rake db:create
+      run: bundle exec rails db:create
       env:
         RAILS_ENV: test
     - name: Load schema
-      run: bundle exec rake db:schema:load
+      run: bundle exec rails db:schema:load
       env:
         RAILS_ENV: test
 
     - name: Run unit tests
-      run: bundle exec rake test
+      run: bundle exec rails test
       env:
         COVERAGE: on
         CI: on
@@ -174,11 +174,11 @@ jobs:
       run: yarn
 
     - name: Prepare DB
-      run: bundle exec rake db:create
+      run: bundle exec rails db:create
       env:
         RAILS_ENV: test
     - name: Load schema
-      run: bundle exec rake db:schema:load
+      run: bundle exec rails db:schema:load
       env:
         RAILS_ENV: test
 
