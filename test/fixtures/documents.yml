@@ -1,4 +1,34 @@
-
+# == Schema Information
+#
+# Table name: documents
+#
+#  id                 :bigint           not null, primary key
+#  attached           :text
+#  author             :string
+#  content            :text
+#  embeddings_created :boolean          default(FALSE)
+#  full_text          :text
+#  kind               :string
+#  non_public         :boolean          default(FALSE)
+#  number             :string
+#  resolution         :text
+#  title              :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  allris_id          :integer
+#  district_id        :bigint
+#
+# Indexes
+#
+#  documents_expr_idx              (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::"char")))) USING gin
+#  full_text_gin_trgm_idx          (full_text) USING gin
+#  full_text_gist_trgm_idx         (full_text) USING gist
+#  index_documents_on_allris_id    (allris_id)
+#  index_documents_on_district_id  (district_id)
+#  index_documents_on_number       (number)
+#  title_gin_trgm_idx              (title) USING gin
+#  title_gist_trgm_idx             (title) USING gist
+#
 document_7:
   district: hamburg_nord
   allris_id: 1013280
@@ -23,8 +53,6 @@ document_7:
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anschreiben</span></p>
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Fotos</span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_227:
   district: hamburg_nord
@@ -141,8 +169,6 @@ document_227:
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_66:
   district: hamburg_nord
@@ -180,8 +206,6 @@ document_66:
   attached: |-
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">1. Verschickung Martinistraß</span><span style="">e-Ost (Verteiler, Erlä</span><span style="">uterungsbericht, Ü</span><span style="">bersichtskarte, Ü</span><span style="">bersichtslageplan, Querschnitt, Lageplan 1)</span><span style=""> </span><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_80:
   district: hamburg_nord
@@ -235,8 +259,6 @@ document_80:
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anlage 01_Epp_LP</span></p>
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anlage 02_Epp_BewInsel</span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_161:
   district: hamburg_nord
@@ -318,8 +340,6 @@ document_161:
   attached: |-
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_26:
   district: hamburg_nord
@@ -356,8 +376,6 @@ document_26:
     
   author:
   attached:
-  extracted_locations: []
-  locations_extracted_at:
 
 document_6:
   district: hamburg_nord
@@ -401,8 +419,6 @@ document_6:
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_4:
   district: hamburg_nord
@@ -446,8 +462,6 @@ document_4:
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Fä</span><span style="">ll-liste (05.10..2023)</span><span style=""> </span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_170:
   district: hamburg_nord
@@ -552,8 +566,6 @@ document_170:
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_56:
   district: hamburg_nord
@@ -577,8 +589,6 @@ document_56:
     \nUm Kenntnisnahme wird gebeten.\nMichael Werner-Boelz\n"
   author:
   attached:
-  extracted_locations: []
-  locations_extracted_at:
 
 document_536:
   district: hamburg_nord
@@ -614,8 +624,6 @@ document_536:
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anordnung</span></p>
     <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Skizze</span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:
 
 document_166:
   district: hamburg_nord
@@ -717,5 +725,3 @@ document_166:
   attached: |-
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
     <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
-  extracted_locations: []
-  locations_extracted_at:

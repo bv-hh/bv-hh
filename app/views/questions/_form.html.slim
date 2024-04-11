@@ -1,0 +1,7 @@
+= form_tag questions_path do |f|
+  .mb-3
+    input#question-input.form-control[name="question[question]" type="text" placeholder="Was möchten Sie wissen?"]
+    #questionHelp.form-text
+      | z.B.: Welche Straßen wurden umbenannt?
+  button.btn.btn-dark
+    | Frage stellen

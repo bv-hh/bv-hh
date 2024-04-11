@@ -68,6 +68,16 @@ gem 'blazer'
 
 gem 'uglifier'
 
+gem 'langchainrb', '~> 0.11.1'
+
+gem 'baran', '~> 0.1.10'
+
+gem 'ruby-openai', '~> 6.5'
+
+gem 'qdrant-ruby', '~> 0.9.7'
+
+gem 'redcarpet', '~> 3.6'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
