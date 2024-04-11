@@ -165,8 +165,8 @@ GEM
     faraday-net_http (3.1.0)
       net-http
     ffi (1.16.3)
-    font-awesome-sass (5.15.1)
-      sassc (>= 1.11)
+    font-awesome-sass (6.5.2)
+      sassc (~> 2.0)
     fugit (1.8.1)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
@@ -433,10 +433,6 @@ GEM
     tilt (2.3.0)
     timeout (0.4.1)
     to_bool (2.0.0)
-    turbo-rails (2.0.5)
-      actionpack (>= 6.0.0)
-      activejob (>= 6.0.0)
-      railties (>= 6.0.0)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -486,7 +482,7 @@ DEPENDENCIES
   caxlsx_rails
   chartkick
   ed25519
-  font-awesome-sass (~> 5.15.1)
+  font-awesome-sass (~> 6.5.2)
   groupdate
   image_processing (~> 1.12)
   jbuilder (~> 2.11)
@@ -519,7 +515,6 @@ DEPENDENCIES
   spring-watcher-listen (~> 2.1.0)
   sprockets (~> 4)
   sprockets-rails
-  turbo-rails (~> 2.0)
   turbolinks (~> 5)
   tzinfo-data
   uglifier
