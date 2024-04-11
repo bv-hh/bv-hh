@@ -380,7 +380,7 @@ GEM
       sprockets-rails
       tilt
     sd_notify (0.1.1)
-    selenium-webdriver (4.18.1)
+    selenium-webdriver (4.19.0)
       base64 (~> 0.2)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
@@ -433,10 +433,6 @@ GEM
     tilt (2.3.0)
     timeout (0.4.1)
     to_bool (2.0.0)
-    turbo-rails (2.0.5)
-      actionpack (>= 6.0.0)
-      activejob (>= 6.0.0)
-      railties (>= 6.0.0)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -519,7 +515,6 @@ DEPENDENCIES
   spring-watcher-listen (~> 2.1.0)
   sprockets (~> 4)
   sprockets-rails
-  turbo-rails (~> 2.0)
   turbolinks (~> 5)
   tzinfo-data
   uglifier
