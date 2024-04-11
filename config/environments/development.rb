@@ -75,4 +75,7 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # For the Docker setup we need to be generous
+  config.web_console.permissions = '172.0.0.0/8'
 end
