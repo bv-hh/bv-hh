@@ -267,21 +267,15 @@ class Document < ApplicationRecord
         separator: ' '
       )
 
-      llm = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"])
-
-      qdrant = Langchain::Vectorsearch::Qdrant.new(
-        url: ENV['QDRANT_URL'],
-        api_key: ENV['QDRANT_API_KEY'],
-        index_name: 'bezirkr',
-        llm: llm
-      )
-      qdrant.create_default_schema
+      qdrant = QdrantDb.new
 
       splitter.chunks("document_id: #{id} #{title} #{full_text}").each do |chunk|
-        qdrant.add_texts(
+        qdrant.connection.add_texts(
           texts: chunk[:text]
         )
       end
+
+      update_attribute(:embeddings_created, true)
     end
   end
 
@@ -290,5 +284,5 @@ class Document < ApplicationRecord
   def enqueue_create_qdrant_embeddings_job
     CreateQdrantEmbeddingsJob.perform_later(self)
   end
-  
+
 end

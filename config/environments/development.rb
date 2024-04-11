@@ -77,5 +77,5 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   # For the Docker setup we need to be generous
-  config.web_console.permissions = '172.0.0.0/8'
+  config.web_console.permissions = '192.168.0.0/16'
 end
