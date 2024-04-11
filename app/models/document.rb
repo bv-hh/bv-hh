@@ -4,22 +4,21 @@
 #
 # Table name: documents
 #
-#  id                     :bigint           not null, primary key
-#  attached               :text
-#  author                 :string
-#  content                :text
-#  extracted_locations    :string           default([]), is an Array
-#  full_text              :text
-#  kind                   :string
-#  locations_extracted_at :datetime
-#  non_public             :boolean          default(FALSE)
-#  number                 :string
-#  resolution             :text
-#  title                  :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  allris_id              :integer
-#  district_id            :bigint
+#  id                 :bigint           not null, primary key
+#  attached           :text
+#  author             :string
+#  content            :text
+#  embeddings_created :boolean          default(FALSE)
+#  full_text          :text
+#  kind               :string
+#  non_public         :boolean          default(FALSE)
+#  number             :string
+#  resolution         :text
+#  title              :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  allris_id          :integer
+#  district_id        :bigint
 #
 # Indexes
 #
@@ -66,8 +65,11 @@ class Document < ApplicationRecord
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :no_embeddings, -> { where(embeddings_created: false) }
 
   default_scope -> { where(non_public: false) }
+
+  after_create :enqueue_create_qdrant_embeddings_job
 
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
@@ -252,4 +254,41 @@ class Document < ApplicationRecord
   def attachments_content
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
   end
+
+  def create_qdrant_embeddings
+    if non_public
+      raise 'Document is non-public, not vectorizing it.'
+    elsif embeddings_created
+      raise 'Embeddings already created for this document.'
+    else
+      splitter = Baran::CharacterTextSplitter.new(
+        chunk_size: 1024,
+        chunk_overlap: 64,
+        separator: ' '
+      )
+
+      llm = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"])
+
+      qdrant = Langchain::Vectorsearch::Qdrant.new(
+        url: ENV['QDRANT_URL'],
+        api_key: ENV['QDRANT_API_KEY'],
+        index_name: 'bezirkr',
+        llm: llm
+      )
+      qdrant.create_default_schema
+
+      splitter.chunks("document_id: #{id} #{title} #{full_text}").each do |chunk|
+        qdrant.add_texts(
+          texts: chunk[:text]
+        )
+      end
+    end
+  end
+
+  private
+
+  def enqueue_create_qdrant_embeddings_job
+    CreateQdrantEmbeddingsJob.perform_later(self)
+  end
+  
 end
