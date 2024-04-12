@@ -5,7 +5,7 @@ class QdrantDb
     llm = Langchain::LLM::OpenAI.new(api_key: Rails.application.credentials.openai_api_key)
 
     @connection = Langchain::Vectorsearch::Qdrant.new(
-      url: ENV['QDRANT_URL'],
+      url: 'http://qdrant:6333',
       api_key: ENV['QDRANT_API_KEY'],
       index_name: 'bezirkr',
       llm: llm
