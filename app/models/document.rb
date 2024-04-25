@@ -275,7 +275,7 @@ class Document < ApplicationRecord
         )
       end
 
-      update_attribute(:embeddings_created, true)
+      update(embeddings_created: true)
     end
   end
 
@@ -284,5 +284,4 @@ class Document < ApplicationRecord
   def enqueue_create_qdrant_embeddings_job
     CreateQdrantEmbeddingsJob.perform_later(self)
   end
-
 end

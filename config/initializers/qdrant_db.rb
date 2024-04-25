@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class QdrantDb
   attr_reader :connection
 
@@ -6,7 +8,7 @@ class QdrantDb
       api_key: Rails.application.credentials.openai_api_key,
       llm_options: {
         chat_completion_model_name: 'gpt-4-turbo',
-        embeddings_model_name: 'text-embedding-3-small'
+        embeddings_model_name: 'text-embedding-3-small',
       }
     )
 
@@ -14,9 +16,8 @@ class QdrantDb
       url: ENV.fetch('QDRANT_URL', 'http://qdrant:6333'),
       api_key: ENV.fetch('QDRANT_API_KEY', ''),
       index_name: 'bezirkr',
-      llm: llm
+      llm:
     )
     @connection.create_default_schema
   end
-
 end

@@ -57,7 +57,7 @@ Rails.application.routes.draw do
 
     resource :statistics, only: :show
 
-    resources :questions, only: [:index, :new, :create]
+    resources :questions, only: %i[index new create]
 
     root to: 'districts#show', as: :root_with_district
   end
