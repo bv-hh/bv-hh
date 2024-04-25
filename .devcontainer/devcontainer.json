@@ -1,0 +1,29 @@
+{
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/bv-hh",
+  "name": "bv_hh_build",
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [
+    3000,
+    6333
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "BV-HH Webinterface",
+      "onAutoForward": "silent",
+      "requireLocalPort": true
+    },
+    "6333": {
+      "label": "QDrant Webinterface",
+      "onAutoForward": "silent"
+    }
+  }
+}
