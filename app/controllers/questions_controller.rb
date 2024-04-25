@@ -22,8 +22,6 @@ class QuestionsController < ApplicationController
 
   def wrap_question_in_default_prompt(question)
     "You are a helpful press official, politely and swiftly answering questions from interested citizens.\
-    You can only make conversations based on the provided context. \
-    If a response cannot be formed strictly using the context, politely say you don’t have knowledge about that topic. \
     Answer in the language that the question is in.\
     Here comes the question: #{question}"
   end
