@@ -206,7 +206,7 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    langchainrb (0.11.1)
+    langchainrb (0.12.0)
       activesupport (>= 7.0.8)
       baran (~> 0.1.9)
       colorize (~> 1.1.0)
@@ -271,7 +271,7 @@ GEM
       unicode
     psych (5.1.2)
       stringio
-    public_suffix (5.0.4)
+    public_suffix (5.0.5)
     puma (6.4.2)
       nio4r (~> 2.0)
     qdrant-ruby (0.9.7)
@@ -323,7 +323,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rb_sys (0.9.91)
+    rb_sys (0.9.97)
     rdoc (6.6.2)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
@@ -488,7 +488,7 @@ DEPENDENCIES
   jbuilder (~> 2.11)
   jquery-rails
   kaminari
-  langchainrb (~> 0.11.1)
+  langchainrb (~> 0.12.0)
   listen (~> 3.9)
   minitest-ci
   nokogiri
