@@ -358,7 +358,7 @@ GEM
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     ruby-ole (1.2.12.2)
-    ruby-openai (6.5.0)
+    ruby-openai (7.0.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -502,7 +502,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rails
-  ruby-openai (~> 6.5)
+  ruby-openai (~> 7.0)
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
