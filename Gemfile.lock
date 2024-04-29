@@ -380,7 +380,7 @@ GEM
       sprockets-rails
       tilt
     sd_notify (0.1.1)
-    selenium-webdriver (4.18.1)
+    selenium-webdriver (4.20.1)
       base64 (~> 0.2)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
