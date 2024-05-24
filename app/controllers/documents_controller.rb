@@ -39,7 +39,7 @@ class DocumentsController < ApplicationController
         number: document.number,
         district: document.district.name,
         kind: document.kind,
-        excerpt: excerpt(strip_tags(document.full_text), params[:q], radius: 50)
+        excerpt: excerpt(strip_tags(document.full_text), params[:q], radius: 50),
       }
     end
     render json: documents

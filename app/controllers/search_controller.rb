@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class SearchController < ApplicationController
-
   LIMIT = 25
 
   def show
@@ -31,7 +30,7 @@ class SearchController < ApplicationController
     @agenda_items = @agenda_items.limit(LIMIT)
   end
 
- protected
+  protected
 
   def set_search_options
     @order = :relevance if params[:order] == 'relevance'

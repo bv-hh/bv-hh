@@ -111,5 +111,4 @@ class AgendaItem < ApplicationRecord
 
     query.order('meetings.date DESC')
   end
-
 end

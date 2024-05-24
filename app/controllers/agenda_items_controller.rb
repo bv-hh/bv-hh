@@ -26,10 +26,9 @@ class AgendaItemsController < ApplicationController
         date: I18n.l(agenda_item.meeting.date),
         district: agenda_item.meeting.district.name,
         meeting: agenda_item.meeting.title,
-        excerpt: excerpt(strip_tags(agenda_item.minutes), params[:q], radius: 50)
+        excerpt: excerpt(strip_tags(agenda_item.minutes), params[:q], radius: 50),
       }
     end
     render json: agenda_items
   end
-
 end
