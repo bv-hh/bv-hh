@@ -21,22 +21,25 @@ html lang='de'
 
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
-    .navbar.navbar-dark.navbar-expand-md.fixed-top
-      .container-lg.px-0
+    nav.navbar.navbar-dark.navbar-expand-md.fixed-top
+      .container-lg
         = link_to 'BV-HH', root_path, class: 'navbar-brand d-md-none d-lg-inline'
 
-        button.navbar-toggler type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+        button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNavDropdown
-          = form_tag search_documents_path, method: :get, class: 'form-inline my-2 my-md-0' do
-            = text_field_tag :q, @term, class: 'form-control mr-2 search-input', type: :search, placeholder: 'Suche',
-                data: {suggest_documents: suggest_documents_path(q: 'QUERY'),
-                suggest_minutes: suggest_agenda_items_path(q: 'QUERY'),
-                search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
+          = form_tag search_documents_path, method: :get, class: 'd-flex' do
+            .me-2.d-inline-block
+              = text_field_tag :q, @term, class: 'form-control search-input', type: :search, placeholder: 'Suche',
+                  data: {suggest_documents: suggest_documents_path(q: 'QUERY'),
+                  suggest_minutes: suggest_agenda_items_path(q: 'QUERY'),
+                  search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
             button.btn.btn-primary.my-2.my-sm-0 type="submit"
               = icon('fas', 'search')
 
-          ul.navbar-nav.mr-auto
+          ul.navbar-nav.me-auto
+            li.nav-item
+              = link_to 'Kalender', calendar_path, class: "nav-link"
             li.nav-item
               = link_to 'Drucksachen', documents_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
@@ -45,25 +48,27 @@ html lang='de'
               = link_to 'Gremien', committees_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
               = link_to 'Statistik', statistics_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
+
           ul.navbar-nav
             li.nav-item.dropdown
-              a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+              a.nav-link.dropdown-toggle#navbarDropdownMenuLink(role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
                 - if @district.present?
                   = @district.name
                 - else
                   | Bezirk wählen
-              .dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
-                - District.by_name.each do |district|
-                  = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
+              ul.dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
+                - District.by_order.each do |district|
+                  li
+                    = link_to district.name, root_with_district_path(district: district), class: 'dropdown-item'
 
     .container.py-4.mt-5
       = yield
 
     footer
       .container.py-5.border-top.text-secondary
-        .float-right
+        .float-end
           p
-            = link_to 'Was soll das ganze?', about_path(district: nil), class: 'px-1 text-reset'
+            = link_to 'Was soll das Ganze?', about_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
             = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
 

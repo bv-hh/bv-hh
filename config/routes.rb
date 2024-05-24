@@ -55,7 +55,11 @@ Rails.application.routes.draw do
 
     resources :committees, only: %i[index show]
 
+    resource :calendar, only: :show
+
     resource :statistics, only: :show
+
+    resources :questions, only: %i[index new create]
 
     root to: 'districts#show', as: :root_with_district
   end

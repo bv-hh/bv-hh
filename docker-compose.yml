@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.4.1
+    environment:
+      POSTGRES_DB: bezirkr_dev
+      POSTGRES_USER: bezirkr
+      POSTGRES_PASSWORD: bezirkr
+    ports:
+      - "5432:5432"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    container_name: qdrant
+    ports:
+      - 6333:6333
+      - 6334:6334
+    expose:
+      - 6333
+      - 6334
+      - 6335
+    configs:
+      - source: qdrant_config
+        target: /qdrant/config/production.yaml
+    volumes:
+      - ./qdrant_data:/qdrant_data
+
+  web:
+    build: .
+    command: bin/rails server --port 3000 --binding 0.0.0.0
+    ports:
+      - "3000:3000"
+    links:
+      - db
+      - qdrant
+    environment:
+      DB_HOST: db
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ''
+    volumes:
+      - .:/bv-hh
+
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO

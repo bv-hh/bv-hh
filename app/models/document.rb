@@ -8,6 +8,7 @@
 #  attached               :text
 #  author                 :string
 #  content                :text
+#  embeddings_created     :boolean          default(FALSE)
 #  extracted_locations    :string           default([]), is an Array
 #  full_text              :text
 #  kind                   :string
@@ -66,8 +67,11 @@ class Document < ApplicationRecord
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :no_embeddings, -> { where(embeddings_created: false) }
 
   default_scope -> { where(non_public: false) }
+
+  after_create :enqueue_create_qdrant_embeddings_job
 
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
@@ -251,5 +255,35 @@ class Document < ApplicationRecord
 
   def attachments_content
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
+  end
+
+  def create_qdrant_embeddings
+    if non_public
+      raise 'Document is non-public, not vectorizing it.'
+    elsif embeddings_created
+      raise 'Embeddings already created for this document.'
+    else
+      splitter = Baran::CharacterTextSplitter.new(
+        chunk_size: 1024,
+        chunk_overlap: 64,
+        separator: ' '
+      )
+
+      qdrant = QdrantDb.new
+
+      splitter.chunks("document_id: #{id} #{title} #{full_text}").each do |chunk|
+        qdrant.connection.add_texts(
+          texts: chunk[:text]
+        )
+      end
+
+      update(embeddings_created: true)
+    end
+  end
+
+  private
+
+  def enqueue_create_qdrant_embeddings_job
+    CreateQdrantEmbeddingsJob.perform_later(self)
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_17_102905) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_11_102635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -214,6 +214,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_17_102905) do
     t.datetime "updated_at", null: false
     t.date "oldest_allris_meeting_date"
     t.string "first_legislation_number"
+    t.integer "order", default: 0
   end
 
   create_table "documents", force: :cascade do |t|
@@ -232,6 +233,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_17_102905) do
     t.text "attached"
     t.string "extracted_locations", default: [], array: true
     t.datetime "locations_extracted_at", precision: nil
+    t.boolean "embeddings_created", default: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["district_id"], name: "index_documents_on_district_id"
@@ -255,7 +257,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_17_102905) do
   create_table "meetings", force: :cascade do |t|
     t.bigint "district_id"
     t.string "title"
-    t.string "committee"
     t.date "date"
     t.string "time"
     t.string "room"

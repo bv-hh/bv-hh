@@ -1,6 +1,6 @@
 h2.h1
   strong= l @meeting.date
-  .float-right
+  .float-end
     - if @meeting.logged?
       => meeting_minutes_link(@meeting)
     = allris_link @meeting.allris_url
@@ -26,7 +26,7 @@ h3.text-muted
       ' TOP
       = link_to icon(:far, 'file-excel'), meeting_path(@meeting, format: :xlsx), title: 'Tagesordnung als Excel-Datei herunterladen'
     .col.col-lg-7.py-2 Titel
-    .col.py-2.text-right Drucksache
+    .col.py-2.text-end Drucksache
 
   - @agenda_items.each do |item|
     .row.pt-3.border-top
@@ -44,11 +44,11 @@ h3.text-muted
         - else
           = item.title.html_safe
 
-      .col-10.col-sm-2.offset-2.offset-sm-0.text-right
+      .col-10.col-sm-2.offset-2.offset-sm-0.text-end
         - if item.document && item.document.complete?
           = link_to document_path(item.document) do
             strong= item.document.number
 
 - else
   p
-    ' Tagesordnung steht noch nicht fest.
+    ' Tagesordnung steht noch nicht fest oder die Sitzung ist nicht-öffentlich.

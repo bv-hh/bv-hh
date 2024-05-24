@@ -1,0 +1,241 @@
+# == Schema Information
+#
+# Table name: agenda_items
+#
+#  id          :bigint           not null, primary key
+#  decision    :string
+#  minutes     :text
+#  number      :string
+#  result      :text
+#  title       :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  allris_id   :integer
+#  document_id :bigint
+#  meeting_id  :bigint
+#
+# Indexes
+#
+#  index_agenda_items_on_document_id  (document_id)
+#  index_agenda_items_on_meeting_id   (meeting_id)
+#
+agenda_item_10:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Bestätigung der Tagesordnung
+  number: Ö1
+  minutes:
+  allris_id: 1032124
+  decision:
+  result:
+
+agenda_item_12:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Aktuelle Viertelstunde
+  number: Ö2
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_17:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Genehmigung der Niederschrift vom 04.09.2023
+  number: Ö3
+  minutes:
+  allris_id: 1032126
+  decision:
+  result:
+
+agenda_item_19:
+  meeting: rega_ewi_oct
+  document_id:
+  title: 'Tagesordnungspunkte: Bürger-, Gäste- und Referentenbeteiligung'
+  number: Ö4
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_26:
+  meeting: rega_ewi_oct
+  document: document_7
+  title: 'Eingabe: Heilwigstraße, Verkehrssicherheit, Tempo 30-Zone'
+  number: Ö4.2
+  minutes:
+  allris_id: 1032292
+  decision:
+  result:
+
+agenda_item_29:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Anträge
+  number: Ö5
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_33:
+  meeting: rega_ewi_oct
+  document: document_227
+  title: |-
+    Umbenennung der Hindenburgstraße und -brücke sowie Aberkennung der Ehrenbürgerschaft durch die Freie und Hansestadt Hamburg
+    Antrag der Fraktion DIE LINKE
+  number: Ö5.1
+  minutes:
+  allris_id: 1032129
+  decision:
+  result:
+
+agenda_item_35:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Vorlagen der Bezirksamtsleitung
+  number: Ö6
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_37:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Straßenverkehrsbehördliche Anordnungen
+  number: Ö6.1
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_40:
+  meeting: rega_ewi_oct
+  document: document_66
+  title: "Drucksache 1. Verschickung Martinistraße-Ost (zwischen Tarpenbekstraße und
+    Erikastraße)\r\n\t1. Planverschickung\r\n"
+  number: Ö6.2
+  minutes:
+  allris_id: 1032250
+  decision:
+  result:
+
+agenda_item_44:
+  meeting: rega_ewi_oct
+  document: document_80
+  title: Grünanlage Martinistraße - Errichtung einer Bewegungsinsel und Einbau von
+    Slackline-Pollern
+  number: Ö6.3
+  minutes:
+  allris_id: 1032132
+  decision:
+  result:
+
+agenda_item_47:
+  meeting: rega_ewi_oct
+  document: document_161
+  title: "Fahrradbügel im Heidberg 50-54 (Winterhude) \nStellungnahme des Bezirksamtes"
+  number: Ö6.4
+  minutes:
+  allris_id: 1032131
+  decision:
+  result:
+
+agenda_item_50:
+  meeting: rega_ewi_oct
+  document: document_26
+  title: Nachverfolgung Beschlüsse
+  number: Ö6.5
+  minutes:
+  allris_id: 1032246
+  decision:
+  result:
+
+agenda_item_53:
+  meeting: rega_ewi_oct
+  document: document_6
+  title: "Beteiligungsverfahren bei Straßenplanungen\r\nUmgang mit Fristsetzungen\r\n"
+  number: Ö6.6
+  minutes:
+  allris_id: 1032294
+  decision:
+  result:
+
+agenda_item_55:
+  meeting: rega_ewi_oct
+  document: document_4
+  title: Fäll-Liste Grünanlagenbäume 2023/24 - Nachmeldungen 30.08.2023 - 05.10.2023
+  number: Ö6.7
+  minutes:
+  allris_id: 1032296
+  decision:
+  result:
+
+agenda_item_56:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Vorlagen des vorsitzenden Mitglieds der Bezirksversammlung
+  number: Ö7
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_58:
+  meeting: rega_ewi_oct
+  document: document_170
+  title: |-
+    U Saarlandstraße Schneller zum Bahnsteig
+    Stellungnahme der Behörde für Verkehr und Mobilitätswende
+  number: Ö7.1
+  minutes:
+  allris_id: 1032136
+  decision:
+  result:
+
+agenda_item_62:
+  meeting: rega_ewi_oct
+  document_id:
+  title: Verschiedenes
+  number: Ö8
+  minutes:
+  allris_id:
+  decision:
+  result:
+
+agenda_item_23:
+  meeting: rega_ewi_oct
+  document: document_56
+  title: 'Eingaben: Gesamtanliegen zur Robinienbaumgruppe i.d. Falkenried-Terrassen'
+  number: Ö4.1
+  minutes:
+  allris_id: 1032252
+  decision:
+  result:
+
+agenda_item_1138:
+  meeting: rega_ewi_oct
+  document: document_56
+  document: document_536
+  title: "Straßenverkehrsbehördliche Anordnung vom 29.09.2023 für den RegA EWi: Lattenkamp
+    29:\r\nMarkierung einer Sperrfläche sowie Ergänzung von Absperreinrichtungen\r\n"
+  number: Ö6.1.1
+  minutes:
+  allris_id: 1032299
+  decision:
+  result:
+
+agenda_item_60:
+  meeting: rega_ewi_oct
+  document: document_56
+  document: document_166
+  title: "Referent:innenanforderung zum Thema \"Hinweis auf erhebliche  Gefahrenstelle
+    Kreuzung Martinistraße/Tarpenbekstraße\nStellungnahme der Behörde für Verkehr
+    und Mobilitätswende (BVM) \n\n"
+  number: Ö7.2
+  minutes:
+  allris_id: 1032137
+  decision:
+  result:

@@ -22,7 +22,7 @@ h1.h1
             strong= item.document.number
         = meeting_result_badge(item)
         - if item.allris_url.present?
-          .float-right= allris_link(item.allris_url)
+          .float-end= allris_link(item.allris_url)
       h3.h6
         strong
           = item.title.html_safe

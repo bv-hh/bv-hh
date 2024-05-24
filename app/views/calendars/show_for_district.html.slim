@@ -1,0 +1,31 @@
+h1
+  ' Kalender
+
+  small.text-muted
+    => "Bezirk #{@district.name}"
+
+= render partial: 'date_selector'
+
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2
+    strong Datum
+  .col.col-lg-6.py-2
+    strong Titel/Ort
+
+- (@date.beginning_of_month..@date.end_of_month).each do |day|
+  - day_type = day.wday.in?([6, 0]) ? 'bg-info' : nil
+  - day_type = 'bg-warning' if day == Time.zone.now.to_date
+  .row.py-1.border-top.bg-opacity-25 class=day_type
+    .col-2.col-lg-1
+      => "#{day.day}."
+      = l(day, format: '%a')
+    - meetings = @meetings[day]
+
+    .col
+      - if meetings.present?
+        - meetings.sort_by{|meeting| meeting.committee&.order || 100}.each do |meeting|
+          p
+            => link_to meeting.title, meeting_path(meeting)
+            span.text-muted
+            br
+            = [meeting.location, meeting.room].reject(&:blank?).join(' | ')

@@ -19,7 +19,7 @@ h1.mb-4
           | Alle Bezirke
     .col-6.col-lg
       => select_tag :order, options_for_select([['Nach Relevanz', :relevance], ['Nach Datum', :date]], @order), class: 'form-control'
-    .col-12.col-lg.text-right
+    .col-12.col-lg.text-end
       button.btn.btn-primary.text-nowrap type="submit"
         | Suche aktualisieren
 
@@ -39,7 +39,7 @@ h1.mb-4
         = highlight(strip_tags(document.title), @term)
       br
       span.text-secondary= document.kind
-    .col-1.order-lg-last.text-right
+    .col-1.order-lg-last.text-end
       = allris_link(document.allris_url)
     .w-100.d-block.d-lg-none
     .col.offset-2.offset-lg-0.pt-2.pt-lg-0
@@ -58,5 +58,5 @@ h1.mb-4
           = highlight_multi_excerpt(document.attachments_content, @term)
 
 .mt-5
-  = paginate @documents, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"
+  = paginate @documents, theme: 'bootstrap-5', nav_class: "nav justify-content-center"
 
