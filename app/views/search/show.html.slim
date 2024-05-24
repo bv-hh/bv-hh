@@ -1,7 +1,7 @@
 h1.mb-4
   ' Suchergebnisse für '#{@term}'
 
-= form_tag search_documents_path, method: :get do
+= form_tag search_path, method: :get do
   = hidden_field_tag :q, @term
   .row
     .col-12.col-lg
@@ -24,7 +24,7 @@ h1.mb-4
         | Suche aktualisieren
 
 .row.mt-4.border-bottom.font-weight-bold
-  .col-2.col-lg-1.py-2 Drs.
+  .col-2.col-lg-1.py-2 Drs. / TOP
   .col.col-lg-7.py-2 Titel / Art
   .col-10.col-lg.offset-2.offset-lg-0.py-2 Befassung
   .col-1
@@ -48,6 +48,8 @@ h1.mb-4
             = link_to meeting.committee.name, meeting_path(meeting, district: meeting.district), class: 'text-secondary'
             br
             = l meeting.date
+          - if @all_districts
+            strong=< document.district.name
 
   .row.mt-2
     .col.offset-2.offset-lg-1
@@ -57,6 +59,37 @@ h1.mb-4
         p.excerpt.mt-2
           = highlight_multi_excerpt(document.attachments_content, @term)
 
-.mt-5
-  = paginate @documents, theme: 'bootstrap-5', nav_class: "nav justify-content-center"
+- @agenda_items.each do |agenda_item|
+  - meeting = agenda_item.meeting
+
+  .row.pt-3.border-top
+    .col-2.col-lg-1.text-nowrap
+      = link_to minutes_meeting_path(meeting, anchor: agenda_item.id) do
+        strong= agenda_item.number
+    .col.col-lg-7
+      = link_to minutes_meeting_path(meeting, anchor: agenda_item.id) do
+        = highlight(strip_tags(agenda_item.title), @term)
+      br
+      span.text-secondary Protokoll
+    .col-1.order-lg-last.text-end
+      = allris_link(agenda_item.meeting.allris_url)
+    .w-100.d-block.d-lg-none
+    .col.offset-2.offset-lg-0.pt-2.pt-lg-0
+        td
+          = link_to meeting.committee.name, meeting_path(meeting, district: meeting.district), class: 'text-secondary'
+          br
+          = l meeting.date
+          - if @all_districts
+            strong=< meeting.district.name
+
+  .row.mt-2
+    .col.offset-2.offset-lg-1
+      p
+        = highlight_multi_excerpt(strip_tags(agenda_item.minutes), @term)
+
+- if @more_documents.positive? || @more_agenda_items.positive?
+  p.mt-4
+    strong
+      | Sowie weitere #{@more_documents} / #{@more_agenda_items} Ergebnisse in Drucksachen / Protokollen.
+        Schränken Sie die Suche weiter ein, um alle Ergebnisse zu sehen.
 

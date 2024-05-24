@@ -26,9 +26,10 @@ Rails.application.routes.draw do
   root to: 'pages#home'
 
   scope '(:district)' do
+    get :search, to: 'search#show'
+
     resources :documents, only: %i[index show] do
       collection do
-        get :search
         get :suggest
 
         get :allris
@@ -48,6 +49,7 @@ Rails.application.routes.draw do
     resources :agenda_items, only: [] do
       collection do
         get :allris
+        get :suggest
       end
     end
 

@@ -18,8 +18,13 @@
 #
 # Indexes
 #
-#  index_agenda_items_on_document_id  (document_id)
-#  index_agenda_items_on_meeting_id   (meeting_id)
+#  agenda_items_expr_idx               (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::"char")))) USING gin
+#  agenda_items_minutes_gin_trgm_idx   (minutes) USING gin
+#  agenda_items_minutes_gist_trgm_idx  (minutes) USING gist
+#  agenda_items_title_gin_trgm_idx     (title) USING gin
+#  agenda_items_title_gist_trgm_idx    (title) USING gist
+#  index_agenda_items_on_document_id   (document_id)
+#  index_agenda_items_on_meeting_id    (meeting_id)
 #
 class AgendaItem < ApplicationRecord
   include Parsing
@@ -32,6 +37,7 @@ class AgendaItem < ApplicationRecord
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
   scope :logged, -> { where.not(allris_id: nil) }
+  scope :with_minutes, -> { where.not(minutes: nil) }
   scope :incomplete, lambda {
     joins(:meeting).where.not(allris_id: nil)
                    .where('meetings.date <= ? AND meetings.date >= ?', 30.days.ago, 270.days.ago)
@@ -53,8 +59,8 @@ class AgendaItem < ApplicationRecord
     decision_text = html.css('td.text3')&.first&.text&.squish
     self.decision = decision_text unless decision_text == '(offen)'
 
-    self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]"))
-    self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]"))
+    self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]")).presence
+    self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence
 
     retrieve_attachments(html)
     save!
@@ -95,5 +101,14 @@ class AgendaItem < ApplicationRecord
 
   def logged?
     Nokogiri::HTML.parse(minutes).text.present? || Nokogiri::HTML.parse(result).text.present?
+  end
+
+  def self.minutes_prefix_search(term, root = nil)
+    term = '' if term.nil?
+
+    query = (root || AgendaItem.all).with_minutes.joins(:meeting)
+    query = query.where('agenda_items.minutes ILIKE :term', term: "%#{term.downcase}%")
+
+    query.order('meetings.date DESC')
   end
 end

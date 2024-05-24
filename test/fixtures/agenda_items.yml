@@ -16,8 +16,13 @@
 #
 # Indexes
 #
-#  index_agenda_items_on_document_id  (document_id)
-#  index_agenda_items_on_meeting_id   (meeting_id)
+#  agenda_items_expr_idx               (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::"char")))) USING gin
+#  agenda_items_minutes_gin_trgm_idx   (minutes) USING gin
+#  agenda_items_minutes_gist_trgm_idx  (minutes) USING gist
+#  agenda_items_title_gin_trgm_idx     (title) USING gin
+#  agenda_items_title_gist_trgm_idx    (title) USING gist
+#  index_agenda_items_on_document_id   (document_id)
+#  index_agenda_items_on_meeting_id    (meeting_id)
 #
 agenda_item_10:
   meeting: rega_ewi_oct
