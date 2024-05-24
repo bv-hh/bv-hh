@@ -2,6 +2,8 @@
 
 class SearchController < ApplicationController
 
+  LIMIT = 25
+
   def show
     @term = (params[:q] || '').strip
 
@@ -13,12 +15,20 @@ class SearchController < ApplicationController
 
     set_search_options
 
-    root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
+    documents_root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
 
-    root = root.where(kind: @kind) if @kind
-    root = root.joins(:attachments) if @attachments
+    documents_root = documents_root.where(kind: @kind) if @kind
+    documents_root = documents_root.joins(:attachments) if @attachments
 
-    @documents = Document.search(@term, root:, order: @order, attachments: @attachments).page(params[:page])
+    @documents = Document.search(@term, root: documents_root, order: @order, attachments: @attachments)
+    @more_documents = [@documents.count(:all) - LIMIT, 0].max
+    @documents = @documents.limit(LIMIT)
+
+    agenda_items_root = (@all_districts ? AgendaItem.all : @district.agenda_items).includes(:meeting)
+
+    @agenda_items = AgendaItem.minutes_prefix_search(@term, agenda_items_root)
+    @more_agenda_items = [@agenda_items.count - LIMIT, 0].max
+    @agenda_items = @agenda_items.limit(LIMIT)
   end
 
  protected

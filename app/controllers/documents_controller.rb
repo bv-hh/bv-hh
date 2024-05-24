@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 class DocumentsController < ApplicationController
+  include ActionView::Helpers::TextHelper
+
   skip_after_action :track_event, only: :suggest
 
-  MAX_SUGGESTIONS = 10
+  MAX_SUGGESTIONS = 5
 
   def index
     @documents = @district.documents.complete.include_meetings.latest_first.page(params[:page])
@@ -37,6 +39,7 @@ class DocumentsController < ApplicationController
         number: document.number,
         district: document.district.name,
         kind: document.kind,
+        excerpt: excerpt(strip_tags(document.full_text), params[:q], radius: 50)
       }
     end
     render json: documents

@@ -28,12 +28,12 @@ html lang='de'
         button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNavDropdown
-          = form_tag search_documents_path, method: :get, class: 'd-flex' do
+          = form_tag search_path, method: :get, class: 'd-flex' do
             .me-2.d-inline-block
               = text_field_tag :q, @term, class: 'form-control search-input', type: :search, placeholder: 'Suche',
                   data: {suggest_documents: suggest_documents_path(q: 'QUERY'),
                   suggest_minutes: suggest_agenda_items_path(q: 'QUERY'),
-                  search: search_documents_path(q: 'QUERY')}, autocomplete: 'off'
+                  search: search_path(q: 'QUERY')}, autocomplete: 'off'
             button.btn.btn-primary.my-2.my-sm-0 type="submit"
               = icon('fas', 'search')
 

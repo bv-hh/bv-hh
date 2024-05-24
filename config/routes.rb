@@ -26,7 +26,7 @@ Rails.application.routes.draw do
   root to: 'pages#home'
 
   scope '(:district)' do
-    resource :search, only: :show
+    get :search, to: 'search#show'
 
     resources :documents, only: %i[index show] do
       collection do

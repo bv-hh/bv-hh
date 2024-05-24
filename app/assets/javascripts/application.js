@@ -63,6 +63,9 @@ function initSearch() {
       },
       suggestion: function(suggestion) {
         var template = '<div class="suggestion"><span class="title">' + suggestion.title + '</span> <br/>';
+        if (suggestion.excerpt != null) {
+          template += '<span class="excerpt">' + suggestion.excerpt + '</span> <br/>';
+        }
 
         template += '<span class="meta"><span class="district">' + suggestion.district + '</span> <span class="kind"> / ' + suggestion.kind + '</span>';
         template += ' <span class="number">' + suggestion.number + '</span></span></div>'
@@ -85,8 +88,11 @@ function initSearch() {
       },
       suggestion: function(suggestion) {
         var template = '<div class="suggestion"><span class="title">' + suggestion.title + '</span> <br/>';
+        if (suggestion.excerpt != null) {
+          template += '<span class="excerpt">' + suggestion.excerpt + '</span> <br/>';
+        }
 
-        template += '<span class="meta"><span class="district">' + suggestion.district + '</span> <span class="committee"> / ' + suggestion.committee + '</span>';
+        template += '<span class="meta"><span class="district">' + suggestion.district + '</span> <span class="meeting"> / ' + suggestion.meeting + '</span>';
         template += ' <span class="date">' + suggestion.date + '</span></span></div>'
 
         return template;
