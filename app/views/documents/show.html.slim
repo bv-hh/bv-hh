@@ -39,7 +39,7 @@ h3.text-muted
     .card-body
       == document_format(@document, :resolution)
 
-- if @document.attached.present?
+- if @document.attached.present? || @document.attachments.present?
   .card.mt-3
     .card-header.font-weight-bold Anhänge
     .card-body

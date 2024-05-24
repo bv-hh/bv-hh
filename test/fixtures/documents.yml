@@ -2,21 +2,23 @@
 #
 # Table name: documents
 #
-#  id                 :bigint           not null, primary key
-#  attached           :text
-#  author             :string
-#  content            :text
-#  embeddings_created :boolean          default(FALSE)
-#  full_text          :text
-#  kind               :string
-#  non_public         :boolean          default(FALSE)
-#  number             :string
-#  resolution         :text
-#  title              :string
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  allris_id          :integer
-#  district_id        :bigint
+#  id                     :bigint           not null, primary key
+#  attached               :text
+#  author                 :string
+#  content                :text
+#  embeddings_created     :boolean          default(FALSE)
+#  extracted_locations    :string           default([]), is an Array
+#  full_text              :text
+#  kind                   :string
+#  locations_extracted_at :datetime
+#  non_public             :boolean          default(FALSE)
+#  number                 :string
+#  resolution             :text
+#  title                  :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  allris_id              :integer
+#  district_id            :bigint
 #
 # Indexes
 #
