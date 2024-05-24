@@ -14,6 +14,11 @@ class SearchController < ApplicationController
 
     set_search_options
 
+    search_documents
+    search_agenda_items
+  end
+
+  def search_documents
     documents_root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
 
     documents_root = documents_root.where(kind: @kind) if @kind
@@ -22,7 +27,9 @@ class SearchController < ApplicationController
     @documents = Document.search(@term, root: documents_root, order: @order, attachments: @attachments)
     @more_documents = [@documents.count(:all) - LIMIT, 0].max
     @documents = @documents.limit(LIMIT)
+  end
 
+  def search_agenda_items
     agenda_items_root = (@all_districts ? AgendaItem.all : @district.agenda_items).includes(:meeting)
 
     @agenda_items = AgendaItem.minutes_prefix_search(@term, agenda_items_root)
