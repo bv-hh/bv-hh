@@ -165,8 +165,8 @@ GEM
     faraday-net_http (3.1.0)
       net-http
     ffi (1.16.3)
-    font-awesome-sass (5.15.1)
-      sassc (>= 1.11)
+    font-awesome-sass (6.5.2)
+      sassc (~> 2.0)
     fugit (1.8.1)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
@@ -484,7 +484,7 @@ DEPENDENCIES
   caxlsx_rails
   chartkick
   ed25519
-  font-awesome-sass (~> 5.15.1)
+  font-awesome-sass (~> 6.5.2)
   groupdate
   image_processing (~> 1.12)
   jbuilder (~> 2.12)
