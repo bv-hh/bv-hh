@@ -11,4 +11,6 @@ RUN gem install bundler
 RUN bundle install
 RUN rails assets:precompile
 
+RUN rm -f /bv-hh/tmp/pids/server.pid
+
 CMD [ "/bin/bash" ]
