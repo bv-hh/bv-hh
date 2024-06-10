@@ -70,7 +70,7 @@ gem 'uglifier'
 
 gem 'langchainrb', '~> 0.11.1'
 
-gem 'baran', '~> 0.1.10'
+gem 'baran', '~> 0.1.12'
 
 gem 'ruby-openai', '~> 6.5'
 
