@@ -220,6 +220,7 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.6.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -327,7 +328,8 @@ GEM
     rdoc (6.7.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
-    redis (4.8.1)
+    redis-client (0.22.2)
+      connection_pool
     regexp_parser (2.9.0)
     reline (0.5.7)
       io-console (~> 0.5)
@@ -386,10 +388,12 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sidekiq (6.5.12)
-      connection_pool (>= 2.2.5, < 3)
-      rack (~> 2.0)
-      redis (>= 4.5.0, < 5)
+    sidekiq (7.3.1)
+      concurrent-ruby (< 2)
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
     sidekiq-scheduler (5.0.3)
       rufus-scheduler (~> 3.2)
       sidekiq (>= 6, < 8)
@@ -508,7 +512,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
-  sidekiq (~> 6.5)
+  sidekiq (~> 7.3)
   sidekiq-scheduler
   simple_text_extract
   sitemap_generator
