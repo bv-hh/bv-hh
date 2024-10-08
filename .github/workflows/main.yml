@@ -115,12 +115,12 @@ jobs:
 
     - name: Store test results
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: Test Results
         path: test/reports
     - name: Store logs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: Logs
@@ -190,19 +190,19 @@ jobs:
         RAILS_ENV: test
 
     - name: Store screenshots
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: Screenshots
         path: tmp/screenshots
     - name: Store test results
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: Test Results
         path: test/reports
     - name: Store logs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: Logs
