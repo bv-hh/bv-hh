@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_01_30_214812) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_18_212659) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -217,6 +217,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_30_214812) do
     t.integer "order", default: 0
   end
 
+  create_table "document_locations", force: :cascade do |t|
+    t.bigint "document_id"
+    t.bigint "location_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_document_locations_on_document_id"
+    t.index ["location_id"], name: "index_document_locations_on_location_id"
+  end
+
   create_table "documents", force: :cascade do |t|
     t.bigint "district_id"
     t.integer "allris_id"
@@ -251,6 +260,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_01_30_214812) do
     t.date "expired_at"
     t.bigint "district_id"
     t.index ["district_id"], name: "index_groups_on_district_id"
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.string "name"
+    t.string "place_id"
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_locations_on_name"
+    t.index ["place_id"], name: "index_locations_on_place_id"
   end
 
   create_table "meetings", force: :cascade do |t|

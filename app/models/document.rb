@@ -50,6 +50,9 @@ class Document < ApplicationRecord
   has_many :meetings, through: :agenda_items
   has_many :attachments, as: :attachable, dependent: :destroy
 
+  has_many :document_locations, dependent: :destroy
+  has_many :locations, through: :document_locations
+
   has_many_attached :images
 
   validates :allris_id, presence: true
@@ -251,5 +254,18 @@ class Document < ApplicationRecord
 
   def attachments_content
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
+  end
+
+  def extract_locations
+    data = title + ' ' + full_text.gsub('&nbsp;', ' ').squish
+    labels = Tagger.tag(data)
+
+    labels.each do |label|
+      next if label['score'] < 0.9
+      next if label['value'] != 'LOC'
+      next if Location.blocked?(label['text'])
+
+      location = Location.find_or_create_by(label['text'])
+    end
   end
 end

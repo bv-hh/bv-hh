@@ -156,6 +156,10 @@ GEM
     et-orbi (1.2.7)
       tzinfo
     execjs (2.9.1)
+    faraday (2.9.0)
+      faraday-net_http (>= 2.0, < 3.2)
+    faraday-net_http (3.1.0)
+      net-http
     ffi (1.16.3)
     font-awesome-sass (5.15.1)
       sassc (>= 1.11)
@@ -216,6 +220,8 @@ GEM
     minitest (5.22.2)
     msgpack (1.7.2)
     mutex_m (0.2.0)
+    net-http (0.4.1)
+      uri
     net-imap (0.4.10)
       date
       net-protocol
@@ -399,6 +405,7 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.5.0)
+    uri (0.13.0)
     web-console (4.2.1)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -437,6 +444,7 @@ DEPENDENCIES
   caxlsx_rails
   chartkick
   ed25519
+  faraday
   font-awesome-sass (~> 5.15.1)
   groupdate
   image_processing (~> 1.12)
