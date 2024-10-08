@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # config valid for current version and patch releases of Capistrano
-lock '~> 3.19.2'
+lock '~> 3.19.1'
 
 set :application, 'bezirkr'
 set :repo_url, 'git@github.com:bv-hh/bv-hh.git'
