@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
+ActiveRecord::Schema[7.2].define(version: 2024_04_11_102635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -54,8 +54,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
     t.integer "allris_id"
     t.string "decision"
     t.text "result"
+    t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::\"char\")))", name: "agenda_items_expr_idx", using: :gin
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
+    t.index ["minutes"], name: "agenda_items_minutes_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["minutes"], name: "agenda_items_minutes_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+    t.index ["title"], name: "agenda_items_title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
+    t.index ["title"], name: "agenda_items_title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
   create_table "ahoy_events", force: :cascade do |t|
@@ -98,6 +103,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
     t.datetime "started_at", precision: nil
     t.index ["user_id"], name: "index_ahoy_visits_on_user_id"
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
+    t.index ["visitor_token", "started_at"], name: "index_ahoy_visits_on_visitor_token_and_started_at"
   end
 
   create_table "attachment_searches", force: :cascade do |t|
@@ -208,6 +214,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
     t.datetime "updated_at", null: false
     t.date "oldest_allris_meeting_date"
     t.string "first_legislation_number"
+    t.integer "order", default: 0
   end
 
   create_table "documents", force: :cascade do |t|
@@ -224,6 +231,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
     t.text "full_text"
     t.string "author"
     t.text "attached"
+    t.boolean "embeddings_created", default: false
     t.string "extracted_locations", default: [], array: true
     t.datetime "locations_extracted_at", precision: nil
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
@@ -249,7 +257,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_02_193516) do
   create_table "meetings", force: :cascade do |t|
     t.bigint "district_id"
     t.string "title"
-    t.string "committee"
     t.date "date"
     t.string "time"
     t.string "room"

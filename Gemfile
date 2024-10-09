@@ -3,11 +3,11 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.2'
+ruby '3.3.5'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'pg'
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.2.1'
 # Use Puma as the app server
 gem 'puma', '~> 6.4'
 gem 'sd_notify' # Required by puma for systemd integration
@@ -16,11 +16,11 @@ gem 'sass-rails', '>= 6'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.11'
+gem 'jbuilder', '~> 2.12'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
-gem 'bcrypt', '~> 3.1.19'
+gem 'bcrypt', '~> 3.1.20'
 
 # Use Active Storage variant
 gem 'image_processing', '~> 1.12'
@@ -30,14 +30,14 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'ahoy_matey'
 
-gem 'sidekiq'
+gem 'sidekiq', '~> 6.5'
 gem 'sidekiq-scheduler'
 
 gem 'nokogiri'
 
-gem 'bootstrap', '~> 4.6'
+gem 'bootstrap', '~> 5.3'
 
-gem 'bootstrap4-kaminari-views'
+gem 'bootstrap5-kaminari-views'
 gem 'kaminari'
 
 gem 'slim-rails'
@@ -72,14 +72,26 @@ gem 'mitie'
 
 gem 'google-maps'
 
+gem 'langchainrb', '~> 0.15.4'
+
+gem 'baran', '~> 0.1.12'
+
+gem 'ruby-openai', '~> 6.5'
+
+gem 'qdrant-ruby', '~> 0.9.7'
+
+gem 'redcarpet', '~> 3.6'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
 end
 
 group :development do
+  gem 'annotate'
+
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'listen', '~> 3.8'
+  gem 'listen', '~> 3.9'
   gem 'rubocop'
   gem 'rubocop-rails'
   gem 'rubocop-performance'
@@ -102,6 +114,8 @@ group :test do
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 2.15'
   gem 'selenium-webdriver'
+
+  gem 'minitest-ci', require: false
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

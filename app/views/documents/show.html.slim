@@ -1,6 +1,6 @@
 h2.h1 title="Drucksache #{@document.number}"
   strong= @document.number
-  .float-right= allris_link(@document.allris_url)
+  .float-end= allris_link(@document.allris_url)
 h1.h2.text-break
   = simple_format(@document.title)
 h3.text-muted
@@ -15,12 +15,12 @@ h3.text-muted
     .col-2.border-bottom.py-2 TOP
 
   - agenda_items.each do |item|
-    .row.pt-3.border-top
-      .col-3.col-lg-2.border-bottom.py-2
+    .row.py-2.border-top
+      .col-3.col-lg-2
         = l item.meeting.date
-      .col.col-lg-8.border-bottom.py-2
+      .col.col-lg-8
         = link_to item.meeting.committee.name, meeting_path(item.meeting)
-      .col-2.border-bottom.py-2
+      .col-2
         - if item.allris_id.present?
           => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
             strong= item.number
@@ -39,7 +39,7 @@ h3.text-muted
     .card-body
       == document_format(@document, :resolution)
 
-- if @document.attached.present?
+- if @document.attached.present? || @document.attachments.present?
   .card.mt-3
     .card-header.font-weight-bold Anhänge
     .card-body

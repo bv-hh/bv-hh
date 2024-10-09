@@ -1,5 +1,29 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: meetings
+#
+#  id           :bigint           not null, primary key
+#  date         :date
+#  end_time     :time
+#  location     :string
+#  room         :string
+#  start_time   :time
+#  time         :string
+#  title        :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  allris_id    :integer
+#  committee_id :bigint
+#  district_id  :bigint
+#
+# Indexes
+#
+#  index_meetings_on_allris_id     (allris_id)
+#  index_meetings_on_committee_id  (committee_id)
+#  index_meetings_on_district_id   (district_id)
+#
 require 'net/http'
 
 class Meeting < ApplicationRecord
@@ -15,7 +39,11 @@ class Meeting < ApplicationRecord
 
   scope :latest_first, -> { order(date: :desc) }
   scope :complete, -> { where.not(title: nil) }
+  scope :with_agenda, -> { complete.joins(:agenda_items).distinct }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
+  scope :in_month, ->(date) { where(date: date.all_month) }
+  scope :in_future, -> { where(date: Time.zone.today..) }
+  scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
@@ -62,7 +90,7 @@ class Meeting < ApplicationRecord
       next if agenda_item.nil?
 
       agenda_item.save
-      agenda_item.update_later! if agenda_item.allris_id.present?
+      # agenda_item.update_later! if agenda_item.allris_id.present?
     end
   end
 

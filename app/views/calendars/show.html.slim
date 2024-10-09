@@ -1,0 +1,39 @@
+h1
+  ' Kalender
+
+  small.text-muted
+    ' Alle Bezirke
+
+= render partial: 'date_selector'
+
+- @districts = District.all.by_order
+
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2
+    strong Datum
+  - @districts.each do |district|
+    .col.py-2
+      strong= district.name
+
+- (@date.beginning_of_month..@date.end_of_month).each do |day|
+  - meetings = @meetings[day]
+
+  - day_type = day.wday.in?([6, 0]) ? 'bg-info' : nil
+  - day_type = 'bg-warning' if day == Time.zone.now.to_date
+  .row.border-top.bg-opacity-25 class=day_type
+    .col-2.col-lg-1.py-1
+      => "#{day.day}."
+      = l(day, format: '%a')
+
+    - if meetings.present?
+      - @districts.each do |district|
+        .col.text-truncate
+          - district_meetings = meetings.select{|meeting| meeting.district == district}
+          - if district_meetings.present?
+            - district_meetings.sort_by{|meeting| meeting.committee&.order || 100}.each do |meeting|
+              - name = meeting.committee&.name || meeting.title
+              div.text-truncate data-bs-toggle='tooltip' title=name
+                = link_to name, meeting_path(meeting, district: district)
+    - else
+      .col
+

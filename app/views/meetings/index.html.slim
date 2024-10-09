@@ -24,13 +24,15 @@ h1.h2
     .col-7.col-lg-6
       = link_to meeting_path(meeting) do
         = meeting.title.html_safe
-    .col-2.col-lg-1.order-lg-last.text-right
+    .col-2.col-lg-1.order-lg-last.text-end
       - if meeting.logged?
         => meeting_minutes_link(meeting)
-      = allris_link meeting.allris_url
+      - if meeting.committee
+        = allris_link meeting.allris_url
     .w-100.d-block.d-lg-none
     .col-9.col-lg.offset-3.offset-lg-0.pt-2.pt-lg-0
-      = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
+      - if meeting.committee
+        = link_to meeting.committee.name, committee_path(meeting.committee), class: 'text-secondary'
 
 .mt-5
-  = paginate @meetings, theme: 'twitter-bootstrap-4', nav_class: "nav justify-content-center"
+  = paginate @meetings, theme: 'bootstrap-5', nav_class: "nav justify-content-center"

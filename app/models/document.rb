@@ -1,5 +1,38 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: documents
+#
+#  id                     :bigint           not null, primary key
+#  attached               :text
+#  author                 :string
+#  content                :text
+#  embeddings_created     :boolean          default(FALSE)
+#  extracted_locations    :string           default([]), is an Array
+#  full_text              :text
+#  kind                   :string
+#  locations_extracted_at :datetime
+#  non_public             :boolean          default(FALSE)
+#  number                 :string
+#  resolution             :text
+#  title                  :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  allris_id              :integer
+#  district_id            :bigint
+#
+# Indexes
+#
+#  documents_expr_idx              (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::"char")))) USING gin
+#  full_text_gin_trgm_idx          (full_text) USING gin
+#  full_text_gist_trgm_idx         (full_text) USING gist
+#  index_documents_on_allris_id    (allris_id)
+#  index_documents_on_district_id  (district_id)
+#  index_documents_on_number       (number)
+#  title_gin_trgm_idx              (title) USING gin
+#  title_gist_trgm_idx             (title) USING gist
+#
 require 'net/http'
 
 class Document < ApplicationRecord
@@ -35,8 +68,11 @@ class Document < ApplicationRecord
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
+  scope :no_embeddings, -> { where(embeddings_created: false) }
 
   default_scope -> { where(non_public: false) }
+
+  after_create :enqueue_create_qdrant_embeddings_job
 
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
@@ -74,7 +110,7 @@ class Document < ApplicationRecord
     term = '' if term.nil?
 
     query = root || Document.all
-    query = query.where('documents.title ILIKE :term OR documents.number ILIKE :term', term: "%#{term.downcase}%")
+    query = query.where('documents.title ILIKE :term OR documents.number ILIKE :term OR documents.full_text ILIKE :term', term: "%#{term.downcase}%")
 
     ordering = sanitize_sql_for_order [Arel.sql('(CASE WHEN documents.number ILIKE ? THEN 2 ELSE 0 END) + (CASE WHEN documents.title ILIKE ? THEN 1 ELSE 0 END) DESC, documents.title'), "#{term}%", "#{term}%"]
     query.order(ordering)
@@ -220,5 +256,35 @@ class Document < ApplicationRecord
 
   def attachments_content
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
+  end
+
+  def create_qdrant_embeddings
+    if non_public
+      raise 'Document is non-public, not vectorizing it.'
+    elsif embeddings_created
+      raise 'Embeddings already created for this document.'
+    else
+      splitter = Baran::CharacterTextSplitter.new(
+        chunk_size: 1024,
+        chunk_overlap: 64,
+        separator: ' '
+      )
+
+      qdrant = QdrantDb.new
+
+      splitter.chunks("document_id: #{id} #{title} #{full_text}").each do |chunk|
+        qdrant.connection.add_texts(
+          texts: chunk[:text]
+        )
+      end
+
+      update(embeddings_created: true)
+    end
+  end
+
+  private
+
+  def enqueue_create_qdrant_embeddings_job
+    CreateQdrantEmbeddingsJob.perform_later(self)
   end
 end
