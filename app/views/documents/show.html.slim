@@ -6,49 +6,63 @@ h1.h2.text-break
 h3.text-muted
   small= @document.kind
 
+- attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
-- if agenda_items.present?
-  .row.mt-3.font-weight-bold
-    .col-3.col-lg-2.border-bottom.py-2.text-break
-      | Bera&shy;tungs&shy;reihen&shy;folge
-    .col.col-lg-8.border-bottom.py-2 Gremium
-    .col-2.border-bottom.py-2 TOP
 
-  - agenda_items.each do |item|
-    .row.py-2.border-top
-      .col-3.col-lg-2
-        = l item.meeting.date
-      .col.col-lg-8
-        = link_to item.meeting.committee.name, meeting_path(item.meeting)
-      .col-2
-        - if item.allris_id.present?
-          => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
-            strong= item.number
-          = meeting_result_badge(item)
-        - else
-          = item.number
+.row
+  - if agenda_items.present?
+    .col.col-md-4.order-md-2
+      .row.mt-3.font-weight-bold
+        .col-3.col-lg-2.border-bottom.py-2.text-break
+          | Bera&shy;tungs&shy;reihen&shy;folge
+        .col.col-lg-8.border-bottom.py-2 Gremium
+        .col-2.border-bottom.py-2 TOP
 
-.card.mt-3
-  .card-header.font-weight-bold Sachverhalt
-  .card-body
-    == document_format(@document, :content)
+      - agenda_items.each do |item|
+        .row.py-2.border-top
+          .col-3.col-lg-2
+            = l item.meeting.date
+          .col.col-lg-8
+            = link_to item.meeting.committee.name, meeting_path(item.meeting)
+          .col-2
+            - if item.allris_id.present?
+              => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+                strong= item.number
+              = meeting_result_badge(item)
+            - else
+              = item.number
 
-- if @document.resolution.present?
-  .card.mt-3
-    .card-header.font-weight-bold Petitum/Beschluss
-    .card-body
-      == document_format(@document, :resolution)
+  .col-md-8
+    .card.mt-3
+      .card-header.font-weight-bold Sachverhalt
+      .card-body
+        == document_format(@document, :content)
 
-- if @document.attached.present? || @document.attachments.present?
-  .card.mt-3
-    .card-header.font-weight-bold Anhänge
-    .card-body
-      == document_format(@document, :attached)
+    - if @document.resolution.present?
+      .card.mt-3
+        .card-header.font-weight-bold Petitum/Beschluss
+        .card-body
+          == document_format(@document, :resolution)
 
-      .mt-3
-        - @document.attachments.by_name.each do |attachment|
-          = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
-          br
+  - if attachments
+    .col-md-4.order-last
+      .card.mt-3
+        .card-header.font-weight-bold Anhänge
+        .card-body
+          == document_format(@document, :attached)
+
+          .mt-3
+            - @document.attachments.by_name.each do |attachment|
+              = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
+              br
+
+  .col-md-4
+    .card.mt-3
+      .card-header.font-weight-bold Lokalisation
+      .card-body
+        = @document.locations.map(&:name).join(', ')
+        hr
+        = @document.extracted_locations
 
 
 script type="application/ld+json"

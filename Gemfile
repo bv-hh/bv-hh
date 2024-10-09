@@ -68,6 +68,10 @@ gem 'blazer'
 
 gem 'uglifier'
 
+gem 'mitie'
+
+gem 'google-maps'
+
 gem 'langchainrb', '~> 0.15.4'
 
 gem 'baran', '~> 0.1.12'

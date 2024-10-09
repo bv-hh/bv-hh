@@ -51,6 +51,9 @@ class Document < ApplicationRecord
   has_many :meetings, through: :agenda_items
   has_many :attachments, as: :attachable, dependent: :destroy
 
+  has_many :document_locations, dependent: :destroy
+  has_many :locations, through: :document_locations
+
   has_many_attached :images
 
   validates :allris_id, presence: true
@@ -67,6 +70,7 @@ class Document < ApplicationRecord
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
 
   default_scope -> { where(non_public: false) }
@@ -278,6 +282,30 @@ class Document < ApplicationRecord
       end
 
       update(embeddings_created: true)
+    end
+  end
+
+  def extract_locations!
+    return if self.full_text.blank?
+
+    ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
+      if entity[:tag] == 'LOCATION' && entity[:score] >= 0.5
+        entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '')
+      end
+    end.uniq
+
+    self.locations_extracted_at = Time.now
+    self.extracted_locations = ner_locations
+    save!
+  end
+
+  def assign_locations!
+    return if self.extracted_locations.blank?
+
+    extracted_locations.each do |extracted_location|
+      Location.determine_locations(extracted_location).each do |location|
+        self.document_locations.find_or_create_by!(location: location)
+      end
     end
   end
 

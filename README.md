@@ -15,6 +15,15 @@ Um BV-HH lokal zu installieren und daran zu entwickeln, sind diese Dinge nötig:
 - NodeJS
 - Redis
 
+## NER Modell herunterladen
+
+Für die Analyze der Texte mittels NLP wird ein neuronales Netz verwendet.
+Das nötige Modell muss hier heruntergeladen werden:
+
+https://github.com/mit-nlp/MITIE/releases/download/v0.4/MITIE-models-v0.2-German.tar.bz2
+
+Die ausgepackte Datei muss im Verzeichnis `data` verfügbar sein.
+
 ## Beitragen
 
 Nach der lokalen Installation muss mindestens ein Bezirk angelegt werden. Siehe hierzu `seeds.rb`. Die Attribute `oldest_allris_document_id`
