@@ -182,16 +182,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_04_11_102635) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
-  create_table "committee_members", force: :cascade do |t|
-    t.string "kind"
-    t.bigint "member_id"
-    t.bigint "committee_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["committee_id"], name: "index_committee_members_on_committee_id"
-    t.index ["member_id"], name: "index_committee_members_on_member_id"
-  end
-
   create_table "committees", force: :cascade do |t|
     t.bigint "district_id"
     t.integer "allris_id"
@@ -242,16 +232,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_04_11_102635) do
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
-  create_table "groups", force: :cascade do |t|
-    t.string "name"
-    t.integer "allris_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.date "expired_at"
-    t.bigint "district_id"
-    t.index ["district_id"], name: "index_groups_on_district_id"
-  end
-
   create_table "meetings", force: :cascade do |t|
     t.bigint "district_id"
     t.string "title"
@@ -268,18 +248,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_04_11_102635) do
     t.index ["allris_id"], name: "index_meetings_on_allris_id"
     t.index ["committee_id"], name: "index_meetings_on_committee_id"
     t.index ["district_id"], name: "index_meetings_on_district_id"
-  end
-
-  create_table "members", force: :cascade do |t|
-    t.string "name"
-    t.string "short_name"
-    t.string "kind"
-    t.integer "allris_id"
-    t.bigint "group_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["group_id"], name: "index_members_on_group_id"
-    t.index ["short_name"], name: "index_members_on_short_name"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
