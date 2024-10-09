@@ -15,7 +15,9 @@ class GoogleMaps
 
       url = URI.parse("#{FIND_PLACE}/json#{query_string(options)}").to_s
 
-      response(url)
+      result = response(url)
+
+      result&.is_a?(Hash) && result&.try(:[], 'status') == 'OK' ? result : nil
     end
 
     def query_string(options)
