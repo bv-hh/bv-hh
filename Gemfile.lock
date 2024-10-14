@@ -153,11 +153,13 @@ GEM
       tzinfo
     event_stream_parser (1.0.0)
     execjs (2.9.1)
-    faraday (2.9.0)
-      faraday-net_http (>= 2.0, < 3.2)
+    faraday (2.12.0)
+      faraday-net_http (>= 2.0, < 3.4)
+      json
+      logger
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (3.1.0)
+    faraday-net_http (3.3.0)
       net-http
     ffi (1.16.3)
     font-awesome-sass (5.15.1)
@@ -229,7 +231,7 @@ GEM
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
     msgpack (1.7.2)
-    multipart-post (2.4.0)
+    multipart-post (2.4.1)
     mutex_m (0.2.0)
     net-http (0.4.1)
       uri
@@ -345,7 +347,7 @@ GEM
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
     ruby-ole (1.2.12.2)
-    ruby-openai (6.5.0)
+    ruby-openai (7.3.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -425,7 +427,7 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.6.0)
-    uri (0.13.0)
+    uri (0.13.1)
     useragent (0.16.10)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -485,7 +487,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rails
-  ruby-openai (~> 6.5)
+  ruby-openai (~> 7.3)
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
