@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_09_195512) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_16_183000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -215,6 +215,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_09_195512) do
     t.date "oldest_allris_meeting_date"
     t.string "first_legislation_number"
     t.integer "order", default: 0
+    t.float "ne_lat"
+    t.float "ne_lng"
+    t.float "sw_lat"
+    t.float "sw_lng"
   end
 
   create_table "document_locations", force: :cascade do |t|
@@ -272,6 +276,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_09_195512) do
     t.datetime "updated_at", null: false
     t.string "normalized_name"
     t.string "extracted_name"
+    t.bigint "district_id"
+    t.string "formatted_address"
+    t.index ["district_id"], name: "index_locations_on_district_id"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["normalized_name"], name: "index_locations_on_normalized_name"
     t.index ["place_id"], name: "index_locations_on_place_id"

@@ -49,6 +49,7 @@ class Document < ApplicationRecord
 
   has_many :agenda_items, dependent: :nullify
   has_many :meetings, through: :agenda_items
+  has_many :committees, through: :meetings
   has_many :attachments, as: :attachable, dependent: :destroy
 
   has_many :document_locations, dependent: :destroy
@@ -289,7 +290,7 @@ class Document < ApplicationRecord
     return if self.full_text.blank?
 
     ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
-      if entity[:tag] == 'LOCATION' && entity[:score] >= 0.5
+      if entity[:tag] == 'LOCATION' && entity[:score] >= 0.4
         entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '')
       end
     end.uniq
@@ -303,9 +304,18 @@ class Document < ApplicationRecord
     return if self.extracted_locations.blank?
 
     extracted_locations.each do |extracted_location|
-      Location.determine_locations(extracted_location).each do |location|
+      next if from_local_committee?(extracted_location)
+      Location.determine_locations(extracted_location, district).each do |location|
         self.document_locations.find_or_create_by!(location: location)
       end
+    end
+  end
+
+  def from_local_committee?(location_name)
+    return false if location_name.blank?
+
+    committees.any? do |committee|
+      committee.matches_area?(location_name)
     end
   end
 

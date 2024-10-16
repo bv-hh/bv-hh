@@ -4,25 +4,31 @@
 #
 # Table name: locations
 #
-#  id              :bigint           not null, primary key
-#  extracted_name  :string
-#  latitude        :float
-#  longitude       :float
-#  name            :string
-#  normalized_name :string
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  place_id        :string
+#  id                :bigint           not null, primary key
+#  extracted_name    :string
+#  formatted_address :string
+#  latitude          :float
+#  longitude         :float
+#  name              :string
+#  normalized_name   :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  district_id       :bigint
+#  place_id          :string
 #
 # Indexes
 #
+#  index_locations_on_district_id      (district_id)
 #  index_locations_on_name             (name)
 #  index_locations_on_normalized_name  (normalized_name)
 #  index_locations_on_place_id         (place_id)
 #
 class Location < ApplicationRecord
 
-  BLOCKED_LOCATIONS = %w(norderstedt hamburg straße) + District.all.map(&:name).map(&:downcase)
+  BLOCKED_LOCATIONS = %w(deutschland norderstedt hamburg straße) + District.all.map(&:name).map(&:downcase) + ['hamburg nord', 'hamburg mitte']
+  VALID_TYPES = %w(route political sublocality)
+
+  belongs_to :district
 
   has_many :document_locations, dependent: :destroy
 
@@ -32,7 +38,7 @@ class Location < ApplicationRecord
   before_save :normalize_name
 
   def self.blocked?(location)
-    BLOCKED_LOCATIONS.include?(location.downcase)
+    BLOCKED_LOCATIONS.include?(normalize(location))
   end
 
   def self.normalized(name)
@@ -43,22 +49,36 @@ class Location < ApplicationRecord
     name&.downcase&.strip
   end
 
-  def self.determine_locations(extracted_name)
+  def self.determine_locations(extracted_name, district)
+    return [] if blocked?(extracted_name)
+
     locations = Location.normalized(extracted_name)
     return locations if locations.present?
 
-    google_result = GoogleMaps.find_place(extracted_name)
+    google_result = GoogleMaps.find_places(normalize(extracted_name))
     return [] if google_result.blank?
 
     google_result['candidates'].filter_map do |candidate|
-      next if Location.exists?(place_id: candidate['place_id'])
+      location = Location.find_by(district: district, place_id: candidate['place_id'])
+      next location if location.present?
 
-      if candidate['types'].include?('route')
-        latlng = candidate['geometry']['location']
-        Location.create!(name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
-                         latitude: latlng['lat'], longitude: latlng['lng'])
+      latlng = candidate['geometry']['location']
+      next if latlng.blank?
+      next if Location.out_of_bounds?(latlng['lat'], latlng['lng'], district.bounds)
+
+      if (candidate['types'] & VALID_TYPES).any?
+        Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
+                         latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'])
       end
     end
+  end
+
+  # Bounds is an array with two arrays each with lat lng as elements, indicating northeast and southwest corner of a bounding box
+  def self.out_of_bounds?(latitude, longitude, bounds)
+    ne = bounds.first
+    sw = bounds.last
+
+    latitude > ne.first || latitude < sw.first || longitude > ne.last || longitude < sw.last
   end
 
   private

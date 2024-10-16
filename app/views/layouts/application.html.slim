@@ -23,7 +23,8 @@ html lang='de'
   body class=css_classes
     nav.navbar.navbar-dark.navbar-expand-md.fixed-top
       .container-lg
-        = link_to 'BV-HH', root_path, class: 'navbar-brand d-md-none d-lg-inline'
+        - actual_root_path = @district.present? ? root_with_district_path(district: @district) : root_path
+        = link_to 'BV-HH', actual_root_path, class: 'navbar-brand d-md-none d-lg-inline'
 
         button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
           span.navbar-toggler-icon

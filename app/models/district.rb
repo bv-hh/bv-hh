@@ -8,8 +8,12 @@
 #  allris_base_url            :string
 #  first_legislation_number   :string
 #  name                       :string
+#  ne_lat                     :float
+#  ne_lng                     :float
 #  oldest_allris_meeting_date :date
 #  order                      :integer          default(0)
+#  sw_lat                     :float
+#  sw_lng                     :float
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #  oldest_allris_document_id  :integer
@@ -43,6 +47,10 @@ class District < ApplicationRecord
     @districts ||= District.all.index_by { |d| d.name.parameterize }
 
     @districts[path.parameterize]
+  end
+
+  def bounds
+    [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end
 
   def check_for_document_updates

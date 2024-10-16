@@ -3,7 +3,7 @@ class GoogleMaps
   FIND_PLACE = "https://maps.googleapis.com/maps/api/place/findplacefromtext"
 
   class << self
-    def find_place(query, options = {})
+    def find_places(query, options = {})
       options = options.merge({
         input: query,
         inputtype: 'textquery',
