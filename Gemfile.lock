@@ -167,9 +167,16 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    google-maps (3.0.7)
+      hashie (~> 4.1, >= 4.1.0)
+      httpclient (~> 2.7, >= 2.7.1)
+      multi_json (>= 1.15)
+      ruby-hmac (~> 0.4.0)
     groupdate (6.4.0)
       activesupport (>= 6.1)
+    hashie (4.1.0)
     htmlentities (4.3.4)
+    httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.2)
@@ -225,10 +232,13 @@ GEM
     matrix (0.4.2)
     mini_magick (4.11.0)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.4)
     minitest (5.25.1)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
+    mitie (0.2.2)
     msgpack (1.7.2)
+    multi_json (1.15.0)
     multipart-post (2.4.0)
     mutex_m (0.2.0)
     net-http (0.4.1)
@@ -343,7 +353,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
-      rubocop-ast (>= 1.31.1, < 2.0)
+    ruby-hmac (0.4.0)
     ruby-ole (1.2.12.2)
     ruby-openai (6.5.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
@@ -466,6 +476,7 @@ DEPENDENCIES
   chartkick
   ed25519
   font-awesome-sass (~> 5.15.1)
+  google-maps
   groupdate
   image_processing (~> 1.12)
   jbuilder (~> 2.12)
@@ -474,6 +485,7 @@ DEPENDENCIES
   langchainrb (~> 0.15.4)
   listen (~> 3.9)
   minitest-ci
+  mitie
   nokogiri
   pg
   puma (~> 6.4)

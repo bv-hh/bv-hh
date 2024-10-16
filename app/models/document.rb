@@ -49,7 +49,11 @@ class Document < ApplicationRecord
 
   has_many :agenda_items, dependent: :nullify
   has_many :meetings, through: :agenda_items
+  has_many :committees, through: :meetings
   has_many :attachments, as: :attachable, dependent: :destroy
+
+  has_many :document_locations, dependent: :destroy
+  has_many :locations, through: :document_locations
 
   has_many_attached :images
 
@@ -67,6 +71,7 @@ class Document < ApplicationRecord
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
 
   default_scope -> { where(non_public: false) }
@@ -278,6 +283,39 @@ class Document < ApplicationRecord
       end
 
       update(embeddings_created: true)
+    end
+  end
+
+  def extract_locations!
+    return if self.full_text.blank?
+
+    ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
+      if entity[:tag] == 'LOCATION' && entity[:score] >= 0.4
+        entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '')
+      end
+    end.uniq
+
+    self.locations_extracted_at = Time.now
+    self.extracted_locations = ner_locations
+    save!
+  end
+
+  def assign_locations!
+    return if self.extracted_locations.blank?
+
+    extracted_locations.each do |extracted_location|
+      next if from_local_committee?(extracted_location)
+      Location.determine_locations(extracted_location, district).each do |location|
+        self.document_locations.find_or_create_by!(location: location)
+      end
+    end
+  end
+
+  def from_local_committee?(location_name)
+    return false if location_name.blank?
+
+    committees.any? do |committee|
+      committee.matches_area?(location_name)
     end
   end
 
