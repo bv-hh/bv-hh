@@ -2,7 +2,7 @@
 
 class ExtractDocumentLocationsJob < ApplicationJob
 
-  LIMIT = 1000
+  LIMIT = 5000
 
   queue_as :documents
 

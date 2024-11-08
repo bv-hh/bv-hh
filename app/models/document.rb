@@ -45,6 +45,8 @@ class Document < ApplicationRecord
   NON_PUBLIC = 'Keine Information verf&uuml;gbar'
   AUTH_REDIRECT = 'noauth.asp'
 
+  NER_THRESHOLD = 0.4
+
   belongs_to :district
 
   has_many :agenda_items, dependent: :nullify
@@ -290,7 +292,7 @@ class Document < ApplicationRecord
     return if self.full_text.blank?
 
     ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
-      if entity[:tag] == 'LOCATION' && entity[:score] >= 0.4
+      if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
         entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '')
       end
     end.uniq

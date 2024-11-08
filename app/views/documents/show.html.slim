@@ -9,6 +9,13 @@ h3.text-muted
 - attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
 
+- if item = agenda_items.first
+  p
+    ' Letzte Beratung:
+    => l item.meeting.date
+    => link_to item.meeting.committee.name, meeting_path(item.meeting)
+    = item.number
+
 .row
   .col-md-8
     .card.mt-3
@@ -63,9 +70,13 @@ h3.text-muted
         span.badge.text-bg-warning.float-end Beta
 
       .card-body
-        - @document.locations.each do |location|
-          span.badge.text-bg-secondary> data-bs-toggle='tooltip' data-bs-title=location.formatted_address
-            =location.name
+        - if @document.locations.present?
+          - @document.locations.each do |location|
+            span.badge.text-bg-secondary> data-bs-toggle='tooltip' data-bs-title=location.formatted_address
+              =location.name
+        - else
+          p
+            | Keine Orte erkannt.
 
         p.small.text-secondary.mt-3
           | Die Erkennung von Orten anhand des Textes der Drucksache kann ungenau sein. Es ist daher möglich, das Orte
