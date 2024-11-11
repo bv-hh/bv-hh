@@ -21,7 +21,7 @@ gem 'jbuilder', '~> 2.12'
 gem 'bcrypt', '~> 3.1.20'
 
 # Use Active Storage variant
-gem 'image_processing', '~> 1.12'
+gem 'image_processing', '~> 1.13'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
@@ -29,9 +29,6 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'turbo-rails'
 
 gem 'ahoy_matey'
-
-gem 'sidekiq', '~> 6.5'
-gem 'sidekiq-scheduler'
 
 gem 'nokogiri'
 
@@ -80,6 +77,10 @@ gem 'qdrant-ruby', '~> 0.9.7'
 
 gem 'redcarpet', '~> 3.6'
 
+gem 'importmap-rails', '~> 2.0'
+
+gem 'good_job', '~> 3.99'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
@@ -119,4 +120,3 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-gem "importmap-rails", "~> 2.0"

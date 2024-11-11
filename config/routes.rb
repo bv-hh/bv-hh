@@ -1,18 +1,15 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  require 'sidekiq/web'
-  require 'sidekiq-scheduler/web'
-
   auth = Rails.application.credentials.dig(Rails.env.to_sym, :admin_auth)
   if auth.present?
-    Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+    GoodJob::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
       ActiveSupport::SecurityUtils.secure_compare(username, auth[:username]) &
         ActiveSupport::SecurityUtils.secure_compare(password, auth[:password])
     end
   end
 
-  mount Sidekiq::Web => '/sidekiq'
+  mount GoodJob::Engine, at: 'good_job'
   mount Blazer::Engine, at: 'blazer'
 
   get '/about' => 'pages#about', as: :about

@@ -46,4 +46,5 @@ sitemap.xml.gz
 
 /data/*
 !/data/.keep
+
 *.bak
