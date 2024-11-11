@@ -321,7 +321,6 @@ GEM
     rdoc (6.7.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
-    redis (4.8.1)
     regexp_parser (2.9.2)
     reline (0.5.10)
       io-console (~> 0.5)
@@ -360,8 +359,6 @@ GEM
     ruby-vips (2.1.4)
       ffi (~> 1.12)
     rubyzip (2.3.2)
-    rufus-scheduler (3.9.0)
-      fugit (~> 1.1, >= 1.1.6)
     safely_block (0.4.0)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -380,14 +377,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sidekiq (6.5.12)
-      connection_pool (>= 2.2.5, < 3)
-      rack (~> 2.0)
-      redis (>= 4.5.0, < 5)
-    sidekiq-scheduler (5.0.3)
-      rufus-scheduler (~> 3.2)
-      sidekiq (>= 6, < 8)
-      tilt (>= 1.4.0)
     simple_text_extract (3.0.5)
       roo (~> 2.10.0)
       rubyzip (~> 2.3.2)
@@ -497,8 +486,6 @@ DEPENDENCIES
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
-  sidekiq (~> 6.5)
-  sidekiq-scheduler
   simple_text_extract
   sitemap_generator
   slim-rails
