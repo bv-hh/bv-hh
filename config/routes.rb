@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-
   auth = Rails.application.credentials.dig(Rails.env.to_sym, :admin_auth)
   if auth.present?
     GoodJob::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
