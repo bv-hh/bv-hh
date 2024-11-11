@@ -159,7 +159,7 @@ GEM
       multipart-post (~> 2)
     faraday-net_http (3.1.0)
       net-http
-    ffi (1.16.3)
+    ffi (1.17.0-x86_64-linux-gnu)
     font-awesome-sass (5.15.1)
       sassc (>= 1.11)
     fugit (1.8.1)
@@ -179,7 +179,7 @@ GEM
     htmlentities (4.3.4)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    image_processing (1.12.2)
+    image_processing (1.13.0)
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
     io-console (0.7.2)
@@ -230,7 +230,7 @@ GEM
       net-smtp
     marcel (1.0.4)
     matrix (0.4.2)
-    mini_magick (4.11.0)
+    mini_magick (4.13.2)
     mini_mime (1.1.5)
     minitest (5.25.1)
     minitest-ci (3.4.0)
@@ -356,8 +356,9 @@ GEM
       faraday (>= 1)
       faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
-    ruby-vips (2.1.4)
+    ruby-vips (2.2.2)
       ffi (~> 1.12)
+      logger
     rubyzip (2.3.2)
     safely_block (0.4.1)
     sass-rails (6.0.0)
@@ -465,7 +466,7 @@ DEPENDENCIES
   font-awesome-sass (~> 5.15.1)
   good_job (~> 3.99)
   groupdate
-  image_processing (~> 1.12)
+  image_processing (~> 1.13)
   jbuilder (~> 2.12)
   jquery-rails
   kaminari
