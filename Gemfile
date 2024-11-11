@@ -30,9 +30,6 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'ahoy_matey'
 
-gem 'sidekiq', '~> 6.5'
-gem 'sidekiq-scheduler'
-
 gem 'nokogiri'
 
 gem 'bootstrap', '~> 5.3'
@@ -116,3 +113,5 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+
+gem 'good_job', '~> 3.99'
