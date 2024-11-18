@@ -65,7 +65,7 @@ gem 'blazer'
 
 gem 'uglifier'
 
-gem 'langchainrb', '~> 0.15.4'
+gem 'langchainrb', '~> 0.19.0'
 
 gem 'baran', '~> 0.1.12'
 
