@@ -72,7 +72,7 @@ class Document < ApplicationRecord
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
-  scope :since_number, ->(number) { where('documents.number >= ?', number) }
+  scope :since_number, ->(number) { where(documents: { number: number.. }) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
 
@@ -135,7 +135,8 @@ class Document < ApplicationRecord
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
-    self.number = html.css('h1').first&.text&.gsub('Drucksache -', '')&.gsub('Vorlage -', '')&.squish
+    headline = html.css('h1').first&.text
+    self.number = headline&.gsub('Drucksache -', '')&.gsub('Vorlage -', '')&.squish
 
     html = html.css('table.risdeco').first
 
