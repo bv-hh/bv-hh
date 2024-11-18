@@ -9,5 +9,5 @@ h1
 
 .row.mt-3
   .col
-    #map.leaflet-container style='min-height: 80vh'
-      .map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom='11' data-map-markers=markers_map_path
+    #map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path
+      div data-map-target='container' style='min-height: 80vh'

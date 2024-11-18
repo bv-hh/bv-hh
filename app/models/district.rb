@@ -142,6 +142,6 @@ class District < ApplicationRecord
   end
 
   def center
-    { lat: (ne_lat - sw_lat) / 2.0, lng: (ne_lng - sw_lng) / 2.0 }
+    { lat: sw_lat + (ne_lat - sw_lat) / 2.0, lng: sw_lng + (ne_lng - sw_lng) / 2.0 }
   end
 end
