@@ -140,4 +140,8 @@ class District < ApplicationRecord
     end
     meeting.save!
   end
+
+  def center
+    { lat: (ne_lat - sw_lat) / 2.0, lng: (ne_lng - sw_lng) / 2.0 }
+  end
 end

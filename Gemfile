@@ -28,6 +28,8 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'turbo-rails'
 
+gem 'stimulus-rails'
+
 gem 'ahoy_matey'
 
 gem 'nokogiri'

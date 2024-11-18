@@ -34,7 +34,7 @@ Rails.application.configure do
       class: 'UpdateAverageDurationsJob',
       cron: '0 23 1 1 * *',
     },
-    extract_document_locations_job:
+    extract_document_locations_job: {
       class: 'ExtractDocumentLocationsJob',
       cron: '0 39 1 * * *',
     },

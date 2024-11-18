@@ -5,6 +5,8 @@ import "bootstrap"
 import "chartkick"
 import "Chart.bundle"
 
+import "controllers"
+
 document.addEventListener("turbo:load", function() {
   let tooltipelements = document.querySelectorAll("[data-bs-toggle='tooltip']");
   tooltipelements.forEach((el) => {

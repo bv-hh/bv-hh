@@ -43,6 +43,8 @@ html lang='de'
             li.nav-item
               = link_to 'Kalender', calendar_path, class: "nav-link"
             li.nav-item
+              = link_to 'Karte', map_path, class: "nav-link"
+            li.nav-item
               = link_to 'Drucksachen', documents_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
               = link_to 'Sitzungen', meetings_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
@@ -57,6 +59,7 @@ html lang='de'
                 - if @district.present?
                   = @district.name
                 - else
+                  | Bezirk wählen
               ul.dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
                 - District.by_order.each do |district|
                   li
