@@ -186,7 +186,7 @@ GEM
     irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    jbuilder (2.12.0)
+    jbuilder (2.13.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     jquery-rails (4.6.0)
@@ -466,7 +466,7 @@ DEPENDENCIES
   good_job (~> 3.99)
   groupdate
   image_processing (~> 1.13)
-  jbuilder (~> 2.12)
+  jbuilder (~> 2.13)
   jquery-rails
   kaminari
   langchainrb (~> 0.15.4)
