@@ -18,3 +18,4 @@ pin "leaflet" # @1.9.4
 
 pin_all_from "app/javascript/controllers", under: "controllers"
 
+pin "leaflet.markercluster" # @1.5.3

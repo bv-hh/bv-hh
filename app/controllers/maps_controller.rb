@@ -7,7 +7,7 @@ class MapsController < ApplicationController
   def show
     if @district.present?
       @center = @district.center
-      @zoom = 13
+      @zoom = 12
     else
       @center = HH_CENTER
       @zoom = 11
@@ -15,9 +15,10 @@ class MapsController < ApplicationController
   end
 
   def markers
+    months = params[:months].presence&.to_i || 3
     locations = DocumentLocation.joins(:document)
-    locations = locations.merge(Document.for_district(@district)) if @district.present?
-    #locations = locations.merge(Document.in_last_months(3))
+    locations = locations.merge(Document.where(district: @district)) if @district.present?
+    locations = locations.merge(Document.in_last_months(months))
     markers = locations.group_by(&:location).map do |location, documents|
       {
         position: [ location.latitude, location.longitude ],
