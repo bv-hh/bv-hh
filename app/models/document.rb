@@ -78,7 +78,8 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
-  after_create :enqueue_create_qdrant_embeddings_job
+  # tbk 23.11.2024: Not working in prod anymore, don't know how to fix it
+  #after_create :enqueue_create_qdrant_embeddings_job
 
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
