@@ -289,6 +289,10 @@ class Document < ApplicationRecord
     end
   end
 
+  def extract_locations_later!
+    ExtractDocumentLocationsJob.perform_later(self)
+  end
+
   def extract_locations!
     return if self.full_text.blank?
 
@@ -301,6 +305,12 @@ class Document < ApplicationRecord
     self.locations_extracted_at = Time.now
     self.extracted_locations = ner_locations
     save!
+
+    assign_locations_later! if ner_locations.present?
+  end
+
+  def assign_locations_later!
+    AssignDocumentLocationsJob.perform_later(self)
   end
 
   def assign_locations!

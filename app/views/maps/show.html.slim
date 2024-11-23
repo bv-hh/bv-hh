@@ -7,11 +7,12 @@ h1
     - else
       ' Alle Bezirke
 
-.beta.mb-3
-  span.badge.text-bg-warning> Beta
-  span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass Orte nicht korrekt angezeigt werden.
-
 #map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path
+  .float-end.mt-1
+    .beta.mb-3
+      span.badge.text-bg-warning> Beta
+      span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass Orte nicht korrekt angezeigt werden.
+
   .btn-toolbar
     .btn.btn-text.mr-3 Letzte
     .years.btn-group

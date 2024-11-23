@@ -6,8 +6,12 @@ class ExtractDocumentLocationsJob < ApplicationJob
 
   queue_as :documents
 
-  def perform
-    Document.locations_not_extracted.limit(LIMIT).find_each do |document|
+  def perform(document = nil)
+    if document.nil?
+      Document.locations_not_extracted.limit(LIMIT).find_each do |document|
+        ExtractDocumentLocationsJob.perform_later(document: document)
+      end
+    else
       document.extract_locations!
     end
   end
