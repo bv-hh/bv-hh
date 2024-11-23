@@ -32,6 +32,8 @@ gem 'stimulus-rails'
 
 gem 'ahoy_matey'
 
+gem 'fiddle'
+
 gem 'nokogiri'
 
 gem 'bootstrap', '~> 5.3'
