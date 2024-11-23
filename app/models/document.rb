@@ -297,12 +297,10 @@ class Document < ApplicationRecord
     return if self.full_text.blank?
 
     ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
-      if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
-        entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '')
-      end
+      entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
     end.uniq
 
-    self.locations_extracted_at = Time.now
+    self.locations_extracted_at = Time.zone.now
     self.extracted_locations = ner_locations
     save!
 
@@ -314,12 +312,13 @@ class Document < ApplicationRecord
   end
 
   def assign_locations!
-    return if self.extracted_locations.blank?
+    return if extracted_locations.blank?
 
     extracted_locations.each do |extracted_location|
       next if from_local_committee?(extracted_location)
+
       Location.determine_locations(extracted_location, district).each do |location|
-        self.document_locations.find_or_create_by!(location: location)
+        document_locations.find_or_create_by!(location: location)
       end
     end
   end

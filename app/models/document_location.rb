@@ -16,7 +16,6 @@
 #  index_document_locations_on_location_id  (location_id)
 #
 class DocumentLocation < ApplicationRecord
-
   belongs_to :document
   belongs_to :location
 end

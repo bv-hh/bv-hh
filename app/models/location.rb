@@ -24,9 +24,8 @@
 #  index_locations_on_place_id         (place_id)
 #
 class Location < ApplicationRecord
-
-  BLOCKED_LOCATIONS = %w(deutschland norderstedt hamburg straße) + District.all.map(&:name).map(&:downcase) + ['hamburg nord', 'hamburg mitte']
-  VALID_TYPES = %w(route political sublocality)
+  BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg straße] + District.all.map { |d| d.name.downcase } + ['hamburg nord', 'hamburg mitte']
+  VALID_TYPES = %w[route political sublocality]
 
   belongs_to :district
 
@@ -66,7 +65,7 @@ class Location < ApplicationRecord
       next if latlng.blank?
       next if Location.out_of_bounds?(latlng['lat'], latlng['lng'], district.bounds)
 
-      if (candidate['types'] & VALID_TYPES).any?
+      if candidate['types'].intersect?(VALID_TYPES)
         Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
                          latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'])
       end
@@ -84,6 +83,6 @@ class Location < ApplicationRecord
   private
 
   def normalize_name
-    self.normalized_name = Location.normalize(self.extracted_name)
+    self.normalized_name = Location.normalize(extracted_name)
   end
 end

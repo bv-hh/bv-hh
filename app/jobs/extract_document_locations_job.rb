@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class ExtractDocumentLocationsJob < ApplicationJob
-
   LIMIT = 5000
 
   queue_as :documents
@@ -15,5 +14,4 @@ class ExtractDocumentLocationsJob < ApplicationJob
       document.extract_locations!
     end
   end
-
 end

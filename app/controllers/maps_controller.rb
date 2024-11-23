@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class MapsController < ApplicationController
-
   HH_CENTER = { lat: 53.5488282, lng: 9.98717029 }
 
   def show
@@ -21,7 +20,7 @@ class MapsController < ApplicationController
     locations = locations.merge(Document.in_last_months(months))
     markers = locations.group_by(&:location).map do |location, documents|
       {
-        position: [ location.latitude, location.longitude ],
+        position: [location.latitude, location.longitude],
         name: location.name,
         address: location.formatted_address,
         documents: documents.map do |document_location|
@@ -29,9 +28,9 @@ class MapsController < ApplicationController
           {
             number: document.number,
             title: document.title,
-            path: document_path(document)
+            path: document_path(document),
           }
-        end
+        end,
       }
     end
 

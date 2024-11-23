@@ -21,7 +21,6 @@
 #  index_committees_on_district_id  (district_id)
 #
 class Committee < ApplicationRecord
-
   LOCAL_COMMITTEE_DESIGNATION = 'Regionalausschuss'
 
   belongs_to :district
@@ -59,5 +58,4 @@ class Committee < ApplicationRecord
     normalized_location_name = location_name.gsub(/[^\w ]/, '').downcase
     area&.gsub(/[^\w ]/, '')&.downcase == normalized_location_name
   end
-
 end
