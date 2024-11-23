@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ExtractDocumentLocationsJob < ApplicationJob
+class AssignDocumentLocationsJob < ApplicationJob
   queue_as :documents
 
   def perform(document)
