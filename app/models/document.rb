@@ -298,6 +298,7 @@ class Document < ApplicationRecord
     return if self.full_text.blank?
 
     ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
+      next if entity[:text].blank?
       entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
     end.uniq
 
