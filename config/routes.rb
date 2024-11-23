@@ -54,6 +54,12 @@ Rails.application.routes.draw do
 
     resource :calendar, only: :show
 
+    resource :map, only: :show do
+      collection do
+        get :markers
+      end
+    end
+
     resource :statistics, only: :show
 
     resources :questions, only: %i[index new create]

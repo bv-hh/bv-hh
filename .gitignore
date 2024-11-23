@@ -43,4 +43,8 @@
 yarn-debug.log*
 .yarn-integrity
 sitemap.xml.gz
+
+/data/*
+!/data/.keep
+
 *.bak

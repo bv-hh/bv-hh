@@ -13,8 +13,6 @@ gem 'puma', '~> 6.4'
 gem 'sd_notify' # Required by puma for systemd integration
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.13'
 # Use Redis adapter to run Action Cable in production
@@ -27,6 +25,10 @@ gem 'image_processing', '~> 1.13'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
+
+gem 'turbo-rails'
+
+gem 'stimulus-rails'
 
 gem 'ahoy_matey'
 
@@ -47,8 +49,6 @@ gem 'font-awesome-sass', '~> 5.15.1'
 gem 'sprockets', '~> 4'
 gem 'sprockets-rails', require: 'sprockets/railtie'
 
-gem 'jquery-rails'
-
 gem 'rails-i18n'
 
 gem 'chartkick'
@@ -65,6 +65,10 @@ gem 'blazer'
 
 gem 'uglifier'
 
+gem 'mitie'
+
+gem 'google-maps'
+
 gem 'langchainrb', '~> 0.15.4'
 
 gem 'baran', '~> 0.1.12'
@@ -74,6 +78,10 @@ gem 'ruby-openai', '~> 6.5'
 gem 'qdrant-ruby', '~> 0.9.7'
 
 gem 'redcarpet', '~> 3.6'
+
+gem 'importmap-rails', '~> 2.0'
+
+gem 'good_job', '~> 3.99'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -113,5 +121,3 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-
-gem 'good_job', '~> 3.99'

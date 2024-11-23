@@ -1,19 +1,13 @@
-//= require rails-ujs
-//= require turbolinks
+import "@hotwired/turbo-rails"
+import "@popperjs/core"
+import "bootstrap"
 
-//= require jquery
-//= require popper
+import "chartkick"
+import "Chart.bundle"
 
-//= require bootstrap
+import "controllers"
 
-//= require corejs-typeahead
-
-//= require chartkick
-//= require Chart.bundle
-
-//= require_self
-
-document.addEventListener("turbolinks:load", function() {
+document.addEventListener("turbo:load", function() {
   let tooltipelements = document.querySelectorAll("[data-bs-toggle='tooltip']");
   tooltipelements.forEach((el) => {
     new bootstrap.Tooltip(el);
@@ -21,7 +15,7 @@ document.addEventListener("turbolinks:load", function() {
   initSearch();
 });
 
-document.addEventListener("turbolinks:before-cache", function () {
+document.addEventListener("turbo:before-cache", function () {
   $('[data-bs-toggle="tooltip"]').tooltip('hide');
 });
 
@@ -48,7 +42,7 @@ function initSearch() {
       }
    });
 
-  typeahead = $('input.search-input').typeahead({highlight: true, hint: false}, {
+  let typeahead = $('input.search-input').typeahead({highlight: true, hint: false}, {
     name: 'documents',
     display: 'title',
     source: documents,
@@ -56,8 +50,7 @@ function initSearch() {
     templates: {
       notFound: function(query) {
         var searchUri = searchSource.replace('QUERY', encodeURIComponent(query.query));
-        var template = '<div class="nothing-found">Nach <a href="' + searchUri + '">';
-        template += '"' + query.query + '" in allen Drucksachen suchen';
+        var emplate = '<div class="nothing-found">Nach <a href="' + searchUri + '">'; template += '"' + query.query + '" in allen Drucksachen suchen';
         template += '</a> (Enter)</div>';
         return template;
       },

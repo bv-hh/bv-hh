@@ -23,3 +23,7 @@ hamburg_nord:
   oldest_allris_meeting_date: 2023-08-01
   first_legislation_number: 21-0001
   order: 3
+  ne_lat: 53.6819221
+  ne_lng: 10.089918
+  sw_lat: 53.556154
+  sw_lng: 9.9588098

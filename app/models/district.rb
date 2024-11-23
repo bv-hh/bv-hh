@@ -49,6 +49,10 @@ class District < ApplicationRecord
     @districts[path.parameterize]
   end
 
+  def bounds
+    [[ne_lat, ne_lng], [sw_lat, sw_lng]]
+  end
+
   def check_for_document_updates
     source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
@@ -135,5 +139,9 @@ class District < ApplicationRecord
       meeting.committee = committee
     end
     meeting.save!
+  end
+
+  def center
+    { lat: sw_lat + ((ne_lat - sw_lat) / 2.0), lng: sw_lng + ((ne_lng - sw_lng) / 2.0) }
   end
 end

@@ -1,0 +1,26 @@
+h1
+  ' Karte
+
+  small.text-muted
+    - if @district.present?
+      = @district.name
+    - else
+      ' Alle Bezirke
+
+#map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path
+  .float-end.mt-1
+    .beta.mb-3
+      span.badge.text-bg-warning> Beta
+      span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass Orte nicht korrekt angezeigt werden.
+
+  .btn-toolbar
+    .btn.btn-text.mr-3 Letzte
+    .years.btn-group
+      - [3, 6, 12].each do |months|
+        button.btn.btn-outline-secondary data-action='click->map#load' data-months=months data-map-target='month'
+          = months
+    .btn.btn-text.ml-3 Monate
+
+  .row.mt-3
+    .col
+      div data-map-target='container' style='min-height: 80vh'

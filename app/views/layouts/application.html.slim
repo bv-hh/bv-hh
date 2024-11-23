@@ -16,14 +16,18 @@ html lang='de'
     = csrf_meta_tags
     = csp_meta_tag
 
+    = stylesheet_link_tag 'legacy', media: 'all'
     = stylesheet_link_tag 'application', media: 'all'
-    = javascript_include_tag 'application'
+
+    = javascript_include_tag 'legacy'
+    = javascript_importmap_tags
 
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
     nav.navbar.navbar-dark.navbar-expand-md.fixed-top
       .container-lg
-        = link_to 'BV-HH', root_path, class: 'navbar-brand d-md-none d-lg-inline'
+        - actual_root_path = @district.present? ? root_with_district_path(district: @district) : root_path
+        = link_to 'BV-HH', actual_root_path, class: 'navbar-brand d-md-none d-lg-inline'
 
         button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
           span.navbar-toggler-icon
@@ -40,6 +44,8 @@ html lang='de'
           ul.navbar-nav.me-auto
             li.nav-item
               = link_to 'Kalender', calendar_path, class: "nav-link"
+            li.nav-item
+              = link_to 'Karte', map_path, class: "nav-link"
             li.nav-item
               = link_to 'Drucksachen', documents_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item

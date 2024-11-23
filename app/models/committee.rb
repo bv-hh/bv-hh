@@ -21,6 +21,8 @@
 #  index_committees_on_district_id  (district_id)
 #
 class Committee < ApplicationRecord
+  LOCAL_COMMITTEE_DESIGNATION = 'Regionalausschuss'
+
   belongs_to :district
   has_many :meetings, dependent: :nullify
 
@@ -37,5 +39,23 @@ class Committee < ApplicationRecord
     self.average_duration = (total_duration.to_f / meetings.with_duration.count).round
 
     save!
+  end
+
+  def local?
+    name.include?(LOCAL_COMMITTEE_DESIGNATION)
+  end
+
+  def area
+    return nil unless local?
+
+    name.gsub(LOCAL_COMMITTEE_DESIGNATION, '')&.strip
+  end
+
+  def matches_area?(location_name)
+    return false unless local?
+    return false if location_name.blank?
+
+    normalized_location_name = location_name.gsub(/[^\w ]/, '').downcase
+    area&.gsub(/[^\w ]/, '')&.downcase == normalized_location_name
   end
 end
