@@ -83,7 +83,7 @@ gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.0'
 
-gem 'good_job', '~> 3.99'
+gem 'good_job', '~> 4.5'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
