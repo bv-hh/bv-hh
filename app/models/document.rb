@@ -79,7 +79,7 @@ class Document < ApplicationRecord
   default_scope -> { where(non_public: false) }
 
   # tbk 23.11.2024: Not working in prod anymore, don't know how to fix it
-  #after_create :enqueue_create_qdrant_embeddings_job
+  # after_create :enqueue_create_qdrant_embeddings_job
 
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
@@ -299,6 +299,7 @@ class Document < ApplicationRecord
 
     ner_locations = NerModel.model.doc(self.full_text).entities.filter_map do |entity|
       next if entity[:text].blank?
+
       entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
     end.uniq
 

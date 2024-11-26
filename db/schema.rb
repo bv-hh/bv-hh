@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_12_213030) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_26_192431) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -401,6 +401,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_213030) do
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_members_on_group_id"
     t.index ["short_name"], name: "index_members_on_short_name"
+  end
+
+  create_table "places", force: :cascade do |t|
+    t.string "query", null: false
+    t.json "locations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["query"], name: "index_places_on_query"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
