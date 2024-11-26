@@ -192,11 +192,15 @@ class Document < ApplicationRecord
       next if attachments.exists?(name:)
 
       filename = File.basename(uri.path)
-      io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
+      begin
+        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
 
-      attachment = attachments.create!(name:, district:)
-      attachment.file.attach(io:, filename:)
-      attachment.extract_later!
+        attachment = attachments.create!(name:, district:)
+        attachment.file.attach(io:, filename:)
+        attachment.extract_later!
+      rescue OpenURI::HTTPError => _
+        # Do nothing
+      end
     end
 
     clean_up_attachments(current_attachment_names)
