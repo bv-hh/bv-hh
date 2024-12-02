@@ -216,12 +216,11 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    langchainrb (0.15.4)
+    langchainrb (0.19.2)
       baran (~> 0.1.9)
       json-schema (~> 4)
       matrix
       pragmatic_segmenter (~> 0.3.0)
-      rainbow (~> 3.1.0)
       zeitwerk (~> 2.5)
     language_server-protocol (3.17.0.3)
     listen (3.9.0)
@@ -485,7 +484,7 @@ DEPENDENCIES
   importmap-rails (~> 2.0)
   jbuilder (~> 2.13)
   kaminari
-  langchainrb (~> 0.15.4)
+  langchainrb (~> 0.19.2)
   listen (~> 3.9)
   minitest-ci
   mitie
