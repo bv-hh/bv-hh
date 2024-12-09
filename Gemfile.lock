@@ -264,7 +264,7 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     nio4r (2.7.3)
-    nokogiri (1.16.5-x86_64-linux)
+    nokogiri (1.17.0-x86_64-linux)
       racc (~> 1.4)
     ostruct (0.6.1)
     parallel (1.26.3)
