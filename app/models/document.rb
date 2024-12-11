@@ -198,7 +198,7 @@ class Document < ApplicationRecord
         attachment = attachments.create!(name:, district:)
         attachment.file.attach(io:, filename:)
         attachment.extract_later!
-      rescue OpenURI::HTTPError => _
+      rescue OpenURI::HTTPError => _e
         # Do nothing
       end
     end

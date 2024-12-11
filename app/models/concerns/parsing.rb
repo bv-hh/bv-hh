@@ -15,7 +15,8 @@ module Parsing
 
     node.xpath(*XPATHS_TO_REMOVE).remove
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
-    cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '').gsub('color:#0000ff;', '').gsub(/margin-([^:]*):([^;]*);/, '')
+    cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '').gsub('color:#0000ff;', '')
+    cleaned = cleaned.gsub(/margin-*([^:]*):([^;]*);/, '').gsub(/padding-*([^:]*):([^;]*);/, '').
     cleaned.gsub(%r{<span style="">(\s*)</span>}, '').gsub(%r{<p([^>]*)></p>}, '')
   end
 
