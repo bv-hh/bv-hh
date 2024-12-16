@@ -16,11 +16,11 @@ class MapsController < ApplicationController
   def markers
     months = params[:months].presence&.to_i || 3
 
-    documents = Document.in_last_months(months)
-    documents = documents.where(district: @district) if @district.present?
+    documents_query = Document.in_last_months(months)
+    documents_query = documents.where(district: @district) if @district.present?
 
     locations = DocumentLocation.joins(:document)
-    locations = locations.merge(documents)
+    locations = locations.merge(documents_query)
 
     markers = locations.distinct.group_by(&:location).map do |location, documents|
       {
