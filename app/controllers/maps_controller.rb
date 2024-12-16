@@ -17,7 +17,7 @@ class MapsController < ApplicationController
     months = params[:months].presence&.to_i || 3
 
     documents_query = Document.in_last_months(months)
-    documents_query = documents.where(district: @district) if @district.present?
+    documents_query = documents_query.where(district: @district) if @district.present?
 
     locations = DocumentLocation.joins(:document)
     locations = locations.merge(documents_query)
