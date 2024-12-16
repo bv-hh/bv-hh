@@ -4,28 +4,31 @@ class GoogleMaps
   FIND_PLACE = 'https://maps.googleapis.com/maps/api/place/findplacefromtext'
 
   class << self
-    def find_places(query, options = {})
-      result = Place.find_by(query: query)
+    def find_places(query, district, options = {})
+      result = district.places.find_by(query: query)
       if result.present?
         Rails.logger.info "GoogleMaps: Found cached locations for query: #{query}"
         return result.locations
       end
 
-      result = find_places_uncached(query, options)
+      result = find_places_uncached(query, district, options)
       if result.is_a?(Hash) && result&.try(:[], 'status') == 'OK'
         Rails.logger.info "GoogleMaps: Found #{result['candidates'].size} locations for query: #{query}"
-        Place.create!(query: query, locations: result)
+        district.places.create!(query: query, locations: result)
         result
       end
     end
 
-    def find_places_uncached(query, options = {})
+    def find_places_uncached(query, district, options = {})
+      nw = district.bounds.first.join(',')
+      se = district.bounds.last.join(',')
+      bias = "rectangle:#{nw}|#{se}"
       options = options.merge({
                                 input: query,
                                 inputtype: 'textquery',
                                 fields: %i[place_id name type formatted_address geometry].join(','),
                                 language: :de,
-                                locationbias: 'rectangle:53.399999,9.732151|53.717145,10.123492',
+                                locationbias: bias,
                                 key: Rails.application.credentials.google_maps_api_key,
                               })
 

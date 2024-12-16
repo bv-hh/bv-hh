@@ -30,6 +30,7 @@ class Location < ApplicationRecord
   belongs_to :district
 
   has_many :document_locations, dependent: :destroy
+  has_many :documents, through: :document_locations
 
   validates :name, presence: true
   validates :extracted_name, presence: true
