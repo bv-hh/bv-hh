@@ -55,7 +55,7 @@ class Location < ApplicationRecord
     locations = Location.normalized(extracted_name)
     return locations if locations.present?
 
-    google_result = GoogleMaps.find_places(normalize(extracted_name))
+    google_result = GoogleMaps.find_places(normalize(extracted_name), district)
     return [] if google_result.blank?
 
     google_result['candidates'].filter_map do |candidate|
