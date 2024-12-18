@@ -25,7 +25,7 @@
 #
 class Location < ApplicationRecord
   BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] + District.all.map { |d| d.name.downcase } + ['hamburg nord', 'hamburg mitte']
-  VALID_TYPES = %w[route political sublocality]
+  VALID_TYPES = %w[park route political sublocality]
 
   belongs_to :district
 
@@ -79,6 +79,10 @@ class Location < ApplicationRecord
     sw = bounds.last
 
     latitude > ne.first || latitude < sw.first || longitude > ne.last || longitude < sw.last
+  end
+
+  def to_param
+    "#{name.parameterize}-#{id}"
   end
 
   private

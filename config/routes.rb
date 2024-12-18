@@ -60,6 +60,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :locations, only: :show
+
     resource :statistics, only: :show
 
     resources :questions, only: %i[index new create]

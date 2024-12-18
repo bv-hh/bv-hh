@@ -1,0 +1,42 @@
+h1.h2
+  = @location.name
+h3.text-muted
+  small= "Drucksachen zu #{@location.formatted_address}"
+
+.beta.mb-3
+  span.badge.text-bg-warning> Beta
+  span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
+
+.row.mt-4.border-bottom.font-weight-bold
+  .col-2.col-lg-1.py-2 Drs.
+  .col.col-lg-7.py-2 Titel / Art
+  .col-10.col-lg.offset-2.offset-lg-0.py-2 Letzte Befassung
+  .col-1
+
+- @documents.each do |document|
+  .row.pt-3.border-top
+    .col-2.col-lg-1.text-nowrap
+      = link_to document_path(document) do
+        strong= document.number
+    .col.col-lg-7
+      = link_to document_path(document) do
+        = document.title.html_safe
+      br
+      span.text-secondary= document.kind
+      .locations
+        - document.locations.each do |location|
+          => link_to location_path(location) do
+            span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
+              = location.name
+
+    .col-1.order-lg-last.text-end
+      = allris_link(document.allris_url)
+    .w-100.d-block.d-lg-none
+    .col.offset-2.offset-lg-0.pt-2.pt-lg-0
+      - if (meeting = document.meetings.latest_first.first)
+        = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
+        br
+        = l meeting.date
+
+.mt-5
+  = paginate @documents, theme: 'bootstrap-5', nav_class: "nav justify-content-center"

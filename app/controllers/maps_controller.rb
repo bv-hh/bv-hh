@@ -19,12 +19,13 @@ class MapsController < ApplicationController
     documents_query = Document.in_last_months(months)
     documents_query = documents_query.where(district: @district) if @district.present?
 
-    locations = DocumentLocation.joins(:document)
+    locations = DocumentLocation.joins(:document).includes(:location, :document)
     locations = locations.merge(documents_query)
 
     markers = locations.distinct.group_by(&:location).map do |location, documents|
       {
         position: [location.latitude, location.longitude],
+        path: location_path(location),
         name: location.name,
         address: location.formatted_address,
         documents: documents.map do |document_location|

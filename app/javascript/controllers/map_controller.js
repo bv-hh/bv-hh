@@ -65,6 +65,9 @@ export default class extends Controller {
       <h5>${marker.name}</h5>
       <p>${marker.address}</p>
       <ul>${documentList}</ul>
+      <p>
+        <a href="${marker.path}">Alles an diesem Ort</a>
+      </p>
     `
   }
 

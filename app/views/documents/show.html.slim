@@ -72,8 +72,9 @@ h3.text-muted
       .card-body
         - if @document.locations.present?
           - @document.locations.each do |location|
-            span.badge.text-bg-secondary> data-bs-toggle='tooltip' data-bs-title=location.formatted_address
-              =location.name
+            => link_to location_path(location) do
+              span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
+                = location.name
         - else
           p
             | Keine Orte erkannt.
