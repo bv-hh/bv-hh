@@ -77,7 +77,7 @@ gem 'baran', '~> 0.1.12'
 
 gem 'ruby-openai', '~> 6.5'
 
-gem 'qdrant-ruby', '~> 0.9.7'
+gem 'qdrant-ruby', '~> 0.9.8'
 
 gem 'redcarpet', '~> 3.6'
 
