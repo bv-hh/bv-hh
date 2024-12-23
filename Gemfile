@@ -46,7 +46,7 @@ gem 'slim-rails'
 gem 'caxlsx'
 gem 'caxlsx_rails'
 
-gem 'font-awesome-sass', '~> 5.15.1'
+gem 'font-awesome-sass', '~> 6.7.2'
 
 gem 'sprockets', '~> 4'
 gem 'sprockets-rails', require: 'sprockets/railtie'
