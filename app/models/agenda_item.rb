@@ -48,6 +48,7 @@ class AgendaItem < ApplicationRecord
 
   def retrieve_source
     return if allris_id.blank?
+
     Net::HTTP.get(URI(allris_url))
   end
 
@@ -65,11 +66,7 @@ class AgendaItem < ApplicationRecord
     self.decision = decision_text unless decision_text == '(offen)'
 
     self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]")).presence
-    self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence
-
-    if self.result.blank?
-      self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
-    end
+    self.result = extract_result(html)
 
     retrieve_attachments(html)
     save!
@@ -110,6 +107,11 @@ class AgendaItem < ApplicationRecord
 
   def logged?
     Nokogiri::HTML.parse(minutes).text.present? || Nokogiri::HTML.parse(result).text.present?
+  end
+
+  def extract_result(html)
+    clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence ||
+      clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
   end
 
   def self.minutes_prefix_search(term, root = nil)
