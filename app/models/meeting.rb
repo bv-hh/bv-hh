@@ -90,7 +90,7 @@ class Meeting < ApplicationRecord
       next if agenda_item.nil?
 
       agenda_item.save
-      # agenda_item.update_later! if agenda_item.allris_id.present?
+      agenda_item.update_later! if agenda_item.allris_id.present?
     end
   end
 

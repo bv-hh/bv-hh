@@ -17,6 +17,7 @@ module Parsing
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
     cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '').gsub('color:#0000ff;', '')
     cleaned = cleaned.gsub(/margin-*([^:]*):([^;]*);/, '').gsub(/padding-*([^:]*):([^;]*);/, '')
+    cleaned = cleaned.gsub(/text-indent([^:]*):([^;]*);/, '')
     cleaned.gsub(%r{<span style="">(\s*)</span>}, '').gsub(%r{<p([^>]*)></p>}, '')
   end
 
