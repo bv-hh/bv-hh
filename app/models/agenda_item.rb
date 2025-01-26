@@ -46,10 +46,15 @@ class AgendaItem < ApplicationRecord
 
   require 'open-uri'
 
+  def retrieve_source
+    return if allris_id.blank?
+    Net::HTTP.get(URI(allris_url))
+  end
+
   def retrieve_from_allris!(source = nil)
     return if allris_id.blank?
 
-    source ||= Net::HTTP.get(URI(allris_url))
+    source ||= retrieve_source
 
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
     return if html.blank?
@@ -61,6 +66,10 @@ class AgendaItem < ApplicationRecord
 
     self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]")).presence
     self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence
+
+    if self.result.blank?
+      self.result = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
+    end
 
     retrieve_attachments(html)
     save!
