@@ -81,7 +81,7 @@ gem 'qdrant-ruby', '~> 0.9.7'
 
 gem 'redcarpet', '~> 3.6'
 
-gem 'importmap-rails', '~> 2.0'
+gem 'importmap-rails', '~> 2.1'
 
 gem 'good_job', '~> 4.6'
 
