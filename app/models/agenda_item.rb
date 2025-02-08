@@ -61,6 +61,7 @@ class AgendaItem < ApplicationRecord
     return if html.blank?
 
     html = html.css('table.risdeco').first
+    return if html.blank?
 
     decision_text = html.css('td.text3')&.first&.text&.squish
     self.decision = decision_text unless decision_text == '(offen)'
