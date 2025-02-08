@@ -72,7 +72,8 @@ class District < ApplicationRecord
   end
 
   def check_for_meeting_updates
-    oldest_meeting_date = ([oldest_allris_meeting_date, meetings.complete.maximum(:date) || 10.years.ago].max - 1.month).beginning_of_month
+    oldest_meeting_date = meetings.complete.present? ? Date.today : oldest_allris_meeting_date
+    oldest_meeting_date = (oldest_meeting_date - 1.month).beginning_of_month
 
     current_date = 9.months.from_now.beginning_of_month
 
