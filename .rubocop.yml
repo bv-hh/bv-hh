@@ -223,6 +223,9 @@ Style/RedundantAssignment:
 Style/RedundantFileExtensionInRequire:
   Enabled: true
 
+Style/SafeNavigationChainLength:
+  Max: 3
+
 Bundler/OrderedGems:
   Enabled: false
 

@@ -30,10 +30,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+    - name: Install system dependencies via apt
+      run: sudo apt-get update && sudo apt-get install --fix-missing -y rsync
+
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
+
+    - name: Cache npm
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-npm
+      with:
+        path: ./node_modules
+        key: ${{ env.cache-name }}-v1-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ env.cache-name }}-
+
+    - name: Install js dependencies
+      run: yarn
 
     - name: Precompile assets
       run: bundle exec rails assets:precompile
@@ -82,28 +99,28 @@ jobs:
       run: yarn
 
     - name: Prepare DB
-      run: bundle exec rake db:create
+      run: bundle exec rails db:create
       env:
         RAILS_ENV: test
     - name: Load schema
-      run: bundle exec rake db:schema:load
+      run: bundle exec rails db:schema:load
       env:
         RAILS_ENV: test
 
     - name: Run unit tests
-      run: bundle exec rake test
+      run: bundle exec rails test
       env:
         COVERAGE: on
         CI: on
 
     - name: Store test results
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: test/reports
     - name: Store logs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Logs
@@ -157,16 +174,11 @@ jobs:
       run: yarn
 
     - name: Prepare DB
-      run: bundle exec rake db:create
+      run: bundle exec rails db:create
       env:
         RAILS_ENV: test
     - name: Load schema
-      run: bundle exec rake db:schema:load
-      env:
-        RAILS_ENV: test
-
-    - name: Update Chromedriver
-      run: bundle exec rails webdrivers:chromedriver:update
+      run: bundle exec rails db:schema:load
       env:
         RAILS_ENV: test
 
@@ -178,19 +190,19 @@ jobs:
         RAILS_ENV: test
 
     - name: Store screenshots
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Screenshots
         path: tmp/screenshots
     - name: Store test results
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: test/reports
     - name: Store logs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Logs

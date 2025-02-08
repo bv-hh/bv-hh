@@ -6,7 +6,7 @@ namespace :bezirkr do
     Meeting.find_each do |meeting|
       start_time = meeting.time&.split('-')&.first&.squish
       end_time = meeting.time&.split('-')&.last&.squish
-      meeting.update_columns(start_time: start_time, end_time: end_time) # rubocop:disable Rails/SkipsModelValidations
+      meeting.update_columns(start_time:, end_time:) # rubocop:disable Rails/SkipsModelValidations
     end
   end
 end

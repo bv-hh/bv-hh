@@ -1,0 +1,29 @@
+# == Schema Information
+#
+# Table name: districts
+#
+#  id                         :bigint           not null, primary key
+#  allris_base_url            :string
+#  first_legislation_number   :string
+#  name                       :string
+#  ne_lat                     :float
+#  ne_lng                     :float
+#  oldest_allris_meeting_date :date
+#  order                      :integer          default(0)
+#  sw_lat                     :float
+#  sw_lng                     :float
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  oldest_allris_document_id  :integer
+#
+hamburg_nord:
+  name: Hamburg-Nord
+  allris_base_url: https://sitzungsdienst-hamburg-nord.hamburg.de
+  oldest_allris_document_id: 1013060
+  oldest_allris_meeting_date: 2023-08-01
+  first_legislation_number: 21-0001
+  order: 3
+  ne_lat: 53.6819221
+  ne_lng: 10.089918
+  sw_lat: 53.556154
+  sw_lng: 9.9588098

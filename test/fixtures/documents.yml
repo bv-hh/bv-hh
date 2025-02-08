@@ -1,0 +1,729 @@
+# == Schema Information
+#
+# Table name: documents
+#
+#  id                     :bigint           not null, primary key
+#  attached               :text
+#  author                 :string
+#  content                :text
+#  embeddings_created     :boolean          default(FALSE)
+#  extracted_locations    :string           default([]), is an Array
+#  full_text              :text
+#  kind                   :string
+#  locations_extracted_at :datetime
+#  non_public             :boolean          default(FALSE)
+#  number                 :string
+#  resolution             :text
+#  title                  :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  allris_id              :integer
+#  district_id            :bigint
+#
+# Indexes
+#
+#  documents_expr_idx              (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::"char")))) USING gin
+#  full_text_gin_trgm_idx          (full_text) USING gin
+#  full_text_gist_trgm_idx         (full_text) USING gist
+#  index_documents_on_allris_id    (allris_id)
+#  index_documents_on_district_id  (district_id)
+#  index_documents_on_number       (number)
+#  title_gin_trgm_idx              (title) USING gin
+#  title_gist_trgm_idx             (title) USING gist
+#
+document_7:
+  district: hamburg_nord
+  allris_id: 1013280
+  number: 21-4776
+  title: 'Eingabe: Heilwigstraße, Verkehrssicherheit, Tempo 30-Zone'
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Das Bezirksamt Ha</span><span style="">mburg-Nord informiert</span><span style=""> ü</span><span style="">ber anl</span><span style="">i</span><span style="">egende Bü</span><span style="">rger:inneneingabe.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span><span style="">Beschluss:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um K</span><span style="">enn</span><span style="">tnisnahme wird gebeten. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael W</span><span style="">erner</span><span style="">-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: "\nDas Bezirksamt Hamburg-Nord informiert über anliegende Bürger:inneneingabe.\n
+    Beschluss:\nUm Kenntnisnahme wird gebeten. \nMichael Werner-Boelz\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anschreiben</span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Fotos</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+
+document_227:
+  district: hamburg_nord
+  allris_id: 1012983
+  number: 21-4512
+  title: Umbenennung der Hindenburgstraße und -brücke sowie Aberkennung der Ehrenbürgerschaft
+    durch die Freie und Hansestadt Hamburg Antrag der Fraktion DIE LINKE
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Ü</span><span style="">bertragung einer Ehrenbü</span><span style="">rgerschaft sowie die Benennung von Verkehrsflä</span><span style="">chen (v. a. Straß</span><span style="">en, Brü</span><span style="">cken oder Plä</span><span style="">tzen) nach Personen, erfolgt immer im Kontext des jeweiligen Zeitgeistes.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Seit 1917 (Ü</span><span style="">bertragung der Ehrenbü</span><span style="">rgerschaft an Hindenburg) bzw. 1926 (Benennung einer Straß</span><span style="">e und </span><span style="">Brü</span><span style="">cke nach Hindenburg) hat sich nicht nur der Zeitgeist der Stadtgesellschaft deutlich verä</span><span style="">ndert, sondern auch die Erkenntnisse ü</span><span style="">ber die Geschichte und die historische Bewertung Paul von Hindenburgs. Viele Stä</span><span style="">dte und Gemeinden benannten oder benennen Ver</span><span style="">k</span><span style="">ehrsflä</span><span style="">chen, die nach Hindenburg benannt sind oder waren, um und oder erkannten ihm die Ehrenbü</span><span style="">rgerschaft ab.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Folgerichtig hat in Hamburg-Nord die SPD 1988 den ersten Versuch unternommen, die Hindenburgstraß</span><span style="">e umzubenennen und 2013 die Grü</span><span style="">nen den zweiten (</span><span style="">Drs.: 2373/13), welcher dem Antrag (Drs.: 2479/13) und Ergä</span><span style="">nzungsantrag (Drs.: 2486/13) jeweils von SPD und FDP bei der Abstimmung unterlag und lediglich zur teilweisen Umbenennung fü</span><span style="">hrte. Dass die Straß</span><span style="">e zurzeit zum größ</span><span style="">ten Teil nach Hindenburg und zum d</span><span style="">e</span><span style="">utlich kleineren und unbedeutenderen Teil nach Otto Wells benannt ist, lä</span><span style="">dt geradezu zur Fehldeutung und Missbrauch von Rechten ein und muss dringend geä</span><span style="">ndert werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">10 Jahre nach dem zweiten Versuch ist es an der Zeit, den ersten fragwü</span><span style="">rdigen Teilerfolg</span><span style="">, die Umbenennung der Straß</span><span style="">e zu vollenden und ihm die Ehrenbü</span><span style="">rgerschaft abzuerkennen. Der Militarist und ü</span><span style="">berzeugter Monarchist war ein erklä</span><span style="">rter Gegner des Verhandlungsfriedens (Urheber der Dolchstoß</span><span style="">legende) und der Demokratie (Etablierung eines antidemo</span><span style="">k</span><span style="">ratischen Prä</span><span style="">sidialsystems unter Negierung der Mehrheitsverhä</span><span style="">ltnisse) und ebnete damit vö</span><span style="">lkischen und rechtsextremen Gruppierungen den Boden. Was am 30.01.1933 in der unnö</span><span style="">tigen Ü</span><span style="">bertragung der Macht durch die Ernennung Hitlers zum Reichskanzler endete. Di</span><span style="">e</span><span style="">ter Hofmann legt in seinem 2019 erschienenen Buch den Beweggrund Hindenburgs dar, den von ihm bislang vehement abgelehnten Hitler die Macht zu ü</span><span style="">bertragen (Dieter Hoffmann, 2019: Der Skandal: Hindenburgs Entscheidung fü</span><span style="">r Hitler, Schriftenreihe Schichte &amp; F</span><span style="">r</span><span style="">ieden).</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Er schildert, dass im Januar 1933 ein Untersuchungsausschuss begann sich mit Hinweisen aus der Presse (u. a. lanciert von Erich Ludendorff) auf betrü</span><span style="">gerische Machenschaften beim größ</span><span style="">ten Subventionsprogramm der Weimarer Republik "Osthilfe" (1926-19</span><span style="">37) zu befassen, dessen Urheber Hindenburg selbst war. Die Finanzhilfen erhielten hauptsä</span><span style="">chlich ostelbische Groß</span><span style="">grundbesitzer, also auch Mitglieder seiner Familie, wä</span><span style="">hrend das Volk unter den Lasten der Weltwirtschaftskriese und der hohen Arbeitslosigkeit </span><span style="">l</span><span style="">itt. Der Untersuchungsausschuss stellte seine Arbeit wundersamerweise am 03.05.1933 ein (ebenda und</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">https://de.wikipedia.org/wiki/Osthilfe_(Deutsches_Reich)).</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Wie zum dritten Mal dargelegt, ist eine Ehrung Paul von Hindenburgs durch die Benennung einer St</span><span style="">raß</span><span style="">e nach ihm, weder mit einem demokratischen Grundverstä</span><span style="">ndnis im Allgemeinen noch mit Hamburgs Rolle in der Welt im Besonderen vereinbar. Denn in der Prä</span><span style="">ambel der Hamburger Verfassung heiß</span><span style="">t es:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">"Die Freie und Hansestadt Hamburg hat als Welthafenstadt ein</span><span style="">e ihr durch Geschichte und Lage zugewiesene, besondere Aufgabe gegenü</span><span style="">ber dem deutschen Volke zu erfü</span><span style="">llen. Sie will im Geiste des Friedens eine Mittlerin zwischen allen Erdteilen und Vö</span><span style="">lkern der Welt sein." </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Es ist wä</span><span style="">re also Folgerichtig, die restliche Hin</span><span style="">denburgstraß</span><span style="">e nach einem Menschen zu benennen, der sich besonders um die Demokratie und oder den Frieden verdient gemacht hat. Damit ließ</span><span style="">e sich sicherstellen, dass die Geschichte forterzä</span><span style="">hlt wird, nur aus einer anderen und zum Vorbild geeigneten Perspekti</span><span style="">v</span><span style="">e.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Als geeignete Person einen Gegenpunkt zu Paul von Hindenburg zu setzen, ist der Hamburger Wolfgang Borchert (1921-1947). Er wurde nicht nur mehrfach wegen Kritik am faschistischen Regime, wegen sogenannter Wehrkraftzersetzung, verurteilt und inhaftiert</span><span style="">, sondern ist auch Verfasser des berü</span><span style="">hmten Heimkehrstü</span><span style="">cks: "Drauß</span><span style="">en vor der Tü</span><span style="">r" mit der pazifistischen Mahnung, "dann gibt es nur eins, sag nein!", die seit Jahrzehnten Bestandteil der bundesweiten Friedensbewegung ist. Als Heimkehrer aus dem Zweiten Wel</span><span style="">t</span><span style="">krieg, der ohne Hindenburgs Wirken wohl nicht stattgefunden hä</span><span style="">tte, steht er wie kein anderer fü</span><span style="">r den Frieden. Damit wä</span><span style="">re die Benennung einer prominenten Straß</span><span style="">e ein deutliches Zeichen, nicht nur fü</span><span style="">r den Frieden, sondern vor allem fü</span><span style="">r das Fü</span><span style="">llen der Prä</span><span style="">ambe</span><span style="">l</span><span style=""> der Hamburger Verfassung mit Leben.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Durch eine geeignete Kontextualisierung soll mit Hinweistafeln auf den frü</span><span style="">heren Namen eingegangen, Grü</span><span style="">nde fü</span><span style="">r dessen Umbenennung sowie Grü</span><span style="">nde fü</span><span style="">r den oder die neuen Namensgeber*in aufgefü</span><span style="">hrt werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:5.65pt;text-align:justify;"><span style="">Die Vorsitzende der Bez</span><span style="">irksversammlung Hamburg-Nord wird gebeten,</span></p>
+    <p style="margin-top:0pt;margin-bottom:5.65pt;text-align:justify;"><span style=""></span></p>
+    <ol style="margin:0pt;padding-left:0pt;">
+    <li style="margin-left:31.35pt;text-align:justify;padding-left:4.65pt;">
+    <span>sich bei der Kulturbehö</span><span>rde dafü</span><span>r einzusetzen, dass die gesamte restliche Hindenburgstraß</span><span>e in Wolfgang-Borchert-Straß</span><span>e umbenannt wird.</span><br><span style=""></span>
+    </li>
+    <li style="margin-left:31.35pt;text-align:justify;padding-left:4.65pt;">
+    <span>sich beim Senat fü</span><span>r die Aberkennung der Ehrenbü</span><span>rgerschaft Paul von Hind</span><span>enburg einzusetzen.</span>
+    </li>
+    </ol>
+    <p style="margin-top:0pt;margin-bottom:5.65pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:5.65pt;text-align:justify;"><span style="">DIE LINKE</span></p>
+    <p style="margin-top:0pt;margin-bottom:5.65pt;text-align:justify;"><span style="">Rachid Messaoudi, Dino Ramm, Keyvan Taheri, Angelika Traversin, Jonas Wagner</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Antrag
+  non_public: false
+  full_text: "\n\nDie Übertragung einer Ehrenbürgerschaft sowie die Benennung von
+    Verkehrsflächen (v. a. Straßen, Brücken oder Plätzen) nach Personen, erfolgt immer
+    im Kontext des jeweiligen Zeitgeistes.\n\nSeit 1917 (Übertragung der Ehrenbürgerschaft
+    an Hindenburg) bzw. 1926 (Benennung einer Straße und Brücke nach Hindenburg) hat
+    sich nicht nur der Zeitgeist der Stadtgesellschaft deutlich verändert, sondern
+    auch die Erkenntnisse über die Geschichte und die historische Bewertung Paul von
+    Hindenburgs. Viele Städte und Gemeinden benannten oder benennen Verkehrsflächen,
+    die nach Hindenburg benannt sind oder waren, um und oder erkannten ihm die Ehrenbürgerschaft
+    ab.\n\nFolgerichtig hat in Hamburg-Nord die SPD 1988 den ersten Versuch unternommen,
+    die Hindenburgstraße umzubenennen und 2013 die Grünen den zweiten (Drs.: 2373/13),
+    welcher dem Antrag (Drs.: 2479/13) und Ergänzungsantrag (Drs.: 2486/13) jeweils
+    von SPD und FDP bei der Abstimmung unterlag und lediglich zur teilweisen Umbenennung
+    führte. Dass die Straße zurzeit zum größten Teil nach Hindenburg und zum deutlich
+    kleineren und unbedeutenderen Teil nach Otto Wells benannt ist, lädt geradezu
+    zur Fehldeutung und Missbrauch von Rechten ein und muss dringend geändert werden.\n\n10
+    Jahre nach dem zweiten Versuch ist es an der Zeit, den ersten fragwürdigen Teilerfolg,
+    die Umbenennung der Straße zu vollenden und ihm die Ehrenbürgerschaft abzuerkennen.
+    Der Militarist und überzeugter Monarchist war ein erklärter Gegner des Verhandlungsfriedens
+    (Urheber der Dolchstoßlegende) und der Demokratie (Etablierung eines antidemokratischen
+    Präsidialsystems unter Negierung der Mehrheitsverhältnisse) und ebnete damit völkischen
+    und rechtsextremen Gruppierungen den Boden. Was am 30.01.1933 in der unnötigen
+    Übertragung der Macht durch die Ernennung Hitlers zum Reichskanzler endete. Dieter
+    Hofmann legt in seinem 2019 erschienenen Buch den Beweggrund Hindenburgs dar,
+    den von ihm bislang vehement abgelehnten Hitler die Macht zu übertragen (Dieter
+    Hoffmann, 2019: Der Skandal: Hindenburgs Entscheidung für Hitler, Schriftenreihe
+    Schichte &amp; Frieden).\n\nEr schildert, dass im Januar 1933 ein Untersuchungsausschuss
+    begann sich mit Hinweisen aus der Presse (u. a. lanciert von Erich Ludendorff)
+    auf betrügerische Machenschaften beim größten Subventionsprogramm der Weimarer
+    Republik \"Osthilfe\" (1926-1937) zu befassen, dessen Urheber Hindenburg selbst
+    war. Die Finanzhilfen erhielten hauptsächlich ostelbische Großgrundbesitzer, also
+    auch Mitglieder seiner Familie, während das Volk unter den Lasten der Weltwirtschaftskriese
+    und der hohen Arbeitslosigkeit litt. Der Untersuchungsausschuss stellte seine
+    Arbeit wundersamerweise am 03.05.1933 ein (ebenda und\nhttps://de.wikipedia.org/wiki/Osthilfe_(Deutsches_Reich)).\n\nWie
+    zum dritten Mal dargelegt, ist eine Ehrung Paul von Hindenburgs durch die Benennung
+    einer Straße nach ihm, weder mit einem demokratischen Grundverständnis im Allgemeinen
+    noch mit Hamburgs Rolle in der Welt im Besonderen vereinbar. Denn in der Präambel
+    der Hamburger Verfassung heißt es:\n\n\"Die Freie und Hansestadt Hamburg hat
+    als Welthafenstadt eine ihr durch Geschichte und Lage zugewiesene, besondere Aufgabe
+    gegenüber dem deutschen Volke zu erfüllen. Sie will im Geiste des Friedens eine
+    Mittlerin zwischen allen Erdteilen und Völkern der Welt sein.\" \n\nEs ist wäre
+    also Folgerichtig, die restliche Hindenburgstraße nach einem Menschen zu benennen,
+    der sich besonders um die Demokratie und oder den Frieden verdient gemacht hat.
+    Damit ließe sich sicherstellen, dass die Geschichte forterzählt wird, nur aus
+    einer anderen und zum Vorbild geeigneten Perspektive.\n\nAls geeignete Person
+    einen Gegenpunkt zu Paul von Hindenburg zu setzen, ist der Hamburger Wolfgang
+    Borchert (1921-1947). Er wurde nicht nur mehrfach wegen Kritik am faschistischen
+    Regime, wegen sogenannter Wehrkraftzersetzung, verurteilt und inhaftiert, sondern
+    ist auch Verfasser des berühmten Heimkehrstücks: \"Draußen vor der Tür\" mit der
+    pazifistischen Mahnung, \"dann gibt es nur eins, sag nein!\", die seit Jahrzehnten
+    Bestandteil der bundesweiten Friedensbewegung ist. Als Heimkehrer aus dem Zweiten
+    Weltkrieg, der ohne Hindenburgs Wirken wohl nicht stattgefunden hätte, steht er
+    wie kein anderer für den Frieden. Damit wäre die Benennung einer prominenten Straße
+    ein deutliches Zeichen, nicht nur für den Frieden, sondern vor allem für das Füllen
+    der Präambel der Hamburger Verfassung mit Leben.\n\nDurch eine geeignete Kontextualisierung
+    soll mit Hinweistafeln auf den früheren Namen eingegangen, Gründe für dessen Umbenennung
+    sowie Gründe für den oder die neuen Namensgeber*in aufgeführt werden.\n \n\nDie
+    Vorsitzende der Bezirksversammlung Hamburg-Nord wird gebeten,\n\n\n\nsich bei
+    der Kulturbehörde dafür einzusetzen, dass die gesamte restliche Hindenburgstraße
+    in Wolfgang-Borchert-Straße umbenannt wird.\n\n\nsich beim Senat für die Aberkennung
+    der Ehrenbürgerschaft Paul von Hindenburg einzusetzen.\n\n\n\nDIE LINKE\nRachid
+    Messaoudi, Dino Ramm, Keyvan Taheri, Angelika Traversin, Jonas Wagner\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
+
+document_66:
+  district: hamburg_nord
+  allris_id: 1013221
+  number: 21-4728
+  title: Drucksache 1. Verschickung Martinistraße-Ost (zwischen Tarpenbekstraße und
+    Erikastraße) 1. Planverschickung
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die </span><span style="">1.</span><span style=""> Verschickung der o.g. Maß</span><span style="">nahme an die Trä</span><span style="">ger ö</span><span style="">ffentlicher Belange (Tö</span><span style="">B) </span><span style="">ist kü</span><span style="">rzlich erfolgt.</span><span style=""> </span><span style="">Mit den beigefü</span><span style="">gten Verschickungsunte</span><span style="">rlagen wird der </span><span style="">Regionalausschuss Eppendorf-Winterhude ü</span><span style="">ber den aktuellen</span><span style=""> Planung</span><span style="">sstand</span><span style=""> informiert </span><span style="">und diesem die </span><span style="">Mö</span><span style="">glichkeit gegeben, Anregungen </span><span style="">in einer Stellungnahme </span><span style="">zu formulieren. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Der </span><span style="font-weight:bold;">RegA EWi</span><span style=""> wird um die </span><span style="font-weight:bold;">Abgabe einer Stellungnahme</span><span style=""> bis </span><span style="">zum </span><span style="font-weight:bold;">07.</span><span style="font-weight:bold;">11</span><span style="font-weight:bold;">.2023</span><span style=""> gebeten</span><span style="">, um zeitliche Verzö</span><span style="">gerungen im Planungsablauf zu vermeiden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Nach </span><span style="">Ablauf der Abgabefrist</span><span style=""> werden</span><span style=""> die eingegangenen Beiträ</span><span style="">ge der Tö</span><span style="">B</span><span style=""> und des Ausschusses geprü</span><span style="">ft.</span><span style=""> </span><span style="">Dabei wird </span><span style="">abgewogen, inwieweit </span><span style="">sie Berü</span><span style="">cksichtigung finden kö</span><span style="">nnen</span><span style="">. </span><span style="">Welche Anregungen am Ende i</span><span style="">n die Planung eingeflossen sind,</span><span style=""> </span><span style="">kann</span><span style=""> dem</span><span style=""> sog.</span><span style=""> Abwä</span><span style="">gungsvermerk entn</span><span style="">ommen werden.</span><span style=""> Dieser wird dem Ausschuss als Bestandteil der Schluss</span><span style="">verschickung </span><span style="">zur Verfü</span><span style="">gung gestellt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: "\nDie 1. Verschickung der o.g. Maßnahme an die Träger öffentlicher Belange
+    (TöB) ist kürzlich erfolgt. Mit den beigefügten Verschickungsunterlagen wird der
+    Regionalausschuss Eppendorf-Winterhude über den aktuellen Planungsstand informiert
+    und diesem die Möglichkeit gegeben, Anregungen in einer Stellungnahme zu formulieren.
+    \n\nDer RegA EWi wird um die Abgabe einer Stellungnahme bis zum 07.11.2023 gebeten,
+    um zeitliche Verzögerungen im Planungsablauf zu vermeiden.\n\nNach Ablauf der
+    Abgabefrist werden die eingegangenen Beiträge der TöB und des Ausschusses geprüft.
+    Dabei wird abgewogen, inwieweit sie Berücksichtigung finden können. Welche Anregungen
+    am Ende in die Planung eingeflossen sind, kann dem sog. Abwägungsvermerk entnommen
+    werden. Dieser wird dem Ausschuss als Bestandteil der Schlussverschickung zur
+    Verfügung gestellt.\n \nUm Kenntnisnahme wird gebeten.\nMichael Werner-Boelz\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">1. Verschickung Martinistraß</span><span style="">e-Ost (Verteiler, Erlä</span><span style="">uterungsbericht, Ü</span><span style="">bersichtskarte, Ü</span><span style="">bersichtslageplan, Querschnitt, Lageplan 1)</span><span style=""> </span><span style=""></span></p>
+
+document_80:
+  district: hamburg_nord
+  allris_id: 1013207
+  number: 21-4714
+  title: Grünanlage Martinistraße - Errichtung einer Bewegungsinsel und Einbau von
+    Slackline-Pollern
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Im Rahmen von Active City werden im kommenden Herbst/Winter die in der Grü</span><span style="">nanlage Martinistraß</span><span style="">e (Eppendorfer Park) bereits vorhandenen </span><span style="">Sport- und Bewegungsmö</span><span style="">glichkeiten</span><span style=""> um zwei beliebte Bewegungsangebote ergä</span><span style="">nzt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Eine Bewegungsinsel mit zwei Calisthenics-Gerä</span><span style="">ten (Reckstange + Barren) in einer Fallschutzflä</span><span style="">che aus Teppichvlies wird sü</span><span style="">dlich des Bauspielplatzes wegseitig hergestellt. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Sowohl Gerä</span><span style="">te als auch Fallschutzbelag sind fü</span><span style="">r die inklusive Nutzung geeignet und mit dem Kompetenzzentrum fü</span><span style="">r barrierefreies Bauen bzw. dem Hamburger Sportbund abgestimmt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Da </span><span style="">fü</span><span style="">r das Slacklinen immer wieder der Baumbestand im Park zur Anbringung der Slacklines genutzt wird und eine Beschä</span><span style="">digung der Bä</span><span style="">ume durch die intensive Nutzung nicht ausgeschlossen werden kann, wird der Fachbereich Stadtgrü</span><span style="">n darü</span><span style="">ber hinaus drei Poller fü</span><span style="">r </span><span style="">d</span><span style="">as Anbringen von mitgebrachten Slacklines einbauen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Belange des Denkmalschutzes und der Barrierefreiheit hinsichtlich der Standortwahl und der Ausgestaltung der Gerä</span><span style="">te wurden intensiv miteinander verhandelt und aufeinander abgestimmt,. </span><br><span style="">Das Denkmalschutza</span><span style="">mt hat dem Vorhaben zugestimmt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Maß</span><span style="">nahme wird zur Hä</span><span style="">lfte aus Mitteln des </span><span style="">ParkSport-Fonds</span><span style=""> und zur anderen Hä</span><span style="">lfte aus der </span><span style="">R</span><span style="">ahmenzuweisung</span><span style=""> </span><span style="">finanziert.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span><span style="">Beschluss:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: "\n\nIm Rahmen von Active City werden im kommenden Herbst/Winter die
+    in der Grünanlage Martinistraße (Eppendorfer Park) bereits vorhandenen Sport-
+    und Bewegungsmöglichkeiten um zwei beliebte Bewegungsangebote ergänzt.\n\nEine
+    Bewegungsinsel mit zwei Calisthenics-Geräten (Reckstange + Barren) in einer Fallschutzfläche
+    aus Teppichvlies wird südlich des Bauspielplatzes wegseitig hergestellt. \nSowohl
+    Geräte als auch Fallschutzbelag sind für die inklusive Nutzung geeignet und mit
+    dem Kompetenzzentrum für barrierefreies Bauen bzw. dem Hamburger Sportbund abgestimmt.\n\nDa
+    für das Slacklinen immer wieder der Baumbestand im Park zur Anbringung der Slacklines
+    genutzt wird und eine Beschädigung der Bäume durch die intensive Nutzung nicht
+    ausgeschlossen werden kann, wird der Fachbereich Stadtgrün darüber hinaus drei
+    Poller für das Anbringen von mitgebrachten Slacklines einbauen.\n\nBelange des
+    Denkmalschutzes und der Barrierefreiheit hinsichtlich der Standortwahl und der
+    Ausgestaltung der Geräte wurden intensiv miteinander verhandelt und aufeinander
+    abgestimmt,. Das Denkmalschutzamt hat dem Vorhaben zugestimmt.\n\nDie Maßnahme
+    wird zur Hälfte aus Mitteln des ParkSport-Fonds und zur anderen Hälfte aus der
+    Rahmenzuweisung finanziert.\n \n\nBeschluss:\nUm Kenntnisnahme wird gebeten.\nMichael
+    Werner-Boelz\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anlage 01_Epp_LP</span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anlage 02_Epp_BewInsel</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+
+document_161:
+  district: hamburg_nord
+  allris_id: 1013126
+  number: 21-4477.1.1
+  title: Fahrradbügel im Heidberg 50-54 (Winterhude) Stellungnahme des Bezirksamtes
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:14pt;margin-bottom:14pt;text-align:justify;"><span style="">Der Regionalausschuss Eppendorf-Winterhude hat sich in der Sitzung am 05.06.2023 mit o.g. Thematik auseinandergesetzt und folgende Beschlussempfehlung formuliert:</span></p>
+    <p style="margin-top:0pt;margin-left:35.4pt;margin-bottom:8pt;"><span style="">Die Bezirk</span><span style="">samtsleitung wird gebeten, gemeinsam mit LSBG darauf hinzuwirken, dass die Flä</span><span style="">che vor den Hauseingä</span><span style="">ngen Heidberg 50 - 54 park- und verkehrstechnisch dahingehend geprü</span><span style="">ft wird, Fahrradbü</span><span style="">gel fü</span><span style="">r die Anwohner: innen bzw. Abstellmö</span><span style="">glichkeiten fü</span><span style="">r Rollatoren, R</span><span style="">o</span><span style="">llstü</span><span style="">hle und Ä</span><span style="">hnliches zu installieren. Ein mö</span><span style="">glicher Standort ist die Flä</span><span style="">chen Heidberg 50 - 52 (Asphalt) oder die Flä</span><span style="">che gegenü</span><span style="">ber Heidberg 52 - 54 (Sand), sollte es sich hier um eine ö</span><span style="">ffentliche Flä</span><span style="">che handeln, was zu ü</span><span style="">berprü</span><span style="">fen wä</span><span style="">re</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:14pt;margin-left:35.4pt;margin-bottom:14pt;text-align:justify;"><span style="text-decoration:underline;">Ergä</span><span style="text-decoration:underline;">nzung:</span><span style=""> Das Peti</span><span style="">tum wird als Prü</span><span style="">fauftrag an die Verwaltung verstanden, nach Abschluss der umfangreichen Bauarbeiten an der Barmbeker Straß</span><span style="">e/Heidberg, die angesprochenen Flä</span><span style="">chen dahingehend zu ü</span><span style="">berprü</span><span style="">fen, ob Fahrradbü</span><span style="">gel und weitere Abstellmö</span><span style="">glichkeiten installiert werden</span><span style=""> </span><span style="">kö</span><span style="">nnen und die Parksituation entschä</span><span style="">rft werden kann.</span></p>
+    <p style="margin-top:14pt;margin-bottom:14pt;text-align:justify;"><span style="">Begrü</span><span style="">ndung:</span></p>
+    <p style="margin-top:14pt;margin-bottom:14pt;text-align:justify;"><span style="">Der freie ö</span><span style="">ffentliche Platz vor den Hauseingä</span><span style="">ngen Heidberg zwischen Hausnummer 50 und 52 (Winterhude) wird intensiv von parkenden Kraftfahrzeugen genutzt. Teilweise wird bis an die Hausmauer </span><span style="">oder Fenster der Hä</span><span style="">user geparkt, was schon hä</span><span style="">ufig dazu gefü</span><span style="">hrt hat, dass Familien mit Kindertransportmitteln, Nutzer: innen von Rollatoren oder Fahrradfahrer: innen nur unter erschwerten Bedingungen freien Durchgang auf dem Fuß</span><span style="">weg hatten. Es gab bereits z</span><span style="">a</span><span style="">hlreiche Konflikte.</span></p>
+    <p style="margin-top:14pt;margin-bottom:14pt;text-align:justify;"><span style="">Da ein Parken auf dieser Flä</span><span style="">che, insbesondere in der Art und Weise der Nutzung heute, verkehrstechnisch scheinbar nur geduldet wird, erö</span><span style="">ffnet sich die Mö</span><span style="">glichkeit diese Flä</span><span style="">che mit Bü</span><span style="">geln fü</span><span style="">r Fahrrä</span><span style="">der, Containern fü</span><span style="">r Rollatoren oder ggf</span><span style="">. Rollstü</span><span style="">hlen zu bestü</span><span style="">cken. Denn eine Abstellmö</span><span style="">glichkeit fü</span><span style="">r Fahrrä</span><span style="">der und Co besteht derzeit nicht. Viele Anwohner: innen lagern ihre Fahrrä</span><span style="">der oder Gehilfen in ihren Wohnungen, weil ein Zugang zu den Kellern nur schwer zu bewä</span><span style="">ltigen ist (enge Gä</span><span style="">nge). </span></p>
+    <p style="margin-top:14pt;margin-bottom:14pt;text-align:justify;"><span style="">Mö</span><span style="">glich wä</span><span style="">re auch die Flä</span><span style="">che gegenü</span><span style="">ber, Heidberg 52 - 54, zur Aufstellung von Fahrradbü</span><span style="">geln zu nutzen. Diese Flä</span><span style="">che ist eine Sandflä</span><span style="">che, die ebenfalls zum Parken von Kraftfahrzeugen genutzt wird. Hä</span><span style="">ufig wird die Flä</span><span style="">che sogar zum dauerhaften Parken von Wohnm</span><span style="">o</span><span style="">bilen und/oder gewerblichen Kraftfahrzeugen, teilweise mit Ü</span><span style="">berlä</span><span style="">nge, in Anspruch genommen. Hier muss allerdings geprü</span><span style="">ft werden, ob es sich um eine ö</span><span style="">ffentliche Flä</span><span style="">che oder Privatgrund handelt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Der Hauptausschuss folgt der Beschlussempfehlung.</span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;text-align:justify;"><span style="font-weight:bold;">Das Bezirksa</span><span style="font-weight:bold;">mt nimmt hierzu wie folgt Stellung:</span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;text-align:justify;"><span style="font-weight:bold;"></span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style="">In der Abteilung Tiefbau des Bezirksamtes Hamburg-Nord lä</span><span style="">uft seit 2021 ein Projekt zur Erweiterung des Bestands an Fahrradbü</span><span style="">geln. In diesem Rahmen werden fortlaufend neue Standorte geprü</span><span style="">ft und nach positiver Prü</span><span style="">fung der</span><span style=""> erforderlichen Rahmenbedingungen umgesetzt (siehe dazu auch die Jahresbilanz 2022 in der Drucksache 21-4092). Dazu gehö</span><span style="">rte auch bereits ein Standort im Heidberg vor Haus-Nr. 45, an dem im Frü</span><span style="">hjahr 2023 vier Fahrradbü</span><span style="">gel und ein Lastenradbü</span><span style="">gel installiert</span><span style=""> </span><span style="">wurden. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style="">Entsprechend wird auch der hier vorgeschlagene Standort in die Liste fü</span><span style="">r neue Standorte aufgenommen, um in einem ersten Schritt die Gegebenheiten und Mö</span><span style="">glichkeiten zu prü</span><span style="">fen. Ein konkreter Umsetzungszeitpunkt kann an dieser Stelle noch nicht gena</span><span style="">nnt werden. Aufgrund der kü</span><span style="">rzlich erfolgten Umsetzung in unmittelbarer Nä</span><span style="">he ist jedoch davon auszugehen, dass andere Standortprü</span><span style="">fungen prioritä</span><span style="">r erfolgen werden. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: "\nDer Regionalausschuss Eppendorf-Winterhude hat sich in der Sitzung
+    am 05.06.2023 mit o.g. Thematik auseinandergesetzt und folgende Beschlussempfehlung
+    formuliert:\nDie Bezirksamtsleitung wird gebeten, gemeinsam mit LSBG darauf hinzuwirken,
+    dass die Fläche vor den Hauseingängen Heidberg 50 - 54 park- und verkehrstechnisch
+    dahingehend geprüft wird, Fahrradbügel für die Anwohner: innen bzw. Abstellmöglichkeiten
+    für Rollatoren, Rollstühle und Ähnliches zu installieren. Ein möglicher Standort
+    ist die Flächen Heidberg 50 - 52 (Asphalt) oder die Fläche gegenüber Heidberg
+    52 - 54 (Sand), sollte es sich hier um eine öffentliche Fläche handeln, was zu
+    überprüfen wäre\n\nErgänzung: Das Petitum wird als Prüfauftrag an die Verwaltung
+    verstanden, nach Abschluss der umfangreichen Bauarbeiten an der Barmbeker Straße/Heidberg,
+    die angesprochenen Flächen dahingehend zu überprüfen, ob Fahrradbügel und weitere
+    Abstellmöglichkeiten installiert werden können und die Parksituation entschärft
+    werden kann.\nBegründung:\nDer freie öffentliche Platz vor den Hauseingängen Heidberg
+    zwischen Hausnummer 50 und 52 (Winterhude) wird intensiv von parkenden Kraftfahrzeugen
+    genutzt. Teilweise wird bis an die Hausmauer oder Fenster der Häuser geparkt,
+    was schon häufig dazu geführt hat, dass Familien mit Kindertransportmitteln, Nutzer:
+    innen von Rollatoren oder Fahrradfahrer: innen nur unter erschwerten Bedingungen
+    freien Durchgang auf dem Fußweg hatten. Es gab bereits zahlreiche Konflikte.\nDa
+    ein Parken auf dieser Fläche, insbesondere in der Art und Weise der Nutzung heute,
+    verkehrstechnisch scheinbar nur geduldet wird, eröffnet sich die Möglichkeit diese
+    Fläche mit Bügeln für Fahrräder, Containern für Rollatoren oder ggf. Rollstühlen
+    zu bestücken. Denn eine Abstellmöglichkeit für Fahrräder und Co besteht derzeit
+    nicht. Viele Anwohner: innen lagern ihre Fahrräder oder Gehilfen in ihren Wohnungen,
+    weil ein Zugang zu den Kellern nur schwer zu bewältigen ist (enge Gänge). \nMöglich
+    wäre auch die Fläche gegenüber, Heidberg 52 - 54, zur Aufstellung von Fahrradbügeln
+    zu nutzen. Diese Fläche ist eine Sandfläche, die ebenfalls zum Parken von Kraftfahrzeugen
+    genutzt wird. Häufig wird die Fläche sogar zum dauerhaften Parken von Wohnmobilen
+    und/oder gewerblichen Kraftfahrzeugen, teilweise mit Überlänge, in Anspruch genommen.
+    Hier muss allerdings geprüft werden, ob es sich um eine öffentliche Fläche oder
+    Privatgrund handelt.\nDer Hauptausschuss folgt der Beschlussempfehlung.\n\nDas
+    Bezirksamt nimmt hierzu wie folgt Stellung:\n\nIn der Abteilung Tiefbau des Bezirksamtes
+    Hamburg-Nord läuft seit 2021 ein Projekt zur Erweiterung des Bestands an Fahrradbügeln.
+    In diesem Rahmen werden fortlaufend neue Standorte geprüft und nach positiver
+    Prüfung der erforderlichen Rahmenbedingungen umgesetzt (siehe dazu auch die Jahresbilanz
+    2022 in der Drucksache 21-4092). Dazu gehörte auch bereits ein Standort im Heidberg
+    vor Haus-Nr. 45, an dem im Frühjahr 2023 vier Fahrradbügel und ein Lastenradbügel
+    installiert wurden. \n\nEntsprechend wird auch der hier vorgeschlagene Standort
+    in die Liste für neue Standorte aufgenommen, um in einem ersten Schritt die Gegebenheiten
+    und Möglichkeiten zu prüfen. Ein konkreter Umsetzungszeitpunkt kann an dieser
+    Stelle noch nicht genannt werden. Aufgrund der kürzlich erfolgten Umsetzung in
+    unmittelbarer Nähe ist jedoch davon auszugehen, dass andere Standortprüfungen
+    prioritär erfolgen werden. \n \n\nUm Kenntnisnahme wird gebeten.\n\n\nMichael
+    Werner-Boelz\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
+
+document_26:
+  district: hamburg_nord
+  allris_id: 1013261
+  number: 21-4391.4
+  title: Nachverfolgung Beschlüsse
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Aktue</span><span style="">ll </span><span style="">sind keine Beschlü</span><span style="">sse offen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: |2-
+
+    Aktuell sind keine Beschlüsse offen.
+     
+    
+    
+    
+    
+
+    Um Kenntnisnahme wird gebeten.
+    Michael Werner-Boelz
+    
+  author:
+  attached:
+
+document_6:
+  district: hamburg_nord
+  allris_id: 1013281
+  number: 21-1881.1
+  title: Beteiligungsverfahren bei Straßenplanungen Umgang mit Fristsetzungen
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Das in der Drucksache 21-1881 vom 16.12.2020 dargestellte Verfahren stellt ein etabliertes Instrument zur Beteiligungsphase im Planungsprozess von Straß</span><span style="">en dar. In letzter Zeit kam es jedoch vermehrt zu Irritationen hinsichtlich der in den Verschickungsunterlagen genannten Frist zur Stellungnahme. Da hier</span><span style="">fü</span><span style="">r standardisierte Zeiträ</span><span style="">ume (in der Regel vier Wochen) hinterlegt sind, die sich nicht an kalendarischen Eckpunkten wie Schulferien oder Sitzungsterminen der Bezirksversammlung orientieren, erhielt das Bezirksamt daher regelmäß</span><span style="">ig Bitten um Fristverlä</span><span style="">nge</span><span style="">r</span><span style="">ung seitens der Bezirkspolitik.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Hierzu mö</span><span style="">chten wir folgendes mitteilen:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Fristsetzung dient insbesondere dazu, eine zü</span><span style="">gige und kalkulierbare Fortsetzung des Planungsprozesses sicherzustellen. Alle Trä</span><span style="">ger ö</span><span style="">ffentlicher Belange (TÖ</span><span style="">B) sind damit aufgefordert, ihren jeweiligen Fachbeitrag mittels Stellungnahme in die Planung einzubringen. Die Bezirksversammlung und ihre Ausschü</span><span style="">sse nehmen in diesem Prozess eine besondere Rolle ein. Eine Kenntnisnahme unserer Vorlagen durch die Ausschü</span><span style="">s</span><span style="">se oder gar eine Beschlussfassung ist innerhalb der gesetzten Frist nur bedingt mö</span><span style="">glich. Deswegen werden wir weiterhin Rü</span><span style="">ckmeldungen des Ausschusses auch nach Fristablauf zur Kenntnis nehmen und in der weiteren Planung berü</span><span style="">cksichtigen. Gleichwohl wird dar</span><span style="">u</span><span style="">m gebeten, die Fristsetzung als Orientierung anzusehen, damit der Planungsablauf nicht zusä</span><span style="">tzlich verzö</span><span style="">gert wird. In diesem Zusammenhang mö</span><span style="">chten wir auch darauf hinweisen, dass die Planungs- und Baudienststelle nicht die Befugnis hat, parallel abgegebene </span><span style="">S</span><span style="">tellungnahmen einzelner Fraktionen gegeneinander abzuwä</span><span style="">gen. Einwä</span><span style="">nde/Ergä</span><span style="">nzungen o.ä</span><span style="">. sind daher per Beschlussfassung an uns zu ü</span><span style="">bermitteln, damit eine adä</span><span style="">quate Berü</span><span style="">cksichtigung im weiteren Planungsprozess erfolgen kann.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span><span style="">Beschluss:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme</span><span style=""> </span><span style="">wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: |2-
+
+    
+    Das in der Drucksache 21-1881 vom 16.12.2020 dargestellte Verfahren stellt ein etabliertes Instrument zur Beteiligungsphase im Planungsprozess von Straßen dar. In letzter Zeit kam es jedoch vermehrt zu Irritationen hinsichtlich der in den Verschickungsunterlagen genannten Frist zur Stellungnahme. Da hierfür standardisierte Zeiträume (in der Regel vier Wochen) hinterlegt sind, die sich nicht an kalendarischen Eckpunkten wie Schulferien oder Sitzungsterminen der Bezirksversammlung orientieren, erhielt das Bezirksamt daher regelmäßig Bitten um Fristverlängerung seitens der Bezirkspolitik.
+    
+    Hierzu möchten wir folgendes mitteilen:
+    
+    Die Fristsetzung dient insbesondere dazu, eine zügige und kalkulierbare Fortsetzung des Planungsprozesses sicherzustellen. Alle Träger öffentlicher Belange (TÖB) sind damit aufgefordert, ihren jeweiligen Fachbeitrag mittels Stellungnahme in die Planung einzubringen. Die Bezirksversammlung und ihre Ausschüsse nehmen in diesem Prozess eine besondere Rolle ein. Eine Kenntnisnahme unserer Vorlagen durch die Ausschüsse oder gar eine Beschlussfassung ist innerhalb der gesetzten Frist nur bedingt möglich. Deswegen werden wir weiterhin Rückmeldungen des Ausschusses auch nach Fristablauf zur Kenntnis nehmen und in der weiteren Planung berücksichtigen. Gleichwohl wird darum gebeten, die Fristsetzung als Orientierung anzusehen, damit der Planungsablauf nicht zusätzlich verzögert wird. In diesem Zusammenhang möchten wir auch darauf hinweisen, dass die Planungs- und Baudienststelle nicht die Befugnis hat, parallel abgegebene Stellungnahmen einzelner Fraktionen gegeneinander abzuwägen. Einwände/Ergänzungen o.ä. sind daher per Beschlussfassung an uns zu übermitteln, damit eine adäquate Berücksichtigung im weiteren Planungsprozess erfolgen kann.
+     Beschluss:
+    
+    Um Kenntnisnahme wird gebeten.
+    
+    Michael Werner-Boelz
+    
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span></p>
+
+document_4:
+  district: hamburg_nord
+  allris_id: 1013283
+  number: 21-4777
+  title: Fäll-Liste Grünanlagenbäume 2023/24 - Nachmeldungen 30.08.2023 - 05.10.2023
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Nach dem Stand </span><span style="">vom </span><span style="">05.</span><span style="">10</span><span style="">.20</span><span style="">23</span><span style="font-style:italic;"> </span><span style="">muss im Regionalbereich </span><span style="">EWi</span><span style=""> zusä</span><span style="">tzlich</span><span style=""> </span><span style="font-weight:bold;">1</span><span style=""> Baum aus ö</span><span style="">ffentlichen Grü</span><span style="">nanlagen entnommen werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Es handelt sich </span><span style="">um eine standortprä</span><span style="">gende Rotuche im Eppendorfer Park.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Nach festgestelltem Befall durch den wurzelzersetzenden Pilz Riesenporling wurde eine externe Begutachtung unter Einsatz des Zugverfahrens veranlasst. Nach Ergebnis des Gutachtens ist die Standsicherheit des Baumes derart</span><span style=""> eingeschrä</span><span style="">nkt, dass, auß</span><span style="">er einer unverzü</span><span style="">glichen Fä</span><span style="">llung, keine Maß</span><span style="">nahmen mehr zielfü</span><span style="">hrend sind.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Die Notfä</span><span style="">llung wird daher kurzfristig in der 41. KW (09.-13.10. 2023) durch eine externe Vergabefirma erfolgen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Es </span><span style="">wird</span><span style=""> an insgesamt </span><span style="font-weight:bold;">1</span><span style=""> Standort</span><span style=""> </span><span style="">mind. </span><span style="font-weight:bold;">1</span><span style=""> Ersatzpflanzung vorgenommen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span><span style="">Beschluss:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: |2-
+
+    Nach dem Stand vom 05.10.2023 muss im Regionalbereich EWi zusätzlich 1 Baum aus öffentlichen Grünanlagen entnommen werden.
+    
+    Es handelt sich um eine standortprägende Rotuche im Eppendorfer Park.
+    Nach festgestelltem Befall durch den wurzelzersetzenden Pilz Riesenporling wurde eine externe Begutachtung unter Einsatz des Zugverfahrens veranlasst. Nach Ergebnis des Gutachtens ist die Standsicherheit des Baumes derart eingeschränkt, dass, außer einer unverzüglichen Fällung, keine Maßnahmen mehr zielführend sind.
+    
+    Die Notfällung wird daher kurzfristig in der 41. KW (09.-13.10. 2023) durch eine externe Vergabefirma erfolgen.
+    
+    Es wird an insgesamt 1 Standort mind. 1 Ersatzpflanzung vorgenommen.
+     Beschluss:
+    Um Kenntnisnahme wird gebeten.
+    Michael Werner-Boelz
+    
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Fä</span><span style="">ll-liste (05.10..2023)</span><span style=""> </span></p>
+
+document_170:
+  district: hamburg_nord
+  allris_id: 1013117
+  number: 21-4498.1.1
+  title: U Saarlandstraße Schneller zum Bahnsteig Stellungnahme der Behörde für Verkehr
+    und Mobilitätswende
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="">In der Sitzung am 05.06.2023 hat sich der Regionalausschuss Eppendorf-Winterhude mit o.g. Thematik auseinandergesetzt und folgende Beschlussempfehlung gefasst: </span></p>
+    <ol style="margin:0pt;padding-left:0pt;">
+    <li style="margin-left:31.95pt;margin-bottom:6pt;text-align:justify;padding-left:4.05pt;font-style:italic;">
+    <span>Das Vorsitzende Mitglied der Bezirksversammlung mö</span><span>ge sich bei der zustä</span><span>ndigen Fachbehö</span><span>rde dafü</span><span>r einsetzen, dass bei der weiteren Planung des Bahnhofsumbaus U</span><span></span><span>Saarlandstraß</span><span>e geprü</span><span>ft wird, ob eine Ö</span><span>ffnung des ehemaligen Osteingangs wä</span><span>hrend der Bauzeit sinnv</span><span>o</span><span>ll und machbar ist.</span>
+    </li>
+    <li style="margin-left:31.95pt;margin-bottom:6pt;text-align:justify;padding-left:4.05pt;font-style:italic;">
+    <span>Es soll zudem geprü</span><span>ft werden,</span><span style=""> </span><span>ob nach Abschluss der Bauarbeiten der Zugang denkmalgerecht und barrierefrei dauerhaft fü</span><span>r die Fahrgä</span><span>ste hergerichtet werden kann.</span>
+    </li>
+    </ol>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="">Begrü</span><span style="">ndung:</span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="">Am 13.6.2022 hat die Hochbahn im Regionalausschuss den behi</span><span style="">ndertengerechten Umbau der U-Bahnhaltestellen Sierichstraß</span><span style="">e und Saarlandstraß</span><span style="">e vorgestellt. Dabei ist die umfangreichste Arbeit der Bau von Aufzü</span><span style="">gen. Sie sind notwendig, damit alle ohne fremde Hilfe und ohne schwere Lasten tragen zu mü</span><span style="">ssen Zugang zum Glei</span><span style="">s</span><span style=""> erhalten. Beide Baumaß</span><span style="">nahmen sollten gleichzeitig in Angriff genommen werden, um die notwendigen Sperrzeiten wä</span><span style="">hrend des Baus zu verkü</span><span style="">rzen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="">Mittlerweile hat sich herausgestellt, dass der Umbau der Haltestelle Sierichstraß</span><span style="">e auf 2028 verschoben wird, um den</span><span style=""> Einbau der U5 in das Liniennetz zu vollziehen. Die Arbeiten am Bahnhof Saarlandstraß</span><span style="">e finden also solo statt. Sie sollen im Frü</span><span style="">hjahr 2024 beginnen und ca. ein halbes Jahr dauern. </span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="">Das Bahnhofsgebä</span><span style="">ude an der Saarlandstraß</span><span style="">e ist denkmalgeschü</span><span style="">tzt. Es hatte zu</span><span style=""> seiner Einweihung 1912 -damals noch Bahnhof Flurstraß</span><span style="">e genannt- seinen Eingang nicht wie heute auf der Ecke, sondern unter den Gleisen zur Straß</span><span style="">e hin. Bei Wikipedia ist dazu zu lesen [1]:</span></p>
+    <p style="margin-top:0pt;margin-left:28.35pt;margin-bottom:6pt;"><span style="font-style:italic;color:#202122;background-color:#ffffff;">Damals existierte nur ein Bahnsteig und ein einfach gehaltener Zuga</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">ng an seinem Ostende. Im Juli 1924 erhielt die Haltestelle den Namen Stadtpark. Kurze Zeit spä</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">ter wurde die Station erheblich umgebaut. Sie erhielt sü</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">dlich des bestehenden einen zweiten Bahnsteig und ein groß</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">zü</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">giges Empfangsgebä</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">ude an der heutigen Saarlan</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">d</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">straß</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">e mit Ausgang zum Sü</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">den nach den Plä</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">nen des Architekten Walter Puritz. Westlich des Bahnhofs entstand eine umfangreiche Abstellanlage, da die Abstellkapazitä</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">ten in Barmbek erschö</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">pft waren. 1970 schließ</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">lich bekam der U-Bahnhof mit Saarlandstraß</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">e seine</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">n</span><span style="font-style:italic;color:#202122;background-color:#ffffff;"> heutigen Namen, auch um Verwechslungen mit einem damals ebenfalls Stadtpark genannten Bahnhof der S-Bahn (heute: Alte Wö</span><span style="font-style:italic;color:#202122;background-color:#ffffff;">hr) zu vermeiden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="color:#202122;background-color:#ffffff;">Mit der Bebauung am Alten Gü</span><span style="color:#202122;background-color:#ffffff;">terbahnhof erschließ</span><span style="color:#202122;background-color:#ffffff;">t die Haltestelle mittlerweile ein Stadtparkquartier mit ca. 1.200 Wo</span><span style="color:#202122;background-color:#ffffff;">hnungen. Ihre Bewohner*innen gelangen aus nordö</span><span style="color:#202122;background-color:#ffffff;">stlicher Richtung zur Haltestelle und mü</span><span style="color:#202122;background-color:#ffffff;">ssen erst einmal komplett unter den Gleisen durchlaufen, um im Bahnhof den gleichen Weg wieder zurü</span><span style="color:#202122;background-color:#ffffff;">ck zu nehmen. Daher lä</span><span style="color:#202122;background-color:#ffffff;">ge es nahe, ihnen den Weg zum Gleis zu verkü</span><span style="color:#202122;background-color:#ffffff;">rze</span><span style="color:#202122;background-color:#ffffff;">n</span><span style="color:#202122;background-color:#ffffff;">. Wer Bahn fä</span><span style="color:#202122;background-color:#ffffff;">hrt, weiß</span><span style="color:#202122;background-color:#ffffff;"> dies bei knapper Zeitkalkulation zu schä</span><span style="color:#202122;background-color:#ffffff;">tzen!</span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="color:#202122;background-color:#ffffff;">Da der Bahnbetrieb wä</span><span style="color:#202122;background-color:#ffffff;">hrend der Bauzeit eingleisig aufrechterhalten werden soll, wä</span><span style="color:#202122;background-color:#ffffff;">re es auch sinnvoll, die Baustelle ü</span><span style="color:#202122;background-color:#ffffff;">ber einen vom Publikumsverkehr getrennten Eingang zu beschicken und d</span><span style="color:#202122;background-color:#ffffff;">en alten Eingang an der Ostseite dafü</span><span style="color:#202122;background-color:#ffffff;">r zu ö</span><span style="color:#202122;background-color:#ffffff;">ffnen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:6pt;"><span style="color:#202122;background-color:#ffffff;">Mit einer denkmalgerechten und barrierefreien Tü</span><span style="color:#202122;background-color:#ffffff;">r nach dem Abschluss der Bauarbeiten versehen, kö</span><span style="color:#202122;background-color:#ffffff;">nnte ein Schmuckstü</span><span style="color:#202122;background-color:#ffffff;">ck der Hamburger U-Bahngeschichte wiederhergestellt werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style="">Der Hauptausschuss folgt der </span><span style="">Beschlussempfehlung.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="font-weight:bold;">Die </span><span style="font-weight:bold;">Behö</span><span style="font-weight:bold;">rde fü</span><span style="font-weight:bold;">r Verkehr und Mobilitä</span><span style="font-weight:bold;">tswende </span><span style="font-weight:bold;">nimmt hierzu wie folgt Stellung:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="font-weight:bold;"></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Baumaß</span><span style="">nahme wurde zwischenzeitlich angepasst: Fü</span><span style="">r die Zeit des barrierefreien Umbaus der U-Bahn-Haltestelle Saarlandstraß</span><span style="">e ist die Ö</span><span style="">ffnung des ehemalige</span><span style="">n Zugangs bedingt durch den Entfall einer lä</span><span style="">ngeren Betriebsunterbrechung ohnehin vorgesehen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Da die HOCHBAHN nun die Eingriffe in die Treppenaufgä</span><span style="">nge und den Einbau der Aufzü</span><span style="">ge weitgehend mit Fahrgastbetrieb und zeitlich nacheinander umsetzen wird, wird di</span><span style="">eser Zugang wä</span><span style="">hrend der Bauarbeiten fü</span><span style="">r die Fahrgä</span><span style="">ste benö</span><span style="">tigt. Dies war ursprü</span><span style="">nglich nicht vorgesehen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Anregung der Bezirksversammlung fü</span><span style="">r eine dauerhaften Ö</span><span style="">ffnung wird aufgenommen und befindet sich derzeit noch behö</span><span style="">rdliche Abstimmungen. Vorbehaltlich</span><span style=""> der Zustimmung der Technischen Aufsichtsbehö</span><span style="">rde und des Denkmalschutzamtes soll die dauerhafte bauliche Anpassung zum Ende der Baumaß</span><span style="">nahme umgesetzt werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Isabel Permien</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage vorsitzendes Mitglied
+  non_public: false
+  full_text: "\n\nIn der Sitzung am 05.06.2023 hat sich der Regionalausschuss Eppendorf-Winterhude
+    mit o.g. Thematik auseinandergesetzt und folgende Beschlussempfehlung gefasst:
+    \n\n\nDas Vorsitzende Mitglied der Bezirksversammlung möge sich bei der zuständigen
+    Fachbehörde dafür einsetzen, dass bei der weiteren Planung des Bahnhofsumbaus
+    USaarlandstraße geprüft wird, ob eine Öffnung des ehemaligen Osteingangs während
+    der Bauzeit sinnvoll und machbar ist.\n\n\nEs soll zudem geprüft werden, ob nach
+    Abschluss der Bauarbeiten der Zugang denkmalgerecht und barrierefrei dauerhaft
+    für die Fahrgäste hergerichtet werden kann.\n\n\nBegründung:\nAm 13.6.2022 hat
+    die Hochbahn im Regionalausschuss den behindertengerechten Umbau der U-Bahnhaltestellen
+    Sierichstraße und Saarlandstraße vorgestellt. Dabei ist die umfangreichste Arbeit
+    der Bau von Aufzügen. Sie sind notwendig, damit alle ohne fremde Hilfe und ohne
+    schwere Lasten tragen zu müssen Zugang zum Gleis erhalten. Beide Baumaßnahmen
+    sollten gleichzeitig in Angriff genommen werden, um die notwendigen Sperrzeiten
+    während des Baus zu verkürzen.\nMittlerweile hat sich herausgestellt, dass der
+    Umbau der Haltestelle Sierichstraße auf 2028 verschoben wird, um den Einbau der
+    U5 in das Liniennetz zu vollziehen. Die Arbeiten am Bahnhof Saarlandstraße finden
+    also solo statt. Sie sollen im Frühjahr 2024 beginnen und ca. ein halbes Jahr
+    dauern. \nDas Bahnhofsgebäude an der Saarlandstraße ist denkmalgeschützt. Es hatte
+    zu seiner Einweihung 1912 -damals noch Bahnhof Flurstraße genannt- seinen Eingang
+    nicht wie heute auf der Ecke, sondern unter den Gleisen zur Straße hin. Bei Wikipedia
+    ist dazu zu lesen [1]:\nDamals existierte nur ein Bahnsteig und ein einfach gehaltener
+    Zugang an seinem Ostende. Im Juli 1924 erhielt die Haltestelle den Namen Stadtpark.
+    Kurze Zeit später wurde die Station erheblich umgebaut. Sie erhielt südlich des
+    bestehenden einen zweiten Bahnsteig und ein großzügiges Empfangsgebäude an der
+    heutigen Saarlandstraße mit Ausgang zum Süden nach den Plänen des Architekten
+    Walter Puritz. Westlich des Bahnhofs entstand eine umfangreiche Abstellanlage,
+    da die Abstellkapazitäten in Barmbek erschöpft waren. 1970 schließlich bekam der
+    U-Bahnhof mit Saarlandstraße seinen heutigen Namen, auch um Verwechslungen mit
+    einem damals ebenfalls Stadtpark genannten Bahnhof der S-Bahn (heute: Alte Wöhr)
+    zu vermeiden.\nMit der Bebauung am Alten Güterbahnhof erschließt die Haltestelle
+    mittlerweile ein Stadtparkquartier mit ca. 1.200 Wohnungen. Ihre Bewohner*innen
+    gelangen aus nordöstlicher Richtung zur Haltestelle und müssen erst einmal komplett
+    unter den Gleisen durchlaufen, um im Bahnhof den gleichen Weg wieder zurück zu
+    nehmen. Daher läge es nahe, ihnen den Weg zum Gleis zu verkürzen. Wer Bahn fährt,
+    weiß dies bei knapper Zeitkalkulation zu schätzen!\nDa der Bahnbetrieb während
+    der Bauzeit eingleisig aufrechterhalten werden soll, wäre es auch sinnvoll, die
+    Baustelle über einen vom Publikumsverkehr getrennten Eingang zu beschicken und
+    den alten Eingang an der Ostseite dafür zu öffnen.\nMit einer denkmalgerechten
+    und barrierefreien Tür nach dem Abschluss der Bauarbeiten versehen, könnte ein
+    Schmuckstück der Hamburger U-Bahngeschichte wiederhergestellt werden.\n\nDer
+    Hauptausschuss folgt der Beschlussempfehlung.\n\nDie Behörde für Verkehr und
+    Mobilitätswende nimmt hierzu wie folgt Stellung:\n\nDie Baumaßnahme wurde zwischenzeitlich
+    angepasst: Für die Zeit des barrierefreien Umbaus der U-Bahn-Haltestelle Saarlandstraße
+    ist die Öffnung des ehemaligen Zugangs bedingt durch den Entfall einer längeren
+    Betriebsunterbrechung ohnehin vorgesehen.\nDa die HOCHBAHN nun die Eingriffe in
+    die Treppenaufgänge und den Einbau der Aufzüge weitgehend mit Fahrgastbetrieb
+    und zeitlich nacheinander umsetzen wird, wird dieser Zugang während der Bauarbeiten
+    für die Fahrgäste benötigt. Dies war ursprünglich nicht vorgesehen.\nDie Anregung
+    der Bezirksversammlung für eine dauerhaften Öffnung wird aufgenommen und befindet
+    sich derzeit noch behördliche Abstimmungen. Vorbehaltlich der Zustimmung der Technischen
+    Aufsichtsbehörde und des Denkmalschutzamtes soll die dauerhafte bauliche Anpassung
+    zum Ende der Baumaßnahme umgesetzt werden.\n \n\nUm Kenntnisnahme wird gebeten.\n\n\nIsabel
+    Permien\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>
+
+document_56:
+  district: hamburg_nord
+  allris_id: 1013231
+  number: 21-4736
+  title: 'Eingaben: Gesamtanliegen zur Robinienbaumgruppe i.d. Falkenried-Terrassen'
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Das Bezirksamt Hamburg-Nord informiert ü</span><span style="">ber </span><span style="">a</span><span style="">nliegende</span><span style=""> Bü</span><span style="">rger:inneneingabe.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: "\nDas Bezirksamt Hamburg-Nord informiert über anliegende Bürger:inneneingabe.\n\n\n
+    \nUm Kenntnisnahme wird gebeten.\nMichael Werner-Boelz\n"
+  author:
+  attached:
+
+document_536:
+  district: hamburg_nord
+  allris_id: 1013287
+  number: 21-4781
+  title: 'Straßenverkehrsbehördliche Anordnung vom 29.09.2023 für den RegA EWi: Lattenkamp
+    29: Markierung einer Sperrfläche sowie Ergänzung von Absperreinrichtungen'
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style="">Die Straßenverkehrsbehörde ordnet gemäß § 45 StVO für den o.g. Bereich die</span></p>
+    <p style="margin-top:0pt;margin-bottom:0pt;"><span style="">Markierung einer Sperrfläche sowie die Ergänzung von Absperreinrichtungen </span><span style="">an.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span><span style="">Beschluss:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Michael Werner</span><span style="">-Boelz</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage Bezirksamt
+  non_public: false
+  full_text: |2-
+
+    Die Straßenverkehrsbehörde ordnet gemäß § 45 StVO für den o.g. Bereich die
+    Markierung einer Sperrfläche sowie die Ergänzung von Absperreinrichtungen an.
+    &nbsp;
+    &nbsp; Beschluss:
+    Um Kenntnisnahme wird gebeten.
+    Michael Werner-Boelz
+    &nbsp;
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Anordnung</span></p>
+    <p style="margin-top:0pt;margin-left:36pt;margin-bottom:0pt;text-indent:-18pt;"><span style="">-</span><span style="font:7pt 'Times New Roman';"> </span><span style="">Skizze</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+
+document_166:
+  district: hamburg_nord
+  allris_id: 1013121
+  number: 21-4526.2
+  title: Referent:innenanforderung zum Thema "Hinweis auf erhebliche Gefahrenstelle
+    Kreuzung Martinistraße/Tarpenbekstraße Stellungnahme der Behörde für Verkehr und
+    Mobilitätswende (BVM)
+  content: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Der Regionalausschuss Eppendorf-Winterhude hat sich in seiner Sitzung am 03.07.2023 aufgrund einer Eingabe mit der o.g. Thematik auseinandergesetzt und folgende Beschlussempfehlung formuliert: </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="font-style:italic;">Der LSBG wird um die Entsendung einer Referentin/eines Refere</span><span style="font-style:italic;">nten zum Knotenpunkt Martinistraß</span><span style="font-style:italic;">e/Lehnhartzstraß</span><span style="font-style:italic;">e gebeten. Hier geht es um das Anliegen der Elternvertreterinnen der Marie-Beschü</span><span style="font-style:italic;">tz-Schule, wie die Kreuzung bezü</span><span style="font-style:italic;">glich der Gefahrenpunkte umstrukturiert werden kö</span><span style="font-style:italic;">nnte. Dazu soll auch ein Vertreter/eine Vert</span><span style="font-style:italic;">r</span><span style="font-style:italic;">eterin des PK23 eingeladen werden.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Zur Begrü</span><span style="">ndung:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">An der Kreuzung Tarpenbekstraß</span><span style="">e / Martinistraß</span><span style="">e in unmittelbarer Nä</span><span style="">he zur Grundschule Marie Beschü</span><span style="">tz kommt es immer wieder zu lebensgefä</span><span style="">hrlichen Situationen, bei denen Linksabbieger aus der Martinistraß</span><span style="">e </span><span style="">auf die Tarpenbekstraß</span><span style="">e abbiegen oder aber auch Geradeausfahrer aus Richtung Lehnhartzstraß</span><span style="">e noch schnell bei „</span><span style="">Dunkelgelb" fahren. Ebenfalls wird hier hä</span><span style="">ufig ein U-Turn gemacht. </span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Konkret: </span></p>
+    <p style="margin-top:0pt;margin-left:35.25pt;margin-bottom:8pt;text-indent:-35.25pt;text-align:justify;"><span style="">1.)</span><span style=""></span><span style="width:21.08pt;text-indent:0pt;display:inline-block;"></span><span style="font-weight:bold;">Wendende Autos</span><span style="">, die aus Richtung Flughafen kommend wieder Ric</span><span style="">htung Flughafen zurü</span><span style="">ckfahren. Diese warten bis die Kreuzung frei (von Geradeausfahrenden) ist, um dann zu wenden. Hierbei geraten sie leider automatisch in die Grü</span><span style="">nphase der Fuß</span><span style="">gä</span><span style="">nger.</span><span style=""></span><span style="font-weight:bold;">Ein Wendeverbotsschild wü</span><span style="font-weight:bold;">rde hier schon Abhilfe schaffen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-left:35.25pt;margin-bottom:8pt;text-indent:-35.25pt;text-align:justify;"><span style="">2.) </span><span style="width:21.08pt;text-indent:0pt;display:inline-block;"></span><span style="">Eine</span><span style=""></span><span style="font-weight:bold;">z</span><span style="font-weight:bold;">u knapp bemessene Zeit zwischen dem Rot fü</span><span style="font-weight:bold;">r die Geradeausfahrenden aus Richtung Lehnhartzstraß</span><span style="font-weight:bold;">e und dem Grü</span><span style="font-weight:bold;">n fü</span><span style="font-weight:bold;">r die kreuzenden Fuß</span><span style="font-weight:bold;">gä</span><span style="font-weight:bold;">nger auf der gegenü</span><span style="font-weight:bold;">berliegenden Seite der Kreuzung</span><span style="">. Ich verstehe, dass Ampelphasen vermutlich nicht so ohne Weiteres angepa</span><span style="">sst werden kö</span><span style="">nnen, aber ich mö</span><span style="">chte dennoch beantragen, dass hier eine Ä</span><span style="">nderung der Ampelschaltung erwirkt wird und die Phase zwischen Rot fü</span><span style="">r die Autos und Grü</span><span style="">n fü</span><span style="">r die Fuß</span><span style="">gä</span><span style="">nger verlä</span><span style="">ngert wird. Sollte dies nicht machbar sein, wä</span><span style="">re ein</span><span style=""></span><span style="font-weight:bold;">Ampelblitzer</span><span style=""></span><span style="">eine A</span><span style="">lternative.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="font-weight:bold;">Die Behö</span><span style="font-weight:bold;">rde fü</span><span style="font-weight:bold;">r Verkehr und Mobilitä</span><span style="font-weight:bold;">tswende (BVM)</span><span style="font-weight:bold;">nimmt hierzu wie folgt Stellung</span><span style="font-weight:bold;">:</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Der Knoten Tarpenbekstraß</span><span style="">e/Martinistraß</span><span style="">e ist mit seiner Geometrie signaltechnisch komplex: Durch die groß</span><span style="">e Ausdehnung der gegenü</span><span style="">berliegenden Furten fü</span><span style="">r den Fuß</span><span style="">v</span><span style="">erkehr ergeben sich lange Rä</span><span style="">umwege fü</span><span style="">r den Kfz- und Radverkehr. Die Furten fü</span><span style="">r den Fuß</span><span style="">verkehr selbst sind ebenfalls sehr breit. Das Ü</span><span style="">berqueren dieser Furten erfordert einen hohen Zeitaufwand, dem sich nach der ausreichend langen Freigabezeit der Ampelscha</span><span style="">l</span><span style="">tung noch eine nachfolgende Rä</span><span style="">umzeit anschließ</span><span style="">t.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Des Weiteren sind separat signalisierte Linksabbieger vorhanden, die zusä</span><span style="">tzlich Zeit benö</span><span style="">tigen. Unter Berü</span><span style="">cksichtigung dieser Rä</span><span style="">um- und ausreichenden Freigabezeiten mü</span><span style="">ssen alle Verkehrsteilnehmenden innerha</span><span style="">lb von hö</span><span style="">chstens 75 Sekunden (geringster Umlauf) eine Freigabe erhalten haben.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Besondere Bedeutung haben an dieser Schaltung darü</span><span style="">ber hinaus wichtige Bus-, Metrobus-, Nacht- und Expressbuslinien (20, 25, 600 in Ost-/Sü</span><span style="">dwestrichtung sowie 392, 22, X22 und X</span><span style="">35 in Nord-/Ostrichtung), die im Zuge des Busbeschleunigungsprogramms mö</span><span style="">glichst priorisiert werden sollen. Daher ist der Verkehr an diesem Knotenpunkt mit einer verkehrsabhä</span><span style="">ngigen Steuerung und mit einer Busbeeinflussung geregelt.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Ferner spielt auch das h</span><span style="">ohe Verkehrsaufkommen der Tarpenbekstraß</span><span style="">e als Ausfallstraß</span><span style="">e und die entsprechenden Rü</span><span style="">ckstaulä</span><span style="">ngen zu den Knotenpunkten eine wichtige Rolle.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Die Rä</span><span style="">umzeit zwischen dem aus Richtung Sü</span><span style="">den kommenden Kfz-Verkehr und der nö</span><span style="">rdlichen Furt fü</span><span style="">r den Fuß</span><span style="">verkehr wurde</span><span style=""> im Sinne des Beschlusses geprü</span><span style="">ft. Die Auswertung hat ergeben, dass die Rä</span><span style="">umzeit den in Hamburg und Deutschland zugrunde zu liegenden Regelwerken entspricht und bereits eine Extrasekunde aufgeschlagen wurde (fü</span><span style="">r 58 m Rä</span><span style="">umweg soll die Rä</span><span style="">umzeit 10 Sekunden </span><span style="">b</span><span style="">etragen, in der Schaltung „</span><span style="">vor Ort“</span><span style=""> sind dagegen 11 Sekunden vorgesehen).</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;text-align:justify;"><span style="">Aufgrund seiner Komplexitä</span><span style="">t ist eine Ä</span><span style="">nderung der Rä</span><span style="">umzeiten am Knoten Tarpenbekstraß</span><span style="">e/Martinistraß</span><span style="">e zum jetzigen Zeitpunkt nicht umsetzbar. Die BVM und der Landesbetrieb Straß</span><span style="">en, B</span><span style="">rü</span><span style="">cken und Gewä</span><span style="">sser werden die Anregungen vermerken und bei der nä</span><span style="">chsten baulichen Ü</span><span style="">berarbeitung des Knotenpunktes die Situation und mö</span><span style="">gliche Verbesserungen erneut prü</span><span style="">fen.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  resolution: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Um Kenntnisnahme wird gebeten.</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Isabel Permien</span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+  kind: Mitteilungsvorlage vorsitzendes Mitglied
+  non_public: false
+  full_text: "\n\nDer Regionalausschuss Eppendorf-Winterhude hat sich in seiner Sitzung
+    am 03.07.2023 aufgrund einer Eingabe mit der o.g. Thematik auseinandergesetzt
+    und folgende Beschlussempfehlung formuliert: \n\nDer LSBG wird um die Entsendung
+    einer Referentin/eines Referenten zum Knotenpunkt Martinistraße/Lehnhartzstraße
+    gebeten. Hier geht es um das Anliegen der Elternvertreterinnen der Marie-Beschütz-Schule,
+    wie die Kreuzung bezüglich der Gefahrenpunkte umstrukturiert werden könnte. Dazu
+    soll auch ein Vertreter/eine Vertreterin des PK23 eingeladen werden.\n\nZur Begründung:\nAn
+    der Kreuzung Tarpenbekstraße / Martinistraße in unmittelbarer Nähe zur Grundschule
+    Marie Beschütz kommt es immer wieder zu lebensgefährlichen Situationen, bei denen
+    Linksabbieger aus der Martinistraße auf die Tarpenbekstraße abbiegen oder aber
+    auch Geradeausfahrer aus Richtung Lehnhartzstraße noch schnell bei „Dunkelgelb\"
+    fahren. Ebenfalls wird hier häufig ein U-Turn gemacht. \n\nKonkret: \n1.)Wendende
+    Autos, die aus Richtung Flughafen kommend wieder Richtung Flughafen zurückfahren.
+    Diese warten bis die Kreuzung frei (von Geradeausfahrenden) ist, um dann zu wenden.
+    Hierbei geraten sie leider automatisch in die Grünphase der Fußgänger.Ein Wendeverbotsschild
+    würde hier schon Abhilfe schaffen.\n\n2.) Einezu knapp bemessene Zeit zwischen
+    dem Rot für die Geradeausfahrenden aus Richtung Lehnhartzstraße und dem Grün für
+    die kreuzenden Fußgänger auf der gegenüberliegenden Seite der Kreuzung. Ich verstehe,
+    dass Ampelphasen vermutlich nicht so ohne Weiteres angepasst werden können, aber
+    ich möchte dennoch beantragen, dass hier eine Änderung der Ampelschaltung erwirkt
+    wird und die Phase zwischen Rot für die Autos und Grün für die Fußgänger verlängert
+    wird. Sollte dies nicht machbar sein, wäre einAmpelblitzereine Alternative.\n\nDie
+    Behörde für Verkehr und Mobilitätswende (BVM)nimmt hierzu wie folgt Stellung:\n\nDer
+    Knoten Tarpenbekstraße/Martinistraße ist mit seiner Geometrie signaltechnisch
+    komplex: Durch die große Ausdehnung der gegenüberliegenden Furten für den Fußverkehr
+    ergeben sich lange Räumwege für den Kfz- und Radverkehr. Die Furten für den Fußverkehr
+    selbst sind ebenfalls sehr breit. Das Überqueren dieser Furten erfordert einen
+    hohen Zeitaufwand, dem sich nach der ausreichend langen Freigabezeit der Ampelschaltung
+    noch eine nachfolgende Räumzeit anschließt.\n\nDes Weiteren sind separat signalisierte
+    Linksabbieger vorhanden, die zusätzlich Zeit benötigen. Unter Berücksichtigung
+    dieser Räum- und ausreichenden Freigabezeiten müssen alle Verkehrsteilnehmenden
+    innerhalb von höchstens 75 Sekunden (geringster Umlauf) eine Freigabe erhalten
+    haben.\n\nBesondere Bedeutung haben an dieser Schaltung darüber hinaus wichtige
+    Bus-, Metrobus-, Nacht- und Expressbuslinien (20, 25, 600 in Ost-/Südwestrichtung
+    sowie 392, 22, X22 und X35 in Nord-/Ostrichtung), die im Zuge des Busbeschleunigungsprogramms
+    möglichst priorisiert werden sollen. Daher ist der Verkehr an diesem Knotenpunkt
+    mit einer verkehrsabhängigen Steuerung und mit einer Busbeeinflussung geregelt.\n\nFerner
+    spielt auch das hohe Verkehrsaufkommen der Tarpenbekstraße als Ausfallstraße und
+    die entsprechenden Rückstaulängen zu den Knotenpunkten eine wichtige Rolle.\n\nDie
+    Räumzeit zwischen dem aus Richtung Süden kommenden Kfz-Verkehr und der nördlichen
+    Furt für den Fußverkehr wurde im Sinne des Beschlusses geprüft. Die Auswertung
+    hat ergeben, dass die Räumzeit den in Hamburg und Deutschland zugrunde zu liegenden
+    Regelwerken entspricht und bereits eine Extrasekunde aufgeschlagen wurde (für
+    58 m Räumweg soll die Räumzeit 10 Sekunden betragen, in der Schaltung „vor Ort“
+    sind dagegen 11 Sekunden vorgesehen).\n\nAufgrund seiner Komplexität ist eine
+    Änderung der Räumzeiten am Knoten Tarpenbekstraße/Martinistraße zum jetzigen Zeitpunkt
+    nicht umsetzbar. Die BVM und der Landesbetrieb Straßen, Brücken und Gewässer werden
+    die Anregungen vermerken und bei der nächsten baulichen Überarbeitung des Knotenpunktes
+    die Situation und mögliche Verbesserungen erneut prüfen.\n \n\nUm Kenntnisnahme
+    wird gebeten.\n\n\nIsabel Permien\n"
+  author:
+  attached: |-
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style=""></span></p>
+    <p style="margin-top:0pt;margin-bottom:8pt;"><span style="">Keine</span><span style=""> </span><span style=""></span></p>

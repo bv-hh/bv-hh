@@ -1,54 +1,93 @@
 h2.h1 title="Drucksache #{@document.number}"
   strong= @document.number
-  .float-right= allris_link(@document.allris_url)
+  .float-end= allris_link(@document.allris_url)
 h1.h2.text-break
   = simple_format(@document.title)
 h3.text-muted
   small= @document.kind
 
+- attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
-- if agenda_items.present?
-  .row.mt-3.font-weight-bold
-    .col-3.col-lg-2.border-bottom.py-2.text-break
-      | Bera&shy;tungs&shy;reihen&shy;folge
-    .col.col-lg-8.border-bottom.py-2 Gremium
-    .col-2.border-bottom.py-2 TOP
 
-  - agenda_items.each do |item|
-    .row.pt-3.border-top
-      .col-3.col-lg-2.border-bottom.py-2
-        = l item.meeting.date
-      .col.col-lg-8.border-bottom.py-2
-        = link_to item.meeting.committee.name, meeting_path(item.meeting)
-      .col-2.border-bottom.py-2
-        - if item.allris_id.present?
-          => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
-            strong= item.number
-          = meeting_result_badge(item)
+- if item = agenda_items.first
+  p
+    ' Letzte Beratung:
+    => l item.meeting.date
+    => link_to item.meeting.committee.name, meeting_path(item.meeting)
+    - if item.allris_id.present?
+      => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+        strong= item.number
+      = meeting_result_badge(item)
+    - else
+      = item.number
+
+.row
+  .col-md-8
+    .card.mt-3
+      .card-header.fw-bold Sachverhalt
+      .card-body
+        == document_format(@document, :content)
+
+    - if @document.resolution.present?
+      .card.mt-3
+        .card-header.fw-bold Petitum/Beschluss
+        .card-body
+          == document_format(@document, :resolution)
+
+  .col-md-4
+    - if agenda_items.present?
+      .card.mt-3
+        .card-header.fw-bold
+          | Bera&shy;tungs&shy;reihen&shy;folge
+        .card-body
+          .row
+            .col-9.border-bottom.py-2 Datum/Gremium
+            .col-3.border-bottom.py-2.text-end TOP
+
+          - agenda_items.each do |item|
+            .row.py-2.border-top
+              .col-9.fw-bold
+                = l item.meeting.date
+              .col-3.text-end
+                - if item.allris_id.present?
+                  => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+                    strong= item.number
+                  = meeting_result_badge(item)
+                - else
+                  = item.number
+              .col.col-12
+                = link_to item.meeting.committee.name, meeting_path(item.meeting)
+
+    - if attachments
+      .card.mt-3
+        .card-header.fw-bold Anhänge
+        .card-body
+          == document_format(@document, :attached)
+
+          .mt-3
+            - @document.attachments.by_name.each do |attachment|
+              = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
+              br
+
+    .card.mt-3
+      .card-header.fw-bold
+        ' Lokalisation
+        span.badge.text-bg-warning.float-end Beta
+
+      .card-body
+        - if @document.locations.present?
+          - @document.locations.each do |location|
+            => link_to location_path(location) do
+              span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
+                = location.name
         - else
-          = item.number
+          p
+            | Keine Orte erkannt.
 
-.card.mt-3
-  .card-header.font-weight-bold Sachverhalt
-  .card-body
-    == document_format(@document, :content)
+        p.small.text-secondary.mt-3
+          | Die Erkennung von Orten anhand des Textes der Drucksache kann ungenau sein. Es ist daher möglich, das Orte
+            gar nicht oder falsch erkannt werden.
 
-- if @document.resolution.present?
-  .card.mt-3
-    .card-header.font-weight-bold Petitum/Beschluss
-    .card-body
-      == document_format(@document, :resolution)
-
-- if @document.attached.present?
-  .card.mt-3
-    .card-header.font-weight-bold Anhänge
-    .card-body
-      == document_format(@document, :attached)
-
-      .mt-3
-        - @document.attachments.by_name.each do |attachment|
-          = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
-          br
 
 
 script type="application/ld+json"

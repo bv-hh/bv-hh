@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # config valid for current version and patch releases of Capistrano
-lock '~> 3.17.0'
+lock '~> 3.19.1'
 
 set :application, 'bezirkr'
 set :repo_url, 'git@github.com:bv-hh/bv-hh.git'
@@ -12,7 +12,7 @@ set :branch, ENV.fetch('branch', nil) || current_branch || 'master'
 set :deploy_to, '/home/deploy/app'
 
 set :rbenv_type, :user
-set :rbenv_ruby, '2.7.1'
+set :rbenv_ruby, '3.3.5'
 
 set :migration_role, :web
 

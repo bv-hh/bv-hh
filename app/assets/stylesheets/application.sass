@@ -46,7 +46,7 @@ span.twitter-typeahead
     line-height: normal
 
   .tt-suggestion.tt-cursor
-    @extend .dropdown-item.active
+    @extend .dropdown-item, .active
 
     .tt-highlight
       color: $black
@@ -76,9 +76,12 @@ span.twitter-typeahead
     +media-breakpoint-up(xl)
       max-width: 900px
 
-  .number
+  .number, .date
     font-weight: bold
     color: $red
+
+  .excerpt
+    font-size: small
 
   .meta
     font-size: small

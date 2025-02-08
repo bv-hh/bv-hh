@@ -11,6 +11,7 @@ h1.h2
 
     tbody
       - @committees.each do |committee|
+        - meeting = committee.meetings.in_future.order(:date).first
         tr
           td
             = link_to committee_path(committee) do
@@ -18,17 +19,20 @@ h1.h2
             - if committee.inactive?
               span.badge.badge-secondary Inaktiv
           td.text-nowrap
-            - meeting = committee.meetings.complete.latest_first.first
-            = link_to meeting_path(meeting) do
-              = l meeting.date
-            br
-            = l meeting.start_time
+            - if meeting
+              = link_to meeting_path(meeting) do
+                = l meeting.date
+              br
+              = l meeting.start_time
+            - else
+              | -
           td
             - if committee.average_duration
               = "#{number_with_precision(committee.average_duration.to_f / 3600, precision: 2)} h"
             - else
               | -
           td
-            = allris_link meeting.allris_url
+            - if meeting
+              = allris_link meeting.allris_url
 
 

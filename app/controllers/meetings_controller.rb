@@ -2,7 +2,16 @@
 
 class MeetingsController < ApplicationController
   def index
-    @meetings = @district.meetings.complete.latest_first.includes(:agenda_items).page(params[:page])
+    @meetings = @district.meetings.complete.latest_first.includes(:agenda_items)
+
+    page = params[:page]
+    future_meetings = @meetings.in_future.count
+    if page.blank? && future_meetings.positive?
+      page = (future_meetings / Meeting.default_per_page).floor + 1
+      redirect_to meetings_path(page: page) and return
+    end
+
+    @meetings = @meetings.page(page)
     @title = "Sitzungstermine/Sitzungskalender der Bezirksversammlung #{@district.name} und ihrer Gremien"
   end
 
@@ -43,7 +52,8 @@ class MeetingsController < ApplicationController
   private
 
   def set_meta(meeting)
-    @title = "#{I18n.l(meeting.date)} - Sitzung #{meeting.committee.name} - #{meeting.district.name}"
+    committee_title = meeting.committee&.name || meeting.title
+    @title = "#{I18n.l(meeting.date)} - #{committee_title} - #{meeting.district.name}"
     @meta_description = "#{I18n.l(meeting.start_time, default: '--:--')} Uhr, #{meeting.room}, #{meeting.location} #{helpers.strip_tags(meeting.title).squish.truncate(120)}"
   end
 end

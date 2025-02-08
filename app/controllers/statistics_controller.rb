@@ -24,7 +24,7 @@ class StatisticsController < ApplicationController
     PARTIES.map do |party, color|
       {
         name: party,
-        color: color,
+        color:,
         data: {
           caption => yield(party),
         },
