@@ -24,7 +24,7 @@ h3.text-muted
   .row.mt-4.border-bottom.font-weight-bold
     .col-2.col-lg-1.py-2
       ' TOP
-      = link_to icon(:far, 'file-excel'), meeting_path(@meeting, format: :xlsx), title: 'Tagesordnung als Excel-Datei herunterladen'
+      = link_to icon(:far, 'file-excel'), meeting_path(@meeting, format: :xlsx), title: 'Tagesordnung als Excel-Datei herunterladen', data: { bs_toggle: :tooltip }
     .col.col-lg-7.py-2 Titel
     .col.py-2.text-end Drucksache
 
@@ -32,7 +32,7 @@ h3.text-muted
     .row.pt-3.border-top
       .col-2.col-lg-1.py-1
         - if item.allris_id.present?
-          strong.text-nowrap=> link_to item.number, minutes_meeting_path(@meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip }
+          strong.text-nowrap=> link_to item.number, minutes_meeting_path(@meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { bs_toggle: :tooltip }
         - else
           strong.text-nowrap= item.number
 
