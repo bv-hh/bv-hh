@@ -75,6 +75,7 @@ class Document < ApplicationRecord
   scope :since_number, ->(number) { where(documents: { number: number.. }) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
+  scope :current_legislation, -> (district) { where(district: district).since_number(district.first_legislation_number) }
 
   default_scope -> { where(non_public: false) }
 
