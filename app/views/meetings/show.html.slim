@@ -49,6 +49,13 @@ h3.text-muted
           = link_to document_path(item.document) do
             strong= item.document.number
 
+  - if @meeting.attachments.any?
+    h4.mt-4#attachments Anhänge
+    - @meeting.attachments.by_name.each do |attachment|
+      = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
+      br
+
+
 - else
   p
     ' Tagesordnung steht noch nicht fest oder die Sitzung ist nicht-öffentlich.
