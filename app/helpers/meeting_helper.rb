@@ -29,13 +29,13 @@ module MeetingHelper
       return nil
     end
 
-    link_to minutes_meeting_path(agenda_item.meeting, anchor: agenda_item.id), class: "text-#{color}", title: agenda_item.decision, data: { toggle: :tooltip } do
+    link_to minutes_meeting_path(agenda_item.meeting, anchor: agenda_item.id), class: "text-#{color}", title: agenda_item.decision, data: { bs_toggle: :tooltip } do
       icon(:fas, icon)
     end
   end
 
   def meeting_minutes_link(meeting)
-    link_to minutes_meeting_path(meeting), title: "Protokoll vom #{l meeting.date}", data: { toggle: :tooltip, placement: :bottom } do
+    link_to minutes_meeting_path(meeting), title: "Protokoll vom #{l meeting.date}", data: { bs_toggle: :tooltip, placement: :bottom } do
       icon(:far, 'file-powerpoint')
     end
   end

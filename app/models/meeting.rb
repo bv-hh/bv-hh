@@ -28,6 +28,7 @@ require 'net/http'
 
 class Meeting < ApplicationRecord
   include Parsing
+  include WithAttachments
 
   OBJECT_MOVED = 'Object moved'
   AUTH_REDIRECT = 'noauth.asp'
@@ -59,6 +60,11 @@ class Meeting < ApplicationRecord
     save!
 
     retrieve_agenda_items(html)
+    retrieve_attachments(html)
+  end
+
+  def extract_attachment_table(html)
+    html.css('table.tk1').first
   end
 
   def retrieve_committee(html)

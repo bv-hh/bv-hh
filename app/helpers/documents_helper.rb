@@ -35,10 +35,16 @@ module DocumentsHelper
 
     return '' if content.nil?
 
+    content = scrub_whitespace(content)
     content = link_documents(content, document.district)
     content = link_images(content, document)
 
     Rinku.auto_link(content, :all, 'target="_blank"')
+  end
+
+  def scrub_whitespace(content)
+    content = content.gsub(%r{<span[^>]*>[  ]*</span>}, '')
+    content.gsub(%r{<p[^>]*>[  ]*</p>}, '')
   end
 
   def highlight_multi_excerpt(text, terms)
