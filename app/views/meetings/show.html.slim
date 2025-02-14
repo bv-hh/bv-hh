@@ -1,6 +1,8 @@
 h2.h1
   strong= l @meeting.date
   .float-end
+    - if @meeting.attachments.any?
+      => link_to icon(:fas, 'paperclip'), '#attachments', title: 'Anlagen zu dieser Sitzung', data: { bs_toggle: :tooltip }
     - if @meeting.logged?
       => meeting_minutes_link(@meeting)
     = allris_link @meeting.allris_url
@@ -50,7 +52,7 @@ h3.text-muted
             strong= item.document.number
 
   - if @meeting.attachments.any?
-    h4.mt-4#attachments Anhänge
+    h4.mt-4#attachments Anlagen
     - @meeting.attachments.by_name.each do |attachment|
       = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
       br
