@@ -43,8 +43,8 @@ module DocumentsHelper
   end
 
   def scrub_whitespace(content)
-    content = content.gsub(%r{<span[^>]*>[  ]*</span>}, '')
-    content.gsub(%r{<p[^>]*>[  ]*</p>}, '')
+    content = content.gsub(%r{<span[^>]*>[  ]*</span>}, ' ')
+    content.gsub(%r{<p[^>]*>[  ]*</p>}, ' ')
   end
 
   def highlight_multi_excerpt(text, terms)
