@@ -54,6 +54,7 @@ module WithAttachments
     source = Net::HTTP.get(URI(allris_url))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
     html = html.css('table.risdeco').first
+    return if html.nil?
 
     retrieve_attachments(html)
     save!
