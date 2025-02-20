@@ -24,7 +24,8 @@
 #  index_locations_on_place_id         (place_id)
 #
 class Location < ApplicationRecord
-  BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] + District.all.map { |d| d.name.downcase } + ['hamburg nord', 'hamburg mitte']
+  BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] +
+    District.all.map { |d| [d.name.downcase, 'bezirk ' + d.name.downcase] }.flatten + ['hamburg nord', 'hamburg mitte']
   VALID_TYPES = %w[park route political sublocality]
 
   belongs_to :district
