@@ -75,7 +75,7 @@ gem 'langchainrb', '~> 0.19.3'
 
 gem 'baran', '~> 0.1.12'
 
-gem 'ruby-openai', '~> 6.5'
+gem 'ruby-openai', '~> 7.4'
 
 gem 'qdrant-ruby', '~> 0.9.8'
 
