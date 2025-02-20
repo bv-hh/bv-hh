@@ -12,7 +12,7 @@ class UpdateChangingContentJob < ApplicationJob
   end
 
   def perform_for(district)
-    district.documents.where('created_at > ?', 1.week.ago).find_each(&:update_later!)
-    district.meetings.where(date: Time.zone.today..).find_each(&:update_later!)
+    district.documents.where(created_at: 1.week.ago..).find_each(&:update_later!)
+    district.meetings.where(date: 2.weeks.ago..).find_each(&:update_later!)
   end
 end
