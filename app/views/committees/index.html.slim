@@ -14,8 +14,8 @@ h1.h2
         - meeting = committee.meetings.in_future.order(:date).first
         tr
           td
-            = link_to committee_path(committee) do
-              strong>= committee.name
+            => link_to committee_path(committee) do
+              strong= committee.name
             - if committee.inactive?
               span.badge.text-bg-secondary Inaktiv
           td.text-nowrap

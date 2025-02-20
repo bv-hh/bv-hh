@@ -150,6 +150,8 @@ class Document < ApplicationRecord
 
     retrieve_attachments(html)
     retrieve_images(html)
+
+    extract_locations_later! if content.present?
   end
 
   def retrieve_meta(html)
