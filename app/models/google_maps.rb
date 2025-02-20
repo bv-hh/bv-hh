@@ -44,7 +44,7 @@ class GoogleMaps
     def response(url)
       begin
         result = JSON.parse(HTTPClient.new.get_content(url))
-      rescue StandardErrror => e
+      rescue StandardError => e
         Rails.logger.error e.message.to_s
         raise e
       end
