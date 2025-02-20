@@ -77,6 +77,10 @@ html lang='de'
             = link_to 'Was soll das Ganze?', about_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
             = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
+          p.text-end.px-1
+            small
+              |> Version
+              = REVISION_TRUNC
 
         p
           ' Anmerkungen & Ideen? Auf
