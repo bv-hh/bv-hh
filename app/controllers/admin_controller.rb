@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 class AdminController < ApplicationController
   auth = Rails.application.credentials.dig(Rails.env.to_sym, :admin_auth)
-  if auth.present?
-    http_basic_authenticate_with name: auth[:username], password: auth[:password], except: :index
-  end
+  http_basic_authenticate_with name: auth[:username], password: auth[:password], except: :index if auth.present?
 
   def show
     @db_cache_stats = ActiveRecord::Base.connection.execute(cache_sql).first
