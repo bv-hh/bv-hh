@@ -34,6 +34,8 @@ gem 'ahoy_matey'
 
 gem 'fiddle'
 
+gem 'mutex_m'
+
 gem 'nokogiri'
 
 gem 'bootstrap', '~> 5.3'
