@@ -17,7 +17,7 @@ h1.h2
             = link_to committee_path(committee) do
               strong>= committee.name
             - if committee.inactive?
-              span.badge.badge-secondary Inaktiv
+              span.badge.text-bg-secondary Inaktiv
           td.text-nowrap
             - if meeting
               = link_to meeting_path(meeting) do
