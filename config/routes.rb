@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   mount GoodJob::Engine, at: 'good_job'
   mount Blazer::Engine, at: 'blazer'
-  mount PgHero::Engine, at: "pghero"
+  mount PgHero::Engine, at: 'pghero'
 
   get '/about' => 'pages#about', as: :about
   get '/imprint' => 'pages#imprint', as: :imprint
