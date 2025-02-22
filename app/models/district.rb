@@ -32,6 +32,7 @@ class District < ApplicationRecord
   has_many :meetings, dependent: :destroy
   has_many :agenda_items, through: :meetings
   has_many :committees, dependent: :destroy
+  has_many :locations, dependent: :destroy
   has_many :places, dependent: :destroy
 
   validates :name, presence: true
