@@ -13,7 +13,6 @@ Um BV-HH lokal zu installieren und daran zu entwickeln, sind diese Dinge nötig:
 - Ruby
 - PostgreSQL
 - NodeJS
-- Redis
 
 ## NER Modell herunterladen
 
