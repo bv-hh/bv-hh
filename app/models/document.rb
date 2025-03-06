@@ -164,8 +164,8 @@ class Document < ApplicationRecord
   def retrieve_body(html) # rubocop:disable Metrics/AbcSize
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
     self.content ||= retrieve_xpath_div(html, 'Sachverhalt')
-    self.content|| = retrieve_xpath_div(html, 'Hintergrund:')
-    self.content = clean_html(html.css('td[bgcolor=white] > div')[0]) if content.nil?
+    self.content ||= retrieve_xpath_div(html, 'Hintergrund:')
+    self.content ||= clean_html(html.css('td[bgcolor=white] > div')[0])
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
