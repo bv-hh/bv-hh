@@ -61,6 +61,10 @@ module MeetingHelper
         },
       },
       description: meeting.agenda_items.map { "#{it.number} #{it.title}" }.join("\n"),
+      offers: {
+        '@type': 'Offer',
+        price: 0,
+      },
       performer: {
         '@type': 'Organization',
         name: meeting.committee.name,
