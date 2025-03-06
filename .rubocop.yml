@@ -1,11 +1,12 @@
 inherit_from: .rubocop_todo.yml
 
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
 
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   Exclude:
     - 'db/**/*'
     - 'bin/**/*'

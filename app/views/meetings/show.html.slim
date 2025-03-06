@@ -57,6 +57,8 @@ h3.text-muted
       = link_to attachment.name, rails_blob_path(attachment.file, disposition: :inline), target: '_blank'
       br
 
+  script type="application/ld+json"
+    == structured_data_for_meeting(@meeting).to_json
 
 - else
   p

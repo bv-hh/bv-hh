@@ -140,4 +140,18 @@ class Meeting < ApplicationRecord
   def logged?
     agenda_items.logged.present?
   end
+
+  def starts_at
+    DateTime.new(date.year, date.month, date.day, start_time.hour, start_time.min, start_time.sec, start_time.zone)
+  end
+
+  def ends_at
+    if end_time.present?
+      DateTime.new(date.year, date.month, date.day, end_time.hour, end_time.min, end_time.sec, end_time.zone)
+    elsif committee.average_duration.present?
+      starts_at + committee.average_duration.seconds
+    else
+      starts_at + 4.hours
+    end
+  end
 end
