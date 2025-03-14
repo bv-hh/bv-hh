@@ -53,6 +53,8 @@ html lang='de'
             li.nav-item
               = link_to 'Gremien', committees_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
+              = link_to 'Personen', groups_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
+            li.nav-item
               = link_to 'Statistik', statistics_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
 
           ul.navbar-nav

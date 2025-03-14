@@ -1,0 +1,16 @@
+h1.h2
+  ' Fraktionen/Gruppen
+
+.mt-4
+  - @groups.each do |group|
+
+    .group.mb-4
+      h2.h3
+        = group.name
+        br
+
+        small.text-muted
+          => "#{group.members.elected.count} gewählte Mitglieder, #{group.members.count} insgesamt"
+          = allris_link group.allris_url
+
+
