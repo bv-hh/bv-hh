@@ -129,14 +129,14 @@ class Document < ApplicationRecord
     link_documents(content)
   end
 
-  def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
+  def retrieve_from_allris!(source = get_source)
     if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
       self.non_public = true
       save!
       return self
     end
 
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = parse_source(source)
 
     headline = html.css('h1').first&.text
     self.number = headline&.gsub('Drucksache -', '')&.gsub('Vorlage -', '')&.squish
