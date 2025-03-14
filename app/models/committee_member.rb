@@ -17,7 +17,6 @@
 #  index_committee_members_on_member_id     (member_id)
 #
 class CommitteeMember < ApplicationRecord
-
   belongs_to :committee
   belongs_to :member
 end

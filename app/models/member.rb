@@ -22,11 +22,10 @@
 #  index_members_on_short_name                (short_name)
 #
 class Member < ApplicationRecord
-
   CHAIR_KINDS = ['Fraktionsvorsitz', 'Fraktionsvorsitzende/r']
   DEPUTY_CHAIR_KINDS = ['Stellv. Fraktionsvorsitz', 'Stellvertr. Fraktionsvorsitz',
-    '1. stellvertr. Fraktionsvorsitz', '2. stellvertr. Fraktionsvorsitz',
-    '1. stv. Fraktionsvorsitzende/r', '2. stv. Fraktionsvorsitzende/r' ]
+                        '1. stellvertr. Fraktionsvorsitz', '2. stellvertr. Fraktionsvorsitz',
+                        '1. stv. Fraktionsvorsitzende/r', '2. stv. Fraktionsvorsitzende/r']
   MEMBER_KINDS = ['Fraktionsmitglied']
   ELECTED_KINDS = CHAIR_KINDS + DEPUTY_CHAIR_KINDS + MEMBER_KINDS
 
@@ -68,6 +67,6 @@ class Member < ApplicationRecord
   end
 
   def set_last_name
-    self.last_name = name&.split(' ')&.last
+    self.last_name = name&.split&.last
   end
 end

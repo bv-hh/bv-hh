@@ -55,7 +55,7 @@ class Group < ApplicationRecord
 
   def retrieve_details(html)
     address_html = html.xpath(".//tr[not(descendant::*[@class='lb1'])]")
-    self.address = address_html.map{ it.try(:text)&.squish }.compact_blank.join("\n") if address_html.present?
+    self.address = address_html.map { it.try(:text)&.squish }.compact_blank.join("\n") if address_html.present?
 
     self.phone = extract_contact_detail(html, 'telefon.gif')
     self.fax = extract_contact_detail(html, 'telefax.gif')
@@ -67,10 +67,12 @@ class Group < ApplicationRecord
     html.css('tr.zl11,tr.zl12').each do |line|
       link = line.css('a').first
       next if link.blank?
+
       member_allris_id = link['href'][/KPLFDNR=(\d+)/, 1].to_i
       member = members.find_or_initialize_by(allris_id: member_allris_id)
       member.name = link.text.squish
       next if member.name.blank?
+
       member.kind = line.css('td.text1').text
       member.save!
     end
@@ -89,5 +91,4 @@ class Group < ApplicationRecord
   def extract_contact_detail(html, identifier)
     html.xpath(".//td[preceding-sibling::td[descendant::img[contains(@src, '#{identifier}')]]]").text
   end
-
 end

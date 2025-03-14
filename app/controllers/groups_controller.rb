@@ -2,6 +2,6 @@
 
 class GroupsController < ApplicationController
   def index
-    @groups = @district.groups.active.sort_by{ -it.members.elected.count }
+    @groups = @district.groups.active.sort_by { -it.members.elected.count }
   end
 end
