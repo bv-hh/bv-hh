@@ -36,6 +36,7 @@ class District < ApplicationRecord
   has_many :groups, dependent: :destroy
   has_many :members, through: :groups
 
+  has_many :locations, dependent: :destroy
   has_many :places, dependent: :destroy
 
   validates :name, presence: true
@@ -63,7 +64,7 @@ class District < ApplicationRecord
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     latest_link = html.css('tr.zl12 a').first['href']
-    current_allris_id = (latest_link[/VOLFDNR=(\d+)/, 1]).to_i
+    current_allris_id = latest_link[/VOLFDNR=(\d+)/, 1].to_i
 
     latest_allris_id = [oldest_allris_document_id, documents.maximum(:allris_id) || 0].max
 
@@ -76,8 +77,9 @@ class District < ApplicationRecord
   end
 
   def check_for_meeting_updates
-    oldest_meeting_date = meetings.complete.present? ? Time.zone.today : oldest_allris_meeting_date
-    oldest_meeting_date = (oldest_meeting_date - 1.month).beginning_of_month
+    oldest_meeting_date = meetings.complete.latest_first.first&.date
+    oldest_meeting_date ||= oldest_allris_meeting_date
+    oldest_meeting_date = (oldest_meeting_date - 2.months).beginning_of_month
 
     current_date = 9.months.from_now.beginning_of_month
 
@@ -128,7 +130,7 @@ class District < ApplicationRecord
   end
 
   def update_meeting_with_agenda(link)
-    allris_id = (link['href'][/SILFDNR=(\d+)/, 1]).to_i
+    allris_id = link['href'][/SILFDNR=(\d+)/, 1].to_i
     meeting = meetings.find_or_create_by!(allris_id:)
 
     UpdateMeetingJob.perform_later(meeting)

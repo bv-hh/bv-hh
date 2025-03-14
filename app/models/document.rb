@@ -37,6 +37,7 @@ require 'net/http'
 
 class Document < ApplicationRecord
   include Parsing
+  include WithAttachments
 
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
@@ -75,6 +76,7 @@ class Document < ApplicationRecord
   scope :since_number, ->(number) { where(documents: { number: number.. }) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
+  scope :current_legislation, ->(district) { where(district: district).since_number(district.first_legislation_number) }
 
   default_scope -> { where(non_public: false) }
 
@@ -148,6 +150,8 @@ class Document < ApplicationRecord
 
     retrieve_attachments(html)
     retrieve_images(html)
+
+    extract_locations_later! if content.present?
   end
 
   def retrieve_meta(html)
@@ -157,71 +161,37 @@ class Document < ApplicationRecord
     self.author = clean_html(html.css('td.text4')[1]) if kind.include?('Kleine Anfrage') || kind.include?('Große Anfrage')
   end
 
-  def retrieve_body(html) # rubocop:disable Metrics/AbcSize
+  def retrieve_body(html)
+    retrieve_content(html)
+    retrieve_resolution(html)
+
+    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
+
+    self.full_text = strip_tags(content) || ''
+    if resolution.present?
+      self.full_text += ' '
+      self.full_text += strip_tags(resolution)
+    end
+  end
+
+  def retrieve_content(html)
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
-    self.content = retrieve_xpath_div(html, 'Sachverhalt') if content.nil?
-    self.content = retrieve_xpath_div(html, 'Hintergrund:') if content.nil?
-    self.content = clean_html(html.css('td[bgcolor=white] > div')[0]) if content.nil?
+    self.content ||= retrieve_xpath_div(html, 'Sachverhalt')
+    self.content ||= retrieve_xpath_div(html, 'Hintergrund:')
+    self.content ||= clean_html(html.css('td[bgcolor=white] > div')[0])
+  end
+
+  def retrieve_resolution(html)
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/')
+    self.resolution ||= retrieve_xpath_div(html, 'Petitum:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum')
-    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
-
-    self.full_text = strip_tags(content) || ''
-    if self.resolution.present?
-      self.full_text += ' '
-      self.full_text += strip_tags(self.resolution)
-    end
   end
 
-  require 'open-uri'
-
-  def retrieve_attachments(html)
-    upper_table = html.css('table.tk1').first
-
-    current_attachment_names = []
-    upper_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
-      href = attachment_link['href']
-      uri = URI.parse(href)
-
-      name = attachment_link.text
-      current_attachment_names << name
-
-      next if attachments.exists?(name:)
-
-      filename = File.basename(uri.path)
-      begin
-        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
-
-        attachment = attachments.create!(name:, district:)
-        attachment.file.attach(io:, filename:)
-        attachment.extract_later!
-      rescue OpenURI::HTTPError => _e
-        # Do nothing
-      end
-    end
-
-    clean_up_attachments(current_attachment_names)
-  end
-
-  def clean_up_attachments(current_attachment_names)
-    attachments.each do |attachment|
-      unless current_attachment_names.include?(attachment.name)
-        attachment.file&.purge_later
-        attachment.destroy!
-      end
-    end
-  end
-
-  def retrieve_attachments!
-    source = Net::HTTP.get(URI(allris_url))
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
-    html = html.css('table.risdeco').first
-
-    retrieve_attachments(html)
-    save!
+  def extract_attachment_table(html)
+    html.css('table.tk1').first
   end
 
   def retrieve_images(html)

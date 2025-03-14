@@ -1,0 +1,118 @@
+
+h1.h2
+  | System
+
+.row.mb-4.mt-4
+  .col
+    .card
+      .card-header
+        | Info
+      .card-body
+        p= "REVISION #{REVISION}"
+        p
+          - if RubyVM.const_defined?("YJIT") && RubyVM::YJIT.enabled?
+            span.label.label-success YJIT enabled
+          - else
+            span.label.label-danger YJIT disabled
+
+.row.mb-4
+  .col
+    .card
+      .card-header
+        | Database
+      .card-body
+        table.table.table-condensed
+          thead
+            tr
+              th
+              th Read
+              th Hits
+              th Ratio
+
+          tbody
+            tr
+              td
+                strong Cached Reads
+
+              td=@db_cache_stats["heap_read"]
+              td=@db_cache_stats["heap_hit"]
+              td
+                - if @db_cache_stats["ratio"].to_f.round(3) > 0.9
+                  span.label.label-success= @db_cache_stats["ratio"].to_f.round(3)
+                - else
+                  span.label.label-danger= @db_cache_stats["ratio"].to_f.round(3)
+
+            tr
+              td
+                strong Cached Indexes
+
+              td=@index_cache_stats["idx_read"]
+              td=@index_cache_stats["idx_hit"]
+              td
+                - if @index_cache_stats["ratio"].to_f.round(3) > 0.9
+                  span.label.label-success= @index_cache_stats["ratio"].to_f.round(3)
+                - else
+                  span.label.label-danger= @index_cache_stats["ratio"].to_f.round(3)
+
+          table.table.table-condensed
+            thead
+              tr
+                th Table
+                th Index Usage
+                th Count
+                th Table-Size
+                th Index-Size
+                th Total
+                th Percentage
+
+            tbody
+              - @table_size.each do |row|
+                - index_stat = @index_stats.detect{|r| r["relname"] == row["table_name"]}
+                tr
+                  td(nowrap)= row["table_name"]
+                  td
+                    - if index_stat
+                      - if index_stat["percent_of_times_index_used"].to_i > 90
+                        span.label.label-success= index_stat["percent_of_times_index_used"]
+                      - elsif index_stat["percent_of_times_index_used"].to_i >75
+                        span.label.label-warning= index_stat["percent_of_times_index_used"]
+                      - else
+                        span.label.label-danger= index_stat["percent_of_times_index_used"]
+                  td
+                    - if index_stat
+                      = index_stat["rows_in_table"]
+                  td(nowrap)= number_to_human_size row["table_size"]
+                  td(nowrap)= number_to_human_size row["indexes_size"]
+                  td(nowrap)= number_to_human_size row["total_size"]
+                  td(nowrap)
+                    - percentage = row["table_size"].fdiv(10.gigabyte) * 100
+                    - if percentage < 10
+                      span.badge.text-bg-success= number_to_percentage percentage
+                    - elsif percentage < 30
+                      span.badge.text-bg-warning= number_to_percentage percentage
+                    - else
+                      span.badge.text-bg-dange= number_to_percentage percentage
+
+.row.mt-4
+  .col
+    .card
+      .card-header
+        | Environment
+      .card-body
+        table.table.table-condensed
+          tbody
+            tr
+              td
+                strong RUBY_VERSION
+              td= RUBY_VERSION
+            tr
+              td
+                strong RUBY_PATCHLEVEL
+              td= RUBY_PATCHLEVEL
+
+            - ENV.each_pair do |key, value|
+              tr
+                td
+                  strong= key
+                td.text-break= value
+

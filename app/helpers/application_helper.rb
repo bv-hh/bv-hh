@@ -2,7 +2,7 @@
 
 module ApplicationHelper
   def allris_link(allris_url)
-    link_to allris_url, target: '_blank', title: 'In Allris öffnen', data: { toggle: :tooltip, placement: :bottom }, rel: 'noopener' do
+    link_to allris_url, target: '_blank', title: 'In Allris öffnen', data: { bs_toggle: :tooltip, placement: :bottom }, rel: 'noopener' do
       allris_icon
     end
   end

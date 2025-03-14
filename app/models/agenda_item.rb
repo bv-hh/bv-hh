@@ -28,11 +28,11 @@
 #
 class AgendaItem < ApplicationRecord
   include Parsing
+  include WithAttachments
 
   belongs_to :meeting
   belongs_to :document, optional: true
   has_one :district, through: :meeting
-  has_many :attachments, as: :attachable, dependent: :destroy
 
   scope :by_number, -> { order(number: :asc) }
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
@@ -73,27 +73,8 @@ class AgendaItem < ApplicationRecord
     save!
   end
 
-  def retrieve_attachments(html)
-    attachment_table = html.xpath("//table[preceding-sibling::a[@name='allrisBS'] and following-sibling::a[@name='allrisAE']]")
-    if attachment_table
-      current_attachment_names = []
-      attachment_table.css('a[title*="(Öffnet Dokument in neuem Fenster)"]').each do |attachment_link|
-        href = attachment_link['href']
-        uri = URI.parse(href)
-
-        name = attachment_link.text
-        current_attachment_names << name
-
-        next if attachments.exists?(name:)
-
-        filename = File.basename(uri.path)
-        io = URI.parse("#{district.allris_base_url}/bi/#{href}").open
-
-        attachment = attachments.create!(name:, district:)
-        attachment.file.attach(io:, filename:)
-        attachment.extract_later!
-      end
-    end
+  def extract_attachment_table(html)
+    html.xpath("//table[preceding-sibling::a[@name='allrisBS'] and following-sibling::a[@name='allrisAE']]")
   end
 
   def allris_url

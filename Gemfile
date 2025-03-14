@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.3.5'
+ruby '3.4.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'pg'
@@ -21,7 +21,7 @@ gem 'jbuilder', '~> 2.13'
 gem 'bcrypt', '~> 3.1.20'
 
 # Use Active Storage variant
-gem 'image_processing', '~> 1.13'
+gem 'image_processing', '~> 1.14'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
@@ -33,6 +33,8 @@ gem 'stimulus-rails'
 gem 'ahoy_matey'
 
 gem 'fiddle'
+
+gem 'mutex_m'
 
 gem 'nokogiri'
 
@@ -71,11 +73,11 @@ gem 'mitie'
 
 gem 'google-maps'
 
-gem 'langchainrb', '~> 0.15.4'
+gem 'langchainrb', '~> 0.19.3'
 
 gem 'baran', '~> 0.1.12'
 
-gem 'ruby-openai', '~> 6.5'
+gem 'ruby-openai', '~> 7.4'
 
 gem 'qdrant-ruby', '~> 0.9.8'
 
@@ -83,7 +85,9 @@ gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.1'
 
-gem 'good_job', '~> 4.8'
+gem 'good_job', '~> 4.9'
+
+gem 'pghero'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

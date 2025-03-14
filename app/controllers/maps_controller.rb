@@ -16,7 +16,7 @@ class MapsController < ApplicationController
   def markers
     months = params[:months].presence&.to_i || 3
 
-    documents_query = Document.in_last_months(months)
+    documents_query = Document.in_last_months(months).latest_first
     documents_query = documents_query.where(district: @district) if @district.present?
 
     locations = DocumentLocation.joins(:document).includes(:location, :document)
@@ -28,7 +28,7 @@ class MapsController < ApplicationController
         path: location_path(location),
         name: location.name,
         address: location.formatted_address,
-        documents: documents.map do |document_location|
+        documents: documents.take(10).map do |document_location|
           document = document_location.document
           {
             number: document.number,

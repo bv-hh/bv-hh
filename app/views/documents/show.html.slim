@@ -15,7 +15,7 @@ h3.text-muted
     => l item.meeting.date
     => link_to item.meeting.committee.name, meeting_path(item.meeting)
     - if item.allris_id.present?
-      => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+      => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { bs_toggle: :tooltip } do
         strong= item.number
       = meeting_result_badge(item)
     - else
@@ -50,7 +50,7 @@ h3.text-muted
                 = l item.meeting.date
               .col-3.text-end
                 - if item.allris_id.present?
-                  => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { toggle: :tooltip } do
+                  => link_to minutes_meeting_path(item.meeting, anchor: item.id), title: "Protokoll zu #{item.number}", data: { bs_toggle: :tooltip } do
                     strong= item.number
                   = meeting_result_badge(item)
                 - else

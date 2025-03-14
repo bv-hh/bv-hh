@@ -12,7 +12,7 @@ set :branch, ENV.fetch('branch', nil) || current_branch || 'master'
 set :deploy_to, '/home/deploy/app'
 
 set :rbenv_type, :user
-set :rbenv_ruby, '3.3.5'
+set :rbenv_ruby, '3.4.2'
 
 set :migration_role, :web
 
