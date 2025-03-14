@@ -161,24 +161,33 @@ class Document < ApplicationRecord
     self.author = clean_html(html.css('td.text4')[1]) if kind.include?('Kleine Anfrage') || kind.include?('Große Anfrage')
   end
 
-  def retrieve_body(html) # rubocop:disable Metrics/AbcSize
+  def retrieve_body(html)
+    retrieve_content(html)
+    retrieve_resolution(html)
+
+    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
+
+    self.full_text = strip_tags(content) || ''
+    if resolution.present?
+      self.full_text += ' '
+      self.full_text += strip_tags(resolution)
+    end
+  end
+
+  def retrieve_content(html)
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
     self.content ||= retrieve_xpath_div(html, 'Sachverhalt')
     self.content ||= retrieve_xpath_div(html, 'Hintergrund:')
     self.content ||= clean_html(html.css('td[bgcolor=white] > div')[0])
+  end
+
+  def retrieve_resolution(html)
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum')
-    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
-
-    self.full_text = strip_tags(content) || ''
-    if self.resolution.present?
-      self.full_text += ' '
-      self.full_text += strip_tags(self.resolution)
-    end
   end
 
   def extract_attachment_table(html)
