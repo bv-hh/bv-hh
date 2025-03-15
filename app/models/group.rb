@@ -37,6 +37,8 @@ class Group < ApplicationRecord
   def retrieve_from_allris!(source = get_source)
     html = parsed_source(source)
 
+    self.name = html.css('h1').first&.text&.squish
+
     expired = html.css('h3.mark3').first&.text
     if expired.present? && expired.include?('Endedatum')
       self.expired_at = expired.gsub('Endedatum:', '').squish
@@ -45,8 +47,6 @@ class Group < ApplicationRecord
 
     details_html = html.xpath("//table[preceding-sibling::h3[text() = 'Anschrift']]").first
     retrieve_details(details_html) if details_html.present?
-
-    self.name = html.css('h1').first&.text&.squish
 
     save!
 
@@ -84,6 +84,10 @@ class Group < ApplicationRecord
     return nil if allris_id.blank?
 
     "#{district.allris_base_url}/bi/fr020.asp?FRLFDNR=#{allris_id}"
+  end
+
+  def single_line_address
+    address&.split("\n")&.join(', ')
   end
 
   private

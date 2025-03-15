@@ -26,10 +26,12 @@ class Member < ApplicationRecord
   DEPUTY_CHAIR_KINDS = ['Stellv. Fraktionsvorsitz', 'Stellvertr. Fraktionsvorsitz',
                         '1. stellvertr. Fraktionsvorsitz', '2. stellvertr. Fraktionsvorsitz',
                         '1. stv. Fraktionsvorsitzende/r', '2. stv. Fraktionsvorsitzende/r']
-  MEMBER_KINDS = ['Fraktionsmitglied']
-  ELECTED_KINDS = CHAIR_KINDS + DEPUTY_CHAIR_KINDS + MEMBER_KINDS
+  REGULAR_KINDS = ['Fraktionsmitglied']
+  ELECTED_KINDS = CHAIR_KINDS + DEPUTY_CHAIR_KINDS + REGULAR_KINDS
 
   belongs_to :group
+
+  delegate :district, to: :group
 
   has_many :committee_members, dependent: :destroy
   has_many :committees, through: :committee_members
@@ -38,6 +40,8 @@ class Member < ApplicationRecord
   scope :deputy_chair, -> { where(kind: DEPUTY_CHAIR_KINDS) }
   scope :lead, -> { where(kind: CHAIR_KINDS + DEPUTY_CHAIR_KINDS) }
   scope :elected, -> { where(kind: ELECTED_KINDS) }
+  scope :regular, -> { where(kind: REGULAR_KINDS) }
+  scope :additional, -> { where.not(kind: ELECTED_KINDS) }
 
   scope :ordered_by_kind_and_name, -> { order(kind_order: :desc, last_name: :asc) }
 
@@ -53,7 +57,7 @@ class Member < ApplicationRecord
       50
     elsif DEPUTY_CHAIR_KINDS.include?(kind)
       40
-    elsif MEMBER_KINDS.include?(kind)
+    elsif REGULAR_KINDS.include?(kind)
       30
     else
       10

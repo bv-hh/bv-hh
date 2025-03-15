@@ -1,0 +1,61 @@
+h1.mb-2
+  .float-end= allris_link @group.allris_url
+  strong= @group.name
+h4.text-muted
+  | in der Bezirksversammlung #{@district.name}
+
+p.mb-4
+  - if @group.address.present?
+    = @group.single_line_address
+    br
+  - if @group.www.present?
+    => link_to @group.www, @group.www, target: '_blank', nofollow: true
+  - if @group.www.present? && @group.email.present?
+    |<> |
+  - if @group.email.present?
+    = mail_to @group.email
+
+  - if @group.phone.present?
+    |<> | Tel.:
+    = @group.phone
+  - if @group.fax.present?
+    |<> | Fax:
+    = @group.fax
+
+h2.h3
+  |> Abgeordnete
+  small.text-body-secondary= @group.members.elected.count
+
+.table-responsive
+  table.table
+    thead
+      th Name
+      th Funktion
+    tbody
+      - @group.members.elected.ordered_by_kind_and_name.each do |member|
+        tr
+          td
+            => link_to member_path(member) do
+              strong= member.name
+          td
+            = member.kind
+
+h2.h3.mt-3
+  |> Zubenannte Bürger*innen
+  small.text-body-secondary= @group.members.additional.count
+
+.table-responsive
+  table.table
+    thead
+      th Name
+      th Funktion
+    tbody
+      - @group.members.additional.ordered_by_kind_and_name.each do |member|
+        tr
+          td
+            => link_to member_path(member) do
+              strong= member.name
+          td
+            = member.kind
+
+

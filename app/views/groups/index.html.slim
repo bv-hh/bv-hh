@@ -1,16 +1,24 @@
 h1.h2
   ' Fraktionen/Gruppen
+h4.text-muted
+  ' Wählen Sie eine Fraktion/Gruppe, um Details und Personen aufzurufen.
 
 .mt-4
   - @groups.each do |group|
 
     .group.mb-4
       h2.h3
-        = group.name
-        br
-
-        small.text-muted
-          => "#{group.members.elected.count} gewählte Mitglieder, #{group.members.count} insgesamt"
-          = allris_link group.allris_url
+        = link_to group.name, group_path(group)
+      h5.text-muted
+        => "#{group.members.elected.count} gewählte Mitglieder, #{group.members.count} insgesamt"
+        = allris_link group.allris_url
+      - if group.www.present? || group.email.present?
+        p
+          - if group.www.present?
+            => link_to group.www, group.www, target: '_blank', nofollow: true
+          - if group.www.present? && group.email.present?
+            |<> |
+          - if group.email.present?
+            = mail_to group.email
 
 
