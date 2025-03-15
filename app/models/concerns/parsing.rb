@@ -32,4 +32,12 @@ module Parsing
   def strip_tags(content)
     ActionController::Base.helpers.strip_tags(content)
   end
+
+  def get_source
+    Net::HTTP.get(URI(allris_url))
+  end
+
+  def parsed_source(source = get_source)
+    Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+  end
 end
