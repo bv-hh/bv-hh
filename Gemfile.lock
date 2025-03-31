@@ -233,7 +233,7 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    logger (1.6.6)
+    logger (1.7.0)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -380,7 +380,7 @@ GEM
       rubocop-ast (>= 1.38.0, < 2.0)
     ruby-hmac (0.4.0)
     ruby-ole (1.2.13.1)
-    ruby-openai (7.4.0)
+    ruby-openai (8.1.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -461,7 +461,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -527,7 +527,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rails
-  ruby-openai (~> 7.4)
+  ruby-openai (~> 8.1)
   sass-rails (>= 6)
   sd_notify
   selenium-webdriver
