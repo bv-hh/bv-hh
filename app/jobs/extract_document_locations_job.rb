@@ -7,8 +7,8 @@ class ExtractDocumentLocationsJob < ApplicationJob
 
   def perform(document = nil)
     if document.nil?
-      Document.latest_first.locations_not_extracted.limit(LIMIT).find_each do |document|
-        ExtractDocumentLocationsJob.perform_later(document)
+      Document.latest_first.locations_not_extracted.limit(LIMIT).find_each do |doc|
+        ExtractDocumentLocationsJob.perform_later(doc)
       end
     else
       document.extract_locations!
