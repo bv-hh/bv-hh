@@ -155,7 +155,7 @@ GEM
       tzinfo
     event_stream_parser (1.0.0)
     execjs (2.10.0)
-    faraday (2.12.2)
+    faraday (2.13.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -296,7 +296,7 @@ GEM
     public_suffix (6.0.1)
     puma (6.6.0)
       nio4r (~> 2.0)
-    qdrant-ruby (0.9.8)
+    qdrant-ruby (0.9.9)
       faraday (>= 2.0.1, < 3)
     raabro (1.4.0)
     racc (1.8.1)
@@ -521,7 +521,7 @@ DEPENDENCIES
   pg
   pghero
   puma (~> 6.6)
-  qdrant-ruby (~> 0.9.8)
+  qdrant-ruby (~> 0.9.9)
   rails (~> 8.0.2)
   rails-i18n
   redcarpet (~> 3.6)
