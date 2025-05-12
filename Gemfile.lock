@@ -207,8 +207,9 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     json (2.11.3)
-    json-schema (4.3.1)
-      addressable (>= 2.8)
+    json-schema (5.1.1)
+      addressable (~> 2.8)
+      bigdecimal (~> 3.1)
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -221,10 +222,10 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    langchainrb (0.19.4)
+    langchainrb (0.19.5)
       baran (~> 0.1.9)
       csv
-      json-schema (~> 4)
+      json-schema (>= 4, < 6)
       matrix
       pragmatic_segmenter (~> 0.3.0)
       zeitwerk (~> 2.5)
@@ -293,7 +294,7 @@ GEM
     psych (5.2.4)
       date
       stringio
-    public_suffix (6.0.1)
+    public_suffix (6.0.2)
     puma (6.6.0)
       nio4r (~> 2.0)
     qdrant-ruby (0.9.8)
@@ -512,7 +513,7 @@ DEPENDENCIES
   importmap-rails (~> 2.1)
   jbuilder (~> 2.13)
   kaminari
-  langchainrb (~> 0.19.3)
+  langchainrb (~> 0.19.5)
   listen (~> 3.9)
   minitest-ci
   mitie

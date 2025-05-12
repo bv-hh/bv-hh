@@ -73,7 +73,7 @@ gem 'mitie'
 
 gem 'google-maps'
 
-gem 'langchainrb', '~> 0.19.3'
+gem 'langchainrb', '~> 0.19.5'
 
 gem 'baran', '~> 0.1.12'
 
