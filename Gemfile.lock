@@ -251,7 +251,7 @@ GEM
     minitest (5.25.5)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
-    mitie (0.3.1)
+    mitie (0.3.2)
       fiddle
     msgpack (1.8.0)
     multi_json (1.15.0)
