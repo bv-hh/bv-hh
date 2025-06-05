@@ -21,6 +21,9 @@ h3.text-muted
     - if @meeting.committee
       br
       = link_to @meeting.committee.name, committee_path(@meeting.committee), class: 'text-secondary'
+- if @meeting.note.present?
+  p
+    strong= @meeting.note
 
 - if @agenda_items.present?
   .row.mt-4.border-bottom.font-weight-bold

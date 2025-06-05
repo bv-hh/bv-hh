@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DocumentsHelper
-  DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4})/
+  DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4}(\.\d{1,2})+)/
   IMAGE_LINK_PATTERN = /img src="([^"]*)"/
 
   def link_documents(content, district)
