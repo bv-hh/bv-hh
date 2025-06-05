@@ -15,10 +15,17 @@ module Parsing
 
     node.xpath(*XPATHS_TO_REMOVE).remove
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
-    cleaned = cleaned.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '').gsub(/line-height:([^;]*);/, '').gsub('color:#0000ff;', '')
+    clean_styles(cleaned)
+  end
+
+  def clean_styles(html)
+    cleaned = html.gsub(/font-family:([^;]*);/, '').gsub(/font-size:([^;]*);/, '')
+    cleaned = cleaned.gsub(/line-height:([^;]*);/, '').gsub('color:#0000ff;', '')
     cleaned = cleaned.gsub(/margin-*([^:]*):([^;]*);/, '').gsub(/padding-*([^:]*):([^;]*);/, '')
     cleaned = cleaned.gsub(/text-indent([^:]*):([^;]*);/, '')
-    cleaned.gsub(%r{<span style="">(\s*)</span>}, '').gsub(%r{<p([^>]*)></p>}, '')
+    cleaned = cleaned.gsub(%r{<span style="">(\s*)</span>}, '').gsub(%r{<p([^>]*)></p>}, '')
+    cleaned = cleaned.gsub(%r{<span [^>]*></span>}, '')
+    cleaned.gsub(' style="">', '>')
   end
 
   def clean_linebreaks(html)
