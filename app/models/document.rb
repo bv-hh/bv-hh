@@ -77,6 +77,7 @@ class Document < ApplicationRecord
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :no_embeddings, -> { where(embeddings_created: false) }
   scope :current_legislation, ->(district) { where(district: district).since_number(district.first_legislation_number) }
+  scope :children, ->(number) { where('number ILIKE ?', "#{number}.%") }
 
   default_scope -> { where(non_public: false) }
 
@@ -306,6 +307,17 @@ class Document < ApplicationRecord
 
     committees.any? do |committee|
       committee.matches_area?(location_name)
+    end
+  end
+
+  def related_documents
+    if number&.include?('.')
+      original_number = number.split('.').first
+      children = district.documents.where.not(id: id).children(original_number)
+      parent = district.documents.where.not(id: id).where(number: original_number)
+      parent.or(children)
+    else
+      district.documents.where.not(id: id).children(number)
     end
   end
 

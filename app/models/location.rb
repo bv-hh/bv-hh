@@ -4,17 +4,17 @@
 #
 # Table name: locations
 #
-#  id                :bigint           not null, primary key
-#  extracted_name    :string
-#  formatted_address :string
+#  id                :integer          not null, primary key
+#  name              :string
+#  place_id          :string
 #  latitude          :float
 #  longitude         :float
-#  name              :string
-#  normalized_name   :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  district_id       :bigint
-#  place_id          :string
+#  normalized_name   :string
+#  extracted_name    :string
+#  district_id       :integer
+#  formatted_address :string
 #
 # Indexes
 #
@@ -23,6 +23,7 @@
 #  index_locations_on_normalized_name  (normalized_name)
 #  index_locations_on_place_id         (place_id)
 #
+
 class Location < ApplicationRecord
   BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] +
                       District.all.map { |d| [d.name.downcase, "bezirk #{d.name.downcase}"] }.flatten + ['hamburg nord', 'hamburg mitte']

@@ -4,19 +4,20 @@
 #
 # Table name: meetings
 #
-#  id           :bigint           not null, primary key
-#  date         :date
-#  end_time     :time
-#  location     :string
-#  room         :string
-#  start_time   :time
-#  time         :string
+#  id           :integer          not null, primary key
+#  district_id  :integer
 #  title        :string
+#  date         :date
+#  time         :string
+#  room         :string
+#  location     :string
+#  allris_id    :integer
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  allris_id    :integer
-#  committee_id :bigint
-#  district_id  :bigint
+#  committee_id :integer
+#  start_time   :time
+#  end_time     :time
+#  note         :text
 #
 # Indexes
 #
@@ -24,6 +25,7 @@
 #  index_meetings_on_committee_id  (committee_id)
 #  index_meetings_on_district_id   (district_id)
 #
+
 require 'net/http'
 
 class Meeting < ApplicationRecord
@@ -81,11 +83,10 @@ class Meeting < ApplicationRecord
 
   def retrieve_meta(html)
     self.date = clean_html(html.css('td.text2').first)&.split(',')&.last&.squish
-    time = html.css('td.text2')[1].text
-    self.start_time = time.split('-').first&.squish
-    self.end_time = time.split('-')&.last&.squish
+    self.start_time, self.end_time = retrieve_and_split_time(html)
     self.room = html.css('td.text2')[2]&.text
     self.location = clean_html(html.css('td.text2')[3])
+    self.note = clean_html(html.css('td.text2')[4])
   end
 
   def retrieve_agenda_items(html)
@@ -153,5 +154,12 @@ class Meeting < ApplicationRecord
     else
       starts_at + 4.hours
     end
+  end
+
+  private
+
+  def retrieve_and_split_time(html)
+    times = html.css('td.text2')[1].text.split('-')
+    [times.first&.squish, times.last&.squish]
   end
 end

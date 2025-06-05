@@ -10,11 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_16_204832) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_05_185436) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
-  enable_extension "plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -353,6 +354,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_204832) do
     t.datetime "updated_at", null: false
     t.date "expired_at"
     t.bigint "district_id"
+    t.text "address"
+    t.string "phone"
+    t.string "fax"
+    t.string "email"
+    t.string "www"
     t.index ["district_id"], name: "index_groups_on_district_id"
   end
 
@@ -386,6 +392,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_204832) do
     t.bigint "committee_id"
     t.time "start_time"
     t.time "end_time"
+    t.text "note"
     t.index ["allris_id"], name: "index_meetings_on_allris_id"
     t.index ["committee_id"], name: "index_meetings_on_committee_id"
     t.index ["district_id"], name: "index_meetings_on_district_id"
@@ -399,7 +406,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_16_204832) do
     t.bigint "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "last_name"
+    t.integer "kind_order", default: 0
     t.index ["group_id"], name: "index_members_on_group_id"
+    t.index ["kind_order", "last_name"], name: "index_members_on_kind_order_and_last_name", order: { kind_order: :desc }
     t.index ["short_name"], name: "index_members_on_short_name"
   end
 
