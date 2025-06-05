@@ -29,6 +29,8 @@ module Parsing
   end
 
   def clean_linebreaks(html)
+    return nil if html.nil?
+
     html.gsub('<br>', "\n").gsub('<br/>', "\n").delete("\r").squish
   end
 
