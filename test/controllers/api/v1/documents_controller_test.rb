@@ -14,8 +14,8 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
 
-    json_response = JSON.parse(response.body)
-    
+    json_response = response.parsed_body
+
     assert_equal @document.id, json_response['id']
     assert_equal @document.number, json_response['number']
     assert_equal @document.title, json_response['title']
@@ -28,14 +28,14 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @document.content, json_response['content']
     assert_equal @document.resolution, json_response['resolution']
     assert_equal @document.attached, json_response['attached']
-    
+
     # Check district information
     assert_equal @document.district.id, json_response['district']['id']
     assert_equal @document.district.name, json_response['district']['name']
-    
+
     # Check meetings array
     assert_kind_of Array, json_response['meetings']
-    
+
     # Ensure excluded fields are not present
     assert_nil json_response['full_text']
     assert_nil json_response['attachments']
@@ -48,7 +48,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
 
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_includes json_response['error'], "Couldn't find Document"
   end
 
@@ -74,10 +74,10 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
 
-    json_response = JSON.parse(response.body)
-    
+    json_response = response.parsed_body
+
     assert_kind_of Array, json_response['documents']
-    
+
     # Check that results contain documents
     if json_response['documents'].any?
       document = json_response['documents'].first
@@ -91,8 +91,8 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'xyz123nonexistent' }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
-    
+    json_response = response.parsed_body
+
     assert_empty json_response['documents']
   end
 
@@ -100,7 +100,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: '' }, as: :json
 
     assert_response :bad_request
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_equal 'Search term cannot be empty', json_response['error']
   end
 
@@ -108,7 +108,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, as: :json
 
     assert_response :bad_request
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_equal 'Search term cannot be empty', json_response['error']
   end
 
@@ -116,7 +116,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'Heilwigstraße', order: 'relevance' }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_kind_of Array, json_response['documents']
   end
 
@@ -124,7 +124,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'Heilwigstraße', attachments: 'true' }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_kind_of Array, json_response['documents']
   end
 
@@ -132,7 +132,7 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'Heilwigstraße', kind: 'Mitteilungsvorlage Bezirksamt' }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_kind_of Array, json_response['documents']
   end
 
@@ -140,17 +140,15 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'Heilwigstraße', district: @district.to_param }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_kind_of Array, json_response['documents']
   end
-
-
 
   test 'GET search returns 404 for non-existent district' do
     get search_api_v1_documents_path, params: { q: 'test', district: 'non-existent-district' }, as: :json
 
     assert_response :not_found
-    json_response = JSON.parse(response.body)
+    json_response = response.parsed_body
     assert_includes json_response['error'], "Couldn't find District"
   end
 
@@ -159,9 +157,8 @@ class Api::V1::DocumentsControllerTest < ActionDispatch::IntegrationTest
     get search_api_v1_documents_path, params: { q: 'Hamburg' }, as: :json
 
     assert_response :success
-    json_response = JSON.parse(response.body)
-    
+    json_response = response.parsed_body
+
     assert_operator json_response['documents'].size, :<=, 25
   end
-
 end

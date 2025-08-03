@@ -54,6 +54,7 @@ class District < ApplicationRecord
   def self.lookup!(path)
     district = lookup(path)
     raise ActiveRecord::RecordNotFound, "Couldn't find District with parameterized name '#{path.parameterize}'" unless district
+
     district
   end
 

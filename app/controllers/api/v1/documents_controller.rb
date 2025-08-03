@@ -10,16 +10,14 @@ class Api::V1::DocumentsController < Api::V1::BaseController
 
   def search
     term = (params[:q] || '').strip
-    
-    if term.blank?
-      return render_error('Search term cannot be empty')
-    end
+
+    return render_error('Search term cannot be empty') if term.blank?
 
     documents_query = build_documents_query(term)
     documents = documents_query.limit(SEARCH_LIMIT)
 
     render json: {
-      documents: documents.map { |doc| document_json(doc) }
+      documents: documents.map { |doc| document_json(doc) },
     }
   end
 
@@ -39,7 +37,7 @@ class Api::V1::DocumentsController < Api::V1::BaseController
       updated_at: document.updated_at,
       district: {
         id: document.district.id,
-        name: document.district.name
+        name: document.district.name,
       },
       meetings: document.meetings.map do |meeting|
         {
@@ -47,9 +45,9 @@ class Api::V1::DocumentsController < Api::V1::BaseController
           title: meeting.title,
           date: meeting.date,
           start_time: meeting.start_time,
-          end_time: meeting.end_time
+          end_time: meeting.end_time,
         }
-      end
+      end,
     }
   end
 
@@ -57,7 +55,7 @@ class Api::V1::DocumentsController < Api::V1::BaseController
     order = params[:order] == 'relevance' ? :relevance : :date
     attachments = params[:attachments] == 'true'
     kind = params[:kind].presence
-    
+
     district = District.lookup!(params[:district]) if params[:district].present?
 
     documents_root = district.present? ? district.documents : Document.all
