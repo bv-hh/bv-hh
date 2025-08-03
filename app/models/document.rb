@@ -80,7 +80,6 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
-
   def self.search(term, root: nil, attachments: false, order: :relevance)
     terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
     exact_term = terms.join(' & ')
@@ -238,7 +237,6 @@ class Document < ApplicationRecord
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
   end
 
-
   def extract_locations_later!
     ExtractDocumentLocationsJob.perform_later(self)
   end
@@ -294,7 +292,4 @@ class Document < ApplicationRecord
       district.documents.where.not(id: id).children(number)
     end
   end
-
-  private
-
 end
