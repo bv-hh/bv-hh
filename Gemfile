@@ -73,14 +73,6 @@ gem 'mitie'
 
 gem 'google-maps'
 
-gem 'langchainrb', '~> 0.19.3'
-
-gem 'baran', '~> 0.1.12'
-
-gem 'ruby-openai', '~> 7.4'
-
-gem 'qdrant-ruby', '~> 0.9.8'
-
 gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.1'

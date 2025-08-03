@@ -65,8 +65,6 @@ Rails.application.routes.draw do
 
     resource :statistics, only: :show
 
-    resources :questions, only: %i[index new create]
-
     resource :admin, only: :show, controller: :admin
 
     root to: 'districts#show', as: :root_with_district
