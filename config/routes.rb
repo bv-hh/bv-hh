@@ -13,6 +13,16 @@ Rails.application.routes.draw do
   mount Blazer::Engine, at: 'blazer'
   mount PgHero::Engine, at: 'pghero'
 
+  namespace :api do
+    namespace :v1 do
+      resources :documents, only: [:show] do
+        collection do
+          get :search
+        end
+      end
+    end
+  end
+
   get '/about' => 'pages#about', as: :about
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy

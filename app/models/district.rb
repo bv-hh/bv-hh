@@ -51,6 +51,12 @@ class District < ApplicationRecord
     @districts[path.parameterize]
   end
 
+  def self.lookup!(path)
+    district = lookup(path)
+    raise ActiveRecord::RecordNotFound, "Couldn't find District with parameterized name '#{path.parameterize}'" unless district
+    district
+  end
+
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end
