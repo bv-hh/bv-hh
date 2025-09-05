@@ -35,6 +35,7 @@ class Api::V1::DocumentsController < Api::V1::BaseController
       attached: document.attached,
       created_at: document.created_at,
       updated_at: document.updated_at,
+      url: document_url(document, district: document.district),
       district: {
         id: document.district.id,
         name: document.district.name,
