@@ -17,7 +17,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Code Quality
 - `bundle exec rubocop` - Run Ruby linter/formatter
+- `bundle exec rubocop -a` - Auto-fix Ruby style issues
 - `bundle exec rails assets:precompile` - Precompile assets
+
+**IMPORTANT**: Always run `bundle exec rubocop -a` on modified .rb files to automatically fix style issues before committing changes.
 
 ### Database
 - `bundle exec rails db:create` - Create database
