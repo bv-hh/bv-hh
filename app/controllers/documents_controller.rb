@@ -19,6 +19,7 @@ class DocumentsController < ApplicationController
 
     @title = "#{@document.number} - #{helpers.strip_tags(@document.title)&.squish&.truncate(50)} - #{@district.name}"
     @meta_description = helpers.strip_tags(@document.content)&.squish&.truncate(150)
+    @noindex = @document.noindex
   end
 
   def allris
