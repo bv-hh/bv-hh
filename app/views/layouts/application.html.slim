@@ -10,6 +10,9 @@ html lang='de'
     - if @meta_description.present?
       meta name="description" content=@meta_description
 
+    - if @noindex
+      meta name="robots" content="noindex"
+
     meta charset="utf-8"
     meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"
 
@@ -75,6 +78,7 @@ html lang='de'
         .float-end
           p
             = link_to 'Was soll das Ganze?', about_path(district: nil), class: 'px-1 text-reset'
+            => link_to 'Transparenz', transparency_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
             = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'
           p.text-end.px-1

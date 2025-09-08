@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_211453) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_181601) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -248,6 +248,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_211453) do
     t.text "attached"
     t.string "extracted_locations", default: [], array: true
     t.datetime "locations_extracted_at", precision: nil
+    t.boolean "noindex", default: false, null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["district_id"], name: "index_documents_on_district_id"

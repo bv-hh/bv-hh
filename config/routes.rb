@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   get '/about' => 'pages#about', as: :about
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy
+  get '/transparency' => 'pages#transparency', as: :transparency
 
   get '/not_found' => 'errors#not_found', as: :foo
   get '/404' => 'errors#not_found', as: :not_found

@@ -10,4 +10,6 @@ class PagesController < ApplicationController
   def privacy; end
 
   def about; end
+
+  def transparency; end
 end
