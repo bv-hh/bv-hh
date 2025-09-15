@@ -402,7 +402,7 @@ GEM
       bigdecimal
       logger
       ruby-ole
-    spring (4.3.0)
+    spring (4.4.0)
     spring-watcher-listen (2.1.0)
       listen (>= 2.7, < 4.0)
       spring (>= 4)
