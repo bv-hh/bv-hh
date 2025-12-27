@@ -172,6 +172,7 @@ class Document < ApplicationRecord
   end
 
   def retrieve_content(html)
+    self.content = nil
     self.content = retrieve_xpath_div(html, 'Sachverhalt:')
     self.content ||= retrieve_xpath_div(html, 'Sachverhalt')
     self.content ||= retrieve_xpath_div(html, 'Hintergrund:')
@@ -179,6 +180,7 @@ class Document < ApplicationRecord
   end
 
   def retrieve_resolution(html)
+    self.resolution = nil
     self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
     self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
@@ -291,5 +293,30 @@ class Document < ApplicationRecord
     else
       district.documents.where.not(id: id).children(number)
     end
+  end
+
+  def as_json
+    {
+      id: id,
+      number: number,
+      title: title,
+      kind: kind,
+      author: author,
+      content: strip_tags(content),
+      resolution: strip_tags(resolution),
+      attached: strip_tags(attached),
+      created_at: created_at,
+      updated_at: updated_at,
+      district: district.name,
+      meetings: meetings.map do |meeting|
+        {
+          id: meeting.id,
+          title: meeting.title,
+          date: meeting.date,
+          start_time: meeting.start_time,
+          end_time: meeting.end_time,
+        }
+      end,
+    }
   end
 end

@@ -12,4 +12,6 @@ class PagesController < ApplicationController
   def about; end
 
   def transparency; end
+
+  def mcp; end
 end
