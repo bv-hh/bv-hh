@@ -32,6 +32,8 @@ gem 'stimulus-rails'
 
 gem 'ahoy_matey'
 
+gem 'mcp'
+
 gem 'fiddle'
 
 gem 'mutex_m'

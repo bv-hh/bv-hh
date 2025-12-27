@@ -72,8 +72,8 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    addressable (2.8.7)
-      public_suffix (>= 2.0.2, < 7.0)
+    addressable (2.8.8)
+      public_suffix (>= 2.0.2, < 8.0)
     ahoy_matey (5.4.0)
       activesupport (>= 7.1)
       device_detector (>= 1)
@@ -90,7 +90,7 @@ GEM
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
     benchmark (0.4.1)
-    bigdecimal (3.2.2)
+    bigdecimal (4.0.1)
     bindex (0.8.1)
     blazer (3.3.0)
       activerecord (>= 7.1)
@@ -198,6 +198,10 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     json (2.12.2)
+    json-schema (6.1.0)
+      addressable (~> 2.8)
+      bigdecimal (>= 3.1, < 5)
+    json_rpc_handler (0.1.1)
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -226,6 +230,9 @@ GEM
       net-smtp
     marcel (1.0.4)
     matrix (0.4.2)
+    mcp (0.4.0)
+      json-schema (>= 4.1)
+      json_rpc_handler (~> 0.1)
     mini_magick (5.1.2)
       benchmark
       logger
@@ -271,7 +278,7 @@ GEM
     psych (5.2.6)
       date
       stringio
-    public_suffix (6.0.1)
+    public_suffix (7.0.0)
     puma (6.6.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
@@ -487,6 +494,7 @@ DEPENDENCIES
   jbuilder (~> 2.13)
   kaminari
   listen (~> 3.9)
+  mcp
   minitest-ci
   mitie
   mutex_m

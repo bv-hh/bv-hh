@@ -17,10 +17,13 @@ Rails.application.routes.draw do
   get '/imprint' => 'pages#imprint', as: :imprint
   get '/privacy' => 'pages#privacy', as: :privacy
   get '/transparency' => 'pages#transparency', as: :transparency
+  get '/mcp' => 'pages#mcp', as: :mcp
 
   get '/not_found' => 'errors#not_found', as: :foo
   get '/404' => 'errors#not_found', as: :not_found
   get '/500' => 'errors#exception', as: :exception
+
+  post '/api/mcp' => 'mcp/server#index', as: :mcp_server
 
   root to: 'pages#home'
 

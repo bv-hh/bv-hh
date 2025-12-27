@@ -96,6 +96,10 @@ class AgendaItem < ApplicationRecord
       clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
   end
 
+  def as_json
+    slice(:id, :meeting_id, :document_id, :title, :number, :decision).merge(minutes: strip_tags(minutes))
+  end
+
   def self.minutes_prefix_search(term, root = nil)
     term = '' if term.nil?
 

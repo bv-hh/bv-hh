@@ -15,6 +15,7 @@ module Parsing
 
     node.xpath(*XPATHS_TO_REMOVE).remove
     cleaned = SANITIZER.sanitize(node.inner_html, scrubber: SCRUBBER)
+    cleaned = cleaned.gsub('&nbsp;', ' ')
     clean_styles(cleaned)
   end
 
