@@ -58,7 +58,7 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     end
 
     documents = documents.authored_by(party) if party.present?
-    documents = documents.pluck(:id, :number, :title).map { { id: it.first, number: it.second, title: it.third } }
+    documents = documents.distinct.pluck(:id, :number, :title).map { { id: it.first, number: it.second, title: it.third } }
 
     MCP::Tool::Response.new(
       [{ type: 'text', text: { documents: documents }.to_json }],
