@@ -5,6 +5,8 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
     Retrieves a document for a district council based on its unique identifier or reference number.
       The document includes metadata such as title, date, type, and associated meeting and/or
       council information. If the document cannot be found, an error message is returned.
+      A district can be specified by name to narrow down the search when using a reference number, one of
+      the following: Hamburg-Mitte, Altona, Eimsbüttel, Hamburg-Nord, Wandsbek, Bergedorf, Harburg.
   MD
 
   input_schema(

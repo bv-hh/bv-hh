@@ -35,15 +35,14 @@ class StatisticsController < ApplicationController
 
   def set_charts
     @proposals = make_chart_data('Anträge') do |party|
-      Document.current_legislation(@district).proposals_by(party).count
+      Document.current_legislation(@district).proposals.authored_by(party).count
     end
-
     @small_inquiries = make_chart_data('Anfragen') do |party|
-      Document.current_legislation(@district).small_inquiries(party).count
+      Document.current_legislation(@district).small_inquiries.authored_by(party).count
     end
 
     @large_inquiries = make_chart_data('Anfragen') do |party|
-      Document.current_legislation(@district).large_inquiries(party).count
+      Document.current_legislation(@district).large_inquiries.authored_by(party).count
     end
   end
 end

@@ -21,6 +21,7 @@ class Mcp::ServerController < ApplicationController
       tools: [
         Mcp::SearchTool,
         Mcp::DocumentsTool,
+        Mcp::ArchiveTool,
       ],
       prompts: []
     )
