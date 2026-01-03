@@ -66,7 +66,7 @@ class Document < ApplicationRecord
   scope :small_inquiries, -> { where(kind: SMALL_INQUIRY_TYPES) }
   scope :large_inquiries, -> { where(kind: LARGE_INQUIRY_TYPES) }
   scope :state_inquiries, -> { where(kind: STATE_INQUIRY_TYPES) }
-  scope :authored_by, ->(name) { where('documents.title ILIKE ?', "%#{name}%").or('documents.author ILIKE ?', "%#{name}%") }
+  scope :authored_by, ->(name) { where('documents.title ILIKE :name OR documents.author ILIKE :name', name: "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
   scope :include_meetings, -> { includes(:meetings).left_joins(:meetings) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }

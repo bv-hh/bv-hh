@@ -3,7 +3,7 @@
 class Mcp::ArchiveTool < Mcp::ApplicationTool
   DEFAULT_DAYS_AGO = 30
   MAX_DAYS_AGO = 365
-  TYPES = %w[small_inquiry large_inquiry proposal]
+  TYPES = %w[small_inquiries large_inquiries proposals]
 
   description <<~MD
     Retrieve a list of documents based on certain filter criteria.
@@ -50,15 +50,13 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     days_ago = [days_ago.to_i, MAX_DAYS_AGO].min
 
     documents = Document.complete.in_last_days(days_ago)
-
     documents = documents.where(district: district) if district
 
     types.split(',').each do |type|
       documents = documents.public_send(type.to_sym) if TYPES.include?(type)
     end
 
-    documents.authored_by(party) if party.present?
-
+    documents = documents.authored_by(party) if party.present?
     documents = documents.pluck(:id, :number).map { { id: it.first, number: it.last } }
 
     MCP::Tool::Response.new(
