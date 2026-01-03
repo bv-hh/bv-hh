@@ -241,10 +241,12 @@ GEM
       benchmark
       logger
     mini_mime (1.1.5)
-    minitest (6.0.1)
-      prism (~> 1.5)
+    minitest (5.27.0)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
+    minitest-rails (8.1.0)
+      minitest (~> 5.20)
+      railties (>= 8.1.0, < 8.2.0)
     mitie (0.3.2)
       fiddle
     msgpack (1.8.0)
@@ -358,14 +360,14 @@ GEM
       rubocop-ast (>= 1.47.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.48.0)
+    rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.4)
+      prism (~> 1.7)
     rubocop-performance (1.26.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.32.0)
+    rubocop-rails (2.34.3)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
@@ -504,6 +506,7 @@ DEPENDENCIES
   listen (~> 3.9)
   mcp
   minitest-ci
+  minitest-rails (~> 8.1.0)
   mitie
   mutex_m
   nokogiri
