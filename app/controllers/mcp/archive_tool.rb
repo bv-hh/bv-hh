@@ -28,6 +28,7 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
           properties: {
             id: { type: 'number', description: 'The unique identifier for the document' },
             number: { type: 'string', description: 'The reference number assigned to the document' },
+            title: { type: 'string', description: 'The title of the document' },
           },
         },
       },
@@ -57,7 +58,7 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     end
 
     documents = documents.authored_by(party) if party.present?
-    documents = documents.pluck(:id, :number).map { { id: it.first, number: it.last } }
+    documents = documents.pluck(:id, :number, :title).map { { id: it.first, number: it.second, title: it.third } }
 
     MCP::Tool::Response.new(
       [{ type: 'text', text: { documents: documents }.to_json }],
