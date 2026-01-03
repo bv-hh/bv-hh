@@ -109,7 +109,7 @@ class Document < ApplicationRecord
     query = query.distinct('documents.id').select("#{order} AS ranking, documents.*")
     query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
 
-    query.order('ranking DESC')
+    query.order(ranking: :desc)
   end
 
   def self.prefix_search(term, root = nil)
