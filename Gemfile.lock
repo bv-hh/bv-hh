@@ -291,6 +291,8 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.2.4)
+    rack-attack (6.8.0)
+      rack (>= 1.0, < 4)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -513,6 +515,7 @@ DEPENDENCIES
   pg
   pghero
   puma (~> 7.1)
+  rack-attack
   rails (~> 8.1.1)
   rails-i18n
   redcarpet (~> 3.6)
