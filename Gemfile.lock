@@ -90,7 +90,7 @@ GEM
     autoprefixer-rails (10.4.19.0)
       execjs (~> 2)
     base64 (0.3.0)
-    bcrypt (3.1.20)
+    bcrypt (3.1.22)
     bcrypt_pbkdf (1.1.2)
     benchmark (0.5.0)
     bigdecimal (4.1.2)
@@ -483,7 +483,7 @@ PLATFORMS
 DEPENDENCIES
   ahoy_matey
   annotate
-  bcrypt (~> 3.1.20)
+  bcrypt (~> 3.1.22)
   bcrypt_pbkdf
   blazer
   bootsnap (>= 1.4.2)
