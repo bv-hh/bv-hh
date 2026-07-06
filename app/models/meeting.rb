@@ -75,9 +75,13 @@ class Meeting < ApplicationRecord
 
     committee_href = committee_link['href']
     committee_allris_id = committee_href[/AULFDNR=(\d+)/, 1]
-    committee_allris_id = committee_href[/PALFDNR=(\d+)/, 1] if committee_allris_id.nil?
+    allris_type = 'au'
+    if committee_allris_id.nil?
+      committee_allris_id = committee_href[/PALFDNR=(\d+)/, 1]
+      allris_type = 'pa'
+    end
     committee = district.committees.find_or_create_by(allris_id: committee_allris_id)
-    committee.update!(name: clean_html(committee_link))
+    committee.update!(name: clean_html(committee_link), allris_type:)
     self.committee = committee
   end
 

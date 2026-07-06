@@ -25,6 +25,7 @@ class District < ApplicationRecord
 
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
   ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
+  ALLRIS_PARTY_UPDATES_URL = '/bi/fr010.asp'
 
   # OLDEST_ALLRIS_ID = 1007791 # 1.1.2019 HH-Nord
 
@@ -32,6 +33,8 @@ class District < ApplicationRecord
   has_many :meetings, dependent: :destroy
   has_many :agenda_items, through: :meetings
   has_many :committees, dependent: :destroy
+  has_many :parties, dependent: :destroy
+  has_many :members, dependent: :destroy
   has_many :locations, dependent: :destroy
   has_many :places, dependent: :destroy
 
@@ -143,6 +146,20 @@ class District < ApplicationRecord
       meeting.committee = committee
     end
     meeting.save!
+  end
+
+  def check_for_party_updates
+    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL))
+    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+
+    html.css('table.tl1 a[href*="fr020"]').each do |link|
+      allris_id = link['href'][/FRLFDNR=(\d+)/, 1]
+      next if allris_id.blank?
+
+      party = parties.find_or_create_by!(allris_id:)
+      party.update!(name: link.text.squish)
+      UpdatePartyJob.perform_later(party)
+    end
   end
 
   def center

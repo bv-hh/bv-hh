@@ -35,4 +35,23 @@ h2.h1
               => meeting_minutes_link(meeting)
             = allris_link meeting.allris_url
 
+- if @memberships.any?
+  h3.mt-4 Mitglieder
+  .table-responsive
+    table.table
+      thead
+        th Name
+        th Fraktion
+        th Funktion
+        th
+
+      tbody
+        - @memberships.each do |membership|
+          tr
+            td= membership.member.name
+            td= membership.member.party&.name
+            td= membership.role
+            td.text-end.text-nowrap
+              = allris_link membership.member.allris_url
+
 

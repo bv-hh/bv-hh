@@ -26,6 +26,14 @@ Rails.application.configure do
       class: 'UpdateTodaysMeetingsJob',
       cron: '0 7 * * * *',
     },
+    check_for_party_updates: {
+      class: 'CheckForPartyUpdatesJob',
+      cron: '0 12 5 * * *',
+    },
+    check_for_member_updates: {
+      class: 'CheckForMemberUpdatesJob',
+      cron: '0 42 5 * * *',
+    },
     generate_sitemap: {
       class: 'GenerateSitemapJob',
       cron: '0 59 2 * * *',
