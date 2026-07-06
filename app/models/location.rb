@@ -57,6 +57,13 @@ class Location < ApplicationRecord
     locations = Location.normalized(extracted_name)
     return locations if locations.present?
 
+    gazetteer_locations = from_gazetteer(extracted_name, district)
+    return gazetteer_locations if gazetteer_locations.present?
+
+    from_google(extracted_name, district)
+  end
+
+  def self.from_google(extracted_name, district)
     google_result = GoogleMaps.find_places(normalize(extracted_name), district)
     return [] if google_result.blank?
 
@@ -71,6 +78,19 @@ class Location < ApplicationRecord
       if candidate['types'].intersect?(VALID_TYPES)
         Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
                          latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'])
+      end
+    end
+  end
+
+  # Resolves a street name against the official Hamburg gazetteer, using its
+  # registered coordinates directly (no Google Maps lookup). A name can occur in
+  # several districts, so results are limited to the district's bounds.
+  def self.from_gazetteer(extracted_name, district)
+    Street.for(extracted_name, district).map do |street|
+      find_or_create_by!(district: district, extracted_name: extracted_name, name: street.name) do |location|
+        location.latitude = street.latitude
+        location.longitude = street.longitude
+        location.place_id = "gazetteer:#{street.street_key}"
       end
     end
   end

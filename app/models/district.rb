@@ -23,6 +23,19 @@ require 'net/http'
 class District < ApplicationRecord
   ORDER = %w[Hamburg-Mitte Altona Eimsbüttel Hamburg-Nord Wandsbek Bergedorf Harburg]
 
+  # Official Hamburg Bezirk numbers, as encoded in the street register's
+  # strassenschluessel (Land;Bezirk;Ortsteil;...). Used to match gazetteer
+  # streets to their district authoritatively instead of by bounding box.
+  BEZIRK_NUMBERS = {
+    'Hamburg-Mitte' => 1,
+    'Altona' => 2,
+    'Eimsbüttel' => 3,
+    'Hamburg-Nord' => 4,
+    'Wandsbek' => 5,
+    'Bergedorf' => 6,
+    'Harburg' => 7,
+  }.freeze
+
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
   ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
   ALLRIS_PARTY_UPDATES_URL = '/bi/fr010.asp'
@@ -56,6 +69,10 @@ class District < ApplicationRecord
 
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
+  end
+
+  def bezirk_number
+    BEZIRK_NUMBERS[name]
   end
 
   def check_for_document_updates
