@@ -40,6 +40,10 @@ class Party < ApplicationRecord
     "#{district.allris_base_url}/bi/fr020.asp?FRLFDNR=#{allris_id}"
   end
 
+  def to_param
+    "#{name.parameterize}-#{id}"
+  end
+
   # fr020 is the single source of truth for a party's members.
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)

@@ -77,7 +77,9 @@ class Committee < ApplicationRecord
       seen_member_ids << member.id
     end
 
-    memberships.where.not(member_id: seen_member_ids).destroy_all
+    # Members no longer on the roster left the committee: hide the membership,
+    # but keep the record so the historical committee service is preserved.
+    memberships.where.not(member_id: seen_member_ids).update_all(inactive: true)
   end
 
   def local?
@@ -117,7 +119,7 @@ class Committee < ApplicationRecord
     end
 
     membership = memberships.find_or_initialize_by(member:)
-    membership.update!(role: row.css('td.text1').text.squish)
+    membership.update!(role: row.css('td.text1').text.squish, inactive: false)
 
     member
   end

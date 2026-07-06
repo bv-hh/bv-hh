@@ -22,6 +22,11 @@
 #
 
 class Member < ApplicationRecord
+  # "Co-opted citizens" (zugewählte Bürger) are appointed experts, not elected
+  # fraction members. The exact wording is stable across all seven Hamburg
+  # districts' ALLRIS instances; only the capitalisation differs.
+  CO_OPTED_KINDS = ['zubenannte/r Bürger/in', 'Zubenannte/r Bürger/in'].freeze
+
   belongs_to :district
   belongs_to :party, optional: true
 
@@ -29,7 +34,13 @@ class Member < ApplicationRecord
   has_many :committees, through: :memberships
 
   scope :active, -> { where(inactive: false) }
+  scope :co_opted, -> { where(kind: CO_OPTED_KINDS) }
+  scope :regular, -> { where.not(kind: CO_OPTED_KINDS) }
   scope :by_name, -> { order(:name) }
+
+  def co_opted?
+    CO_OPTED_KINDS.include?(kind)
+  end
 
   def allris_url
     raise 'Allris ID missing' if allris_id.blank?

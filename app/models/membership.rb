@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: memberships
@@ -7,6 +8,7 @@
 #  committee_id :integer
 #  member_id    :integer
 #  role         :string
+#  inactive     :boolean          default(FALSE), not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #
@@ -20,4 +22,6 @@
 class Membership < ApplicationRecord
   belongs_to :committee
   belongs_to :member
+
+  scope :active, -> { where(inactive: false) }
 end

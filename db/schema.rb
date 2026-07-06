@@ -391,6 +391,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_221002) do
   create_table "memberships", force: :cascade do |t|
     t.bigint "committee_id"
     t.datetime "created_at", null: false
+    t.boolean "inactive", default: false, null: false
     t.bigint "member_id"
     t.string "role"
     t.datetime "updated_at", null: false

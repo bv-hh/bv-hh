@@ -1,0 +1,19 @@
+h1.h2
+  ' Fraktionen / Gruppen
+
+.table-responsive
+  table.table.mt-4
+    thead
+      th Name
+      th.text-end Mitglieder
+      th
+
+    tbody
+      - @parties.each do |party|
+        tr
+          td
+            = link_to party_path(party) do
+              strong= party.name
+          td.text-end= @regular_counts[party.id] || 0
+          td.text-end
+            = allris_link party.allris_url

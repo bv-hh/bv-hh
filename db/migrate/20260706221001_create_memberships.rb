@@ -6,6 +6,7 @@ class CreateMemberships < ActiveRecord::Migration[8.0]
       t.references :committee, foreign_key: true
       t.references :member, foreign_key: true
       t.string :role
+      t.boolean :inactive, default: false, null: false
 
       t.timestamps
     end

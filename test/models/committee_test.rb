@@ -32,15 +32,26 @@ class CommitteeTest < ActiveSupport::TestCase
     end
   end
 
-  test 'retrieve_members_from_allris! prunes memberships that are no longer listed' do
+  test 'retrieve_members_from_allris! sets memberships inactive when no longer listed, without destroying them' do
     @committee.retrieve_members_from_allris!(@source)
 
     stale = @committee.district.members.create!(allris_id: 999_999, name: 'Ehemalig')
-    @committee.memberships.create!(member: stale, role: 'Ausschussmitglied')
+    membership = @committee.memberships.create!(member: stale, role: 'Ausschussmitglied')
 
     @committee.retrieve_members_from_allris!(@source)
 
-    assert_not @committee.reload.members.exists?(stale.id)
+    assert membership.reload.inactive?
+    assert_not_includes @committee.memberships.active, membership
+  end
+
+  test 'retrieve_members_from_allris! reactivates a membership when the member returns' do
+    @committee.retrieve_members_from_allris!(@source)
+    chair = @committee.memberships.joins(:member).find_by(members: { name: 'Christoph Reiffert' })
+    chair.update!(inactive: true)
+
+    @committee.retrieve_members_from_allris!(@source)
+
+    assert_not chair.reload.inactive?
   end
 
   test 'retrieve_members_from_allris! ignores redirect responses' do
