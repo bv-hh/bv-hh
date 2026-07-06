@@ -248,6 +248,7 @@ class Document < ApplicationRecord
     all_text = "#{title} #{full_text}"
     return if all_text.blank?
 
+    gazetteer_locations = StreetGazetteer.match(all_text)
     ner_locations = NerModel.model.doc(all_text).entities.filter_map do |entity|
       next if entity[:text].blank?
 
@@ -255,10 +256,10 @@ class Document < ApplicationRecord
     end.uniq
 
     self.locations_extracted_at = Time.zone.now
-    self.extracted_locations = ner_locations
+    self.extracted_locations = (gazetteer_locations + ner_locations).uniq
     save!
 
-    assign_locations_later! if ner_locations.present?
+    assign_locations_later! if extracted_locations.present?
   end
 
   def assign_locations_later!

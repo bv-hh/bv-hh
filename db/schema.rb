@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_06_221002) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -126,6 +126,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_221002) do
     t.index ["district_id"], name: "index_attachments_on_district_id"
     t.index ["name"], name: "name_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["name"], name: "name_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+  end
+
+  create_table "attendances", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "meeting_id"
+    t.bigint "member_id"
+    t.string "name"
+    t.string "party_hint"
+    t.boolean "present", default: true, null: false
+    t.string "role"
+    t.boolean "substitute", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["meeting_id", "member_id"], name: "index_attendances_on_meeting_id_and_member_id", unique: true
+    t.index ["meeting_id"], name: "index_attendances_on_meeting_id"
+    t.index ["member_id"], name: "index_attendances_on_member_id"
   end
 
   create_table "blazer_audits", force: :cascade do |t|
@@ -432,8 +447,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_221002) do
     t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
   end
 
+  create_table "streets", force: :cascade do |t|
+    t.integer "bezirke", default: [], null: false, array: true
+    t.datetime "created_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.string "name", null: false
+    t.string "normalized_name", null: false
+    t.string "postal_code"
+    t.string "stadtteil"
+    t.string "street_key"
+    t.datetime "updated_at", null: false
+    t.index ["bezirke"], name: "index_streets_on_bezirke", using: :gin
+    t.index ["normalized_name"], name: "index_streets_on_normalized_name"
+    t.index ["street_key"], name: "index_streets_on_street_key"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "attendances", "meetings"
+  add_foreign_key "attendances", "members"
   add_foreign_key "members", "districts"
   add_foreign_key "members", "parties"
   add_foreign_key "memberships", "committees"

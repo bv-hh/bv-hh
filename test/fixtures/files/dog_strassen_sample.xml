@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection
+    xmlns:wfs="http://www.opengis.net/wfs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:iso19112="http://www.opengis.net/iso19112"
+    xmlns:dog="http://www.adv-online.de/namespaces/adv/dog"
+    numberMatched="3" numberReturned="3">
+  <wfs:member>
+    <dog:Strassen gml:id="HH_STR_1">
+      <iso19112:position>
+        <gml:Point gml:id="HH_STR_1_POS" srsName="EPSG:4326">
+          <gml:pos>10.03 53.58</gml:pos>
+        </gml:Point>
+      </iso19112:position>
+      <iso19112:position_strassenachse>
+        <gml:Point gml:id="HH_STR_1_AXIS" srsName="EPSG:4326">
+          <gml:pos>10.031 53.581</gml:pos>
+        </gml:Point>
+      </iso19112:position_strassenachse>
+      <dog:strassenschluessel>02;4;01;401;0401;T0010</dog:strassenschluessel>
+      <dog:strassenname>Testallee</dog:strassenname>
+      <dog:strassenname_normalisiert>TESTALLEE</dog:strassenname_normalisiert>
+      <dog:ortsteilname>Barmbek-Nord,OT 0405</dog:ortsteilname>
+      <dog:postleitzahl>22305</dog:postleitzahl>
+    </dog:Strassen>
+  </wfs:member>
+  <wfs:member>
+    <dog:Strassen gml:id="HH_STR_2">
+      <iso19112:position>
+        <gml:Point gml:id="HH_STR_2_POS" srsName="EPSG:4326">
+          <gml:pos>9.75 53.58</gml:pos>
+        </gml:Point>
+      </iso19112:position>
+      <dog:strassenschluessel>02;3;05;305;0305;J0020</dog:strassenschluessel>
+      <dog:strassenschluessel>02;4;06;406;0406;J0020</dog:strassenschluessel>
+      <dog:strassenname>Julius-Vosseler-Straße</dog:strassenname>
+      <dog:strassenname_normalisiert>JULIUS-VOSSELER-STRASSE</dog:strassenname_normalisiert>
+      <dog:ortsteilname>Lokstedt,OT 0301</dog:ortsteilname>
+      <dog:ortsteilname>Groß Borstel,OT 0406</dog:ortsteilname>
+      <dog:postleitzahl>22527</dog:postleitzahl>
+    </dog:Strassen>
+  </wfs:member>
+  <wfs:member>
+    <dog:Strassen gml:id="HH_STR_3">
+      <iso19112:position>
+        <gml:Point gml:id="HH_STR_3_POS" srsName="EPSG:4326">
+          <gml:pos>10.05 53.70</gml:pos>
+        </gml:Point>
+      </iso19112:position>
+      <dog:strassenschluessel>02;5;17;525;0525;W0030</dog:strassenschluessel>
+      <dog:strassenname>Weitweg</dog:strassenname>
+      <dog:strassenname_normalisiert>WEITWEG</dog:strassenname_normalisiert>
+      <dog:ortsteilname>Duvenstedt,OT 0525</dog:ortsteilname>
+      <dog:postleitzahl>22397</dog:postleitzahl>
+    </dog:Strassen>
+  </wfs:member>
+</wfs:FeatureCollection>

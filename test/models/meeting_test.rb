@@ -1,3 +1,29 @@
+# == Schema Information
+#
+# Table name: meetings
+#
+#  id           :integer          not null, primary key
+#  district_id  :integer
+#  title        :string
+#  date         :date
+#  time         :string
+#  room         :string
+#  location     :string
+#  allris_id    :integer
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  committee_id :integer
+#  start_time   :time
+#  end_time     :time
+#  note         :text
+#
+# Indexes
+#
+#  index_meetings_on_allris_id     (allris_id)
+#  index_meetings_on_committee_id  (committee_id)
+#  index_meetings_on_district_id   (district_id)
+#
+
 # frozen_string_literal: true
 
 require 'test_helper'
