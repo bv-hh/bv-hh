@@ -46,7 +46,12 @@ class StreetImporter
       startIndex: start_index,
     }
     url = "#{WFS_URL}?#{URI.encode_www_form(options)}"
-    HTTPClient.new.get_content(url)
+
+    client = HTTPClient.new
+    # Use the system CA store; HTTPClient's bundled cacert is outdated and fails
+    # to verify the geoportal-hamburg.de certificate chain.
+    client.ssl_config.set_default_paths
+    client.get_content(url)
   end
 
   # Parses a dog:Strassen GML document into rows ready for Street.insert_all.
