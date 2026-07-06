@@ -1,0 +1,32 @@
+h2.h1
+  strong= @meeting.title
+h5.text-muted= l @meeting.date
+
+- if @attendances.any?
+  .table-responsive
+    table.table.mt-4
+      thead
+        th Name
+        th Fraktion
+        th Funktion
+        th Mitglied
+        th
+
+      tbody
+        - @attendances.each do |attendance|
+          tr class="#{attendance.present ? nil : 'text-muted'}"
+            td= attendance.name
+            td= attendance.party_hint
+            td= attendance.role
+            td
+              - if attendance.member
+                = attendance.member.name
+              - else
+                span.text-muted —
+            td.text-end.text-nowrap
+              - unless attendance.present
+                span.badge.text-bg-secondary abwesend
+              - if attendance.substitute
+                span.badge.text-bg-info Vertretung
+- else
+  p.text-muted Keine Anwesenheitsdaten vorhanden.

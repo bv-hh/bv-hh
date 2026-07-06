@@ -32,6 +32,8 @@ class Member < ApplicationRecord
 
   has_many :memberships, dependent: :destroy
   has_many :committees, through: :memberships
+  has_many :attendances, dependent: :nullify
+  has_many :attended_meetings, through: :attendances, source: :meeting
 
   scope :active, -> { where(inactive: false) }
   scope :co_opted, -> { where(kind: CO_OPTED_KINDS) }

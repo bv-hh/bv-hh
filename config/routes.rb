@@ -45,6 +45,7 @@ Rails.application.routes.draw do
 
       member do
         get :minutes, path: 'protokoll'
+        get :attendance
       end
     end
 
