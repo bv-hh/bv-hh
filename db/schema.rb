@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_06_220829) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_06_221002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -184,18 +184,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_220829) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
-  create_table "committee_members", force: :cascade do |t|
-    t.bigint "committee_id"
-    t.datetime "created_at", null: false
-    t.string "kind"
-    t.bigint "member_id"
-    t.datetime "updated_at", null: false
-    t.index ["committee_id"], name: "index_committee_members_on_committee_id"
-    t.index ["member_id"], name: "index_committee_members_on_member_id"
-  end
-
   create_table "committees", force: :cascade do |t|
     t.integer "allris_id"
+    t.string "allris_type", default: "au"
     t.integer "average_duration"
     t.datetime "created_at", null: false
     t.bigint "district_id"
@@ -347,21 +338,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_220829) do
     t.index ["scheduled_at"], name: "index_good_jobs_on_scheduled_at", where: "(finished_at IS NULL)"
   end
 
-  create_table "groups", force: :cascade do |t|
-    t.text "address"
-    t.integer "allris_id"
-    t.datetime "created_at", null: false
-    t.bigint "district_id"
-    t.string "email"
-    t.date "expired_at"
-    t.string "fax"
-    t.string "name"
-    t.string "phone"
-    t.datetime "updated_at", null: false
-    t.string "www"
-    t.index ["district_id"], name: "index_groups_on_district_id"
-  end
-
   create_table "locations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "district_id"
@@ -401,16 +377,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_220829) do
   create_table "members", force: :cascade do |t|
     t.integer "allris_id"
     t.datetime "created_at", null: false
-    t.bigint "group_id"
+    t.bigint "district_id"
+    t.boolean "inactive", default: false, null: false
     t.string "kind"
-    t.integer "kind_order", default: 0
-    t.string "last_name"
     t.string "name"
-    t.string "short_name"
+    t.bigint "party_id"
     t.datetime "updated_at", null: false
-    t.index ["group_id"], name: "index_members_on_group_id"
-    t.index ["kind_order", "last_name"], name: "index_members_on_kind_order_and_last_name", order: { kind_order: :desc }
-    t.index ["short_name"], name: "index_members_on_short_name"
+    t.index ["district_id", "allris_id"], name: "index_members_on_district_id_and_allris_id", unique: true
+    t.index ["district_id"], name: "index_members_on_district_id"
+    t.index ["party_id"], name: "index_members_on_party_id"
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "committee_id"
+    t.datetime "created_at", null: false
+    t.boolean "inactive", default: false, null: false
+    t.bigint "member_id"
+    t.string "role"
+    t.datetime "updated_at", null: false
+    t.index ["committee_id", "member_id"], name: "index_memberships_on_committee_id_and_member_id", unique: true
+    t.index ["committee_id"], name: "index_memberships_on_committee_id"
+    t.index ["member_id"], name: "index_memberships_on_member_id"
+  end
+
+  create_table "parties", force: :cascade do |t|
+    t.integer "allris_id"
+    t.datetime "created_at", null: false
+    t.bigint "district_id"
+    t.boolean "inactive", default: false, null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["district_id", "allris_id"], name: "index_parties_on_district_id_and_allris_id", unique: true
+    t.index ["district_id"], name: "index_parties_on_district_id"
   end
 
   create_table "places", force: :cascade do |t|
@@ -436,5 +434,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_06_220829) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "members", "districts"
+  add_foreign_key "members", "parties"
+  add_foreign_key "memberships", "committees"
+  add_foreign_key "memberships", "members"
+  add_foreign_key "parties", "districts"
   add_foreign_key "places", "districts"
 end

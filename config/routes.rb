@@ -57,6 +57,8 @@ Rails.application.routes.draw do
 
     resources :committees, only: %i[index show]
 
+    resources :parties, only: %i[index show]
+
     resource :calendar, only: :show
 
     resource :map, only: :show do

@@ -1,0 +1,27 @@
+h2.h1
+  strong= @party.name
+- if @party.inactive?
+  h3
+    span.badge.text-bg-secondary Inaktiv
+
+.table-responsive
+  table.table.mt-4
+    thead
+      th Name
+      th Funktion
+      th Ausschüsse
+      th
+
+    tbody
+      - @members.each do |member|
+        tr
+          td= member.name
+          td= member.kind
+          td.small
+            - member.memberships.reject(&:inactive?).each do |membership|
+              div
+                = link_to membership.committee.name, committee_path(membership.committee)
+                span.text-muted<
+                  = " (#{membership.role})"
+          td.text-end.text-nowrap
+            = allris_link member.allris_url
