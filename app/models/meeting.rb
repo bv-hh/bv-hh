@@ -27,6 +27,8 @@
 #
 
 require 'net/http'
+require 'open3'
+require 'shellwords'
 
 class Meeting < ApplicationRecord
   include Parsing
@@ -39,6 +41,8 @@ class Meeting < ApplicationRecord
   belongs_to :committee, optional: true
 
   has_many :agenda_items, dependent: :destroy
+  has_many :attendances, dependent: :destroy
+  has_many :attending_members, through: :attendances, source: :member
 
   has_one_attached :minutes_pdf
 
@@ -154,6 +158,40 @@ class Meeting < ApplicationRecord
     return if pdf.blank?
 
     minutes_pdf.attach(io: StringIO.new(pdf), filename: "niederschrift-#{allris_id}.pdf", content_type: 'application/pdf')
+    sync_attendance!
+  end
+
+  # Extracts the attendance list from the protocol PDF and links the listed
+  # people to members. Substitutes standing in for an absent member are matched
+  # too (they are district members even if not on this committee's roster) and
+  # flagged; administrative attendees are ignored by the extractor. Unmatched
+  # rows are kept with member: nil for transparency.
+  def sync_attendance!(text = minutes_text)
+    return if text.blank?
+
+    entries = AttendanceExtractor.new(text).entries
+    return if entries.empty?
+
+    index = member_index
+    seen = []
+
+    transaction do
+      attendances.destroy_all
+      entries.each do |entry|
+        member = match_member(entry, index)
+        next if member && seen.include?(member.id)
+
+        seen << member.id if member
+        attendances.create!(member:, name: entry.name, party_hint: entry.party,
+                            role: entry.role, substitute: entry.substitute, present: entry.present)
+      end
+    end
+  end
+
+  def minutes_text
+    return unless minutes_pdf.attached?
+
+    minutes_pdf.open { |file| Open3.capture3("pdftotext -layout #{Shellwords.escape(file.path)} -").first }
   end
 
   def duration
@@ -179,6 +217,31 @@ class Meeting < ApplicationRecord
   end
 
   private
+
+  # Groups the district's active members by their normalised surname so an
+  # attendance row (which only carries a surname) can be looked up cheaply.
+  def member_index
+    district.members.active.includes(:party).group_by { |member| normalize_surname(member.name) }
+  end
+
+  def match_member(entry, index)
+    key = normalize_surname(entry.surname)
+    return if key.blank?
+
+    candidates = index[key] || []
+    return candidates.first if candidates.one?
+
+    party_matches = candidates.select { |member| party_token(member.party&.name) == entry.party }
+    party_matches.first if entry.party && party_matches.one?
+  end
+
+  def normalize_surname(name)
+    ActiveSupport::Inflector.transliterate(name.to_s.split.last.to_s).downcase.gsub(/[^a-z]/, '')
+  end
+
+  def party_token(name)
+    AttendanceExtractor::PARTIES.find { |_token, matcher| name.to_s.match?(matcher) }&.first
+  end
 
   def download_minutes_pdf
     base = URI(district.allris_base_url)

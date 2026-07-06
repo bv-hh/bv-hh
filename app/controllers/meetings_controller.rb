@@ -49,6 +49,17 @@ class MeetingsController < ApplicationController
     @title = "Protokoll #{@meeting.title} vom #{I18n.l @meeting.date}"
   end
 
+  def attendance
+    @meeting = Meeting.complete.find(params[:id]&.split('-')&.last)
+
+    full_attendance_path = attendance_meeting_path(@meeting, district: @meeting.district)
+    redirect_to(full_attendance_path, status: :moved_permanently) and return unless request.path == full_attendance_path
+
+    @noindex = true
+    @attendances = @meeting.attendances.includes(member: :party).order(present: :desc, party_hint: :asc, name: :asc)
+    @title = "Anwesenheit #{@meeting.title} vom #{I18n.l @meeting.date}"
+  end
+
   private
 
   def set_meta(meeting)
