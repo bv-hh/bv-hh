@@ -1,0 +1,16 @@
+default: &default
+  store_options:
+    # Cap the cache so it can never grow unbounded again. Solid Cache trims
+    # oldest-first once either limit is crossed.
+    max_age: <%= 60.days.to_i %>
+    max_size: <%= 256.megabytes %>
+    namespace: <%= Rails.env %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
