@@ -11,7 +11,7 @@ gem 'rails', '~> 8.1.1'
 # Database-backed, self-evicting cache store (runs in the primary DB)
 gem 'solid_cache'
 # Use Puma as the app server
-gem 'puma', '~> 7.1'
+gem 'puma', '~> 7.2'
 gem 'sd_notify' # Required by puma for systemd integration
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
