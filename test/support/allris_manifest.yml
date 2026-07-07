@@ -1,0 +1,76 @@
+# Real ALLRIS pages captured from all seven Hamburg district instances (see
+# db/seeds.rb). Each district folder holds one meaningful example of every page
+# type the crawler parses:
+#
+#   vo020.html - a document        (Document#retrieve_from_allris!)
+#   to010.html - a meeting agenda  (Meeting#retrieve_from_allris!)
+#   to020.html - an agenda item    (AgendaItem#retrieve_from_allris!, has minutes)
+#   fr020.html - a party roster    (Party#retrieve_from_allris!)
+#   au020.html - a committee roster (Committee#retrieve_members_from_allris!)
+#
+# The `*_id` values are the real ALLRIS record ids the pages were fetched with;
+# tests build records with them so allris_url and id-dependent parsing behave
+# exactly as in production. Files are stored as raw ISO-8859-1 bytes, matching
+# what Net::HTTP.get returns in production.
+hamburg_nord:
+  name: Hamburg-Nord
+  base_url: https://sitzungsdienst-hamburg-nord.hamburg.de
+  document_id: 1016851
+  meeting_id: 1003201
+  agenda_item_id: 1036324
+  committee_id: 1000005
+  party_id: 1120
+
+wandsbek:
+  name: Wandsbek
+  base_url: https://sitzungsdienst-wandsbek.hamburg.de
+  document_id: 1025666
+  meeting_id: 1003545
+  agenda_item_id: 1064182
+  committee_id: 226
+  party_id: 1118
+
+altona:
+  name: Altona
+  base_url: https://sitzungsdienst-altona.hamburg.de
+  document_id: 1018473
+  meeting_id: 1004086
+  agenda_item_id: 1049839
+  committee_id: 235
+  party_id: 1121
+
+hamburg_mitte:
+  name: Hamburg-Mitte
+  base_url: https://sitzungsdienst-hamburg-mitte.hamburg.de
+  document_id: 1020365
+  meeting_id: 1002940
+  agenda_item_id: 1040311
+  committee_id: 13
+  party_id: 107
+
+eimsbuettel:
+  name: Eimsbüttel
+  base_url: https://sitzungsdienst-eimsbuettel.hamburg.de
+  document_id: 1011853
+  meeting_id: 1003114
+  agenda_item_id: 1035144
+  committee_id: 219
+  party_id: 1000012
+
+harburg:
+  name: Harburg
+  base_url: https://sitzungsdienst-harburg.hamburg.de
+  document_id: 1014761
+  meeting_id: 1003063
+  agenda_item_id: 1043664
+  committee_id: 25
+  party_id: 101
+
+bergedorf:
+  name: Bergedorf
+  base_url: https://sitzungsdienst-bergedorf.hamburg.de
+  document_id: 1009833
+  meeting_id: 1002949
+  agenda_item_id: 1031085
+  committee_id: 1000013
+  party_id: 1110

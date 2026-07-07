@@ -75,8 +75,7 @@ class District < ApplicationRecord
     BEZIRK_NUMBERS[name]
   end
 
-  def check_for_document_updates
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL))
+  def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     latest_link = html.css('tr.zl12 a').first['href']
@@ -106,8 +105,7 @@ class District < ApplicationRecord
     end
   end
 
-  def check_for_meetings_in_month(month)
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}"))
+  def check_for_meetings_in_month(month, source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}")))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     day = nil
@@ -165,8 +163,7 @@ class District < ApplicationRecord
     meeting.save!
   end
 
-  def check_for_party_updates
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL))
+  def check_for_party_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL)))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     html.css('table.tl1 a[href*="fr020"]').each do |link|

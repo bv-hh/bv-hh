@@ -3,6 +3,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require_relative 'support/allris_fixtures'
 
 if ENV['CI']
   puts 'Running on CI'
