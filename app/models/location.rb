@@ -91,6 +91,7 @@ class Location < ApplicationRecord
         location.latitude = street.latitude
         location.longitude = street.longitude
         location.place_id = "gazetteer:#{street.street_key}"
+        location.formatted_address = street.formatted_address
       end
     end
   end

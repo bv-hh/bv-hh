@@ -49,6 +49,15 @@ class Street < ApplicationRecord
     name&.downcase&.gsub(/[^[:alnum:]]+/, ' ')&.strip
   end
 
+  # Street-level address composed from the register's own fields, e.g.
+  # "Bergedorfer Straße, 21029 Bergedorf". Used in place of a Google Maps
+  # +formatted_address+ for gazetteer-resolved locations. Degrades gracefully
+  # when postal_code or stadtteil are missing.
+  def formatted_address
+    locality = [postal_code, stadtteil].compact_blank.join(' ')
+    [name, locality].compact_blank.join(', ')
+  end
+
   private
 
   def normalize_name
