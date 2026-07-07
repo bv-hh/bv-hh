@@ -23,6 +23,19 @@ require 'net/http'
 class District < ApplicationRecord
   ORDER = %w[Hamburg-Mitte Altona Eimsbüttel Hamburg-Nord Wandsbek Bergedorf Harburg]
 
+  # Official Hamburg Bezirk numbers, as encoded in the street register's
+  # strassenschluessel (Land;Bezirk;Ortsteil;...). Used to match gazetteer
+  # streets to their district authoritatively instead of by bounding box.
+  BEZIRK_NUMBERS = {
+    'Hamburg-Mitte' => 1,
+    'Altona' => 2,
+    'Eimsbüttel' => 3,
+    'Hamburg-Nord' => 4,
+    'Wandsbek' => 5,
+    'Bergedorf' => 6,
+    'Harburg' => 7,
+  }.freeze
+
   ALLRIS_DOCUMENT_UPDATES_URL = '/bi/vo040.asp'
   ALLRIS_MEETING_UPDATES_URL = '/bi/si010_e.asp' # ?MM=12&YY=2020
   ALLRIS_PARTY_UPDATES_URL = '/bi/fr010.asp'
@@ -58,8 +71,11 @@ class District < ApplicationRecord
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end
 
-  def check_for_document_updates
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL))
+  def bezirk_number
+    BEZIRK_NUMBERS[name]
+  end
+
+  def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     latest_link = html.css('tr.zl12 a').first['href']
@@ -89,8 +105,7 @@ class District < ApplicationRecord
     end
   end
 
-  def check_for_meetings_in_month(month)
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}"))
+  def check_for_meetings_in_month(month, source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}")))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     day = nil
@@ -148,8 +163,7 @@ class District < ApplicationRecord
     meeting.save!
   end
 
-  def check_for_party_updates
-    source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL))
+  def check_for_party_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL)))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 
     html.css('table.tl1 a[href*="fr020"]').each do |link|

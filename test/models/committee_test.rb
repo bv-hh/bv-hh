@@ -59,4 +59,24 @@ class CommitteeTest < ActiveSupport::TestCase
       @committee.retrieve_members_from_allris!('Object moved')
     end
   end
+
+  # One real au020 committee roster per district (see test/support). Parsing
+  # every instance guards the committee crawler against instance-specific HTML
+  # drift.
+  AllrisFixtures.each_district do |slug, info|
+    test "retrieve_members_from_allris! parses a #{slug} committee roster" do
+      district = AllrisFixtures.build_district(slug)
+      committee = district.committees.create!(allris_id: info['committee_id'], name: 'Ausschuss', allris_type: 'au')
+
+      committee.retrieve_members_from_allris!(AllrisFixtures.page(slug, 'au020.html'))
+
+      assert_operator committee.members.count, :>, 0, "#{slug}: expected members"
+      assert_equal committee.members.count, committee.memberships.count,
+                   "#{slug}: one membership per member"
+      assert(committee.members.all? { |member| member.district == district },
+             "#{slug}: members must be scoped to the district")
+      assert(committee.memberships.all? { |membership| membership.role.present? },
+             "#{slug}: every membership should carry a role")
+    end
+  end
 end

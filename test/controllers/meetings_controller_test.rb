@@ -15,4 +15,22 @@ class MeetingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes @response.body, meeting.title
   end
+
+  test 'GET minutes' do
+    meeting = meetings(:rega_ewi_oct)
+    get minutes_meeting_path(meeting, district: districts.first)
+    assert_response :success
+    assert_includes @response.body, meeting.title
+  end
+
+  test 'GET allris redirects to the meeting' do
+    meeting = meetings(:rega_ewi_oct)
+    get allris_meetings_path(district: districts.first, allris_id: meeting.allris_id)
+    assert_redirected_to meeting_path(meeting, district: meeting.district)
+  end
+
+  test 'GET allris without district redirects to root' do
+    get allris_meetings_path(allris_id: 1)
+    assert_redirected_to root_path
+  end
 end

@@ -57,4 +57,22 @@ class PartyTest < ActiveSupport::TestCase
       @party.retrieve_from_allris!('Object moved')
     end
   end
+
+  # One real fr020 party roster per district (see test/support). Parsing every
+  # instance guards the party crawler against instance-specific HTML drift.
+  AllrisFixtures.each_district do |slug, info|
+    test "retrieve_from_allris! parses a #{slug} party roster" do
+      district = AllrisFixtures.build_district(slug)
+      party = district.parties.new(allris_id: info['party_id'])
+
+      party.retrieve_from_allris!(AllrisFixtures.page(slug, 'fr020.html'))
+
+      assert party.name.present?, "#{slug}: expected a party name"
+      assert_operator party.members.count, :>, 0, "#{slug}: expected members"
+      assert(party.members.all? { |member| member.district == district },
+             "#{slug}: members must be scoped to the district")
+      assert(party.members.all? { |member| member.name.present? },
+             "#{slug}: every listed member should have a name")
+    end
+  end
 end

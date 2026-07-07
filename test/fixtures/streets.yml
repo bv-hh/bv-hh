@@ -1,0 +1,58 @@
+# == Schema Information
+#
+# Table name: streets
+#
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  normalized_name :string           not null
+#  latitude        :float
+#  longitude       :float
+#  stadtteil       :string
+#  postal_code     :string
+#  street_key      :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  index_streets_on_normalized_name  (normalized_name)
+#  index_streets_on_street_key       (street_key)
+#
+
+# districts(:hamburg_nord) is Bezirk 4. Fixtures exercise the authoritative
+# Bezirk match rather than the representative point.
+
+# Single-district street in Hamburg-Nord.
+testallee:
+  name: Testallee
+  normalized_name: testallee
+  latitude: 53.58
+  longitude: 10.03
+  stadtteil: Barmbek-Nord
+  postal_code: "22305"
+  street_key: "02;4;01;401;0401;T0010"
+  bezirke: [4]
+
+# Cross-district street (Eimsbüttel + Hamburg-Nord). Its representative point
+# sits in Eimsbüttel, OUTSIDE the Hamburg-Nord bounding box, yet it must still
+# match Hamburg-Nord because Bezirk 4 is among its bezirke.
+julius_vosseler:
+  name: Julius-Vosseler-Straße
+  normalized_name: julius vosseler straße
+  latitude: 53.58
+  longitude: 9.75
+  stadtteil: Lokstedt
+  postal_code: "22527"
+  street_key: "02;3;05;305;0305;J0020"
+  bezirke: [3, 4]
+
+# Street in another district (Wandsbek); must not match Hamburg-Nord.
+weitweg:
+  name: Weitweg
+  normalized_name: weitweg
+  latitude: 53.70
+  longitude: 10.05
+  stadtteil: Duvenstedt
+  postal_code: "22397"
+  street_key: "02;5;17;525;0525;W0030"
+  bezirke: [5]
