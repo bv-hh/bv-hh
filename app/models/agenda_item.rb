@@ -91,6 +91,13 @@ class AgendaItem < ApplicationRecord
     Nokogiri::HTML.parse(minutes).text.present? || Nokogiri::HTML.parse(result).text.present?
   end
 
+  # Number of words recorded for this agenda item (discussion + outcome), with
+  # HTML markup stripped. Used as the building block for the per-meeting
+  # "how much was discussed" metric.
+  def word_count
+    [minutes, result].sum { |text| strip_tags(text.to_s).split.size }
+  end
+
   def extract_result(html)
     clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence ||
       clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence

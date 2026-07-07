@@ -46,6 +46,7 @@ class Meeting < ApplicationRecord
   scope :complete, -> { where.not(title: nil) }
   scope :with_agenda, -> { complete.joins(:agenda_items).distinct }
   scope :with_duration, -> { where.not(start_time: nil).where.not(end_time: nil) }
+  scope :with_minutes, -> { where(id: AgendaItem.with_minutes.select(:meeting_id)) }
   scope :in_month, ->(date) { where(date: date.all_month) }
   scope :in_future, -> { where(date: Time.zone.today..) }
   scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
@@ -158,6 +159,12 @@ class Meeting < ApplicationRecord
 
   def duration
     end_time - start_time
+  end
+
+  # Total number of words recorded across all agenda items of this meeting.
+  # A rough proxy for how much was discussed ("how much talking").
+  def word_count
+    agenda_items.sum(&:word_count)
   end
 
   def logged?

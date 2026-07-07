@@ -7,6 +7,7 @@ h1.h2
       th Name
       th Nächste Sitzung
       th Durchschnittliche Dauer
+      th Durchschnittlicher Umfang
       th
 
     tbody
@@ -29,6 +30,11 @@ h1.h2
           td
             - if committee.average_duration
               = "#{number_with_precision(committee.average_duration.to_f / 3600, precision: 2)} h"
+            - else
+              | -
+          td
+            - if committee.average_word_count
+              = "#{number_with_delimiter(committee.average_word_count)} Wörter"
             - else
               | -
           td
