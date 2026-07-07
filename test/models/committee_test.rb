@@ -9,6 +9,60 @@ class CommitteeTest < ActiveSupport::TestCase
     @source = file_fixture('au020.html').read
   end
 
+  test 'recent_average_word_count averages the most recent meetings that have minutes' do
+    older = @committee.meetings.create!(district: @district, allris_id: 9_201, title: 'Alt', date: Date.new(2024, 1, 1))
+    older.agenda_items.create!(minutes: 'a b c') # 3
+    newer = @committee.meetings.create!(district: @district, allris_id: 9_202, title: 'Neu', date: Date.new(2024, 2, 1))
+    newer.agenda_items.create!(minutes: 'a b c d e') # 5
+
+    assert_equal 4, @committee.recent_average_word_count(2)
+  end
+
+  test 'recent_average_word_count ignores meetings without minutes' do
+    with = @committee.meetings.create!(district: @district, allris_id: 9_203, title: 'Mit', date: Date.new(2024, 3, 1))
+    with.agenda_items.create!(minutes: 'a b c d') # 4
+    # A newer meeting without minutes must not drag the average down.
+    @committee.meetings.create!(district: @district, allris_id: 9_204, title: 'Ohne', date: Date.new(2024, 4, 1))
+
+    assert_equal 4, @committee.recent_average_word_count
+  end
+
+  test 'recent_average_word_count is nil without any meetings that have minutes' do
+    assert_nil @committee.recent_average_word_count
+  end
+
+  test 'recent_averages averages words and duration over the same recent meetings with minutes' do
+    m1 = @committee.meetings.create!(district: @district, allris_id: 9_301, title: 'A', date: Date.new(2024, 1, 1),
+                                     start_time: '18:00', end_time: '19:00') # 3600s
+    m1.agenda_items.create!(minutes: 'a b c') # 3 words
+    m2 = @committee.meetings.create!(district: @district, allris_id: 9_302, title: 'B', date: Date.new(2024, 2, 1),
+                                     start_time: '18:00', end_time: '20:00') # 7200s
+    m2.agenda_items.create!(minutes: 'a b c d e') # 5 words
+
+    averages = @committee.recent_averages
+
+    assert_equal 4, averages[:word_count]  # (3 + 5) / 2
+    assert_equal 5400, averages[:duration] # (3600 + 7200) / 2
+  end
+
+  test 'recent_averages duration skips recent meetings without times but still counts their words' do
+    timed = @committee.meetings.create!(district: @district, allris_id: 9_303, title: 'Timed', date: Date.new(2024, 3, 1),
+                                        start_time: '18:00', end_time: '19:00') # 3600s
+    timed.agenda_items.create!(minutes: 'a b') # 2 words
+    untimed = @committee.meetings.create!(district: @district, allris_id: 9_304, title: 'Untimed', date: Date.new(2024, 4, 1))
+    untimed.agenda_items.create!(minutes: 'a b c d') # 4 words
+
+    averages = @committee.recent_averages
+
+    assert_equal 3, averages[:word_count]  # (2 + 4) / 2, both counted
+    assert_equal 3600, averages[:duration] # only the timed meeting
+  end
+
+  test 'recent_averages is empty without meetings that have minutes' do
+    assert_nil @committee.recent_averages[:word_count]
+    assert_nil @committee.recent_averages[:duration]
+  end
+
   test 'retrieve_members_from_allris! creates members and memberships' do
     @committee.retrieve_members_from_allris!(@source)
 
