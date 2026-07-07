@@ -17,7 +17,6 @@
 #
 #  attachments_expr_idx                (((setweight(to_tsvector('german'::regconfig, (name)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, content), 'B'::"char")))) USING gin
 #  content_text_gin_trgm_idx           (content) USING gin
-#  content_text_gist_trgm_idx          (content) USING gist
 #  index_attachments_on_attachable_id  (attachable_id)
 #  index_attachments_on_district_id    (district_id)
 #  name_text_gin_trgm_idx              (name) USING gin
