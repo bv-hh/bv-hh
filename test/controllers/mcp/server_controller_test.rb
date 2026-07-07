@@ -7,7 +7,7 @@ class Mcp::ServerControllerTest < ActionDispatch::IntegrationTest
     post mcp_server_path, params: { jsonrpc: '2.0', id: 1, method: method, params: params }.to_json,
                           headers: { 'Content-Type' => 'application/json' }
     assert_response :success
-    JSON.parse(response.body)
+    response.parsed_body
   end
 
   test 'tools/list exposes the registered tools' do
