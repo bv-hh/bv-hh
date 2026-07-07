@@ -12,7 +12,7 @@ class Mcp::ServerControllerTest < ActionDispatch::IntegrationTest
 
   test 'tools/list exposes the registered tools' do
     tools = rpc('tools/list').dig('result', 'tools')
-    assert_equal %w[search_tool documents_tool archive_tool].sort, tools.map { |t| t['name'] }.sort
+    assert_equal %w[search_tool documents_tool archive_tool].sort, tools.pluck('name').sort
   end
 
   test 'tools/call runs the search tool' do
