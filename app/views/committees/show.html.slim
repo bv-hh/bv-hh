@@ -36,19 +36,20 @@ h2.h1
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
           td.text-end
-            = meeting.agenda_items.size
+            = @meeting_stats[:agenda_item_counts].fetch(meeting.id, 0)
           td.text-end.text-nowrap
             - if meeting.start_time.present? && meeting.end_time.present?
               = "#{number_with_precision(meeting.duration.to_f / 3600, precision: 2)} h"
             - else
               | -
           td.text-end.text-nowrap
-            - if meeting.word_count.positive?
-              = "#{number_with_delimiter(meeting.word_count)} Wörter"
+            - word_count = @meeting_stats[:word_counts].fetch(meeting.id, 0)
+            - if word_count.positive?
+              = "#{number_with_delimiter(word_count)} Wörter"
             - else
               | -
           td.text-end.text-nowrap
-            - if meeting.logged?
+            - if @meeting_stats[:logged_meeting_ids].include?(meeting.id)
               => meeting_minutes_link(meeting)
             = allris_link meeting.allris_url
 

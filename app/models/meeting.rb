@@ -162,9 +162,10 @@ class Meeting < ApplicationRecord
   end
 
   # Total number of words recorded across all agenda items of this meeting.
-  # A rough proxy for how much was discussed ("how much talking").
+  # A rough proxy for how much was discussed ("how much talking"). Reads the
+  # cached per-item word_count, so it sums in SQL rather than parsing HTML.
   def word_count
-    agenda_items.sum(&:word_count)
+    agenda_items.sum(:word_count)
   end
 
   def logged?

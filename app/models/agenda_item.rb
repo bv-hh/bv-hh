@@ -10,6 +10,7 @@
 #  number      :string
 #  result      :text
 #  title       :string
+#  word_count  :integer          default(0), not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  allris_id   :integer
@@ -38,6 +39,8 @@ class AgendaItem < ApplicationRecord
   scope :by_meeting, -> { joins(:meeting).includes(:meeting).merge(Meeting.latest_first) }
   scope :logged, -> { where.not(allris_id: nil) }
   scope :with_minutes, -> { where.not(minutes: nil) }
+
+  before_save :cache_word_count
   scope :incomplete, lambda {
     joins(:meeting).where.not(allris_id: nil)
                    .where('meetings.date <= ? AND meetings.date >= ?', 30.days.ago, 270.days.ago)
@@ -91,13 +94,6 @@ class AgendaItem < ApplicationRecord
     Nokogiri::HTML.parse(minutes).text.present? || Nokogiri::HTML.parse(result).text.present?
   end
 
-  # Number of words recorded for this agenda item (discussion + outcome), with
-  # HTML markup stripped. Used as the building block for the per-meeting
-  # "how much was discussed" metric.
-  def word_count
-    [minutes, result].sum { |text| strip_tags(text.to_s).split.size }
-  end
-
   def extract_result(html)
     clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence ||
       clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
@@ -114,5 +110,18 @@ class AgendaItem < ApplicationRecord
     query = query.where('agenda_items.minutes ILIKE :term', term: "%#{term.downcase}%")
 
     query.order('meetings.date DESC')
+  end
+
+  private
+
+  def cache_word_count
+    self.word_count = computed_word_count
+  end
+
+  # Number of words recorded for this agenda item (discussion + outcome), with
+  # HTML markup stripped. Cached into the word_count column on save so the
+  # per-meeting "how much was discussed" metric can be aggregated in SQL.
+  def computed_word_count
+    [minutes, result].sum { |text| strip_tags(text.to_s).split.size }
   end
 end

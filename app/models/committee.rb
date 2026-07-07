@@ -62,11 +62,12 @@ class Committee < ApplicationRecord
   # the SAME set of meetings; duration additionally skips any of them without a
   # recorded start/end time. Each value is nil when there is nothing to average.
   def recent_averages(limit = RECENT_MEETINGS_FOR_AVERAGE)
-    recent = meetings.with_minutes.latest_first.includes(:agenda_items).limit(limit).to_a
+    recent = meetings.with_minutes.latest_first.limit(limit).to_a
     timed = recent.select { |meeting| meeting.start_time && meeting.end_time }
+    word_counts = AgendaItem.where(meeting_id: recent.map(&:id)).group(:meeting_id).sum(:word_count)
 
     {
-      word_count: recent.any? ? (recent.sum(&:word_count).to_f / recent.size).round : nil,
+      word_count: recent.any? ? (word_counts.values.sum.to_f / recent.size).round : nil,
       duration: timed.any? ? (timed.sum(&:duration).to_f / timed.size).round : nil,
     }
   end
