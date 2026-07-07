@@ -1,0 +1,32 @@
+# == Schema Information
+#
+# Table name: locations
+#
+#  id                :integer          not null, primary key
+#  name              :string
+#  place_id          :string
+#  latitude          :float
+#  longitude         :float
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  normalized_name   :string
+#  extracted_name    :string
+#  district_id       :integer
+#  formatted_address :string
+#
+# Indexes
+#
+#  index_locations_on_district_id      (district_id)
+#  index_locations_on_name             (name)
+#  index_locations_on_normalized_name  (normalized_name)
+#  index_locations_on_place_id         (place_id)
+#
+heilwigstrasse:
+  district: hamburg_nord
+  name: Heilwigstraße
+  extracted_name: Heilwigstraße
+  normalized_name: heilwigstraße
+  latitude: 53.5891
+  longitude: 10.0028
+  place_id: gazetteer:02;4;01;401;0401;H0010
+  formatted_address: Heilwigstraße, 20249 Hamburg

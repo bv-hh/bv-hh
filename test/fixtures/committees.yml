@@ -19,7 +19,7 @@
 #  index_committees_on_district_id  (district_id)
 #
 rega_ewi:
-  district: hamburg-nord
+  district: hamburg_nord
   allris_id: 220
   name: Regionalausschuss Eppendorf-Winterhude
   order: 0
@@ -28,7 +28,7 @@ rega_ewi:
   average_duration: 1.5
 
 bv:
-  district_id: hamburg-nord
+  district: hamburg_nord
   allris_id: 211
   name: Bezirksversammlung
   order: 0
