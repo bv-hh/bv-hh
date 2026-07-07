@@ -52,6 +52,29 @@ class MeetingTest < ActiveSupport::TestCase
     assert_equal 4500, meeting.duration
   end
 
+  test 'word_count sums the words of every agenda item, stripping HTML markup' do
+    @meeting.agenda_items.create!(minutes: '<p>Es wurde lange diskutiert</p>', result: 'Beschlossen') # 4 + 1
+    @meeting.agenda_items.create!(minutes: 'nur kurz', result: nil) # 2
+
+    assert_equal 7, @meeting.word_count
+  end
+
+  test 'word_count is zero when no agenda item carries minutes or a result' do
+    @meeting.agenda_items.create!(minutes: nil, result: nil)
+
+    assert_equal 0, @meeting.word_count
+  end
+
+  test 'with_minutes only returns meetings with at least one agenda item that has minutes' do
+    with = @district.meetings.create!(allris_id: 9_101, title: 'Mit Niederschrift', date: Date.new(2025, 1, 1))
+    with.agenda_items.create!(minutes: 'etwas gesagt')
+    without = @district.meetings.create!(allris_id: 9_102, title: 'Ohne Niederschrift', date: Date.new(2025, 1, 2))
+    without.agenda_items.create!(minutes: nil)
+
+    assert_includes Meeting.with_minutes, with
+    assert_not_includes Meeting.with_minutes, without
+  end
+
   test 'ends_at uses the recorded end time when present' do
     meeting = meetings(:rega_ewi_oct)
 

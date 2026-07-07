@@ -4,16 +4,17 @@
 #
 # Table name: committees
 #
-#  id               :bigint           not null, primary key
-#  average_duration :integer
-#  inactive         :boolean          default(FALSE)
-#  name             :string
-#  order            :integer          default(0)
-#  public           :boolean          default(TRUE)
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
-#  allris_id        :integer
-#  district_id      :bigint
+#  id                 :bigint           not null, primary key
+#  average_duration   :integer
+#  average_word_count :integer
+#  inactive           :boolean          default(FALSE)
+#  name               :string
+#  order              :integer          default(0)
+#  public             :boolean          default(TRUE)
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  allris_id          :integer
+#  district_id        :bigint
 #
 # Indexes
 #
@@ -26,6 +27,12 @@ class Committee < ApplicationRecord
   include Parsing
 
   LOCAL_COMMITTEE_DESIGNATION = 'Regionalausschuss'
+
+  # Number of most-recent meetings (with minutes) averaged for the
+  # "typical discussion volume" figure. Committees meet roughly monthly, so this
+  # spans about the last half-year — enough to smooth out a single outlier
+  # meeting without becoming stale.
+  RECENT_MEETINGS_FOR_AVERAGE = 5
 
   OBJECT_MOVED = 'Object moved'
   AUTH_REDIRECT = 'noauth.asp'
@@ -49,6 +56,32 @@ class Committee < ApplicationRecord
     self.average_duration = (total_duration.to_f / meetings.with_duration.count).round
 
     save!
+  end
+
+  # Averages over the most recent meetings that have minutes. Both figures use
+  # the SAME set of meetings; duration additionally skips any of them without a
+  # recorded start/end time. Each value is nil when there is nothing to average.
+  def recent_averages(limit = RECENT_MEETINGS_FOR_AVERAGE)
+    recent = meetings.with_minutes.latest_first.includes(:agenda_items).limit(limit).to_a
+    timed = recent.select { |meeting| meeting.start_time && meeting.end_time }
+
+    {
+      word_count: recent.any? ? (recent.sum(&:word_count).to_f / recent.size).round : nil,
+      duration: timed.any? ? (timed.sum(&:duration).to_f / timed.size).round : nil,
+    }
+  end
+
+  # Average word count over the most recent meetings that have minutes.
+  # Returns nil when the committee has no logged meetings yet.
+  def recent_average_word_count(limit = RECENT_MEETINGS_FOR_AVERAGE)
+    recent_averages(limit)[:word_count]
+  end
+
+  # Caches recent_average_word_count into a column so the committees index can
+  # show it without recomputing over every committee's meetings (mirrors
+  # update_average_duration!).
+  def update_average_word_count!
+    update!(average_word_count: recent_average_word_count)
   end
 
   def allris_members_url

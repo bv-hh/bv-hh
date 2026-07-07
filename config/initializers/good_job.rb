@@ -38,8 +38,8 @@ Rails.application.configure do
       class: 'GenerateSitemapJob',
       cron: '0 59 2 * * *',
     },
-    update_average_durations: {
-      class: 'UpdateAverageDurationsJob',
+    update_committee_averages: {
+      class: 'UpdateCommitteeAveragesJob',
       cron: '0 23 1 1 * *',
     },
     # extract_document_locations_job: {

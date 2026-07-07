@@ -5,8 +5,13 @@ h2.h1
     span.badge.badge-secondary Ausschuss ist inaktiv
 
 - unless @committee.inactive?
-  h5.text-muted Anzahl Drucksachen im Verlauf der letzten 12 Monate
-  = column_chart @documents_timeline, height: '100px'
+  h5.text-muted Anzahl Drucksachen und Umfang der Niederschriften im Verlauf der letzten 12 Monate
+  = column_chart @timeline_series, height: '160px', colors: ['#0d6efd', '#fd7e14'], library: { scales: { words: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } } } }
+  - if @recent_averages[:word_count]
+    p.text-muted
+      = "Durchschnitt der letzten #{Committee::RECENT_MEETINGS_FOR_AVERAGE} Sitzungen mit Niederschrift: #{number_with_delimiter(@recent_averages[:word_count])} Wörter"
+      - if @recent_averages[:duration]
+        = " und #{number_with_precision(@recent_averages[:duration].to_f / 3600, precision: 2)} h Dauer"
 
 .table-responsive
   table.table.mt-4
@@ -14,10 +19,12 @@ h2.h1
       th Datum
       th Titel
       th.text-end TOPs
+      th.text-end Dauer
+      th.text-end Umfang
       th
 
     tbody
-      - @committee.meetings.with_agenda.latest_first.each do |meeting|
+      - @meetings.each do |meeting|
         tr class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
           td.text-nowrap
             = link_to meeting_path(meeting) do
@@ -29,7 +36,17 @@ h2.h1
             = link_to meeting_path(meeting) do
               = meeting.title.html_safe
           td.text-end
-            = meeting.agenda_items.count
+            = meeting.agenda_items.size
+          td.text-end.text-nowrap
+            - if meeting.start_time.present? && meeting.end_time.present?
+              = "#{number_with_precision(meeting.duration.to_f / 3600, precision: 2)} h"
+            - else
+              | -
+          td.text-end.text-nowrap
+            - if meeting.word_count.positive?
+              = "#{number_with_delimiter(meeting.word_count)} Wörter"
+            - else
+              | -
           td.text-end.text-nowrap
             - if meeting.logged?
               => meeting_minutes_link(meeting)
