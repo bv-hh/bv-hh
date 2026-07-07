@@ -54,4 +54,17 @@ class StreetTest < ActiveSupport::TestCase
     @district.name = 'Umland'
     assert_empty Street.for('Testallee', @district).to_a
   end
+
+  test 'formatted_address composes name, postal code and stadtteil' do
+    assert_equal 'Testallee, 22305 Barmbek-Nord', streets(:testallee).formatted_address
+  end
+
+  test 'formatted_address degrades gracefully when locality parts are missing' do
+    street = streets(:testallee)
+    street.postal_code = nil
+    assert_equal 'Testallee, Barmbek-Nord', street.formatted_address
+
+    street.stadtteil = nil
+    assert_equal 'Testallee', street.formatted_address
+  end
 end

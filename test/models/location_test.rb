@@ -39,6 +39,7 @@ class LocationTest < ActiveSupport::TestCase
     assert_in_delta 53.58, location.latitude
     assert_in_delta 10.03, location.longitude
     assert_equal 'gazetteer:02;4;01;401;0401;T0010', location.place_id
+    assert_equal 'Testallee, 22305 Barmbek-Nord', location.formatted_address
     assert_equal @district, location.district
   end
 
