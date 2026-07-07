@@ -4,6 +4,7 @@ class Mcp::ApplicationTool < MCP::Tool
   def self.error_response(message)
     MCP::Tool::Response.new(
       [{ type: 'text', text: message }],
+      error: true,
       structured_content: { error: { message: message } }
     )
   end

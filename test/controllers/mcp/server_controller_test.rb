@@ -3,15 +3,28 @@
 require 'test_helper'
 
 class Mcp::ServerControllerTest < ActionDispatch::IntegrationTest
-  test 'POST index answers a JSON-RPC tools/list request' do
-    post mcp_server_path,
-         params: { jsonrpc: '2.0', id: 1, method: 'tools/list' }.to_json,
-         headers: { 'Content-Type' => 'application/json' }
-
+  def rpc(method, params = {})
+    post mcp_server_path, params: { jsonrpc: '2.0', id: 1, method: method, params: params }.to_json,
+                          headers: { 'Content-Type' => 'application/json' }
     assert_response :success
-    assert_equal 'application/json', @response.media_type
+    response.parsed_body
+  end
 
-    body = JSON.parse(@response.body)
-    assert_not_empty body.dig('result', 'tools')
+  test 'tools/list exposes the registered tools' do
+    tools = rpc('tools/list').dig('result', 'tools')
+    assert_equal %w[search_tool documents_tool archive_tool].sort, tools.pluck('name').sort
+  end
+
+  test 'tools/call runs the search tool' do
+    result = rpc('tools/call', name: 'search_tool', arguments: { query: 'test' })['result']
+    assert_not result['isError']
+    assert result.key?('structuredContent')
+  end
+
+  test 'tools/call flags an error for an invalid district' do
+    result = rpc('tools/call', name: 'documents_tool',
+                               arguments: { identifier: '1', district: 'Nonexistent' })['result']
+    assert result['isError']
+    assert_equal 'Invalid district provided.', result.dig('content', 0, 'text')
   end
 end
