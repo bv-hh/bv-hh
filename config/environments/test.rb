@@ -33,6 +33,12 @@ Rails.application.configure do
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
+  # Use the ActiveJob test adapter so `perform_later` only records jobs instead
+  # of running them. GoodJob runs :inline otherwise, which would fire follow-up
+  # crawler jobs (HTTP fetches, geocoding) mid-parse and commit their writes on
+  # a separate connection, breaking transactional test isolation.
+  config.active_job.queue_adapter = :test
+
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
