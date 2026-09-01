@@ -7,7 +7,7 @@ ruby '3.4.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'pg'
-gem 'rails', '~> 8.1.1'
+gem 'rails', '~> 8.1.3'
 # Database-backed, self-evicting cache store (runs in the primary DB)
 gem 'solid_cache'
 # Use Puma as the app server
