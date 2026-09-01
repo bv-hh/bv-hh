@@ -245,7 +245,7 @@ class Document < ApplicationRecord
   end
 
   def extract_locations!
-    all_text = "#{title} #{full_text}"
+    all_text = "#{title} #{full_text}".scrub
     return if all_text.blank?
 
     gazetteer_locations = StreetGazetteer.match(all_text)
