@@ -250,9 +250,10 @@ class Document < ApplicationRecord
 
     gazetteer_locations = StreetGazetteer.match(all_text)
     ner_locations = NerModel.model.doc(all_text).entities.filter_map do |entity|
-      next if entity[:text].blank?
+      text = entity[:text].to_s.scrub
+      next if text.blank?
 
-      entity[:text].gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
+      text.gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
     end.uniq
 
     self.locations_extracted_at = Time.zone.now
