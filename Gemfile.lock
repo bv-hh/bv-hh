@@ -251,7 +251,7 @@ GEM
       railties (>= 8.1.0, < 8.2.0)
     mitie (0.3.3)
       fiddle
-    msgpack (1.8.0)
+    msgpack (1.8.2)
     multi_json (1.15.0)
     mutex_m (0.3.0)
     net-imap (0.6.4.1)
