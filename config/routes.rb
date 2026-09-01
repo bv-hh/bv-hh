@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   get '/privacy' => 'pages#privacy', as: :privacy
   get '/transparency' => 'pages#transparency', as: :transparency
   get '/mcp' => 'pages#mcp', as: :mcp
+  get '/district-politics' => 'pages#district_politics', as: :district_politics
+  get '/participation' => 'pages#participation', as: :participation
 
   get '/not_found' => 'errors#not_found', as: :foo
   get '/404' => 'errors#not_found', as: :not_found

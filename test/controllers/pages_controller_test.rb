@@ -8,7 +8,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  %i[imprint privacy about transparency mcp].each do |action|
+  %i[imprint privacy about transparency mcp district_politics participation].each do |action|
     test "GET #{action}" do
       get send(:"#{action}_path")
       assert_response :success

@@ -80,6 +80,8 @@ html lang='de'
         .float-end
           p
             = link_to 'Was soll das Ganze?', about_path(district: nil), class: 'px-1 text-reset'
+            => link_to 'Bezirkspolitik', district_politics_path(district: nil), class: 'px-1 text-reset'
+            => link_to 'Beteiligung', participation_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Transparenz', transparency_path(district: nil), class: 'px-1 text-reset'
             => link_to 'MCP', mcp_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
