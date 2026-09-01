@@ -14,4 +14,8 @@ class PagesController < ApplicationController
   def transparency; end
 
   def mcp; end
+
+  def district_politics; end
+
+  def participation; end
 end
