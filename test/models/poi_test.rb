@@ -33,6 +33,17 @@ class PoiTest < ActiveSupport::TestCase
     assert_empty Poi.aliases_for('Teststadtpark')
   end
 
+  test 'aliases_for records the spelling without the apostrophe' do
+    assert_equal ['ohlendorffscher park'], Poi.aliases_for("Ohlendorff'scher Park")
+    assert_equal ['ohlendorffscher park'], Poi.aliases_for("Ohlendorff\u2019scher Park")
+  end
+
+  test 'aliases_for combines the apostrophe and the city qualifier' do
+    # "hamburger kapt n huk" is the normalized name itself, so it is not an alias.
+    assert_equal(['hamburger kaptn huk', 'kapt n huk', 'kaptn huk'],
+                 Poi.aliases_for("Hamburger Käpt'n Huk").map { |alias_name| alias_name.tr('äöü', 'aou') })
+  end
+
   test 'aliases_for drops a remainder too short to identify anything' do
     assert_empty Poi.aliases_for('Hamburger Hof')
   end

@@ -63,6 +63,13 @@ class Poi < ApplicationRecord
   # Hamburg" — and no Drucksache writes it that way.
   CITY_QUALIFIERS = [/\Ahamburger /, /\Ahamburg /, / hamburg\z/].freeze
 
+  # Normalization turns an apostrophe into a space, so OSM's "Ohlendorff'scher
+  # Park" becomes "ohlendorff scher park" while a document writing
+  # "Ohlendorffscher Park" becomes "ohlendorffscher park" — the same name, and
+  # no match. 19 of the imported features carry one. Both typographic and
+  # typewriter forms, since OSM uses either.
+  APOSTROPHES = /['\u2018\u2019`´]/
+
   # POIs matching +name+ inside the district, mirroring Street.for. A district
   # without a known number gets nothing rather than everything. Matches the
   # register's own name or any of the spellings recorded for it.
@@ -81,10 +88,17 @@ class Poi < ApplicationRecord
     normalized = normalize(name)
     return [] if normalized.blank?
 
+    spellings = [normalized, normalize(name.to_s.gsub(APOSTROPHES, ''))].uniq
+    variants = spellings + spellings.flat_map { |spelling| without_city_qualifier(spelling) }
+
+    variants.uniq.select { |variant| variant != normalized && variant.length >= MIN_LENGTH }
+  end
+
+  def self.without_city_qualifier(spelling)
     CITY_QUALIFIERS.filter_map do |qualifier|
-      variant = normalized.sub(qualifier, '').strip
-      variant if variant != normalized && variant.length >= MIN_LENGTH
-    end.uniq
+      variant = spelling.sub(qualifier, '').strip
+      variant if variant != spelling
+    end
   end
 
   # Recomputes the alias lists in place, for when the rules change and a full
