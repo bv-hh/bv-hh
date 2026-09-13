@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.configure do
-  config.good_job.max_threads = 5
+  config.good_job.max_threads = 8
 
   config.good_job.enable_cron = true
 
