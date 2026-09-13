@@ -75,7 +75,6 @@ gem 'uglifier'
 
 gem 'mitie'
 
-
 gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.2'
