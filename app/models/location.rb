@@ -27,10 +27,6 @@
 class Location < ApplicationRecord
   BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] +
                       District.all.map { |d| [d.name.downcase, "bezirk #{d.name.downcase}"] }.flatten + ['hamburg nord', 'hamburg mitte']
-  # 'political' covered countries, states and whole districts — the vague end,
-  # and the source of pins like "Innenstadt". 'sublocality' stays: it is what
-  # names a real sub-area such as Jarrestadt or Karolinenviertel.
-  VALID_TYPES = %w[park route sublocality]
 
   belongs_to :district
 
@@ -56,6 +52,16 @@ class Location < ApplicationRecord
     name&.downcase&.strip
   end
 
+  # Resolution order, most trustworthy first. Each step either answers or
+  # declines; nothing guesses.
+  #
+  #   1. the official street register, exactly
+  #   2. the OpenStreetMap POI gazetteer, exactly
+  #   3. the street register again, through a trigram match, for OCR damage
+  #
+  # Google Places used to sit at the end and answer for anything, which is why
+  # the blocklist had to exist. With it gone, an unknown name simply produces
+  # no location.
   def self.determine_locations(extracted_name, district)
     return [] if blocked?(extracted_name)
     # Stadtteile are areas, recorded on the document as documents.quarters.
@@ -65,44 +71,54 @@ class Location < ApplicationRecord
     locations = Location.normalized(extracted_name)
     return locations if locations.present?
 
-    gazetteer_locations = from_gazetteer(extracted_name, district)
-    return gazetteer_locations if gazetteer_locations.present?
-
-    from_google(extracted_name, district)
-  end
-
-  def self.from_google(extracted_name, district)
-    google_result = GoogleMaps.find_places(normalize(extracted_name), district)
-    return [] if google_result.blank?
-
-    google_result['candidates'].filter_map do |candidate|
-      location = Location.find_by(district: district, place_id: candidate['place_id'])
-      next location if location.present?
-
-      latlng = candidate['geometry']['location']
-      next if latlng.blank?
-      next if Location.outside_district?(latlng['lat'], latlng['lng'], district)
-
-      if candidate['types'].intersect?(VALID_TYPES)
-        Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
-                         latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'],
-                         **place_attributes(candidate['name'], latlng['lat'], latlng['lng']))
-      end
-    end
+    from_gazetteer(extracted_name, district).presence ||
+      from_poi(extracted_name, district).presence ||
+      from_fuzzy_gazetteer(extracted_name, district)
   end
 
   # Resolves a street name against the official Hamburg gazetteer, using its
-  # registered coordinates directly (no Google Maps lookup). A name can occur in
-  # several districts, so results are limited to the district's bounds.
+  # registered coordinates directly. A name can occur in several districts, so
+  # Street.for limits the answer to the district's own streets.
   def self.from_gazetteer(extracted_name, district)
     Street.for(extracted_name, district).map do |street|
-      find_or_create_by!(district: district, extracted_name: extracted_name, name: street.name) do |location|
-        location.latitude = street.latitude
-        location.longitude = street.longitude
-        location.place_id = "gazetteer:#{street.street_key}"
-        location.formatted_address = street.formatted_address
-        location.assign_attributes(place_attributes(street.name, street.latitude, street.longitude))
-      end
+      build_location(extracted_name, district, name: street.name, latitude: street.latitude,
+                                               longitude: street.longitude, place_id: "gazetteer:#{street.street_key}",
+                                               formatted_address: street.formatted_address)
+    end
+  end
+
+  # Everything the street register does not name: parks, playgrounds, schools,
+  # cemeteries, squares. The POI's district comes from the Quarter polygons at
+  # import time, so a containment check here would ask a question already
+  # answered — unlike the Google path, which needed one.
+  def self.from_poi(extracted_name, district)
+    Poi.for(extracted_name, district).map do |poi|
+      build_location(extracted_name, district, name: poi.name, latitude: poi.latitude,
+                                               longitude: poi.longitude, place_id: poi.place_key,
+                                               formatted_address: poi.formatted_address)
+    end
+  end
+
+  # Last, because a corrected name is a guess in a way the other two are not:
+  # documents are OCR'd PDFs and "Lehnhartzstraße" is meant to be
+  # "Lenhartzstraße". Street.fuzzy_for refuses ambiguous cases outright.
+  def self.from_fuzzy_gazetteer(extracted_name, district)
+    Street.fuzzy_for(extracted_name, district).map do |street|
+      build_location(extracted_name, district, name: street.name, latitude: street.latitude,
+                                               longitude: street.longitude, place_id: "gazetteer:#{street.street_key}",
+                                               formatted_address: street.formatted_address)
+    end
+  end
+
+  # One row per extracted name and resolved place. Two documents naming the
+  # same street share it, and a name resolving to several places gets one each.
+  def self.build_location(extracted_name, district, name:, latitude:, longitude:, place_id:, formatted_address:)
+    find_or_create_by!(district: district, extracted_name: extracted_name, name: name) do |location|
+      location.latitude = latitude
+      location.longitude = longitude
+      location.place_id = place_id
+      location.formatted_address = formatted_address
+      location.assign_attributes(place_attributes(name, latitude, longitude))
     end
   end
 
@@ -127,25 +143,25 @@ class Location < ApplicationRecord
   def self.quarters_for(streets, covering)
     # A point outside every Quarter is not in Hamburg, whatever the register
     # says about a same-named street somewhere else — it must not show up on a
-    # Quarter's map. Only legacy rows can reach this now that from_google
-    # rejects such candidates outright and repair_coordinates! snaps the ones
-    # the register can place.
+    # Quarter's map. Only legacy rows can reach this now that every source is a
+    # local register whose points are inside Hamburg by construction, and
+    # repair_coordinates! snaps the ones the street register can place.
     return [] if Quarter.boundaries? && covering.empty?
 
     streets.flat_map(&:quarters).uniq.presence || covering
   end
 
   # A district's bounds are a rectangle, and Hamburg's neighbours poke into it:
-  # Norderstedt's streets sit inside Hamburg-Nord's bounding box, so Google
+  # Norderstedt's streets sit inside Hamburg-Nord's bounding box, so geocoded
   # results from there used to be accepted and pinned on the wrong map. The
   # district's real outline, built from its Stadtteile, answers the same
   # question exactly. Fall back to the rectangle while the quarters table is
   # still empty, so a fresh install without an import does not reject
   # everything.
   #
-  # Only the Google fallback is gated by this. A street legitimately crossing a
-  # district boundary comes from the gazetteer, which matches on the register's
-  # own multi-district street keys and never reaches here.
+  # Nothing in the resolution path is gated by this any more — every source is
+  # a local register — but repair_coordinates! and the backfill task still ask
+  # it of rows created before that was true.
   def self.outside_district?(latitude, longitude, district)
     return out_of_bounds?(latitude, longitude, district.bounds) unless Quarter.boundaries?
 
@@ -164,7 +180,7 @@ class Location < ApplicationRecord
     "#{name.parameterize}-#{id}"
   end
 
-  # Google sometimes answered a street name with the same-named street in a
+  # Google used to answer a street name with the same-named street in a
   # neighbouring town — "Tarpenbekstraße, 22848 Norderstedt" instead of the
   # Hamburg one — because the old bounding-box check could not tell them apart.
   # Where the official register knows that street inside this location's own

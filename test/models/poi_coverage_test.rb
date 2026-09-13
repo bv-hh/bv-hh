@@ -24,6 +24,18 @@ class PoiCoverageTest < ActiveSupport::TestCase
     assert_equal 1, counts[:unresolved][:instances]
   end
 
+  test 'counts a spelling variant as the street register hit it is' do
+    document(['Heilwigstrasse'])
+
+    assert_equal 1, PoiCoverage.new.run.counts[:street][:instances]
+  end
+
+  test 'classifies an OCR-damaged street by the trigram match that resolves it' do
+    document(['Testalee'])
+
+    assert_equal 1, PoiCoverage.new.run.counts[:fuzzy][:instances]
+  end
+
   test 'reports what the POI gazetteer takes off Google' do
     document(%w[Teststadtpark Erfindungsweg])
 

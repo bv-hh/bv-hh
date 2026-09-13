@@ -11,9 +11,10 @@
 #
 # Read-only: it creates and changes nothing. Driven by `rake pois:coverage`.
 class PoiCoverage
-  BUCKETS = %i[blocked quarter street poi poi_generic unresolved].freeze
-  # Buckets that reach Google today, in the current resolution order.
-  GOOGLE_BUCKETS = %i[poi poi_generic unresolved].freeze
+  BUCKETS = %i[blocked quarter street poi fuzzy poi_generic unresolved].freeze
+  # The buckets the street register cannot answer exactly — what used to reach
+  # Google Places, and what the local sources now have to cover between them.
+  BEYOND_REGISTER = %i[poi fuzzy poi_generic unresolved].freeze
   BATCH = 500
   EXAMPLES = 20
   # Station references are found in raw text, not among the extracted names, so
@@ -41,8 +42,8 @@ class PoiCoverage
   end
 
   def total = counts.values.sum { |data| data[:instances] }
-  def google = GOOGLE_BUCKETS.sum { |bucket| counts[bucket][:instances] }
-  def answered = counts[:poi][:instances]
+  def google = BEYOND_REGISTER.sum { |bucket| counts[bucket][:instances] }
+  def answered = counts[:poi][:instances] + counts[:fuzzy][:instances]
   def unresolved = counts[:unresolved][:instances]
 
   def share(instances) = percentage(instances, total)
@@ -98,6 +99,7 @@ class PoiCoverage
 
     entry = pois[[Poi.normalize(name), district.number]]
     return :poi if entry[:pinnable]
+    return :fuzzy if Street.fuzzy_for(name, district).exists?
     return :poi_generic if entry[:generic]
 
     :unresolved
@@ -106,11 +108,15 @@ class PoiCoverage
   def resolvable?(name, district)
     return false if district.blank?
 
-    street?(name, district) || pois[[Poi.normalize(name), district.number]][:pinnable]
+    street?(name, district) || pois[[Poi.normalize(name), district.number]][:pinnable] ||
+      Street.fuzzy_for(name, district).exists?
   end
 
+  # Street.canonical_name, not the plain normalization: the exact path resolves
+  # spelling variants, so "krausestrasse" is a street register hit and must be
+  # counted as one.
   def street?(name, district)
-    streets[Street.normalize(name)].include?(district.number)
+    streets[Street.canonical_name(name)].include?(district.number)
   end
 
   def percentage(instances, of)
@@ -135,14 +141,17 @@ class PoiCoverage
   end
 
   # [normalized name, district number] => whether a pinnable or a generic POI
-  # carries it. Transit POIs are absent on purpose: a bare name never reaches
-  # them.
+  # carries it, under the register's own name or any alias. Transit POIs are
+  # absent on purpose: a bare name never reaches them.
   def pois
     @pois ||= begin
       index = Hash.new { |hash, key| hash[key] = { pinnable: false, generic: false } }
-      Poi.where(transit: false).pluck(:normalized_name, :district_number, :generic).each do |name, number, generic|
-        entry = index[[name, number]]
-        generic ? entry[:generic] = true : entry[:pinnable] = true
+      Poi.where(transit: false).pluck(:normalized_name, :aliases, :district_number, :generic)
+         .each do |name, aliases, number, generic|
+           [name, *aliases].each do |spelling|
+             entry = index[[spelling, number]]
+             generic ? entry[:generic] = true : entry[:pinnable] = true
+           end
       end
       index
     end

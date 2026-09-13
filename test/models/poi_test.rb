@@ -38,7 +38,7 @@ class PoiTest < ActiveSupport::TestCase
   end
 
   test 'rebuild_aliases! recomputes in place without a re-import' do
-    pois(:hamburger_testpark).update_columns(aliases: [])
+    pois(:hamburger_testpark).update_columns(aliases: []) # rubocop:disable Rails/SkipsModelValidations
 
     assert_equal 1, Poi.rebuild_aliases!
     assert_equal ['testpark'], pois(:hamburger_testpark).reload.aliases

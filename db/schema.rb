@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -448,16 +448,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_160000) do
     t.index ["district_id"], name: "index_parties_on_district_id"
   end
 
-  create_table "places", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "district_id", null: false
-    t.json "locations"
-    t.string "query", null: false
-    t.datetime "updated_at", null: false
-    t.index ["district_id"], name: "index_places_on_district_id"
-    t.index ["query"], name: "index_places_on_query"
-  end
-
   create_table "pois", force: :cascade do |t|
     t.string "aliases", default: [], null: false, array: true
     t.string "category", null: false
@@ -544,5 +534,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_160000) do
   add_foreign_key "memberships", "committees"
   add_foreign_key "memberships", "members"
   add_foreign_key "parties", "districts"
-  add_foreign_key "places", "districts"
 end

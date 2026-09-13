@@ -33,12 +33,13 @@ namespace :pois do
            "#{report.share(data[:instances]).rjust(8)}"
     end
 
-    puts "\nWould reach Google today: #{report.google} instances"
-    puts "  answered by the POI gazetteer: #{report.answered} (#{report.google_share(report.answered)})"
+    puts "\nNames the street register does not know: #{report.google} instances"
+    puts "  answered by the POI gazetteer and the trigram match: #{report.answered} " \
+         "(#{report.google_share(report.answered)})"
     puts "  generic POI name, deliberately unpinned: #{report.counts[:poi_generic][:instances]}"
-    puts "  unresolved without Google: #{report.unresolved} (#{report.google_share(report.unresolved)})"
+    puts "  unresolved, and now left unresolved: #{report.unresolved} (#{report.google_share(report.unresolved)})"
 
-    %i[poi poi_generic unresolved].each do |bucket|
+    %i[poi fuzzy poi_generic unresolved].each do |bucket|
       puts "\n#{bucket} examples: #{report.examples[bucket].uniq.first(20).join(', ')}"
     end
 
