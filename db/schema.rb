@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -456,6 +456,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
     t.datetime "updated_at", null: false
     t.index ["district_id"], name: "index_places_on_district_id"
     t.index ["query"], name: "index_places_on_query"
+  end
+
+  create_table "pois", force: :cascade do |t|
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.integer "district_number"
+    t.boolean "generic", default: false, null: false
+    t.float "latitude", null: false
+    t.float "longitude", null: false
+    t.string "name", null: false
+    t.string "normalized_name", null: false
+    t.bigint "osm_id", null: false
+    t.string "osm_type", null: false
+    t.string "postal_code"
+    t.string "quarter"
+    t.string "quarters", default: [], null: false, array: true
+    t.boolean "transit", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["district_number"], name: "index_pois_on_district_number"
+    t.index ["normalized_name"], name: "index_pois_on_normalized_name"
+    t.index ["osm_type", "osm_id"], name: "index_pois_on_osm_type_and_osm_id", unique: true
+    t.index ["quarters"], name: "index_pois_on_quarters", using: :gin
+    t.index ["transit"], name: "index_pois_on_transit"
   end
 
   create_table "quarters", force: :cascade do |t|
