@@ -25,7 +25,7 @@ class DocumentsController < ApplicationController
   def allris
     redirect_to root_path and return if @district.blank?
 
-    @document = @district.documents.find_by!(allris_id: params[:allris_id])
+    @document = @district.documents.find_by!(allris_id: params.expect(:allris_id))
     redirect_to(document_path(@document, district: @document.district))
   end
 
