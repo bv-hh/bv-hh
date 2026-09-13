@@ -25,6 +25,8 @@ html lang='de'
     = javascript_include_tag 'legacy'
     = javascript_importmap_tags
 
+    = yield :head
+
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
     nav.navbar.navbar-dark.navbar-expand-md.fixed-top
