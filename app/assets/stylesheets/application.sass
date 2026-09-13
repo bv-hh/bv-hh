@@ -12,6 +12,16 @@ $link-color: $light-blue
 
 $enable-responsive-font-sizes: true
 
+// An open accordion section otherwise takes its background and text from
+// $primary, which here is the brand red — far too loud for what is only a
+// disclosure state. Keep it neutral; the chevron follows, because Bootstrap
+// derives $accordion-icon-active-color from the active text colour.
+$accordion-button-active-bg: $gray
+$accordion-button-active-color: #212529
+// Bootstrap derives the open chevron from $primary directly, not from the
+// active text colour, so it needs its own override or it stays dark red.
+$accordion-icon-active-color: $accordion-button-active-color
+
 @import 'bootstrap'
 
 @import 'font-awesome-sprockets'
