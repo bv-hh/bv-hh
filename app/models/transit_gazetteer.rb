@@ -89,15 +89,18 @@ class TransitGazetteer
       map = {}
       @max_words = 1
 
-      Poi.transit.distinct.pluck(:normalized_name, :name).each do |normalized, name|
-        next if normalized.blank? || normalized.length < Poi::MIN_LENGTH
-        # A station whose name is itself a prefix word ("Bahnhof") carries no
-        # information and would match every prefix run in the corpus.
-        next if PREFIXES.include?(normalized)
+      # Aliases too: documents write "S Dammtor", the register "Hamburg Dammtor".
+      Poi.transit.distinct.pluck(:normalized_name, :aliases, :name).each do |normalized, aliases, name|
+        [normalized, *aliases].each do |spelling|
+          next if spelling.blank? || spelling.length < Poi::MIN_LENGTH
+          # A station whose name is itself a prefix word ("Bahnhof") carries no
+          # information and would match every prefix run in the corpus.
+          next if PREFIXES.include?(spelling)
 
-        map[normalized] ||= name
-        word_count = normalized.count(' ') + 1
-        @max_words = word_count if word_count > @max_words
+          map[spelling] ||= name
+          word_count = spelling.count(' ') + 1
+          @max_words = word_count if word_count > @max_words
+        end
       end
 
       map

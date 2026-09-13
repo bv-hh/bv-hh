@@ -66,6 +66,11 @@ class PoiImporterTest < ActiveSupport::TestCase
     assert_not @by_name['Teststadtpark'][:transit]
   end
 
+  test 'parse records the spellings a document would use for a qualified name' do
+    assert_equal ['testanlage'], @by_name['Hamburger Testanlage'][:aliases]
+    assert_empty @by_name['Teststadtpark'][:aliases]
+  end
+
   test 'parse deduplicates a feature repeated under the same osm id' do
     assert_equal(1, @rows.count { |row| row[:osm_type] == 'way' && row[:osm_id] == 2001 })
   end

@@ -58,13 +58,49 @@ class Poi < ApplicationRecord
   scope :transit, -> { where(transit: true) }
   scope :in_quarter, ->(name) { where('quarters @> ARRAY[?]::varchar[]', name.to_s) }
 
+  # Spellings a document uses that OpenStreetMap does not. Hamburg features are
+  # mapped with the city in the name — "Hamburger Stadtpark", "Stadtpark
+  # Hamburg" — and no Drucksache writes it that way.
+  CITY_QUALIFIERS = [/\Ahamburger /, /\Ahamburg /, / hamburg\z/].freeze
+
   # POIs matching +name+ inside the district, mirroring Street.for. A district
-  # without a known number gets nothing rather than everything.
+  # without a known number gets nothing rather than everything. Matches the
+  # register's own name or any of the spellings recorded for it.
   def self.for(name, district)
     number = district.number
-    return none if number.blank?
+    normalized = normalize(name)
+    return none if number.blank? || normalized.blank?
 
-    pinnable.where(normalized_name: normalize(name), district_number: number)
+    pinnable.where(district_number: number)
+            .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
+  end
+
+  # The spellings +name+ might appear as, minus the name itself. Too-short
+  # results are dropped for the same reason MIN_LENGTH exists at all.
+  def self.aliases_for(name)
+    normalized = normalize(name)
+    return [] if normalized.blank?
+
+    CITY_QUALIFIERS.filter_map do |qualifier|
+      variant = normalized.sub(qualifier, '').strip
+      variant if variant != normalized && variant.length >= MIN_LENGTH
+    end.uniq
+  end
+
+  # Recomputes the alias lists in place, for when the rules change and a full
+  # re-import would only fetch the same features again.
+  def self.rebuild_aliases!
+    changed = 0
+
+    find_each do |poi|
+      aliases = aliases_for(poi.name)
+      next if aliases.sort == poi.aliases.sort
+
+      poi.update_columns(aliases: aliases, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+      changed += 1
+    end
+
+    changed
   end
 
   # Stations matching +name+ inside the district. Separate from .for on purpose:
@@ -72,9 +108,11 @@ class Poi < ApplicationRecord
   # the text, may ask for these.
   def self.transit_for(name, district)
     number = district.number
-    return none if number.blank?
+    normalized = normalize(name)
+    return none if number.blank? || normalized.blank?
 
-    transit.where(normalized_name: normalize(name), district_number: number)
+    transit.where(district_number: number)
+           .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
   end
 
   # The same rule as Street.normalize, deliberately: a name extracted from a

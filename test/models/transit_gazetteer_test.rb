@@ -32,6 +32,10 @@ class TransitGazetteerTest < ActiveSupport::TestCase
     assert_empty TransitGazetteer.match('S Bahnhofstraße und U Testallee')
   end
 
+  test 'matches a station by the spelling a document uses' do
+    assert_equal ['Hamburg Dammtor'], TransitGazetteer.match('Umbau S Dammtor')
+  end
+
   test 'is empty without a text' do
     assert_empty TransitGazetteer.match(nil)
     assert_empty TransitGazetteer.match('')

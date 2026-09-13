@@ -208,6 +208,7 @@ class PoiImporter
       quarters: quarters.map(&:name),
       district_number: quarters.first.district_number,
       postal_code: tags['addr:postcode'].to_s.squish.presence,
+      aliases: Poi.aliases_for(name),
       # A station is exempt: "Barmbek" is a Stadtteil name and would be marked
       # generic at once, but on the transit path the prefix carries the meaning.
       generic: !transit && Poi.generic_name?(name),

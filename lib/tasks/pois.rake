@@ -7,6 +7,11 @@ namespace :pois do
     puts "Imported #{total} POIs (#{Poi.pinnable.count} pinnable, #{Poi.where(generic: true).count} generic)"
   end
 
+  desc 'Recompute the alternative spellings on existing POIs'
+  task rebuild_aliases: :environment do
+    puts "Updated #{Poi.rebuild_aliases!} of #{Poi.count} POIs"
+  end
+
   # The measurement behind the decision to remove Google entirely.
   #
   # Every name extraction has ever produced is replayed through the resolution

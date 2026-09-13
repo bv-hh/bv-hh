@@ -23,6 +23,20 @@
 # and gazetteer lookups tell a consistent story.
 
 # Pinnable park in Hamburg-Nord (Bezirk 4).
+# Carries the city qualifier OSM uses and documents do not.
+hamburger_testpark:
+  name: Hamburger Testpark
+  normalized_name: hamburger testpark
+  aliases: [testpark]
+  category: leisure=park
+  osm_type: way
+  osm_id: 1006
+  latitude: 53.581
+  longitude: 10.001
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+
 teststadtpark:
   name: Teststadtpark
   normalized_name: teststadtpark
@@ -82,6 +96,7 @@ barmbek_station:
 hamburg_dammtor_station:
   name: Hamburg Dammtor
   normalized_name: hamburg dammtor
+  aliases: [dammtor]
   category: railway=station
   osm_type: node
   osm_id: 1005

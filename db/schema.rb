@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -459,6 +459,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
   end
 
   create_table "pois", force: :cascade do |t|
+    t.string "aliases", default: [], null: false, array: true
     t.string "category", null: false
     t.datetime "created_at", null: false
     t.integer "district_number"
@@ -474,6 +475,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
     t.string "quarters", default: [], null: false, array: true
     t.boolean "transit", default: false, null: false
     t.datetime "updated_at", null: false
+    t.index ["aliases"], name: "index_pois_on_aliases", using: :gin
     t.index ["district_number"], name: "index_pois_on_district_number"
     t.index ["normalized_name"], name: "index_pois_on_normalized_name"
     t.index ["osm_type", "osm_id"], name: "index_pois_on_osm_type_and_osm_id", unique: true
