@@ -40,10 +40,18 @@ p
         |  (app:stadtteile): Grenzen der Bezirke und Stadtteile, Grundlage der Stadtteilseiten.
 
 p
-  | Die Kartendarstellung nutzt Kartenkacheln von
-  = ' '
-  = link_to 'OpenStreetMap', 'https://www.openstreetmap.org/copyright', target: '_blank'
-  | , © OpenStreetMap-Mitwirkende.
+  ' Orte, die das amtliche Straßenverzeichnis nicht kennt — Parks, Spielplätze, Schulen, Friedhöfe,
+  ' Plätze und Haltestellen — stammen aus
+  => link_to 'OpenStreetMap', 'https://www.openstreetmap.org/copyright', target: '_blank'
+  ' und stehen unter der
+  => link_to 'Open Database License (ODbL) 1.0', 'https://opendatacommons.org/licenses/odbl/1-0/', target: '_blank'
+  | . Die Namensnennung lautet:
+
+  p
+    strong © OpenStreetMap-Mitwirkende
+
+  ' Auch die Kartenkacheln der Kartendarstellung stammen von OpenStreetMap. Die aus diesen Daten
+  ' abgeleitete Ortsdatenbank steht ihrerseits unter der ODbL.
 
 p
   ' Alle Drucksachen und Informationen zu Gremien, Sitzungen etc. stammen aus den Ratsinformationssystemen
