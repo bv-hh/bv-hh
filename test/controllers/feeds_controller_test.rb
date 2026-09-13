@@ -98,6 +98,24 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, documents(:document_7).number
   end
 
+  test 'GET show as RSS accepts a district as a whole-Bezirk feed' do
+    get feed_path(format: :rss, district: districts(:hamburg_nord).to_param)
+
+    assert_response :success
+    assert_includes @response.body, 'Hamburg-Nord'
+    assert_includes @response.body, documents(:document_7).number
+  end
+
+  # The config page is Hamburg-wide and has no district control, so a stray
+  # ?district= is stripped there — but never on the feed itself.
+  test 'GET show strips a district from the HTML page but keeps it on the feed' do
+    get feed_path(district: districts(:hamburg_nord).to_param)
+    assert_redirected_to feed_path
+
+    get feed_path(format: :rss, district: districts(:hamburg_nord).to_param)
+    assert_response :success
+  end
+
   test 'GET show as RSS matches on street name too' do
     get feed_path(format: :rss, streets: ['Heilwigstraße'])
 

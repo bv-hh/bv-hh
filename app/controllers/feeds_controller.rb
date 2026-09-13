@@ -9,7 +9,16 @@ class FeedsController < ApplicationController
   # Bump when the RSS template changes shape, so cached copies are refetched.
   FEED_VERSION = 1
 
-  before_action :without_district
+  # Everything but the feed itself. The config page is Hamburg-wide and has no
+  # district control, so a stray ?district= is stripped there as on every other
+  # district-less page. The feed keeps it: it is a real filter, and the district
+  # hero links to /feed.rss?district=... — a blanket without_district would 301
+  # that away.
+  #
+  # Keyed on the format the route sets, not on request.format.html?, because a
+  # client sending Accept: */* resolves to Mime::ALL rather than HTML.
+  before_action :without_district, unless: -> { request.format.rss? }
+
   # ahoy.track writes a row per request, including the 304s that feed readers
   # generate by the thousand. Tracking them would cost more than rendering.
   skip_after_action :track_event, if: -> { request.format.rss? }

@@ -165,4 +165,52 @@ class FeedQueryTest < ActiveSupport::TestCase
     assert_includes description, 'Barmbek-Nord'
     assert_includes description, 'Heilwigstraße'
   end
+
+  # --- district ---------------------------------------------------------------
+
+  test 'a district on its own feeds every Drucksache of that Bezirk' do
+    query = FeedQuery.new(district: districts(:hamburg_nord))
+
+    assert_not_predicate query, :empty?
+    assert_includes query.relation, documents(:document_7)
+  end
+
+  test 'a district needs no location at all' do
+    # document_4 has no document_locations, so only the district branch can
+    # reach it.
+    assert_includes FeedQuery.new(district: districts(:hamburg_nord)).relation, documents(:document_4)
+    assert_not_includes FeedQuery.new(quarters: ['Barmbek-Nord']).relation, documents(:document_4)
+  end
+
+  test 'a district narrows a place selection rather than widening it' do
+    district = districts(:hamburg_nord)
+    with_district = FeedQuery.new(district: district, quarters: ['Barmbek-Nord']).relation.to_a
+    without = FeedQuery.new(quarters: ['Barmbek-Nord']).relation.to_a
+
+    assert_equal without, with_district, 'Barmbek-Nord is entirely inside Hamburg-Nord'
+    assert_operator with_district.size, :<, FeedQuery.new(district: district).relation(limit: nil).count
+  end
+
+  test 'a district excludes places belonging to another Bezirk' do
+    other = District.create!(name: 'Altona', order: 1, allris_base_url: 'https://example.test')
+
+    assert_empty FeedQuery.new(district: other, quarters: ['Barmbek-Nord']).relation
+  end
+
+  test 'from_params resolves the district slug and ignores an unknown one' do
+    assert_equal districts(:hamburg_nord), FeedQuery.from_params(district: 'hamburg-nord').district
+    assert_nil FeedQuery.from_params(district: 'gibtsnicht').district
+    assert_nil FeedQuery.from_params({}).district
+  end
+
+  test 'cache_key distinguishes districts' do
+    other = District.create!(name: 'Altona', order: 1, allris_base_url: 'https://example.test')
+
+    assert_not_equal FeedQuery.new(district: districts(:hamburg_nord)).cache_key,
+                     FeedQuery.new(district: other).cache_key
+  end
+
+  test 'description names the district' do
+    assert_includes FeedQuery.new(district: districts(:hamburg_nord)).description, 'Hamburg-Nord'
+  end
 end

@@ -6,7 +6,11 @@ module FeedsHelper
   def feed_title(query)
     return 'BV-HH — Drucksachen' if query.empty?
 
-    "BV-HH — Drucksachen zu #{[*query.quarters, *query.street_display_names].to_sentence}"
+    places = [*query.quarters, *query.street_display_names]
+    return "BV-HH — Drucksachen aus #{query.district.name}" if places.empty?
+
+    title = "BV-HH — Drucksachen zu #{places.to_sentence}"
+    query.district.present? ? "#{title} (#{query.district.name})" : title
   end
 
   def feed_description(query)
@@ -19,7 +23,7 @@ module FeedsHelper
 
   # The params that reproduce this selection, for self-referencing links.
   def feed_link_params(query)
-    { quarters: query.quarters, streets: query.street_display_names }.compact_blank
+    { district: query.district&.to_param, quarters: query.quarters, streets: query.street_display_names }.compact_blank
   end
 
   def feed_item_description(document)
