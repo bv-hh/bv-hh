@@ -113,11 +113,11 @@ class FeedQuery
 
   private
 
-  # noindex is the mechanism behind the takedown requests documented on
-  # /transparency. It is not in Document's default_scope, so both syndication
-  # surfaces have to exclude it explicitly.
+  # noindex is only a search-engine directive, so it does not belong here: a
+  # feed is something a person asked for, not a crawler. non_public, which does
+  # gate visibility, is already in Document's default_scope.
   def documents
-    Document.complete.where(noindex: false)
+    Document.complete
   end
 
   def canonical_street_names(streets)

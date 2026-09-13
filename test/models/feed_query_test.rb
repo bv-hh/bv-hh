@@ -45,10 +45,12 @@ class FeedQueryTest < ActiveSupport::TestCase
 
   # --- filtering --------------------------------------------------------------
 
-  test 'excludes noindex documents from both surfaces' do
+  # noindex keeps a Drucksache out of search engines; it is not a visibility
+  # rule, so it must not hide it from someone who asked for the feed.
+  test 'includes noindex documents' do
     documents(:document_7).update!(noindex: true)
 
-    assert_not_includes FeedQuery.new(quarters: ['Barmbek-Nord']).relation, documents(:document_7)
+    assert_includes FeedQuery.new(quarters: ['Barmbek-Nord']).relation, documents(:document_7)
   end
 
   test 'excludes incomplete documents' do
