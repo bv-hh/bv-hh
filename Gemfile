@@ -79,6 +79,11 @@ gem 'mitie'
 # google-maps until that was removed; declare what we actually use.
 gem 'httpclient'
 
+# json 3 drops the create_additions keyword httpclient still passes and changes
+# the decoder arity ActiveSupport relies on, which breaks JSON columns. rubocop
+# used to hold the 2.x line for us; it no longer does, so pin it here.
+gem 'json', '~> 2.21'
+
 gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.2'
