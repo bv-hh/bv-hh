@@ -14,7 +14,7 @@ class AdminController < ApplicationController
   protected
 
   def cache_sql
-    <<-SQL.squish
+    <<~SQL.squish
       SELECT
         sum(heap_blks_read) as heap_read,
         sum(heap_blks_hit)  as heap_hit,
@@ -25,7 +25,7 @@ class AdminController < ApplicationController
   end
 
   def index_cache_sql
-    <<-SQL.squish
+    <<~SQL.squish
       SELECT
         sum(idx_blks_read) as idx_read,
         sum(idx_blks_hit)  as idx_hit,
@@ -36,7 +36,7 @@ class AdminController < ApplicationController
   end
 
   def indexes_sql
-    <<-SQL.squish
+    <<~SQL.squish
       SELECT
         relname,
         CASE WHEN (seq_scan + idx_scan) > 0  THEN 100 * idx_scan / (seq_scan + idx_scan) ELSE 0 END percent_of_times_index_used,
@@ -49,7 +49,7 @@ class AdminController < ApplicationController
   end
 
   def table_size_sql
-    <<-SQL.squish
+    <<~SQL.squish
       SELECT
         table_name,
         pg_table_size(table_name::text) AS table_size,

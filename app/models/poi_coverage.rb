@@ -148,10 +148,10 @@ class PoiCoverage
       index = Hash.new { |hash, key| hash[key] = { pinnable: false, generic: false } }
       Poi.where(transit: false).pluck(:normalized_name, :aliases, :district_number, :generic)
          .each do |name, aliases, number, generic|
-           [name, *aliases].each do |spelling|
-             entry = index[[spelling, number]]
-             generic ? entry[:generic] = true : entry[:pinnable] = true
-           end
+        [name, *aliases].each do |spelling|
+          entry = index[[spelling, number]]
+          generic ? entry[:generic] = true : entry[:pinnable] = true
+        end
       end
       index
     end

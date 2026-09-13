@@ -58,7 +58,7 @@ class FeedQuery
     else []
     end
 
-    values.select { |value| value.is_a?(String) }.filter_map { |value| value.strip.presence }.uniq.first(MAX_TERMS)
+    values.grep(String).filter_map { |value| value.strip.presence }.uniq.first(MAX_TERMS)
   end
 
   # district narrows; quarters and streets widen. "Hamburg-Nord plus Eppendorf"
