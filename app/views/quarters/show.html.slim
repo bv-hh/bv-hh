@@ -30,7 +30,9 @@
   .col-lg-7
     - if @documents.any?
       p.text-secondary
-        = "#{number_with_delimiter @documents.total_count} #{@documents.total_count == 1 ? 'Drucksache erwähnt' : 'Drucksachen erwähnen'} einen Ort in #{@quarter.name}."
+        / "betreffen" rather than "erwähnen einen Ort": a Drucksache can reach
+        / this page by naming the Stadtteil outright, with no place in it.
+        = "#{number_with_delimiter @documents.total_count} #{@documents.total_count == 1 ? 'Drucksache betrifft' : 'Drucksachen betreffen'} #{@quarter.name}."
 
       .row.border-bottom.font-weight-bold
         .col-3.col-lg-2.py-2 Drs.

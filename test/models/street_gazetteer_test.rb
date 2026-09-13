@@ -32,4 +32,22 @@ class StreetGazetteerTest < ActiveSupport::TestCase
     text = 'Testallee hier, Testallee dort.'
     assert_equal ['testallee'], StreetGazetteer.match(text)
   end
+
+  test 'matches the abbreviated Straße spelling and reports the register name' do
+    assert_equal ['testallee'], StreetGazetteer.match('Arbeiten in der Testallee')
+    assert_equal ['heilwigstraße'], StreetGazetteer.match('Arbeiten in der Heilwigstr. beginnen')
+  end
+
+  test 'matches ss where the register writes ß' do
+    assert_equal ['heilwigstraße'], StreetGazetteer.match('Anwohner der Heilwigstrasse')
+  end
+
+  test 'a variant never shadows a street that really carries that spelling' do
+    # Whatever the variants generate, every register name still matches itself.
+    Street.distinct.pluck(:normalized_name).first(50).each do |name|
+      next if name.length < StreetGazetteer::MIN_LENGTH
+
+      assert_includes StreetGazetteer.match(name), name
+    end
+  end
 end

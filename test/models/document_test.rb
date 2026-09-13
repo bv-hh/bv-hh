@@ -68,4 +68,46 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'Hamburg-Nord', json[:district]
     assert_includes json[:meetings].pluck(:title), meetings(:rega_ewi_oct).title
   end
+
+  test 'extractable_text includes attachment text, not just the body' do
+    document = documents(:document_7)
+    document.attachments.create!(district: document.district, name: 'Anlage',
+                                 content: '<p>Die Tannenstraße wird gesperrt.</p>')
+
+    assert_includes document.extractable_text, 'Tannenstraße'
+    assert_includes document.extractable_text, document.title
+  end
+
+  test 'extractable_text survives a document with no attachments' do
+    document = documents(:document_7)
+
+    assert_predicate document.attachments, :empty?
+    assert_includes document.extractable_text, document.title
+  end
+
+  test 'extracted_quarters picks Stadtteile out of the extracted names' do
+    document = documents(:document_7)
+    document.extracted_locations = %w[Heilwigstraße barmbek-nord Gibtsnicht]
+
+    assert_equal ['Barmbek-Nord'], document.extracted_quarters, 'canonicalised to the register spelling'
+  end
+
+  test 'extracted_quarters ignores the Stadtteil a local committee is named for' do
+    document = documents(:document_7)
+    document.extracted_locations = ['Barmbek-Nord']
+    # A local committee is identified by its name, and #area is derived from it.
+    committee = document.meetings.first.committee
+    committee.update!(name: 'Regionalausschuss Barmbek-Nord')
+
+    assert_equal 'Barmbek-Nord', committee.reload.area, 'precondition'
+
+    assert_empty document.extracted_quarters
+  end
+
+  test 'extracted_quarters is empty when nothing matches' do
+    document = documents(:document_7)
+    document.extracted_locations = ['Heilwigstraße']
+
+    assert_empty document.extracted_quarters
+  end
 end

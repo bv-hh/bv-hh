@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -199,6 +199,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
   end
 
+  create_table "blocked_location_names", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "district_count", default: 0, null: false
+    t.string "name", null: false
+    t.string "normalized_name", null: false
+    t.integer "occurrences", default: 0, null: false
+    t.string "source", default: "computed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["normalized_name"], name: "index_blocked_location_names_on_normalized_name", unique: true
+    t.index ["source"], name: "index_blocked_location_names_on_source"
+  end
+
   create_table "committees", force: :cascade do |t|
     t.integer "allris_id"
     t.string "allris_type", default: "au"
@@ -255,6 +267,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
     t.boolean "noindex", default: false, null: false
     t.boolean "non_public", default: false
     t.string "number"
+    t.string "quarters", default: [], null: false, array: true
     t.text "resolution"
     t.string "title"
     t.datetime "updated_at", null: false
@@ -265,6 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
     t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["number"], name: "index_documents_on_number"
+    t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end

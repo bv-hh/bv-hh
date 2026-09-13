@@ -21,6 +21,29 @@ class FeedQueryTest < ActiveSupport::TestCase
     assert_includes FeedQuery.new(quarters: ['Groß Borstel']).relation, documents(:document_7)
   end
 
+  test 'matches a document that names the Stadtteil outright, with no location' do
+    document = documents(:document_4)
+
+    assert_empty document.locations, 'precondition: nothing geocoded'
+    document.update!(quarters: ['Barmbek-Nord'])
+
+    assert_includes FeedQuery.new(quarters: ['Barmbek-Nord']).relation, document
+  end
+
+  test 'a direct mention and a location do not list the document twice' do
+    documents(:document_7).update!(quarters: ['Barmbek-Nord'])
+    found = FeedQuery.new(quarters: ['Barmbek-Nord']).relation.to_a
+
+    assert_equal 1, found.count(documents(:document_7))
+  end
+
+  test 'a street selection ignores direct Stadtteil mentions' do
+    document = documents(:document_4)
+    document.update!(quarters: ['Barmbek-Nord'])
+
+    assert_not_includes FeedQuery.new(streets: ['Heilwigstraße']).relation, document
+  end
+
   test 'matches documents mentioning the selected street by name' do
     assert_includes FeedQuery.new(streets: ['Heilwigstraße']).relation, documents(:document_7)
   end

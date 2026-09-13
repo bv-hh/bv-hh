@@ -33,4 +33,24 @@ namespace :quarters do
 
     puts "Checked #{total} locations, updated #{changed}, repaired coordinates for #{repaired}"
   end
+
+  # Fills documents.quarters from names already extracted, without re-running
+  # NER over the corpus. Use this when a full streets:reanalyze is not wanted;
+  # reanalysis recomputes the column anyway.
+  desc 'Backfill Stadtteil mentions onto existing documents'
+  task backfill_documents: :environment do
+    total = 0
+    changed = 0
+
+    Document.complete.find_each do |document|
+      total += 1
+      quarters = document.extracted_quarters
+      next if quarters.sort == document.quarters.sort
+
+      document.update_columns(quarters: quarters, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+      changed += 1
+    end
+
+    puts "Checked #{total} documents, updated #{changed}"
+  end
 end

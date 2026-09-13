@@ -128,20 +128,26 @@ class FeedQuery
     Street.where(normalized_name: keys).distinct.pluck(:normalized_name)
   end
 
+  # A Stadtteil reaches a document two ways: through a place inside it, or by
+  # being named in the text — the latter recorded on documents.quarters, since a
+  # Stadtteil is an area and has no point to geocode. A street only ever
+  # reaches one through a place.
   def match_condition
-    conditions = []
     binds = {}
+    binds[:street_names] = street_names if street_names.any?
+    binds[:quarters] = quarters if quarters.any?
 
-    if street_names.any?
-      conditions << 'l.street_name IN (:street_names)'
-      binds[:street_names] = street_names
+    clauses = []
+    clauses << 'documents.quarters && ARRAY[:quarters]::varchar[]' if quarters.any?
+    clauses << format(MATCH, conditions: location_conditions.join(' OR ')) if location_conditions.any?
+
+    [clauses.join(' OR '), binds]
+  end
+
+  def location_conditions
+    @location_conditions ||= [].tap do |conditions|
+      conditions << 'l.street_name IN (:street_names)' if street_names.any?
+      conditions << 'l.quarters && ARRAY[:quarters]::varchar[]' if quarters.any?
     end
-
-    if quarters.any?
-      conditions << 'l.quarters && ARRAY[:quarters]::varchar[]'
-      binds[:quarters] = quarters
-    end
-
-    [format(MATCH, conditions: conditions.join(' OR ')), binds]
   end
 end
