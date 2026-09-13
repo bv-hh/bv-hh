@@ -4,8 +4,8 @@
 h1.my-3 Individueller RSS-Feed
 
 p
-  | Wählen Sie Stadtteile und/oder Straßen aus. Daraus entsteht eine individueller RSS-Feed, den Sie
-  | in einem RSS-Reader abonnieren können. Sobald eine neue Drucksache zu einem Ort in Ihrer Auswahl
+  ' Wählen Sie Stadtteile und/oder Straßen aus. Daraus entsteht eine individueller RSS-Feed, den Sie
+  ' in einem RSS-Reader abonnieren können. Sobald eine neue Drucksache zu einem Ort in Ihrer Auswahl
     veröffentlicht wird, erscheint sie im Feed.
 
 p.text-secondary
@@ -49,7 +49,8 @@ p.text-secondary
     .col-lg-5
       h2.h5.mt-4 Straßen
       p.text-secondary.small
-        | Eine Straße wird berücksichtigt, sobald Sie erwähnt wird. Bei sehr langen Straßen kann dies ungenau sein.
+        ' Eine Straße wird berücksichtigt, sobald Sie erwähnt wird. Bei sehr langen Straßen kann
+        ' dies ungenau sein bzw. Stadtteil und Bezirksgrenzen überschreiten.
 
       .mb-2
         = text_field_tag :street_search, nil, class: 'form-control', autocomplete: 'off', name: nil,
@@ -94,11 +95,13 @@ p.text-secondary
       h2.h5.mt-4 Aktuell im Feed
       .list-group.mt-2
         - @documents.first(10).each do |document|
-          / target _top: a Drucksache is a whole new page, not a frame update.
-          = link_to document_path(document, district: document.district), target: '_top',
-              class: 'list-group-item list-group-item-action' do
-            strong= document.number
-            '
-            = document.title
+          / The link wraps only the number and title, so they get the default
+          / link colour rather than list-group-item-action's muted text.
+          .list-group-item
+            / target _top: a Drucksache is a whole new page, not a frame update.
+            = link_to document_path(document, district: document.district), target: '_top' do
+              strong= document.number
+              '
+              = document.title
             br
             span.text-secondary.small= document.kind
