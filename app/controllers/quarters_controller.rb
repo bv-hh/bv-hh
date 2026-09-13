@@ -56,7 +56,7 @@ class QuartersController < ApplicationController
   end
 
   def page_documents
-    @page_documents ||= @query.relation(limit: nil, order: :number).page(params[:page]).per(PER_PAGE)
+    @page_documents ||= @query.relation(limit: nil, order: :created_at).page(params[:page]).per(PER_PAGE)
   end
 
   # A Quarter belongs to exactly one district, so there is exactly one correct
@@ -71,8 +71,10 @@ class QuartersController < ApplicationController
   def show_html
     @title = "Drucksachen zu #{@quarter.name} — Bezirkspolitik in Hamburg"
     @meta_description = "Aktuelle Drucksachen der Bezirksversammlung, die Orte in #{@quarter.name} erwähnen."
-    # latest_first (document number) rather than created_at, to match every
-    # other listing in the app; the feed keeps created_at.
+    # created_at rather than document number. A Stadtteil collects documents from
+    # every district that mentions a place in it, and numbers only run in
+    # sequence within one district, so there is nothing to compare across them.
+    # Same order as the feed.
     @documents = page_documents.preload(:district, meetings: :committee)
   end
 end

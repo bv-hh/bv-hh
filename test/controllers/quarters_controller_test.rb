@@ -14,6 +14,19 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, documents(:document_7).number
   end
 
+  # document_227 carries the lower number, so ordering by number would put it
+  # last. Ordering by created_at has to put it first.
+  test 'GET show orders the documents by created_at, latest first' do
+    Document.where(id: documents(:document_7)).update_all(created_at: 3.days.ago)
+    Document.where(id: documents(:document_227)).update_all(created_at: 1.hour.ago)
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_response :success
+    assert_operator @response.body.index(documents(:document_227).number), :<,
+                    @response.body.index(documents(:document_7).number)
+  end
+
   test 'GET show redirects a Quarter requested under the wrong district' do
     get '/altona/barmbek-nord'
 
