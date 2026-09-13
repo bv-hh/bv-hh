@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -527,6 +527,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_120000) do
     t.datetime "updated_at", null: false
     t.index ["district_numbers"], name: "index_streets_on_district_numbers", using: :gin
     t.index ["normalized_name"], name: "index_streets_on_normalized_name"
+    t.index ["normalized_name"], name: "index_streets_on_normalized_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["quarter_keys"], name: "index_streets_on_quarter_keys", using: :gin
     t.index ["quarters"], name: "index_streets_on_quarters", using: :gin
     t.index ["street_key"], name: "index_streets_on_street_key"

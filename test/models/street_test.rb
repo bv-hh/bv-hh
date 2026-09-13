@@ -91,4 +91,59 @@ class StreetTest < ActiveSupport::TestCase
     street.quarter = nil
     assert_equal 'Testallee', street.formatted_address
   end
+  test 'for resolves a spelling variant to the register name' do
+    StreetGazetteer.reset!
+    assert_equal [streets(:heilwigstrasse)], Street.for('Heilwigstrasse', districts(:hamburg_nord)).to_a
+    assert_equal [streets(:heilwigstrasse)], Street.for('Heilwigstr.', districts(:hamburg_nord)).to_a
+  ensure
+    StreetGazetteer.reset!
+  end
+
+  test 'canonical_name falls back to the plain normalization for an unknown name' do
+    assert_equal 'kein solcher weg', Street.canonical_name('Kein solcher Weg')
+  end
+
+  # A spelling variant is not a fuzzy case: "heilwigstrasse" scores only 0.61
+  # against the register spelling, well under the floor. Street.for resolves
+  # those exactly, and fuzzy_for is left with genuine OCR damage.
+  test 'fuzzy_for corrects OCR damage within the district' do
+    assert_equal [streets(:julius_vosseler)], Street.fuzzy_for('Julius-Vossler-Straße', districts(:hamburg_nord)).to_a
+    assert_equal [streets(:testallee)], Street.fuzzy_for('Testalee', districts(:hamburg_nord)).to_a
+  end
+
+  test 'fuzzy_for leaves spelling variants to the exact path' do
+    assert_empty Street.fuzzy_for('Heilwigstrasse', districts(:hamburg_nord))
+  end
+
+  test 'fuzzy_for refuses names too short to be distinctive' do
+    assert_empty Street.fuzzy_for('Weitwg', districts(:hamburg_nord))
+  end
+
+  test 'fuzzy_for never answers with a street of another district' do
+    assert_empty Street.fuzzy_for('Weitwegs', districts(:hamburg_nord)),
+                 'streets(:weitweg) is in Wandsbek and must stay unreachable from Hamburg-Nord'
+  end
+
+  # Two candidates the same distance away are not a near miss, they are a
+  # coin flip. Refusing is the whole reason this can be trusted where Google
+  # could not.
+  test 'fuzzy_for refuses to choose between two equally close names' do
+    %w[Testhausstraße Testmausstraße].each do |name|
+      Street.create!(name: name, latitude: 53.58, longitude: 10.0, district_numbers: [4])
+    end
+    StreetGazetteer.reset!
+
+    assert_empty Street.fuzzy_for('Testkausstraße', districts(:hamburg_nord))
+  ensure
+    StreetGazetteer.reset!
+  end
+
+  test 'fuzzy_for finds nothing for a name that resembles nothing' do
+    assert_empty Street.fuzzy_for('Sommermonaten', districts(:hamburg_nord))
+  end
+
+  test 'fuzzy_for takes a floor, so the threshold can be measured' do
+    assert_empty Street.fuzzy_for('Testalee', districts(:hamburg_nord), floor: 0.99)
+    assert_equal [streets(:testallee)], Street.fuzzy_for('Testalee', districts(:hamburg_nord), floor: 0.5).to_a
+  end
 end

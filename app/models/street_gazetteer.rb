@@ -40,6 +40,14 @@ class StreetGazetteer
       names.uniq
     end
 
+    # The register's own spelling for a normalized name, or nil when the
+    # register has never heard of it in any spelling. Street.for resolves
+    # through this so that a name extracted as "Krausestrasse" reaches the
+    # register's "Krausestraße" at assignment time, not only at extraction.
+    def canonical(name)
+      index[name]
+    end
+
     # Drops the memoized index; call after (re)importing streets.
     def reset!
       @index = nil
