@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -260,7 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
     t.datetime "updated_at", null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
-    t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL) AND (noindex = false))"
+    t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
     t.index ["district_id"], name: "index_documents_on_district_id"
     t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
@@ -445,9 +445,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
   end
 
   create_table "quarters", force: :cascade do |t|
-    t.integer "bezirk"
-    t.string "bezirk_name"
     t.datetime "created_at", null: false
+    t.string "district_name"
+    t.integer "district_number"
     t.jsonb "geometry", null: false
     t.string "key", null: false
     t.float "max_lat"
@@ -458,7 +458,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
     t.string "number"
     t.string "slug", null: false
     t.datetime "updated_at", null: false
-    t.index ["bezirk"], name: "index_quarters_on_bezirk"
+    t.index ["district_number"], name: "index_quarters_on_district_number"
     t.index ["key"], name: "index_quarters_on_key", unique: true
     t.index ["name"], name: "index_quarters_on_name"
     t.index ["slug"], name: "index_quarters_on_slug", unique: true
@@ -476,8 +476,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
   end
 
   create_table "streets", force: :cascade do |t|
-    t.integer "bezirke", default: [], null: false, array: true
     t.datetime "created_at", null: false
+    t.integer "district_numbers", default: [], null: false, array: true
     t.float "latitude"
     t.float "longitude"
     t.string "name", null: false
@@ -488,7 +488,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_190001) do
     t.string "quarters", default: [], null: false, array: true
     t.string "street_key"
     t.datetime "updated_at", null: false
-    t.index ["bezirke"], name: "index_streets_on_bezirke", using: :gin
+    t.index ["district_numbers"], name: "index_streets_on_district_numbers", using: :gin
     t.index ["normalized_name"], name: "index_streets_on_normalized_name"
     t.index ["quarter_keys"], name: "index_streets_on_quarter_keys", using: :gin
     t.index ["quarters"], name: "index_streets_on_quarters", using: :gin

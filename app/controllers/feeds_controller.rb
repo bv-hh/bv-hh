@@ -42,21 +42,21 @@ class FeedsController < ApplicationController
     @quarters = quarters_by_district
   end
 
-  # [label, quarters] pairs, grouped by Bezirk and ordered by District#order
-  # so the list matches the Bezirk order used everywhere else in the app.
-  # Grouping on the register's Bezirk number rather than its name, because the
+  # [label, quarters] pairs, grouped by district and ordered by District#order
+  # so the list matches the district order used everywhere else in the app.
+  # Grouping on the register's district number rather than its name, because the
   # name is only a label and nothing joins on it.
   def quarters_by_district
-    grouped = Quarter.by_name.group_by(&:bezirk)
+    grouped = Quarter.by_name.group_by(&:district_number)
 
     ordered = District.by_order.filter_map do |district|
-      quarters = grouped.delete(district.bezirk_number)
+      quarters = grouped.delete(district.number)
       [district.name, quarters] if quarters.present?
     end
 
-    # Anything whose Bezirk has no District record still filters correctly, so
+    # Anything whose district has no District record still filters correctly, so
     # keep it rather than silently dropping the option.
-    ordered + grouped.values.map { |quarters| [quarters.first.bezirk_name, quarters] }
+    ordered + grouped.values.map { |quarters| [quarters.first.district_name, quarters] }
   end
 
   def show_rss

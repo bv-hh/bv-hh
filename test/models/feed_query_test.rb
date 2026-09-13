@@ -184,10 +184,12 @@ class FeedQueryTest < ActiveSupport::TestCase
 
   test 'a district narrows a place selection rather than widening it' do
     district = districts(:hamburg_nord)
-    with_district = FeedQuery.new(district: district, quarters: ['Barmbek-Nord']).relation.to_a
-    without = FeedQuery.new(quarters: ['Barmbek-Nord']).relation.to_a
+    with_district = FeedQuery.new(district: district, quarters: ['Barmbek-Nord']).relation.map(&:id)
+    without = FeedQuery.new(quarters: ['Barmbek-Nord']).relation.map(&:id)
 
-    assert_equal without, with_district, 'Barmbek-Nord is entirely inside Hamburg-Nord'
+    # Compared as sets: the fixtures share a created_at, so the feed ordering
+    # has no tiebreak between them.
+    assert_equal without.sort, with_district.sort, 'Barmbek-Nord is entirely inside Hamburg-Nord'
     assert_operator with_district.size, :<, FeedQuery.new(district: district).relation(limit: nil).count
   end
 

@@ -12,7 +12,7 @@ class QuartersController < ApplicationController
   def show
     @quarter = Quarter.lookup(params[:quarter])
     # Without a District there is no canonical URL to redirect to, so a
-    # Quarter in a Bezirk that has not been onboarded is simply not a page.
+    # Quarter in a district that has not been onboarded is simply not a page.
     raise ActiveRecord::RecordNotFound if @quarter.blank? || @quarter.district.blank?
 
     redirect_to(canonical_path, status: :moved_permanently) and return unless request.path == canonical_path
@@ -61,7 +61,7 @@ class QuartersController < ApplicationController
     @page_documents ||= @query.relation(limit: nil, order: :number).page(params[:page]).per(PER_PAGE)
   end
 
-  # A Quarter belongs to exactly one Bezirk, so there is exactly one correct
+  # A Quarter belongs to exactly one district, so there is exactly one correct
   # URL for it — /altona/langenhorn redirects to /hamburg-nord/langenhorn.
   def canonical_path
     # Keep whatever format was asked for, or the redirect would bounce

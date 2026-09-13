@@ -2,27 +2,27 @@
 #
 # Table name: quarters
 #
-#  id          :integer          not null, primary key
-#  name        :string           not null
-#  slug        :string           not null
-#  key         :string           not null
-#  number      :string
-#  bezirk      :integer
-#  bezirk_name :string
-#  geometry    :jsonb            not null
-#  min_lat     :float
-#  max_lat     :float
-#  min_lng     :float
-#  max_lng     :float
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  slug            :string           not null
+#  key             :string           not null
+#  number          :string
+#  district_number :integer
+#  district_name   :string
+#  geometry        :jsonb            not null
+#  min_lat         :float
+#  max_lat         :float
+#  min_lng         :float
+#  max_lng         :float
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
 # Indexes
 #
-#  index_quarters_on_bezirk  (bezirk)
-#  index_quarters_on_key     (key) UNIQUE
-#  index_quarters_on_name    (name)
-#  index_quarters_on_slug    (slug) UNIQUE
+#  index_quarters_on_district_number  (district_number)
+#  index_quarters_on_key              (key) UNIQUE
+#  index_quarters_on_name             (name)
+#  index_quarters_on_slug             (slug) UNIQUE
 #
 
 # Boxes, not real boundaries — but deliberately placed around the coordinates in
@@ -43,8 +43,8 @@ barmbek_nord:
   slug: barmbek-nord
   key: "02401"
   number: "401"
-  bezirk: 4
-  bezirk_name: Hamburg-Nord
+  district_number: 4
+  district_name: Hamburg-Nord
   min_lng: 9.95
   max_lng: 10.05
   min_lat: 53.55
@@ -61,8 +61,8 @@ lokstedt:
   slug: lokstedt
   key: "02301"
   number: "301"
-  bezirk: 3
-  bezirk_name: Eimsbüttel
+  district_number: 3
+  district_name: Eimsbüttel
   min_lng: 9.70
   max_lng: 9.80
   min_lat: 53.55
@@ -81,8 +81,8 @@ gross_borstel:
   slug: gross-borstel
   key: "02406"
   number: "406"
-  bezirk: 4
-  bezirk_name: Hamburg-Nord
+  district_number: 4
+  district_name: Hamburg-Nord
   min_lng: 9.96
   max_lng: 10.00
   min_lat: 53.62
@@ -100,8 +100,8 @@ duvenstedt:
   slug: duvenstedt
   key: "02501"
   number: "501"
-  bezirk: 5
-  bezirk_name: Wandsbek
+  district_number: 5
+  district_name: Wandsbek
   min_lng: 10.00
   max_lng: 10.10
   min_lat: 53.66
@@ -125,8 +125,8 @@ ohlsdorf:
   slug: ohlsdorf
   key: "02409"
   number: "409"
-  bezirk: 4
-  bezirk_name: Hamburg-Nord
+  district_number: 4
+  district_name: Hamburg-Nord
   min_lng: 10.20
   max_lng: 10.30
   min_lat: 53.80

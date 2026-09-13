@@ -79,7 +79,7 @@ class StreetImporter
         quarter_keys: quarter_keys(ortsteilnamen),
         postal_code: text_at(node, './postleitzahl'),
         street_key: keys.first,
-        bezirke: bezirke(keys),
+        district_numbers: district_numbers(keys),
       }
     end
   end
@@ -95,9 +95,9 @@ class StreetImporter
   end
 
   # A strassenschluessel is "Land;Bezirk;Ortsteil;..." — the second field is the
-  # official Hamburg Bezirk number. A street has one key per segment, so a
-  # street spanning several districts yields several distinct Bezirk numbers.
-  def bezirke(keys)
+  # official Hamburg district number. A street has one key per segment, so a
+  # street spanning several districts yields several distinct numbers.
+  def district_numbers(keys)
     keys.filter_map { |key| key.split(';')[1]&.to_i }.uniq.sort
   end
 

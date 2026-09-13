@@ -4,27 +4,27 @@
 #
 # Table name: quarters
 #
-#  id          :integer          not null, primary key
-#  name        :string           not null
-#  slug        :string           not null
-#  key         :string           not null
-#  number      :string
-#  bezirk      :integer
-#  bezirk_name :string
-#  geometry    :jsonb            not null
-#  min_lat     :float
-#  max_lat     :float
-#  min_lng     :float
-#  max_lng     :float
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  slug            :string           not null
+#  key             :string           not null
+#  number          :string
+#  district_number :integer
+#  district_name   :string
+#  geometry        :jsonb            not null
+#  min_lat         :float
+#  max_lat         :float
+#  min_lng         :float
+#  max_lng         :float
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
 # Indexes
 #
-#  index_quarters_on_bezirk  (bezirk)
-#  index_quarters_on_key     (key) UNIQUE
-#  index_quarters_on_name    (name)
-#  index_quarters_on_slug    (slug) UNIQUE
+#  index_quarters_on_district_number  (district_number)
+#  index_quarters_on_key              (key) UNIQUE
+#  index_quarters_on_name             (name)
+#  index_quarters_on_slug             (slug) UNIQUE
 #
 
 # One of the 104 official Hamburg Quarters, imported from the "ALKIS
@@ -32,7 +32,7 @@
 # coordinates (EPSG:4326, lon/lat pairs) so a Location can be assigned to the
 # Quarters it falls into without PostGIS — see QuarterImporter.
 #
-# A Quarter belongs to exactly one Bezirk, which is what makes
+# A Quarter belongs to exactly one district, which is what makes
 # /hamburg-nord/langenhorn a canonical URL.
 class Quarter < ApplicationRecord
   self.table_name = 'quarters'
@@ -43,7 +43,7 @@ class Quarter < ApplicationRecord
   validates :geometry, presence: true
 
   scope :by_name, -> { order(:name) }
-  scope :in_bezirk, ->(number) { where(bezirk: number) }
+  scope :in_district, ->(number) { where(district_number: number) }
 
   class << self
     # Names of every Quarter containing the point. Normally one; two on a
@@ -53,7 +53,7 @@ class Quarter < ApplicationRecord
     end
 
     # The records behind +covering+, for callers that need more than the name —
-    # District#contains? asks them which Bezirk the point is in.
+    # District#contains? asks them which district the point is in.
     def covering_quarters(latitude, longitude)
       return [] if latitude.blank? || longitude.blank?
 
@@ -103,11 +103,11 @@ class Quarter < ApplicationRecord
     slug
   end
 
-  # The Bezirk this Quarter belongs to, as a District record.
+  # The district this Quarter belongs to, as a District record.
   def district
-    return nil if bezirk.blank?
+    return nil if district_number.blank?
 
-    District.by_bezirk_number(bezirk)
+    District.by_number(district_number)
   end
 
   def contains?(latitude, longitude)

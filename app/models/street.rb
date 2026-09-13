@@ -14,13 +14,13 @@
 #  quarter_keys       :string           default([]), not null, is an Array
 #  postal_code     :string
 #  street_key      :string
-#  bezirke         :integer          default([]), not null, is an Array
+#  district_numbers         :integer          default([]), not null, is an Array
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #
 # Indexes
 #
-#  index_streets_on_bezirke          (bezirke) USING gin
+#  index_streets_on_bezirke          (district_numbers) USING gin
 #  index_streets_on_normalized_name  (normalized_name)
 #  index_streets_on_ortsteile        (quarter_keys) USING gin
 #  index_streets_on_quarters       (quarters) USING gin
@@ -38,15 +38,15 @@ class Street < ApplicationRecord
   before_validation :normalize_name
 
   # Streets matching +name+ that belong to the district, per the register's own
-  # Bezirk assignment (streets.bezirke). A street name can occur in several
-  # districts, and long streets span multiple Bezirke, so this authoritative
+  # district assignment (streets.district_numbers). A street name can occur in several
+  # districts, and long streets span multiple districts, so this authoritative
   # membership check replaces any bounding-box heuristic. Returns [] for
-  # districts without a known Bezirk number.
+  # districts without a known number.
   def self.for(name, district)
-    number = district.bezirk_number
+    number = district.number
     return none if number.blank?
 
-    where(normalized_name: normalize(name)).where('bezirke @> ARRAY[?]::integer[]', number)
+    where(normalized_name: normalize(name)).where('district_numbers @> ARRAY[?]::integer[]', number)
   end
 
   # Streets touching a given Quarter. A long street belongs to every

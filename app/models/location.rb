@@ -103,7 +103,7 @@ class Location < ApplicationRecord
   # The street register wins over the polygons wherever both apply: a street's
   # registered Quarter list covers the whole street, whereas its single
   # representative point would land in only one of the Quarters it crosses.
-  # Street rows are looked up across ALL Bezirke on purpose — Location.normalized
+  # Street rows are looked up across ALL districts on purpose — Location.normalized
   # has no district filter, so one row is shared by every district that mentions
   # the name, and narrowing here would silently lose the others' documents.
   def self.place_attributes(name, latitude, longitude)
@@ -136,8 +136,8 @@ class Location < ApplicationRecord
   # everything.
   #
   # Only the Google fallback is gated by this. A street legitimately crossing a
-  # Bezirk boundary comes from the gazetteer, which matches on the register's
-  # own multi-Bezirk street keys and never reaches here.
+  # district boundary comes from the gazetteer, which matches on the register's
+  # own multi-district street keys and never reaches here.
   def self.outside_district?(latitude, longitude, district)
     return out_of_bounds?(latitude, longitude, district.bounds) unless Quarter.boundaries?
 
@@ -164,8 +164,8 @@ class Location < ApplicationRecord
   #
   # Deliberately narrow: only points that lie outside every Quarter are
   # touched, and only when the register match is within the same district. A
-  # street name recurring across Bezirke must not drag a correct location to a
-  # different Bezirk's street of the same name.
+  # street name recurring across districts must not drag a correct location to a
+  # different district's street of the same name.
   # Returns the repaired location, or nil when there was nothing to repair.
   def repair_coordinates!
     return nil if latitude.blank? || longitude.blank?

@@ -17,7 +17,7 @@ class DistrictsController < ApplicationController
 
     @title = "Übersicht zur Bezirkspolitik in #{@district.name}: Bezirksversammlung, Gremien, Drucksachen und Termine"
 
-    @quarters = Quarter.in_bezirk(@district.bezirk_number).by_name
+    @quarters = Quarter.in_district(@district.number).by_name
     @documents = @district.documents.complete.latest_first.limit(10)
     @meetings = @district.meetings.complete.recent.latest_first.limit(10)
   end

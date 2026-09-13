@@ -77,8 +77,8 @@ class QuarterImporter
       slug: name.parameterize,
       key: properties['stadtteil_schluessel'].to_s.squish,
       number: properties['stadtteil_nummer'].to_s.squish.presence,
-      bezirk: properties['bezirk'].presence&.to_i,
-      bezirk_name: properties['bezirk_name'].to_s.squish.presence,
+      district_number: properties['bezirk'].presence&.to_i,
+      district_name: properties['bezirk_name'].to_s.squish.presence,
       geometry: polygons,
     }.merge(bounding_box(polygons))
   end

@@ -4,27 +4,27 @@
 #
 # Table name: quarters
 #
-#  id          :integer          not null, primary key
-#  name        :string           not null
-#  slug        :string           not null
-#  key         :string           not null
-#  number      :string
-#  bezirk      :integer
-#  bezirk_name :string
-#  geometry    :jsonb            not null
-#  min_lat     :float
-#  max_lat     :float
-#  min_lng     :float
-#  max_lng     :float
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  slug            :string           not null
+#  key             :string           not null
+#  number          :string
+#  district_number :integer
+#  district_name   :string
+#  geometry        :jsonb            not null
+#  min_lat         :float
+#  max_lat         :float
+#  min_lng         :float
+#  max_lng         :float
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
 # Indexes
 #
-#  index_quarters_on_bezirk  (bezirk)
-#  index_quarters_on_key     (key) UNIQUE
-#  index_quarters_on_name    (name)
-#  index_quarters_on_slug    (slug) UNIQUE
+#  index_quarters_on_district_number  (district_number)
+#  index_quarters_on_key              (key) UNIQUE
+#  index_quarters_on_name             (name)
+#  index_quarters_on_slug             (slug) UNIQUE
 #
 
 require 'test_helper'

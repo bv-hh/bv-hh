@@ -11,8 +11,8 @@
 # with:
 #
 #   street    — "whenever this street is mentioned, whatever the actual street
-#               boundaries are": a pure name match, ignoring geometry and Bezirk,
-#               so a name occurring in two Bezirke matches both.
+#               boundaries are": a pure name match, ignoring geometry and
+#               district, so a name occurring in two districts matches both.
 #   Quarter — "everything mentioning a location within this Quarter,
 #               including partial streets": a street crossing three Quarters
 #               matches all three, which is what locations.quarters stores.
@@ -78,7 +78,7 @@ class FeedQuery
   end
 
   # Whether a place filter was given at all. A district on its own needs no
-  # locations: it is simply every Drucksache of that Bezirk.
+  # locations: it is simply every Drucksache of that district.
   def places?
     quarters.any? || street_names.any?
   end

@@ -20,12 +20,12 @@ class StreetImporterTest < ActiveSupport::TestCase
     assert_equal ['0401'], testallee[:quarter_keys]
     assert_equal '22305', testallee[:postal_code]
     assert_equal '02;4;01;401;0401;T0010', testallee[:street_key]
-    assert_equal [4], testallee[:bezirke]
+    assert_equal [4], testallee[:district_numbers]
   end
 
   test 'parse collects distinct Bezirk numbers for a cross-district street' do
     julius = @rows.find { |row| row[:name] == 'Julius-Vosseler-Straße' }
-    assert_equal [3, 4], julius[:bezirke]
+    assert_equal [3, 4], julius[:district_numbers]
   end
 
   test 'parse collects every Quarter a street crosses' do

@@ -37,11 +37,11 @@ testallee:
   quarter_keys: ["0401"]
   postal_code: "22305"
   street_key: "02;4;01;401;0401;T0010"
-  bezirke: [4]
+  district_numbers: [4]
 
 # Cross-district street (Eimsbüttel + Hamburg-Nord). Its representative point
 # sits in Eimsbüttel, OUTSIDE the Hamburg-Nord bounding box, yet it must still
-# match Hamburg-Nord because Bezirk 4 is among its bezirke.
+# match Hamburg-Nord because Bezirk 4 is among its district_numbers.
 julius_vosseler:
   name: Julius-Vosseler-Straße
   normalized_name: julius vosseler straße
@@ -52,7 +52,7 @@ julius_vosseler:
   quarter_keys: ["0305", "0406"]
   postal_code: "22527"
   street_key: "02;3;05;305;0305;J0020"
-  bezirke: [3, 4]
+  district_numbers: [3, 4]
 
 # Street in another district (Wandsbek); must not match Hamburg-Nord.
 weitweg:
@@ -65,7 +65,7 @@ weitweg:
   quarter_keys: ["0525"]
   postal_code: "22397"
   street_key: "02;5;17;525;0525;W0030"
-  bezirke: [5]
+  district_numbers: [5]
 
 # Backs locations(:heilwigstrasse): the feed validates every submitted street
 # name against the gazetteer, so a location whose street is absent here would be
@@ -80,5 +80,5 @@ heilwigstrasse:
   quarter_keys: ["0401"]
   postal_code: "20249"
   street_key: "02;4;01;401;0401;H0010"
-  bezirke: [4]
+  district_numbers: [4]
 

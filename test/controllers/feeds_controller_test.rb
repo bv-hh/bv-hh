@@ -39,7 +39,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   test 'GET show puts each Bezirk in its own accordion panel' do
     get feed_path
 
-    assert_equal Quarter.distinct.count(:bezirk), @response.body.scan('accordion-item').size
+    assert_equal Quarter.distinct.count(:district_number), @response.body.scan('accordion-item').size
     assert_includes @response.body, 'id="quarters-panel-hamburg-nord"'
   end
 

@@ -15,8 +15,8 @@ class QuarterImporterTest < ActiveSupport::TestCase
     assert_equal 'teststadtteil', test_quarter[:slug]
     assert_equal '02401', test_quarter[:key]
     assert_equal '401', test_quarter[:number]
-    assert_equal 4, test_quarter[:bezirk]
-    assert_equal 'Hamburg-Nord', test_quarter[:bezirk_name]
+    assert_equal 4, test_quarter[:district_number]
+    assert_equal 'Hamburg-Nord', test_quarter[:district_name]
   end
 
   test 'parse normalizes a Polygon to the MultiPolygon shape' do
