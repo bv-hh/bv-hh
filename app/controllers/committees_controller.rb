@@ -7,7 +7,7 @@ class CommitteesController < ApplicationController
   end
 
   def show
-    @committee = @district.committees.find(params[:id])
+    @committee = @district.committees.find(params.expect(:id))
     @timeline_series = committee_timeline_series(@committee)
     @recent_averages = @committee.recent_averages
     @meetings = @committee.meetings.with_agenda.latest_first.to_a
