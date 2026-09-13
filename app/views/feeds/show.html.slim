@@ -1,0 +1,108 @@
+- content_for :head do
+  = auto_discovery_link_tag :rss, feed_url(format: :rss, **feed_link_params(@query)), title: feed_title(@query)
+
+h1.my-3 Individueller RSS-Feed
+
+p
+  ' Wählen Sie Stadtteile und/oder Straßen aus. Daraus entsteht eine individueller RSS-Feed, den Sie
+  ' in einem RSS-Reader abonnieren können. Sobald eine neue Drucksache zu einem Ort in Ihrer Auswahl
+    veröffentlicht wird, erscheint sie im Feed.
+
+p.text-secondary
+  span.badge.text-bg-warning> Beta
+  span.small Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass Orte/Drucksachen nicht korrekt zugeordnet werden.
+
+
+/ Submits into the results frame below, so picking Stadtteile re-queries without
+/ reloading the page — and without rebuilding the 104 checkboxes or clobbering
+/ the street chips, which live outside the frame.
+= form_tag feed_path, method: :get, data: { controller: 'feed-streets', turbo_frame: 'feed_results', 'feed-streets-suggest-url-value': suggest_streets_path(q: 'QUERY') } do
+  .row
+    .col-lg-7
+      h2.h5.mt-4 Stadtteile
+
+      / No data-bs-parent, so several Bezirke can stay open at once — a feed
+      / spanning two Bezirke is a normal thing to want. A panel starts open when
+      / it holds a selection, so a submitted feed reopens where you left it, and
+      / the badge keeps the count visible while the panel is closed.
+      .accordion#quarters-accordion
+        - @quarters.each do |bezirk_name, quarters|
+          - slug = bezirk_name.parameterize
+          - selected = quarters.count { |quarter| @query.quarters.include?(quarter.name) }
+          - panel_id = "quarters-panel-#{slug}"
+          - heading_id = "quarters-heading-#{slug}"
+          .accordion-item
+            h3.accordion-header id=heading_id
+              button.accordion-button class=(selected.zero? ? 'collapsed' : nil) type='button' data-bs-toggle='collapse' data-bs-target="##{panel_id}" aria-expanded=selected.positive?.to_s aria-controls=panel_id
+                span= bezirk_name
+                - if selected.positive?
+                  span.badge.bg-primary.ms-2= selected
+            div id=panel_id class=['accordion-collapse', 'collapse', ('show' if selected.positive?)] aria-labelledby=heading_id
+              .accordion-body.py-2
+                .row
+                  - quarters.each do |quarter|
+                    .col-6.col-md-4
+                      .form-check
+                        = check_box_tag 'quarters[]', quarter.name, @query.quarters.include?(quarter.name),
+                            id: "quarter-#{quarter.slug}", class: 'form-check-input'
+                        = label_tag "quarter-#{quarter.slug}", quarter.name, class: 'form-check-label'
+
+    .col-lg-5
+      h2.h5.mt-4 Straßen
+      p.text-secondary.small
+        ' Eine Straße wird berücksichtigt, sobald Sie erwähnt wird. Bei sehr langen Straßen kann
+        ' dies ungenau sein bzw. Stadtteil und Bezirksgrenzen überschreiten.
+
+      .mb-2
+        = text_field_tag :street_search, nil, class: 'form-control', autocomplete: 'off', name: nil,
+            placeholder: 'Straße suchen …',
+            data: { 'feed-streets-target': 'input', action: 'input->feed-streets#search keydown->feed-streets#keydown' }
+        .list-group.position-absolute.w-auto.shadow.d-none data-feed-streets-target="suggestions"
+
+      .d-flex.flex-wrap.gap-2.mt-2 data-feed-streets-target="chips"
+        - @query.street_display_names.each do |name|
+          span.badge.bg-secondary.d-inline-flex.align-items-center.gap-2 data-street-name=name
+            span= name
+            = hidden_field_tag 'streets[]', name, id: nil
+            button.btn-close.btn-close-white type="button" aria-label="Entfernen" data-action="feed-streets#remove"
+
+  .mt-4
+    = submit_tag 'Feed erstellen', class: 'btn btn-primary', name: nil
+
+/ turbo_action advance keeps the address bar in step with the frame, so the
+/ configured page stays bookmarkable, shareable and reloadable.
+= turbo_frame_tag 'feed_results', data: { turbo_action: 'advance' } do
+  - if @query.empty?
+    .alert.alert-secondary.mt-4
+      | Noch nichts ausgewählt. Wählen Sie oben mindestens einen Stadtteil oder eine Straße.
+  - else
+    .card.mt-4
+      .card-body
+        h2.h5.card-title Ihre Feed-Adresse
+        p.card-text.text-secondary.small= @query.description
+
+        .input-group
+          = text_field_tag :feed_url, feed_url(format: :rss, **feed_link_params(@query)),
+              class: 'form-control', readonly: true, id: 'feed-url'
+          = link_to 'Öffnen', feed_url(format: :rss, **feed_link_params(@query)),
+              class: 'btn btn-outline-secondary', target: '_top'
+
+        p.mt-3.mb-0
+          = "#{@documents.size} #{@documents.size == 1 ? 'Drucksache' : 'Drucksachen'} im aktuellen Feed."
+          - if @documents.size == FeedQuery::MAX_ITEMS
+            = " Mehr als #{FeedQuery::MAX_ITEMS} Treffer werden nicht ausgeliefert."
+
+    - if @documents.any?
+      h2.h5.mt-4 Aktuell im Feed
+      .list-group.mt-2
+        - @documents.first(10).each do |document|
+          / The link wraps only the number and title, so they get the default
+          / link colour rather than list-group-item-action's muted text.
+          .list-group-item
+            / target _top: a Drucksache is a whole new page, not a frame update.
+            = link_to document_path(document, district: document.district), target: '_top' do
+              strong= document.number
+              '
+              = document.title
+            br
+            span.text-secondary.small= document.kind

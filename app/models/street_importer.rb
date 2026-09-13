@@ -66,16 +66,20 @@ class StreetImporter
       latitude, longitude = coordinates(node)
 
       keys = street_keys(node)
+      ortsteilnamen = ortsteilnamen(node)
+      quarters = quarters(ortsteilnamen)
 
       {
         name: name,
         normalized_name: Street.normalize(name),
         latitude: latitude,
         longitude: longitude,
-        stadtteil: stadtteil(node),
+        quarter: quarters.first,
+        quarters: quarters,
+        quarter_keys: quarter_keys(ortsteilnamen),
         postal_code: text_at(node, './postleitzahl'),
         street_key: keys.first,
-        bezirke: bezirke(keys),
+        district_numbers: district_numbers(keys),
       }
     end
   end
@@ -91,14 +95,25 @@ class StreetImporter
   end
 
   # A strassenschluessel is "Land;Bezirk;Ortsteil;..." — the second field is the
-  # official Hamburg Bezirk number. A street has one key per segment, so a
-  # street spanning several districts yields several distinct Bezirk numbers.
-  def bezirke(keys)
+  # official Hamburg district number. A street has one key per segment, so a
+  # street spanning several districts yields several distinct numbers.
+  def district_numbers(keys)
     keys.filter_map { |key| key.split(';')[1]&.to_i }.uniq.sort
   end
 
-  def stadtteil(node)
-    text_at(node, './ortsteilname')&.split(',')&.first
+  # An ortsteilname reads "Barmbek-Nord,OT 0405": the Quarter name, then the
+  # official Ortsteil key. A street has one entry per segment, so a street
+  # crossing several Quarters yields several entries.
+  def ortsteilnamen(node)
+    node.xpath('./ortsteilname').filter_map { |name| name.text&.squish.presence }
+  end
+
+  def quarters(ortsteilnamen)
+    ortsteilnamen.filter_map { |name| name.split(',').first&.squish.presence }.uniq
+  end
+
+  def quarter_keys(ortsteilnamen)
+    ortsteilnamen.filter_map { |name| name[/OT\s*(\d+)/, 1] }.uniq.sort
   end
 
   # The representative point (iso19112:position). Hamburg's WFS returns axis

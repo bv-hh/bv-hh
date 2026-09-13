@@ -12,6 +12,15 @@ $link-color: $light-blue
 
 $enable-responsive-font-sizes: true
 
+// An open accordion section otherwise takes its background, text and chevron
+// from $primary, which here is the brand red — far too loud for what is only a
+// disclosure state. All three need overriding: Bootstrap derives the chevron
+// colour from $primary directly, not from the active text colour, so it stays
+// dark red if only the first two are set.
+$accordion-button-active-bg: $gray
+$accordion-button-active-color: #212529
+$accordion-icon-active-color: $accordion-button-active-color
+
 @import 'bootstrap'
 
 @import 'font-awesome-sprockets'
@@ -92,4 +101,10 @@ span.twitter-typeahead
 
     +media-breakpoint-up(sm)
       display: inline
+
+// Turbo sets aria-busy on a frame while it is navigating. Dim the results so a
+// slow feed query reads as "loading" rather than "nothing happened".
+turbo-frame[aria-busy="true"]
+  opacity: .5
+  transition: opacity .15s ease-in
 

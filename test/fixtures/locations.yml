@@ -13,6 +13,8 @@
 #  extracted_name    :string
 #  district_id       :integer
 #  formatted_address :string
+#  quarters        :string           default([]), not null, is an Array
+#  street_name       :string
 #
 # Indexes
 #
@@ -20,6 +22,8 @@
 #  index_locations_on_name             (name)
 #  index_locations_on_normalized_name  (normalized_name)
 #  index_locations_on_place_id         (place_id)
+#  index_locations_on_quarters       (quarters) USING gin
+#  index_locations_on_street_name      (street_name)
 #
 heilwigstrasse:
   district: hamburg_nord
@@ -30,3 +34,33 @@ heilwigstrasse:
   longitude: 10.0028
   place_id: gazetteer:02;4;01;401;0401;H0010
   formatted_address: Heilwigstraße, 20249 Hamburg
+  quarters: [Barmbek-Nord]
+  street_name: heilwigstraße
+
+# Crosses two Quarters, so it exercises the array-overlap branch of the feed
+# query. Shares document_7 with heilwigstrasse: one document matching two
+# locations is what the EXISTS subquery has to collapse to a single feed item.
+julius_vosseler:
+  district: hamburg_nord
+  name: Julius-Vosseler-Straße
+  extracted_name: julius vosseler straße
+  normalized_name: julius vosseler straße
+  latitude: 53.58
+  longitude: 9.75
+  place_id: gazetteer:02;3;05;305;0305;J0020
+  formatted_address: Julius-Vosseler-Straße, 22527 Lokstedt
+  quarters: [Lokstedt, Groß Borstel]
+  street_name: julius vosseler straße
+
+# A park, not a street: no street_name, Quarter came from point-in-polygon.
+stadtpark:
+  district: hamburg_nord
+  name: Stadtpark
+  extracted_name: stadtpark
+  normalized_name: stadtpark
+  latitude: 53.5975
+  longitude: 10.0150
+  place_id: ChIJtestparkplaceid
+  formatted_address: Stadtpark, 22303 Hamburg
+  quarters: [Barmbek-Nord]
+  street_name:

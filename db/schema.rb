@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -235,7 +235,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
     t.bigint "document_id"
     t.bigint "location_id"
     t.datetime "updated_at", null: false
+    t.index ["document_id", "location_id"], name: "index_document_locations_on_document_and_location", unique: true
     t.index ["document_id"], name: "index_document_locations_on_document_id"
+    t.index ["location_id", "document_id"], name: "index_document_locations_on_location_and_document"
     t.index ["location_id"], name: "index_document_locations_on_location_id"
   end
 
@@ -258,6 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
     t.datetime "updated_at", null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
+    t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
     t.index ["district_id"], name: "index_documents_on_district_id"
     t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
@@ -364,11 +367,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
     t.string "name"
     t.string "normalized_name"
     t.string "place_id"
+    t.string "quarters", default: [], null: false, array: true
+    t.string "street_name"
     t.datetime "updated_at", null: false
     t.index ["district_id"], name: "index_locations_on_district_id"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["normalized_name"], name: "index_locations_on_normalized_name"
     t.index ["place_id"], name: "index_locations_on_place_id"
+    t.index ["quarters"], name: "index_locations_on_quarters", using: :gin
+    t.index ["street_name"], name: "index_locations_on_street_name"
   end
 
   create_table "meetings", force: :cascade do |t|
@@ -437,6 +444,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
     t.index ["query"], name: "index_places_on_query"
   end
 
+  create_table "quarters", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "district_name"
+    t.integer "district_number"
+    t.jsonb "geometry", null: false
+    t.string "key", null: false
+    t.float "max_lat"
+    t.float "max_lng"
+    t.float "min_lat"
+    t.float "min_lng"
+    t.string "name", null: false
+    t.string "number"
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["district_number"], name: "index_quarters_on_district_number"
+    t.index ["key"], name: "index_quarters_on_key", unique: true
+    t.index ["name"], name: "index_quarters_on_name"
+    t.index ["slug"], name: "index_quarters_on_slug", unique: true
+  end
+
   create_table "solid_cache_entries", force: :cascade do |t|
     t.integer "byte_size", null: false
     t.datetime "created_at", null: false
@@ -449,18 +476,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_160000) do
   end
 
   create_table "streets", force: :cascade do |t|
-    t.integer "bezirke", default: [], null: false, array: true
     t.datetime "created_at", null: false
+    t.integer "district_numbers", default: [], null: false, array: true
     t.float "latitude"
     t.float "longitude"
     t.string "name", null: false
     t.string "normalized_name", null: false
     t.string "postal_code"
-    t.string "stadtteil"
+    t.string "quarter"
+    t.string "quarter_keys", default: [], null: false, array: true
+    t.string "quarters", default: [], null: false, array: true
     t.string "street_key"
     t.datetime "updated_at", null: false
-    t.index ["bezirke"], name: "index_streets_on_bezirke", using: :gin
+    t.index ["district_numbers"], name: "index_streets_on_district_numbers", using: :gin
     t.index ["normalized_name"], name: "index_streets_on_normalized_name"
+    t.index ["quarter_keys"], name: "index_streets_on_quarter_keys", using: :gin
+    t.index ["quarters"], name: "index_streets_on_quarters", using: :gin
     t.index ["street_key"], name: "index_streets_on_street_key"
   end
 

@@ -1,0 +1,140 @@
+# == Schema Information
+#
+# Table name: quarters
+#
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  slug            :string           not null
+#  key             :string           not null
+#  number          :string
+#  district_number :integer
+#  district_name   :string
+#  geometry        :jsonb            not null
+#  min_lat         :float
+#  max_lat         :float
+#  min_lng         :float
+#  max_lng         :float
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  index_quarters_on_district_number  (district_number)
+#  index_quarters_on_key              (key) UNIQUE
+#  index_quarters_on_name             (name)
+#  index_quarters_on_slug             (slug) UNIQUE
+#
+
+# Boxes, not real boundaries — but deliberately placed around the coordinates in
+# streets.yml and locations.yml so point-in-polygon and the gazetteer fixtures
+# tell a consistent story:
+#
+#   Barmbek-Nord  contains locations(:heilwigstrasse)  (53.5891, 10.0028)
+#   Lokstedt      contains streets(:julius_vosseler)   (53.58,   9.75)
+#   Duvenstedt    contains streets(:weitweg)           (53.70,  10.05)
+
+# Rails cannot singularize the German plural "quarters", so name the model
+# class explicitly rather than teaching the inflector a one-off rule.
+_fixture:
+  model_class: Quarter
+
+barmbek_nord:
+  name: Barmbek-Nord
+  slug: barmbek-nord
+  key: "02401"
+  number: "401"
+  district_number: 4
+  district_name: Hamburg-Nord
+  min_lng: 9.95
+  max_lng: 10.05
+  min_lat: 53.55
+  max_lat: 53.62
+  geometry:
+    - - - [9.95, 53.55]
+        - [10.05, 53.55]
+        - [10.05, 53.62]
+        - [9.95, 53.62]
+        - [9.95, 53.55]
+
+lokstedt:
+  name: Lokstedt
+  slug: lokstedt
+  key: "02301"
+  number: "301"
+  district_number: 3
+  district_name: Eimsbüttel
+  min_lng: 9.70
+  max_lng: 9.80
+  min_lat: 53.55
+  max_lat: 53.62
+  geometry:
+    - - - [9.70, 53.55]
+        - [9.80, 53.55]
+        - [9.80, 53.62]
+        - [9.70, 53.62]
+        - [9.70, 53.55]
+
+# Groß Borstel exercises the ß/space slug and the second Quarter of the
+# cross-Quarter street streets(:julius_vosseler).
+gross_borstel:
+  name: Groß Borstel
+  slug: gross-borstel
+  key: "02406"
+  number: "406"
+  district_number: 4
+  district_name: Hamburg-Nord
+  min_lng: 9.96
+  max_lng: 10.00
+  min_lat: 53.62
+  max_lat: 53.65
+  geometry:
+    - - - [9.96, 53.62]
+        - [10.00, 53.62]
+        - [10.00, 53.65]
+        - [9.96, 53.65]
+        - [9.96, 53.62]
+
+# Has a hole: the inner ring is carved out, so a point inside it is NOT covered.
+duvenstedt:
+  name: Duvenstedt
+  slug: duvenstedt
+  key: "02501"
+  number: "501"
+  district_number: 5
+  district_name: Wandsbek
+  min_lng: 10.00
+  max_lng: 10.10
+  min_lat: 53.66
+  max_lat: 53.74
+  geometry:
+    - - - [10.00, 53.66]
+        - [10.10, 53.66]
+        - [10.10, 53.74]
+        - [10.00, 53.74]
+        - [10.00, 53.66]
+      - - [10.02, 53.72]
+        - [10.04, 53.72]
+        - [10.04, 53.73]
+        - [10.02, 53.73]
+        - [10.02, 53.72]
+
+# In Hamburg-Nord like barmbek_nord, but no location points at it: stands in for
+# a Quarter page that has to render with an empty listing.
+ohlsdorf:
+  name: Ohlsdorf
+  slug: ohlsdorf
+  key: "02409"
+  number: "409"
+  district_number: 4
+  district_name: Hamburg-Nord
+  min_lng: 10.20
+  max_lng: 10.30
+  min_lat: 53.80
+  max_lat: 53.90
+  geometry:
+    - - - [10.20, 53.80]
+        - [10.30, 53.80]
+        - [10.30, 53.90]
+        - [10.20, 53.90]
+        - [10.20, 53.80]
+

@@ -25,6 +25,8 @@ html lang='de'
     = javascript_include_tag 'legacy'
     = javascript_importmap_tags
 
+    = yield :head
+
   - css_classes = [controller_path.gsub('/', '-'), action_name].map{|s| s.gsub('_', '-')}
   body class=css_classes
     nav.navbar.navbar-dark.navbar-expand-md.fixed-top
@@ -83,6 +85,7 @@ html lang='de'
             => link_to 'Bezirkspolitik', district_politics_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Beteiligung', participation_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Transparenz', transparency_path(district: nil), class: 'px-1 text-reset'
+            => link_to 'Feed', feed_path(district: nil), class: 'px-1 text-reset'
             => link_to 'MCP', mcp_path(district: nil), class: 'px-1 text-reset'
             => link_to 'Datenschutz', privacy_path(district: nil), class: 'px-1 text-reset'
             = link_to 'Impressum', imprint_path(district: nil), class: 'px-1 text-reset'

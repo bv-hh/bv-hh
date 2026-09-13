@@ -23,10 +23,11 @@ require 'net/http'
 class District < ApplicationRecord
   ORDER = %w[Hamburg-Mitte Altona Eimsbüttel Hamburg-Nord Wandsbek Bergedorf Harburg]
 
-  # Official Hamburg Bezirk numbers, as encoded in the street register's
-  # strassenschluessel (Land;Bezirk;Ortsteil;...). Used to match gazetteer
-  # streets to their district authoritatively instead of by bounding box.
-  BEZIRK_NUMBERS = {
+  # Official Hamburg district numbers, as encoded in the street register's
+  # strassenschluessel, whose fields the register names Land;Bezirk;Ortsteil.
+  # Used to match gazetteer streets to their district authoritatively instead of
+  # by bounding box.
+  NUMBERS = {
     'Hamburg-Mitte' => 1,
     'Altona' => 2,
     'Eimsbüttel' => 3,
@@ -67,12 +68,31 @@ class District < ApplicationRecord
     @districts[path.parameterize]
   end
 
+  # The district for an official Hamburg district number, memoized like .lookup.
+  # Quarters carry that number rather than a district_id, because the district
+  # boundaries come from the geo register and not from Allris.
+  def self.by_number(number)
+    @by_number ||= District.all.index_by(&:number)
+
+    @by_number[number]
+  end
+
+  # A rectangle around the district. Still the right shape for Google's
+  # locationbias, which accepts nothing else, but not for answering "is this
+  # point in the district" — neighbouring towns poke into it. Use contains?.
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end
 
-  def bezirk_number
-    BEZIRK_NUMBERS[name]
+  # The district's real outline, as the union of its Stadtteile. A point on a
+  # shared boundary belongs to both Stadtteile, and so to both their districts.
+  def contains?(latitude, longitude)
+    Quarter.covering_quarters(latitude, longitude).any? { |quarter| quarter.district_number == number }
+  end
+
+  # This district's official Hamburg number, 1-7.
+  def number
+    NUMBERS[name]
   end
 
   def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))

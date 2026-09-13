@@ -13,4 +13,13 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes @response.body, 'Aktuell sehen Sie Drucksachen, Sitzungen und mehr aus <b>Hamburg-Nord</b>'
   end
+
+  test 'GET show offers an RSS feed for the whole district' do
+    district = districts(:hamburg_nord)
+    get root_with_district_path(district: district)
+
+    assert_response :success
+    assert_includes @response.body, feed_path(format: :rss, district: district.to_param)
+    assert_includes @response.body, 'application/rss+xml'
+  end
 end

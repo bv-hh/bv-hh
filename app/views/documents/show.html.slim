@@ -91,6 +91,18 @@ h3.text-muted
             => link_to location_path(location) do
               span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
                 = location.name
+
+          / The Stadtteile those places fall into, in the outline style the
+          / district page uses for its Quarter links, so they read as a
+          / coarser second layer rather than more places.
+          - quarters = @document.locations.flat_map(&:quarters).uniq.sort.filter_map { |name| Quarter.lookup(name) }.select(&:district)
+          - if quarters.present?
+            .mt-3
+              .small.text-secondary.mb-1 Stadtteile
+              .d-flex.flex-wrap.gap-1
+                - quarters.each do |quarter|
+                  = link_to quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug),
+                      class: 'btn btn-sm btn-outline-secondary'
         - else
           p
             | Keine Orte erkannt.

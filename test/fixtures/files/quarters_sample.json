@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "bezirk": "4",
+        "bezirk_name": "Hamburg-Nord",
+        "stadtteil_name": "Teststadtteil",
+        "stadtteil_schluessel": "02401",
+        "stadtteil_nummer": "401"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [[10.0, 53.6], [10.1, 53.6], [10.1, 53.7], [10.0, 53.7], [10.0, 53.6]]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "bezirk": "3",
+        "bezirk_name": "Eimsbüttel",
+        "stadtteil_name": "Groß Testen",
+        "stadtteil_schluessel": "02301",
+        "stadtteil_nummer": "301"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[9.8, 53.5], [10.0, 53.5], [10.0, 53.6], [9.8, 53.6], [9.8, 53.5]],
+          [[9.85, 53.55], [9.90, 53.55], [9.90, 53.58], [9.85, 53.58], [9.85, 53.55]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "bezirk": "5",
+        "bezirk_name": "Wandsbek",
+        "stadtteil_name": "Ostdorf",
+        "stadtteil_schluessel": "02501",
+        "stadtteil_nummer": "501"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[10.2, 53.6], [10.3, 53.6], [10.3, 53.7], [10.2, 53.7]]
+        ]
+      }
+    }
+  ]
+}

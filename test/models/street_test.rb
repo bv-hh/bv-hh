@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: streets
@@ -7,7 +9,9 @@
 #  normalized_name :string           not null
 #  latitude        :float
 #  longitude       :float
-#  stadtteil       :string
+#  quarter       :string
+#  quarters      :string           default([]), not null, is an Array
+#  quarter_keys       :string           default([]), not null, is an Array
 #  postal_code     :string
 #  street_key      :string
 #  created_at      :datetime         not null
@@ -18,8 +22,6 @@
 #  index_streets_on_normalized_name  (normalized_name)
 #  index_streets_on_street_key       (street_key)
 #
-
-# frozen_string_literal: true
 
 require 'test_helper'
 
@@ -55,7 +57,29 @@ class StreetTest < ActiveSupport::TestCase
     assert_empty Street.for('Testallee', @district).to_a
   end
 
-  test 'formatted_address composes name, postal code and stadtteil' do
+  test 'in_quarter finds a street by any Quarter it crosses' do
+    street = streets(:julius_vosseler)
+    assert_includes Street.in_quarter('Lokstedt').to_a, street
+    assert_includes Street.in_quarter('Groß Borstel').to_a, street
+  end
+
+  test 'in_quarter excludes streets that do not touch the Quarter' do
+    assert_empty Street.in_quarter('Duvenstedt').to_a - [streets(:weitweg)]
+    assert_not_includes Street.in_quarter('Duvenstedt').to_a, streets(:testallee)
+  end
+
+  test 'in_quarter_key finds a street by any official Ortsteil key it crosses' do
+    street = streets(:julius_vosseler)
+    assert_includes Street.in_quarter_key('0305').to_a, street
+    assert_includes Street.in_quarter_key('0406').to_a, street
+  end
+
+  test 'crosses_quarters? is true only for multi-Quarter streets' do
+    assert_predicate streets(:julius_vosseler), :crosses_quarters?
+    assert_not_predicate streets(:testallee), :crosses_quarters?
+  end
+
+  test 'formatted_address composes name, postal code and quarter' do
     assert_equal 'Testallee, 22305 Barmbek-Nord', streets(:testallee).formatted_address
   end
 
@@ -64,7 +88,7 @@ class StreetTest < ActiveSupport::TestCase
     street.postal_code = nil
     assert_equal 'Testallee, Barmbek-Nord', street.formatted_address
 
-    street.stadtteil = nil
+    street.quarter = nil
     assert_equal 'Testallee', street.formatted_address
   end
 end

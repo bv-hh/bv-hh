@@ -20,7 +20,7 @@
       <dog:strassenschluessel>02;4;01;401;0401;T0010</dog:strassenschluessel>
       <dog:strassenname>Testallee</dog:strassenname>
       <dog:strassenname_normalisiert>TESTALLEE</dog:strassenname_normalisiert>
-      <dog:ortsteilname>Barmbek-Nord,OT 0405</dog:ortsteilname>
+      <dog:ortsteilname>Barmbek-Nord,OT 0401</dog:ortsteilname>
       <dog:postleitzahl>22305</dog:postleitzahl>
     </dog:Strassen>
   </wfs:member>
@@ -35,7 +35,7 @@
       <dog:strassenschluessel>02;4;06;406;0406;J0020</dog:strassenschluessel>
       <dog:strassenname>Julius-Vosseler-Straße</dog:strassenname>
       <dog:strassenname_normalisiert>JULIUS-VOSSELER-STRASSE</dog:strassenname_normalisiert>
-      <dog:ortsteilname>Lokstedt,OT 0301</dog:ortsteilname>
+      <dog:ortsteilname>Lokstedt,OT 0305</dog:ortsteilname>
       <dog:ortsteilname>Groß Borstel,OT 0406</dog:ortsteilname>
       <dog:postleitzahl>22527</dog:postleitzahl>
     </dog:Strassen>

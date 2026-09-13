@@ -1,15 +1,29 @@
+- district_feed_url = feed_url(format: :rss, district: @district.to_param)
+
+- content_for :head do
+  = auto_discovery_link_tag :rss, district_feed_url, title: "Drucksachen aus #{@district.name}"
+
 .district
-  .p-5.mb-4.bg-light.rounded-3
+  / position-relative so the feed icon can sit in the hero's own top right
+  / corner rather than being pushed into the heading's line box.
+  .p-5.bg-light.rounded-3.position-relative
+    = link_to district_feed_url, class: 'btn btn-outline-secondary position-absolute top-0 end-0 m-3',
+        rel: 'alternate', type: 'application/rss+xml',
+        title: "RSS-Feed aller Drucksachen aus #{@district.name}" do
+      = icon('fas', 'rss')
+      span.visually-hidden
+        = "RSS-Feed aller Drucksachen aus #{@district.name} abonnieren"
+
     h1 Moin!
     p.lead
       | BV-HH.de bietet einen übersichtlichen und schnellen Zugang zu allen öffentlichen Dokumenten der Hamburger Bezirksversammlungen.
         Aktuell sehen Sie Drucksachen, Sitzungen und mehr aus <b>#{@district.name}</b>.
-    hr.my-4
     p
       | Um in einen anderen Bezirk zu wechseln, nutzen Sie
         das Menü oben rechts. Unter "#{link_to 'Drucksachen', documents_path}" finden Sie alle Drucksachen aus allen Gremien chronologisch
         sortiert. Über "#{link_to 'Sitzungen', meetings_path}" gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen.
         Über "#{link_to 'Gremien', committees_path}" können Sie eine Übersicht der jeweils nächsten Sitzungstermine einsehen.
+    hr.my-4
     p
       strong
         ' Wichtig!
@@ -22,7 +36,20 @@
       ' gelangen Sie zur jeweiligen Quelle. Nur dort sind verbindliche Informationen und Dokumente zu finden!
       ' Aber
       = link_to 'wozu soll das gut sein?', about_path
-  .row
+
+  - if @quarters.present?
+    .quarters.mt-4
+      .card
+        .card-header Stadtteile in #{@district.name}
+        .card-body
+          p.card-text.text-secondary.small
+            | Drucksachen, die einen Ort im jeweiligen Stadtteil erwähnen — jeweils auch als RSS-Feed.
+          .d-flex.flex-wrap.gap-2
+            - @quarters.each do |quarter|
+              = link_to quarter.name, quarter_path(district: @district, quarter: quarter.slug),
+                  class: 'btn btn-sm btn-outline-secondary'
+
+  .row.mt-4
     .meetings.col-sm.mb-3
       .card
         .card-header Aktuelle Sitzungen
@@ -58,5 +85,4 @@
                       = document.title.html_safe
 
           = link_to 'Alle Drucksachen', documents_path
-
 
