@@ -20,4 +20,14 @@ SitemapGenerator::Sitemap.create do
   District.find_each do |district|
     add root_with_district_path(district), priority: 0.3
   end
+
+  # 104 genuinely distinct landing pages. The /feed config page deliberately
+  # stays out: its URL space is combinatorial.
+  Quarter.find_each do |quarter|
+    district = quarter.district
+    next if district.blank?
+
+    add quarter_path(district: district.name.parameterize, quarter: quarter.slug),
+        changefreq: 'weekly', priority: 0.6
+  end
 end

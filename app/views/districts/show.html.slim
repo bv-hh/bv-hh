@@ -1,15 +1,15 @@
 .district
-  .p-5.mb-4.bg-light.rounded-3
+  .p-5.bg-light.rounded-3
     h1 Moin!
     p.lead
       | BV-HH.de bietet einen übersichtlichen und schnellen Zugang zu allen öffentlichen Dokumenten der Hamburger Bezirksversammlungen.
         Aktuell sehen Sie Drucksachen, Sitzungen und mehr aus <b>#{@district.name}</b>.
-    hr.my-4
     p
       | Um in einen anderen Bezirk zu wechseln, nutzen Sie
         das Menü oben rechts. Unter "#{link_to 'Drucksachen', documents_path}" finden Sie alle Drucksachen aus allen Gremien chronologisch
         sortiert. Über "#{link_to 'Sitzungen', meetings_path}" gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen.
         Über "#{link_to 'Gremien', committees_path}" können Sie eine Übersicht der jeweils nächsten Sitzungstermine einsehen.
+    hr.my-4
     p
       strong
         ' Wichtig!
@@ -22,7 +22,20 @@
       ' gelangen Sie zur jeweiligen Quelle. Nur dort sind verbindliche Informationen und Dokumente zu finden!
       ' Aber
       = link_to 'wozu soll das gut sein?', about_path
-  .row
+
+  - if @quarters.present?
+    .quarters.mt-4
+      .card
+        .card-header Stadtteile in #{@district.name}
+        .card-body
+          p.card-text.text-secondary.small
+            | Drucksachen, die einen Ort im jeweiligen Stadtteil erwähnen — jeweils auch als RSS-Feed.
+          .d-flex.flex-wrap.gap-2
+            - @quarters.each do |quarter|
+              = link_to quarter.name, quarter_path(district: @district, quarter: quarter.slug),
+                  class: 'btn btn-sm btn-outline-secondary'
+
+  .row.mt-4
     .meetings.col-sm.mb-3
       .card
         .card-header Aktuelle Sitzungen
@@ -58,5 +71,4 @@
                       = document.title.html_safe
 
           = link_to 'Alle Drucksachen', documents_path
-
 

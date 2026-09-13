@@ -21,6 +21,13 @@ Rails.application.routes.draw do
   get '/district-politics' => 'pages#district_politics', as: :district_politics
   get '/participation' => 'pages#participation', as: :participation
 
+  # Must stay ABOVE `scope '(:district)'`: that scope's :district segment is
+  # greedy, so a /feed declared below it would route to districts#show with
+  # district: 'feed'.
+  get '/feed' => 'feeds#show', as: :feed
+  get '/feed.rss' => 'feeds#show', defaults: { format: :rss }
+  get '/streets/suggest' => 'streets#suggest', as: :suggest_streets
+
   get '/not_found' => 'errors#not_found', as: :foo
   get '/404' => 'errors#not_found', as: :not_found
   get '/500' => 'errors#exception', as: :exception
@@ -76,5 +83,12 @@ Rails.application.routes.draw do
     resource :admin, only: :show, controller: :admin
 
     root to: 'districts#show', as: :root_with_district
+
+    # Catch-all: MUST stay last in this scope. It comes after every resources
+    # block so a Quarter slug cannot shadow /hamburg-nord/documents, and after
+    # the root above so the single-segment form /:quarter does not swallow
+    # paths that fall through to districts#show. Anything added below this line
+    # would be unreachable.
+    get ':quarter' => 'quarters#show', as: :quarter
   end
 end

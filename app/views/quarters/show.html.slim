@@ -1,0 +1,83 @@
+- feed_url = quarter_url(district: @quarter.district, quarter: @quarter.slug, format: :rss)
+- markers_url = quarter_path(district: @quarter.district, quarter: @quarter.slug, format: :json, page: params[:page])
+
+- content_for :head do
+  = auto_discovery_link_tag :rss, feed_url, title: "Drucksachen zu #{@quarter.name}"
+
+.d-flex.align-items-start.justify-content-between.my-3
+  div
+    h1.h2.mb-1= @quarter.name
+    p.text-secondary.mb-0
+      | Stadtteil im Bezirk
+      = ' '
+      = link_to @quarter.district.name, root_with_district_path(district: @quarter.district)
+
+  = link_to feed_url, class: 'btn btn-outline-secondary flex-shrink-0', title: "RSS-Feed für #{@quarter.name}",
+      rel: 'alternate', type: 'application/rss+xml' do
+    = icon('fas', 'rss')
+    span.visually-hidden RSS-Feed abonnieren
+
+.beta.mb-3
+  span.badge.text-bg-warning> Beta
+  span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
+
+/ Two columns from lg up, list left and map right. Below lg the row collapses
+/ to one column and the map follows the list, because that is the DOM order.
+.row
+  .col-lg-7
+    - if @documents.any?
+      p.text-secondary
+        = "#{number_with_delimiter @documents.total_count} #{@documents.total_count == 1 ? 'Drucksache erwähnt' : 'Drucksachen erwähnen'} einen Ort in #{@quarter.name}."
+
+      .row.border-bottom.font-weight-bold
+        .col-3.col-lg-2.py-2 Drs.
+        .col.py-2 Titel / Art
+        .col-1
+
+      - @documents.each do |document|
+        .row.pt-3.border-top
+          .col-3.col-lg-2.text-nowrap
+            = link_to document_path(document, district: document.district) do
+              strong= document.number
+          .col
+            = link_to document_path(document, district: document.district) do
+              = document.title.html_safe
+            br
+            span.text-secondary.small= document.kind
+            / A street crossing a Bezirk boundary puts documents from a neighbouring
+            / Bezirk on this page. That is intended, but it has to be visible.
+            - if document.district != @quarter.district
+              = ' '
+              span.badge.bg-light.text-secondary.border= document.district.name
+            - if (meeting = document.meetings.max_by(&:date))
+              br
+              = link_to meeting.committee.name, meeting_path(meeting, district: document.district), class: 'text-secondary small'
+              span.text-secondary.small
+                = ' · '
+                = l meeting.date
+          .col-1.text-end
+            = allris_link(document.allris_url)
+
+      .mt-4
+        = paginate @documents, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'
+    - else
+      p.mt-2
+        | Zu diesem Stadtteil sind bisher keine Drucksachen erfasst.
+
+  .col-lg-5.mt-4.mt-lg-0
+    .quarter-map.sticky-lg-top style='top: 5rem'
+      .card
+        .card-body.p-2
+          div data-controller='quarter-map' data-quarter-map-url-value=markers_url
+            div.rounded data-quarter-map-target='container' style='height: 60vh; min-height: 320px'
+            .text-secondary.small.text-center.py-2.d-none data-quarter-map-target='empty'
+              | Zu den Drucksachen auf dieser Seite ist kein Ort mit Koordinaten hinterlegt.
+      p.text-secondary.small.mt-2.mb-0
+        | Gezeigt werden die Orte der Drucksachen auf dieser Seite.
+
+.mt-5.pt-3.border-top
+  p.mb-0.text-secondary.small
+    | Sie möchten mehrere Stadtteile oder einzelne Straßen beobachten?
+    = ' '
+    = link_to 'Stellen Sie sich einen eigenen RSS-Feed zusammen', feed_path(quarters: [@quarter.name])
+    | .
