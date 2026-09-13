@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-# A page per Quarter, listing the Drucksachen that mention a location in it,
-# with the matching single-Quarter RSS feed alongside.
+# A page per Quarter, listing the Drucksachen that mention a location in it.
 #
-# Same FeedQuery as the configurable feed, just with one Quarter selected.
+# Same FeedQuery as the configurable feed, just with one Quarter selected. The
+# RSS icon links straight to FeedsController rather than serving a feed from
+# here: it is the same feed, and one implementation means one caching policy.
 class QuartersController < ApplicationController
   PER_PAGE = 25
-
-  skip_after_action :track_event, if: -> { request.format.rss? }
 
   def show
     @quarter = Quarter.lookup(params[:quarter])
@@ -21,7 +20,6 @@ class QuartersController < ApplicationController
 
     respond_to do |format|
       format.html { show_html }
-      format.rss { show_rss }
       format.json { render json: map_data }
     end
   end
@@ -76,17 +74,5 @@ class QuartersController < ApplicationController
     # latest_first (document number) rather than created_at, to match every
     # other listing in the app; the feed keeps created_at.
     @documents = page_documents.preload(:district, meetings: :committee)
-  end
-
-  def show_rss
-    @documents = @query.relation.to_a
-
-    expires_in 15.minutes, public: true
-    fresh_when(etag: [FeedsController::FEED_VERSION, @query.cache_key, @documents.map(&:id)],
-               last_modified: @documents.first&.created_at,
-               public: true)
-    # fresh_when already rendered 304 for a conditional request; rendering
-    # again here would raise DoubleRenderError.
-    render 'feeds/show' unless performed?
   end
 end

@@ -1,8 +1,11 @@
-- feed_url = quarter_url(district: @quarter.district, quarter: @quarter.slug, format: :rss)
+/ district: nil explicitly — default_url_options would otherwise scope the
+/ feed to the Bezirk being browsed, and it would then drop the cross-Bezirk
+/ documents this page deliberately shows.
+- quarter_feed_url = feed_url(format: :rss, district: nil, quarters: [@quarter.name])
 - markers_url = quarter_path(district: @quarter.district, quarter: @quarter.slug, format: :json, page: params[:page])
 
 - content_for :head do
-  = auto_discovery_link_tag :rss, feed_url, title: "Drucksachen zu #{@quarter.name}"
+  = auto_discovery_link_tag :rss, quarter_feed_url, title: "Drucksachen zu #{@quarter.name}"
 
 .d-flex.align-items-start.justify-content-between.my-3
   div
@@ -12,7 +15,7 @@
       = ' '
       = link_to @quarter.district.name, root_with_district_path(district: @quarter.district)
 
-  = link_to feed_url, class: 'btn btn-outline-secondary flex-shrink-0', title: "RSS-Feed für #{@quarter.name}",
+  = link_to quarter_feed_url, class: 'btn btn-outline-secondary flex-shrink-0', title: "RSS-Feed für #{@quarter.name}",
       rel: 'alternate', type: 'application/rss+xml' do
     = icon('fas', 'rss')
     span.visually-hidden RSS-Feed abonnieren
@@ -79,5 +82,5 @@
   p.mb-0.text-secondary.small
     | Sie möchten mehrere Stadtteile oder einzelne Straßen beobachten?
     = ' '
-    = link_to 'Stellen Sie sich einen eigenen RSS-Feed zusammen', feed_path(quarters: [@quarter.name])
+    = link_to 'Stellen Sie sich einen eigenen RSS-Feed zusammen', feed_path(district: nil, quarters: [@quarter.name])
     | .

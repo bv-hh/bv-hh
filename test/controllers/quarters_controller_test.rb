@@ -47,27 +47,25 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'GET show as RSS renders the feed template' do
+  test 'GET show links its RSS feed to the feeds controller rather than serving one' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_includes @response.body, 'application/rss+xml'
+    assert_includes @response.body, CGI.escapeHTML(feed_path(format: :rss, district: nil, quarters: ['Barmbek-Nord']))
+  end
+
+  # The page shows documents from a neighbouring Bezirk when a street crosses
+  # the boundary, so its feed must not be scoped to the district being browsed.
+  test 'GET show does not scope its feed link to the district' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_not_includes @response.body, 'feed.rss?district='
+  end
+
+  test 'GET show does not serve RSS itself' do
     get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', format: :rss)
 
-    assert_response :success
-    assert_equal 'application/rss+xml', @response.media_type
-    assert_includes @response.body, '<rss'
-    assert_includes @response.body, 'Barmbek-Nord'
-  end
-
-  test 'GET show as RSS keeps the format through the canonical redirect' do
-    get '/altona/barmbek-nord.rss'
-
-    assert_redirected_to quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', format: :rss)
-  end
-
-  test 'GET show as RSS answers a conditional request with 304' do
-    path = quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', format: :rss)
-    get path
-
-    get path, headers: { 'HTTP_IF_NONE_MATCH' => @response.headers['ETag'] }
-    assert_response :not_modified
+    assert_response :not_acceptable
   end
 
   test 'GET show as JSON returns the boundary and the markers for the page' do
