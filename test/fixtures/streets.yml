@@ -7,7 +7,9 @@
 #  normalized_name :string           not null
 #  latitude        :float
 #  longitude       :float
-#  stadtteil       :string
+#  quarter       :string
+#  quarters      :string           default([]), not null, is an Array
+#  quarter_keys       :string           default([]), not null, is an Array
 #  postal_code     :string
 #  street_key      :string
 #  created_at      :datetime         not null
@@ -16,6 +18,8 @@
 # Indexes
 #
 #  index_streets_on_normalized_name  (normalized_name)
+#  index_streets_on_ortsteile        (quarter_keys) USING gin
+#  index_streets_on_quarters       (quarters) USING gin
 #  index_streets_on_street_key       (street_key)
 #
 
@@ -28,7 +32,9 @@ testallee:
   normalized_name: testallee
   latitude: 53.58
   longitude: 10.03
-  stadtteil: Barmbek-Nord
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  quarter_keys: ["0401"]
   postal_code: "22305"
   street_key: "02;4;01;401;0401;T0010"
   bezirke: [4]
@@ -41,7 +47,9 @@ julius_vosseler:
   normalized_name: julius vosseler straße
   latitude: 53.58
   longitude: 9.75
-  stadtteil: Lokstedt
+  quarter: Lokstedt
+  quarters: [Lokstedt, Groß Borstel]
+  quarter_keys: ["0305", "0406"]
   postal_code: "22527"
   street_key: "02;3;05;305;0305;J0020"
   bezirke: [3, 4]
@@ -52,7 +60,25 @@ weitweg:
   normalized_name: weitweg
   latitude: 53.70
   longitude: 10.05
-  stadtteil: Duvenstedt
+  quarter: Duvenstedt
+  quarters: [Duvenstedt]
+  quarter_keys: ["0525"]
   postal_code: "22397"
   street_key: "02;5;17;525;0525;W0030"
   bezirke: [5]
+
+# Backs locations(:heilwigstrasse): the feed validates every submitted street
+# name against the gazetteer, so a location whose street is absent here would be
+# unreachable by a street selection.
+heilwigstrasse:
+  name: Heilwigstraße
+  normalized_name: heilwigstraße
+  latitude: 53.5891
+  longitude: 10.0028
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  quarter_keys: ["0401"]
+  postal_code: "20249"
+  street_key: "02;4;01;401;0401;H0010"
+  bezirke: [4]
+

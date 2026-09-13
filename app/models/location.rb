@@ -73,11 +73,12 @@ class Location < ApplicationRecord
 
       latlng = candidate['geometry']['location']
       next if latlng.blank?
-      next if Location.out_of_bounds?(latlng['lat'], latlng['lng'], district.bounds)
+      next if Location.outside_hamburg?(latlng['lat'], latlng['lng'], district)
 
       if candidate['types'].intersect?(VALID_TYPES)
         Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
-                         latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'])
+                         latitude: latlng['lat'], longitude: latlng['lng'], formatted_address: candidate['formatted_address'],
+                         **place_attributes(candidate['name'], latlng['lat'], latlng['lng']))
       end
     end
   end
@@ -92,8 +93,50 @@ class Location < ApplicationRecord
         location.longitude = street.longitude
         location.place_id = "gazetteer:#{street.street_key}"
         location.formatted_address = street.formatted_address
+        location.assign_attributes(place_attributes(street.name, street.latitude, street.longitude))
       end
     end
+  end
+
+  # The denormalised place columns the feed and the Quarter pages query.
+  #
+  # The street register wins over the polygons wherever both apply: a street's
+  # registered Quarter list covers the whole street, whereas its single
+  # representative point would land in only one of the Quarters it crosses.
+  # Street rows are looked up across ALL Bezirke on purpose — Location.normalized
+  # has no district filter, so one row is shared by every district that mentions
+  # the name, and narrowing here would silently lose the others' documents.
+  def self.place_attributes(name, latitude, longitude)
+    streets = Street.where(normalized_name: Street.normalize(name))
+    covering = Quarter.covering(latitude, longitude)
+
+    {
+      street_name: streets.first&.normalized_name,
+      quarters: quarters_for(streets, covering),
+    }
+  end
+
+  def self.quarters_for(streets, covering)
+    # A point outside every Quarter is not in Hamburg, whatever the register
+    # says about a same-named street somewhere else — it must not show up on a
+    # Quarter's map. Only legacy rows can reach this now that from_google
+    # rejects such candidates outright and repair_coordinates! snaps the ones
+    # the register can place.
+    return [] if Quarter.boundaries? && covering.empty?
+
+    streets.flat_map(&:quarters).uniq.presence || covering
+  end
+
+  # A district's bounds are a rectangle, and Hamburg's neighbours poke into it:
+  # Norderstedt's streets sit inside Hamburg-Nord's bounding box, so Google
+  # results from there used to be accepted and pinned on the wrong map. The
+  # Quarter boundaries answer the same question exactly. Fall back to the
+  # rectangle while the quarters table is still empty, so a fresh install
+  # without an import does not reject every location.
+  def self.outside_hamburg?(latitude, longitude, district)
+    return out_of_bounds?(latitude, longitude, district.bounds) unless Quarter.boundaries?
+
+    Quarter.covering(latitude, longitude).empty?
   end
 
   # Bounds is an array with two arrays each with lat lng as elements, indicating northeast and southwest corner of a bounding box
@@ -106,6 +149,30 @@ class Location < ApplicationRecord
 
   def to_param
     "#{name.parameterize}-#{id}"
+  end
+
+  # Google sometimes answered a street name with the same-named street in a
+  # neighbouring town — "Tarpenbekstraße, 22848 Norderstedt" instead of the
+  # Hamburg one — because the old bounding-box check could not tell them apart.
+  # Where the official register knows that street inside this location's own
+  # district, its coordinates are authoritative, so snap to them.
+  #
+  # Deliberately narrow: only points that lie outside every Quarter are
+  # touched, and only when the register match is within the same district. A
+  # street name recurring across Bezirke must not drag a correct location to a
+  # different Bezirk's street of the same name.
+  # Returns the repaired location, or nil when there was nothing to repair.
+  def repair_coordinates!
+    return nil if latitude.blank? || longitude.blank?
+    return nil unless Quarter.boundaries?
+    return nil if Quarter.covering(latitude, longitude).any?
+
+    street = Street.for(name, district).first
+    return nil if street.blank? || street.latitude.blank?
+
+    update!(latitude: street.latitude, longitude: street.longitude,
+            formatted_address: street.formatted_address, place_id: "gazetteer:#{street.street_key}")
+    self
   end
 
   private

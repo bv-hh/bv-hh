@@ -2,17 +2,28 @@
 #
 # Table name: document_locations
 #
-#  id          :bigint           not null, primary key
+#  id          :integer          not null, primary key
+#  document_id :integer
+#  location_id :integer
 #  created_at  :datetime         not null
-#  document_id :bigint
-#  location_id :bigint
 #  updated_at  :datetime         not null
 #
 # Indexes
 #
-#  index_document_locations_on_document_id  (document_id)
-#  index_document_locations_on_location_id  (location_id)
+#  index_document_locations_on_document_and_location  (document_id,location_id) UNIQUE
+#  index_document_locations_on_document_id            (document_id)
+#  index_document_locations_on_location_and_document  (location_id,document_id)
+#  index_document_locations_on_location_id            (location_id)
 #
+
 document_7_heilwigstrasse:
   document: document_7
   location: heilwigstrasse
+
+document_7_julius_vosseler:
+  document: document_7
+  location: julius_vosseler
+
+document_227_stadtpark:
+  document: document_227
+  location: stadtpark
