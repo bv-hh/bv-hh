@@ -6,7 +6,7 @@
 .district
   / position-relative so the feed icon can sit in the hero's own top right
   / corner rather than being pushed into the heading's line box.
-  .p-5.bg-light.rounded-3.position-relative
+  .p-5.bg-light.rounded-3.position-relative.card
     = link_to district_feed_url, class: 'btn btn-outline-secondary position-absolute top-0 end-0 m-3',
         rel: 'alternate', type: 'application/rss+xml',
         title: "RSS-Feed aller Drucksachen aus #{@district.name}" do
