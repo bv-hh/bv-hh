@@ -256,20 +256,26 @@ class Document < ApplicationRecord
     all_text = extractable_text
     return if all_text.blank?
 
-    gazetteer_locations = StreetGazetteer.match(all_text)
-    ner_locations = NerModel.model.doc(all_text).entities.filter_map do |entity|
-      text = entity[:text].to_s.scrub
-      next if text.blank?
-
-      text.gsub(/[^0-9a-zöäüß\- ]/i, '') if entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
-    end.uniq
-
     self.locations_extracted_at = Time.zone.now
-    self.extracted_locations = (gazetteer_locations + ner_locations).uniq
+    self.extracted_locations = (StreetGazetteer.match(all_text) + ner_locations(all_text)).uniq
     self.quarters = extracted_quarters
+    self.stations = TransitGazetteer.match(all_text)
     save!
 
     assign_locations_later! if extracted_locations.present?
+  end
+
+  # LOCATION entities the NER model is confident about. The gsub is what splits
+  # a compound like Fuhlsbüttel-Ohlsdorf-Langenhorn into fragments; see the
+  # extraction notes before changing it.
+  def ner_locations(text)
+    NerModel.model.doc(text).entities.filter_map do |entity|
+      entity_text = entity[:text].to_s.scrub
+      next if entity_text.blank?
+      next unless entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
+
+      entity_text.gsub(/[^0-9a-zöäüß\- ]/i, '')
+    end.uniq
   end
 
   def assign_locations_later!
@@ -277,6 +283,11 @@ class Document < ApplicationRecord
   end
 
   def assign_locations!
+    assign_extracted_locations!
+    assign_stations!
+  end
+
+  def assign_extracted_locations!
     return if extracted_locations.blank?
 
     extracted_locations.each do |extracted_location|
@@ -288,9 +299,22 @@ class Document < ApplicationRecord
     end
   end
 
+  # Stations named behind a transit prefix. A separate path because a station's
+  # bare name means something else — "Barmbek" is a Stadtteil, "Habichtstraße"
+  # a street — so it is reachable only through Poi.transit_for, never through
+  # the plain name lookup.
+  def assign_stations!
+    return if stations.blank?
+
+    stations.each do |station|
+      Location.determine_station_locations(station, district).each do |location|
+        document_locations.find_or_create_by!(location: location)
+      end
+    end
+  end
+
   # Stadtteile named outright in the text. Recorded on the document rather than
-  # geocoded, because a Stadtteil is an area and Google would answer with a
-  # point in the middle of it.
+  # geocoded, because a Stadtteil is an area and has no single point to pin.
   #
   # A regional committee is named after the Stadtteile it covers, so its own
   # name would otherwise tag every one of its Drucksachen — the same reason

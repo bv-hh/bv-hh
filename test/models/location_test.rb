@@ -197,9 +197,39 @@ class LocationTest < ActiveSupport::TestCase
     assert_equal ['Testallee'], Location.determine_locations('Testallee', @district).map(&:name)
   end
 
-  test 'political is no longer an acceptable Google place type' do
-    assert_not_includes Location::VALID_TYPES, 'political'
-    assert_includes Location::VALID_TYPES, 'sublocality'
-    assert_includes Location::VALID_TYPES, 'route'
+  test 'determine_locations resolves a POI the street register does not know' do
+    location = Location.determine_locations('Teststadtpark', @district).sole
+
+    assert_equal 'Teststadtpark', location.name
+    assert_equal 'osm:way/1001', location.place_id
+    assert_equal 'Teststadtpark, 22305 Barmbek-Nord', location.formatted_address
+    assert_in_delta 53.58, location.latitude
+  end
+
+  test 'determine_locations prefers the street register over the POI gazetteer' do
+    Poi.create!(name: 'Testallee', category: 'leisure=park', osm_type: 'node', osm_id: 9001,
+                latitude: 53.58, longitude: 10.03, district_number: 4, quarters: ['Barmbek-Nord'])
+
+    assert_equal 'gazetteer:02;4;01;401;0401;T0010',
+                 Location.determine_locations('Testallee', @district).sole.place_id
+  end
+
+  test 'determine_locations falls back to a trigram match for OCR damage' do
+    location = Location.determine_locations('Testalee', @district).sole
+
+    assert_equal 'Testallee', location.name
+    assert_equal 'Testalee', location.extracted_name
+  end
+
+  test 'determine_locations answers nothing for a name no register knows' do
+    assert_empty Location.determine_locations('Sommermonaten', @district)
+  end
+
+  test 'determine_locations never answers with a generic POI name' do
+    assert_empty Location.determine_locations('Spielplatz', @district)
+  end
+
+  test 'determine_locations never answers with a station on the plain path' do
+    assert_empty Location.determine_locations('Barmbek', @district)
   end
 end

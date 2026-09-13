@@ -1,0 +1,108 @@
+# == Schema Information
+#
+# Table name: pois
+#
+#  id              :integer          not null, primary key
+#  name            :string           not null
+#  normalized_name :string           not null
+#  category        :string           not null
+#  osm_type        :string           not null
+#  osm_id          :bigint           not null
+#  latitude        :float            not null
+#  longitude       :float            not null
+#  quarter         :string
+#  quarters        :string           default([]), not null, is an Array
+#  district_number :integer
+#  postal_code     :string
+#  generic         :boolean          default(FALSE), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+
+# Placed inside the boxes in quarters.yml, like streets.yml, so point-in-polygon
+# and gazetteer lookups tell a consistent story.
+
+# Pinnable park in Hamburg-Nord (Bezirk 4).
+# Carries the city qualifier OSM uses and documents do not.
+hamburger_testpark:
+  name: Hamburger Testpark
+  normalized_name: hamburger testpark
+  aliases: [testpark]
+  category: leisure=park
+  osm_type: way
+  osm_id: 1006
+  latitude: 53.581
+  longitude: 10.001
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+
+teststadtpark:
+  name: Teststadtpark
+  normalized_name: teststadtpark
+  category: leisure=park
+  osm_type: way
+  osm_id: 1001
+  latitude: 53.58
+  longitude: 10.00
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+  postal_code: "22305"
+
+# Same name in another district: Poi.for must answer only for its own.
+teststadtpark_wandsbek:
+  name: Teststadtpark
+  normalized_name: teststadtpark
+  category: leisure=park
+  osm_type: way
+  osm_id: 1002
+  latitude: 53.70
+  longitude: 10.05
+  quarter: Duvenstedt
+  quarters: [Duvenstedt]
+  district_number: 5
+
+# A name too common to pin — the whole point of the generic flag.
+spielplatz:
+  name: Spielplatz
+  normalized_name: spielplatz
+  category: leisure=playground
+  osm_type: node
+  osm_id: 1003
+  latitude: 53.59
+  longitude: 10.01
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+  generic: true
+
+# A station: excluded from every plain-name lookup, reachable only through
+# TransitGazetteer. Shares its name with the Stadtteil on purpose.
+barmbek_station:
+  name: Barmbek
+  normalized_name: barmbek
+  category: railway=station
+  osm_type: node
+  osm_id: 1004
+  latitude: 53.586
+  longitude: 10.04
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+  transit: true
+
+# Two-word station name: the transit matcher must take the longer window.
+hamburg_dammtor_station:
+  name: Hamburg Dammtor
+  normalized_name: hamburg dammtor
+  aliases: [dammtor]
+  category: railway=station
+  osm_type: node
+  osm_id: 1005
+  latitude: 53.587
+  longitude: 10.03
+  quarter: Barmbek-Nord
+  quarters: [Barmbek-Nord]
+  district_number: 4
+  transit: true

@@ -65,10 +65,33 @@ Requires PostgreSQL and Redis services for full test suite. The CI pipeline in `
 - Importmap for JavaScript module management
 - Capistrano for deployment
 
+## Geo registers
+
+Location extraction resolves names against three local registers and never
+calls an external service at request time. Each is filled by a rake task and
+refreshed occasionally — there is no scheduled job.
+
+```bash
+rake quarters:import   # 104 Stadtteil polygons, ALKIS WFS          (~2s)
+rake streets:import    # 9535 official street names, AdressService  (~40s)
+rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
+```
+
+- **Restart web and workers afterwards.** `Quarter`, `StreetGazetteer` and
+  `TransitGazetteer` memoize per process; a process that touched one before the
+  import keeps an empty memo.
+- **Import during a quiet window.** Each task does `delete_all` then re-inserts.
+- `pois:import` reads Overpass (one request per tag value, rotating endpoints on
+  failure) or a local osmium GeoJSON export: `rake "pois:import[pois.geojson]"`.
+- `rake pois:coverage` reports which resolution step answers each extracted name
+  in the corpus. Read-only.
+- OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
+
 ## Initial Setup
 
 1. Download MITIE German NER model from: https://github.com/mit-nlp/MITIE/releases/download/v0.4/MITIE-models-v0.2-German.tar.bz2
 2. Extract to `data/` directory
 3. Create at least one district via `seeds.rb`
-4. Run initial data sync: `CheckForDocumentUpdatesJob.perform_now(District.first)`
-5. Run meeting sync: `CheckForMeetingUpdatesJob.perform_now(District.first)`
+4. Import the geo registers (see above)
+5. Run initial data sync: `CheckForDocumentUpdatesJob.perform_now(District.first)`
+6. Run meeting sync: `CheckForMeetingUpdatesJob.perform_now(District.first)`

@@ -50,7 +50,6 @@ class District < ApplicationRecord
   has_many :parties, dependent: :destroy
   has_many :members, dependent: :destroy
   has_many :locations, dependent: :destroy
-  has_many :places, dependent: :destroy
 
   validates :name, presence: true
   validates :allris_base_url, presence: true
@@ -77,9 +76,10 @@ class District < ApplicationRecord
     @by_number[number]
   end
 
-  # A rectangle around the district. Still the right shape for Google's
-  # locationbias, which accepts nothing else, but not for answering "is this
-  # point in the district" — neighbouring towns poke into it. Use contains?.
+  # A rectangle around the district. Kept only as the fallback for
+  # Location.outside_district? while the quarters table is empty, so a fresh
+  # install without an import does not reject everything. It cannot answer "is
+  # this point in the district" — neighbouring towns poke into it. Use contains?.
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end

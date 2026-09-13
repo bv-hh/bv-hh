@@ -10,8 +10,11 @@
 # references (Drs, hamburgisches Wegegesetz), other cities, and plain nouns
 # ("Sommermonaten", "Einzelfällen").
 #
-# Left unblocked these all reach Google Places, which returns a result for
-# anything, and become pinned Locations.
+# This mattered more when Google Places answered for anything: every one of
+# these became a pinned Location. Now a name no register knows produces nothing
+# by itself, so the list is a backstop rather than a necessity — its remaining
+# job is names the registers *do* know but should not pin, such as the street
+# the official register genuinely lists as "-Parkanlagen".
 #
 # Deliberately conservative: anything the official registers know is kept, so
 # this can never blocklist a real street or Stadtteil.

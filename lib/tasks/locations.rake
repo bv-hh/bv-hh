@@ -20,6 +20,26 @@ namespace :locations do
     end
   end
 
+  # Everything the Google era left behind, found by asking of each row whether
+  # the registers would produce it today. Broader than purge_blocked, which only
+  # knows about blocked names.
+  desc 'Show (or delete) locations no register would produce any more'
+  task :sweep, [:apply] => :environment do |_task, args|
+    cleanup = LocationCleanup.new
+    stale = cleanup.stale
+
+    stale.sort_by { |entry| -entry.documents }.each do |entry|
+      puts format('%<docs>4d docs  %<name>-40s %<reason>s',
+                  docs: entry.documents, name: entry.location.name.to_s.truncate(40), reason: entry.reason)
+    end
+
+    if args[:apply] == 'apply'
+      puts "Deleted #{cleanup.apply!} locations"
+    else
+      puts "#{stale.size} of #{Location.count} locations would be deleted. Re-run as locations:sweep[apply]."
+    end
+  end
+
   # Locations created before a name was blocked stay until they are cleared out.
   # Destroying them takes their document_locations with them.
   desc 'Delete existing locations whose name is now blocked'

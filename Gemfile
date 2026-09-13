@@ -75,8 +75,6 @@ gem 'uglifier'
 
 gem 'mitie'
 
-gem 'google-maps'
-
 gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.2'

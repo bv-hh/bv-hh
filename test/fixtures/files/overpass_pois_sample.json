@@ -1,0 +1,143 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 53.58,
+      "lon": 10.0,
+      "tags": {
+        "leisure": "park",
+        "name": "Teststadtpark",
+        "addr:postcode": "22305"
+      }
+    },
+    {
+      "type": "way",
+      "id": 2001,
+      "center": {
+        "lat": 53.59,
+        "lon": 10.01
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Testschule"
+      }
+    },
+    {
+      "type": "way",
+      "id": 2001,
+      "center": {
+        "lat": 53.59,
+        "lon": 10.01
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Testschule"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 3001,
+      "center": {
+        "lat": 53.58,
+        "lon": 9.75
+      },
+      "tags": {
+        "landuse": "cemetery",
+        "name": "Testfriedhof"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1002,
+      "lat": 53.58,
+      "lon": 10.01,
+      "tags": {
+        "shop": "bakery",
+        "name": "Testbäckerei"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1003,
+      "lat": 53.58,
+      "lon": 10.02,
+      "tags": {
+        "leisure": "park"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1004,
+      "lat": 53.725,
+      "lon": 10.03,
+      "tags": {
+        "leisure": "park",
+        "name": "Testpark im Loch"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1005,
+      "lat": 53.58,
+      "lon": 10.03,
+      "tags": {
+        "place": "neighbourhood",
+        "name": "Barmbek-Nord"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1006,
+      "lat": 53.58,
+      "lon": 10.04,
+      "tags": {
+        "leisure": "park",
+        "name": "Hof"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1007,
+      "lat": 53.58,
+      "lon": 10.045,
+      "tags": {
+        "historic": "memorial",
+        "memorial": "stolperstein",
+        "name": "Anna Testperson"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1008,
+      "lat": 53.581,
+      "lon": 10.02,
+      "tags": {
+        "railway": "station",
+        "name": "Barmbek"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1009,
+      "lat": 53.582,
+      "lon": 9.75,
+      "tags": {
+        "natural": "water",
+        "name": "Testteich"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1010,
+      "lat": 53.583,
+      "lon": 10.005,
+      "tags": {
+        "leisure": "park",
+        "name": "Hamburger Testanlage"
+      }
+    }
+  ]
+}

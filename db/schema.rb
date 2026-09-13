@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -269,6 +269,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
     t.string "number"
     t.string "quarters", default: [], null: false, array: true
     t.text "resolution"
+    t.string "stations", default: [], null: false, array: true
     t.string "title"
     t.datetime "updated_at", null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
@@ -279,6 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["number"], name: "index_documents_on_number"
     t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
+    t.index ["stations"], name: "index_documents_on_stations", using: :gin
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
@@ -448,14 +450,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
     t.index ["district_id"], name: "index_parties_on_district_id"
   end
 
-  create_table "places", force: :cascade do |t|
+  create_table "pois", force: :cascade do |t|
+    t.string "aliases", default: [], null: false, array: true
+    t.string "category", null: false
     t.datetime "created_at", null: false
-    t.bigint "district_id", null: false
-    t.json "locations"
-    t.string "query", null: false
+    t.integer "district_number"
+    t.boolean "generic", default: false, null: false
+    t.float "latitude", null: false
+    t.float "longitude", null: false
+    t.string "name", null: false
+    t.string "normalized_name", null: false
+    t.bigint "osm_id", null: false
+    t.string "osm_type", null: false
+    t.string "postal_code"
+    t.string "quarter"
+    t.string "quarters", default: [], null: false, array: true
+    t.boolean "transit", default: false, null: false
     t.datetime "updated_at", null: false
-    t.index ["district_id"], name: "index_places_on_district_id"
-    t.index ["query"], name: "index_places_on_query"
+    t.index ["aliases"], name: "index_pois_on_aliases", using: :gin
+    t.index ["district_number"], name: "index_pois_on_district_number"
+    t.index ["normalized_name"], name: "index_pois_on_normalized_name"
+    t.index ["osm_type", "osm_id"], name: "index_pois_on_osm_type_and_osm_id", unique: true
+    t.index ["quarters"], name: "index_pois_on_quarters", using: :gin
+    t.index ["transit"], name: "index_pois_on_transit"
   end
 
   create_table "quarters", force: :cascade do |t|
@@ -504,6 +521,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
     t.datetime "updated_at", null: false
     t.index ["district_numbers"], name: "index_streets_on_district_numbers", using: :gin
     t.index ["normalized_name"], name: "index_streets_on_normalized_name"
+    t.index ["normalized_name"], name: "index_streets_on_normalized_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["quarter_keys"], name: "index_streets_on_quarter_keys", using: :gin
     t.index ["quarters"], name: "index_streets_on_quarters", using: :gin
     t.index ["street_key"], name: "index_streets_on_street_key"
@@ -518,5 +536,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_230000) do
   add_foreign_key "memberships", "committees"
   add_foreign_key "memberships", "members"
   add_foreign_key "parties", "districts"
-  add_foreign_key "places", "districts"
 end

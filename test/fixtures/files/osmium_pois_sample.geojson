@@ -1,0 +1,18 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "@id": "way/555", "leisure": "playground", "name": "Testspielplatz" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[9.74, 53.57], [9.76, 53.57], [9.76, 53.59], [9.74, 53.59], [9.74, 53.57]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "@id": "node/556", "amenity": "library", "name": "Testbücherhalle" },
+      "geometry": { "type": "Point", "coordinates": [10.0, 53.58] }
+    }
+  ]
+}
