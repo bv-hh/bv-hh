@@ -15,7 +15,9 @@ class StreetImporterTest < ActiveSupport::TestCase
     assert_equal 'testallee', testallee[:normalized_name]
     assert_in_delta 53.58, testallee[:latitude]
     assert_in_delta 10.03, testallee[:longitude]
-    assert_equal 'Barmbek-Nord', testallee[:stadtteil]
+    assert_equal 'Barmbek-Nord', testallee[:quarter]
+    assert_equal ['Barmbek-Nord'], testallee[:quarters]
+    assert_equal ['0401'], testallee[:quarter_keys]
     assert_equal '22305', testallee[:postal_code]
     assert_equal '02;4;01;401;0401;T0010', testallee[:street_key]
     assert_equal [4], testallee[:bezirke]
@@ -24,6 +26,17 @@ class StreetImporterTest < ActiveSupport::TestCase
   test 'parse collects distinct Bezirk numbers for a cross-district street' do
     julius = @rows.find { |row| row[:name] == 'Julius-Vosseler-Straße' }
     assert_equal [3, 4], julius[:bezirke]
+  end
+
+  test 'parse collects every Quarter a street crosses' do
+    julius = @rows.find { |row| row[:name] == 'Julius-Vosseler-Straße' }
+    assert_equal ['Lokstedt', 'Groß Borstel'], julius[:quarters]
+    assert_equal %w[0305 0406], julius[:quarter_keys]
+  end
+
+  test 'parse keeps the first Quarter as the representative one' do
+    julius = @rows.find { |row| row[:name] == 'Julius-Vosseler-Straße' }
+    assert_equal 'Lokstedt', julius[:quarter]
   end
 
   test 'parse normalizes hyphenated names to space-separated lowercase' do
