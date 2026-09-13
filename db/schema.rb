@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -269,6 +269,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_180000) do
     t.string "number"
     t.string "quarters", default: [], null: false, array: true
     t.text "resolution"
+    t.string "stations", default: [], null: false, array: true
     t.string "title"
     t.datetime "updated_at", null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
@@ -279,6 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_180000) do
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["number"], name: "index_documents_on_number"
     t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
+    t.index ["stations"], name: "index_documents_on_stations", using: :gin
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end

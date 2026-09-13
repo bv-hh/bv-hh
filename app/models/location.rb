@@ -87,6 +87,21 @@ class Location < ApplicationRecord
     end
   end
 
+  # Stations, reached only from TransitGazetteer, which has seen the "U/S" or
+  # "Haltestelle" prefix in the text. The extracted name is recorded as the
+  # prefixed form would not survive normalization, so the station's own name
+  # stands in — a location named "Barmbek" here means the station, and the
+  # Stadtteil path never creates one.
+  def self.determine_station_locations(station_name, district)
+    return [] if blocked?(station_name)
+
+    Poi.transit_for(station_name, district).map do |poi|
+      build_location(poi.name, district, name: poi.name, latitude: poi.latitude,
+                                         longitude: poi.longitude, place_id: poi.place_key,
+                                         formatted_address: poi.formatted_address)
+    end
+  end
+
   # Everything the street register does not name: parks, playgrounds, schools,
   # cemeteries, squares. The POI's district comes from the Quarter polygons at
   # import time, so a containment check here would ask a question already

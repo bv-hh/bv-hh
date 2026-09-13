@@ -110,4 +110,30 @@ class DocumentTest < ActiveSupport::TestCase
 
     assert_empty document.extracted_quarters
   end
+  test 'assign_locations! pins a station named behind a transit prefix' do
+    document = extracted_document(stations: ['Barmbek'])
+
+    document.assign_locations!
+
+    location = document.reload.locations.sole
+    assert_equal 'Barmbek', location.name
+    assert_equal 'osm:node/1004', location.place_id
+  end
+
+  # The same name on the plain path is the Stadtteil, which has no point to pin.
+  # Only the transit prefix in the prose separates the two.
+  test 'assign_locations! leaves a bare Stadtteil name unpinned' do
+    document = extracted_document(extracted_locations: ['Barmbek'])
+
+    document.assign_locations!
+
+    assert_empty document.reload.locations
+  end
+
+  private
+
+  def extracted_document(extracted_locations: [], stations: [])
+    Document.create!(district: districts(:hamburg_nord), title: 'Teststation', allris_id: 987_654,
+                     extracted_locations: extracted_locations, stations: stations)
+  end
 end
