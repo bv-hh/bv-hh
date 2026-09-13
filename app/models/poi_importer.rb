@@ -37,6 +37,13 @@ class PoiImporter
   BBOX = [53.35, 8.40, 54.05, 10.40].freeze
   LAT_RANGE = (53.3..54.1)
   LNG_RANGE = (8.4..10.4)
+  # Answers are cached here as they arrive, so a run that loses a query to a
+  # throttled instance resumes instead of starting over.
+  CACHE_DIR = Rails.root.join('tmp/pois')
+  # Long enough to resume across a bad afternoon, short enough that a resumed
+  # run is still one coherent snapshot.
+  CACHE_TTL = 3.days
+
   TIMEOUT = 300
   # Between requests. The whole import is around 40 of them, so it takes tens of
   # minutes — it refreshes a register, and nothing waits on it.
@@ -83,10 +90,14 @@ class PoiImporter
 
   def self.import!(...) = new(...).import!
 
-  def initialize(path: nil)
+  def initialize(path: nil, cache_dir: CACHE_DIR)
     @path = path
+    @cache_dir = Pathname(cache_dir)
   end
 
+  # Nothing is written to the table until every query has answered. A partial
+  # import would be worse than none: import! empties the table first, so a
+  # missing tag value would silently delete a whole category of places.
   def import!
     now = Time.current
     rows = parse(read)
@@ -106,6 +117,18 @@ class PoiImporter
 
   class EmptyImportError < StandardError; end
 
+  # Raised when some queries never answered. Everything that did answer is
+  # cached, so re-running resumes rather than starting over.
+  class IncompleteImportError < StandardError
+    attr_reader :failures
+
+    def initialize(failures)
+      @failures = failures
+      super("#{failures.size} queries did not answer: #{failures.keys.join(', ')}. " \
+            'Answers so far are cached; re-run pois:import to retry only these.')
+    end
+  end
+
   def read
     return File.read(@path) if @path.present?
 
@@ -114,20 +137,90 @@ class PoiImporter
 
   # One request per tag *value*, not one for everything and not even one per
   # tag group: the public Overpass instance answers a query covering every tag
-  # with a 504, and so does a whole group as broad as leisure. The requests are
-  # independent, so the only cost of splitting is wall-clock.
+  # with a 504, and so does a whole group as broad as leisure.
+  #
+  # Around 45 requests against instances that throttle, so a single failure
+  # must not cost the other 44. Each answer is cached on disk as it arrives and
+  # a failure is recorded rather than raised, so the run always gets as far as
+  # it can and the next one picks up only what is missing.
   def fetch
-    queries.flat_map.with_index do |body, index|
-      sleep PAUSE if index.positive?
-      request(body)
+    failures = {}
+    elements = []
+    requested = 0
+    pending = queries
+
+    pending.each_with_index do |(key, body), index|
+      progress = "#{index + 1}/#{pending.size} #{key}"
+
+      cached = cached_elements(key)
+      if cached
+        Rails.logger.info "PoiImporter: #{progress} — #{cached.size} cached"
+        elements.concat(cached)
+        next
+      end
+
+      sleep PAUSE if requested.positive?
+      requested += 1
+
+      begin
+        fetched = store(key, request(body))
+        Rails.logger.info "PoiImporter: #{progress} — #{fetched.size} fetched"
+        elements.concat(fetched)
+      rescue StandardError => e
+        Rails.logger.warn "PoiImporter: #{progress} failed — #{e.class}: #{e.message.truncate(120)}"
+        failures[key] = e
+      end
+    end
+
+    raise IncompleteImportError, failures if failures.any?
+
+    elements
+  end
+
+  # [cache key, query body] per tag value.
+  def queries
+    TAGS.flat_map do |tag, values|
+      next [["#{tag}-any", query(tag, :any)]] if values == :any
+
+      values.map { |value| ["#{tag}-#{value}", query(tag, [value])] }
     end
   end
 
-  def queries
-    TAGS.flat_map do |tag, values|
-      values == :any ? [query(tag, :any)] : values.map { |value| query(tag, [value]) }
-    end
+  # What has already answered, so a resumed run can say so.
+  def cached_keys
+    queries.map(&:first).select { |key| cached_elements(key) }
   end
+
+  def clear_cache!
+    FileUtils.rm_rf(@cache_dir)
+  end
+
+  private
+
+  # A cached answer older than CACHE_TTL is ignored, so a resumed import cannot
+  # silently mix this week's data with last month's.
+  def cached_elements(key)
+    file = cache_file(key)
+    return nil unless file.exist?
+    return nil if file.mtime < CACHE_TTL.ago
+
+    JSON.parse(file.read)
+  rescue JSON::ParserError
+    nil
+  end
+
+  def store(key, elements)
+    file = cache_file(key)
+    FileUtils.mkdir_p(file.dirname)
+    file.write(JSON.generate(elements))
+    elements
+  end
+
+  def cache_file(key)
+    @cache_dir.join("#{key}.json")
+  end
+
+  public
 
   # Overpass rate-limits and times out under load; both are worth waiting out
   # rather than losing the whole import.

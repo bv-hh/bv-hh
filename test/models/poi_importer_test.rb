@@ -6,7 +6,10 @@ class PoiImporterTest < ActiveSupport::TestCase
   setup do
     @rows = PoiImporter.new.parse(file_fixture('overpass_pois_sample.json').read)
     @by_name = @rows.index_by { |row| row[:name] }
+    @cache_dir = Dir.mktmpdir('pois-cache')
   end
+
+  teardown { FileUtils.rm_rf(@cache_dir) }
 
   test 'parse builds a row per named feature in an accepted category' do
     park = @by_name['Teststadtpark']
@@ -91,7 +94,15 @@ class PoiImporterTest < ActiveSupport::TestCase
     expected = PoiImporter::TAGS.sum { |_tag, values| values == :any ? 1 : values.size }
 
     assert_equal expected, queries.size
-    assert(queries.all? { |query| query.include?('out center tags;') && query.include?('[name]') })
+    assert(queries.all? { |_key, query| query.include?('out center tags;') && query.include?('[name]') })
+  end
+
+  test 'every query is keyed by its tag and value, so answers cache separately' do
+    keys = PoiImporter.new.queries.map(&:first)
+
+    assert_includes keys, 'leisure-park'
+    assert_includes keys, 'historic-any'
+    assert_equal keys.uniq, keys
   end
 
   test 'a single value becomes its own selector, and :any matches the bare tag' do
@@ -102,6 +113,34 @@ class PoiImporterTest < ActiveSupport::TestCase
   test 'retries rotate through the endpoints rather than hammering one' do
     assert_operator PoiImporter::OVERPASS_URLS.size, :>, 1
     assert_operator PoiImporter::RETRIES, :>, PoiImporter::OVERPASS_URLS.size
+  end
+
+  test 'a cached answer is reused instead of re-requested' do
+    importer = PoiImporter.new(cache_dir: @cache_dir)
+    importer.send(:store, 'leisure-park', [{ 'type' => 'node', 'id' => 7,
+                                             'lat' => 53.58, 'lon' => 10.0,
+                                             'tags' => { 'leisure' => 'park', 'name' => 'Gecachter Park' } }])
+
+    assert_includes importer.cached_keys, 'leisure-park'
+    assert_equal 1, importer.send(:cached_elements, 'leisure-park').size
+  end
+
+  test 'a cached answer older than the TTL is ignored' do
+    importer = PoiImporter.new(cache_dir: @cache_dir)
+    importer.send(:store, 'leisure-park', [])
+    file = importer.send(:cache_file, 'leisure-park')
+    FileUtils.touch(file, mtime: (PoiImporter::CACHE_TTL + 1.day).ago.to_time)
+
+    assert_empty importer.cached_keys
+  end
+
+  test 'clear_cache! discards the answers' do
+    importer = PoiImporter.new(cache_dir: @cache_dir)
+    importer.send(:store, 'leisure-park', [])
+
+    importer.clear_cache!
+
+    assert_empty importer.cached_keys
   end
 
   test 'the query rejects what the parser would drop anyway' do

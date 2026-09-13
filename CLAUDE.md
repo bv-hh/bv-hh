@@ -83,6 +83,12 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 - **Import during a quiet window.** Each task does `delete_all` then re-inserts.
 - `pois:import` reads Overpass (one request per tag value, rotating endpoints on
   failure) or a local osmium GeoJSON export: `rake "pois:import[pois.geojson]"`.
+- **It is resumable.** Answers are cached in `tmp/pois` as they arrive, so a run
+  that loses a query to a throttled instance can simply be re-run — only the
+  missing queries are retried. Nothing is written to the table until the set is
+  complete, because the import empties the table first and a partial set would
+  delete a whole category of places. `rake pois:clear_cache` forces a full
+  re-fetch; the cache expires by itself after three days.
 - `rake pois:coverage` reports which resolution step answers each extracted name
   in the corpus. Read-only.
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.

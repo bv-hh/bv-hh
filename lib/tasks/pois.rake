@@ -1,10 +1,33 @@
 # frozen_string_literal: true
 
 namespace :pois do
+  # Around 45 Overpass requests against instances that throttle. Answers are
+  # cached as they arrive, so a run that loses one to a 504 can be re-run and
+  # will retry only what is missing. Nothing is written to the table until the
+  # set is complete — a partial import would silently delete a whole category,
+  # since the import empties the table first.
   desc 'Import named OpenStreetMap features in Hamburg into the POI gazetteer'
   task :import, [:path] => :environment do |_task, args|
-    total = PoiImporter.import!(path: args[:path].presence)
+    importer = PoiImporter.new(path: args[:path].presence)
+    resuming = importer.cached_keys
+    puts "Resuming: #{resuming.size} of #{importer.queries.size} queries already answered" if resuming.any?
+
+    begin
+      total = importer.import!
+    rescue PoiImporter::IncompleteImportError => e
+      warn "Incomplete: #{e.failures.size} queries did not answer."
+      e.failures.each { |key, error| warn "  #{key}: #{error.class}" }
+      warn 'Nothing was written. Re-run pois:import to retry only these; the rest is cached.'
+      exit 1
+    end
+
     puts "Imported #{total} POIs (#{Poi.pinnable.count} pinnable, #{Poi.where(generic: true).count} generic)"
+  end
+
+  desc 'Discard the cached Overpass answers, so the next import fetches everything'
+  task clear_cache: :environment do
+    PoiImporter.new.clear_cache!
+    puts 'Cleared the Overpass answer cache'
   end
 
   desc 'Recompute the alternative spellings on existing POIs'
