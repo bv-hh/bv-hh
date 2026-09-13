@@ -68,4 +68,20 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'Hamburg-Nord', json[:district]
     assert_includes json[:meetings].pluck(:title), meetings(:rega_ewi_oct).title
   end
+
+  test 'extractable_text includes attachment text, not just the body' do
+    document = documents(:document_7)
+    document.attachments.create!(district: document.district, name: 'Anlage',
+                                 content: '<p>Die Tannenstraße wird gesperrt.</p>')
+
+    assert_includes document.extractable_text, 'Tannenstraße'
+    assert_includes document.extractable_text, document.title
+  end
+
+  test 'extractable_text survives a document with no attachments' do
+    document = documents(:document_7)
+
+    assert_predicate document.attachments, :empty?
+    assert_includes document.extractable_text, document.title
+  end
 end

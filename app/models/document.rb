@@ -236,6 +236,14 @@ class Document < ApplicationRecord
     !complete? || (updated_at < 4.hours.ago)
   end
 
+  # Attachments carry the substance of a Drucksache often enough to matter: the
+  # body is frequently a cover note and the plan, the Anordnung or the reply
+  # lives in the PDF. Their extracted text is already stored, so searching it
+  # costs nothing extra.
+  def extractable_text
+    [title, full_text, attachments_content].compact_blank.join(' ').scrub
+  end
+
   def attachments_content
     ActionController::Base.helpers.strip_tags(attachments.map(&:content).join(' ')).squish.delete("\n")
   end
@@ -245,7 +253,7 @@ class Document < ApplicationRecord
   end
 
   def extract_locations!
-    all_text = "#{title} #{full_text}".scrub
+    all_text = extractable_text
     return if all_text.blank?
 
     gazetteer_locations = StreetGazetteer.match(all_text)
