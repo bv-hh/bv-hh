@@ -73,7 +73,7 @@ class Location < ApplicationRecord
 
       latlng = candidate['geometry']['location']
       next if latlng.blank?
-      next if Location.outside_hamburg?(latlng['lat'], latlng['lng'], district)
+      next if Location.outside_district?(latlng['lat'], latlng['lng'], district)
 
       if candidate['types'].intersect?(VALID_TYPES)
         Location.create!(district: district, name: candidate['name'], extracted_name: extracted_name, place_id: candidate['place_id'],
@@ -130,13 +130,18 @@ class Location < ApplicationRecord
   # A district's bounds are a rectangle, and Hamburg's neighbours poke into it:
   # Norderstedt's streets sit inside Hamburg-Nord's bounding box, so Google
   # results from there used to be accepted and pinned on the wrong map. The
-  # Quarter boundaries answer the same question exactly. Fall back to the
-  # rectangle while the quarters table is still empty, so a fresh install
-  # without an import does not reject every location.
-  def self.outside_hamburg?(latitude, longitude, district)
+  # district's real outline, built from its Stadtteile, answers the same
+  # question exactly. Fall back to the rectangle while the quarters table is
+  # still empty, so a fresh install without an import does not reject
+  # everything.
+  #
+  # Only the Google fallback is gated by this. A street legitimately crossing a
+  # Bezirk boundary comes from the gazetteer, which matches on the register's
+  # own multi-Bezirk street keys and never reaches here.
+  def self.outside_district?(latitude, longitude, district)
     return out_of_bounds?(latitude, longitude, district.bounds) unless Quarter.boundaries?
 
-    Quarter.covering(latitude, longitude).empty?
+    !district.contains?(latitude, longitude)
   end
 
   # Bounds is an array with two arrays each with lat lng as elements, indicating northeast and southwest corner of a bounding box

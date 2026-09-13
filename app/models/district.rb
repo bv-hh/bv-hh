@@ -76,8 +76,17 @@ class District < ApplicationRecord
     @by_bezirk_number[number]
   end
 
+  # A rectangle around the district. Still the right shape for Google's
+  # locationbias, which accepts nothing else, but not for answering "is this
+  # point in the district" — neighbouring towns poke into it. Use contains?.
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
+  end
+
+  # The district's real outline, as the union of its Stadtteile. A point on a
+  # shared boundary belongs to both Stadtteile, and so to both their districts.
+  def contains?(latitude, longitude)
+    Quarter.covering_quarters(latitude, longitude).any? { |quarter| quarter.bezirk == bezirk_number }
   end
 
   def bezirk_number

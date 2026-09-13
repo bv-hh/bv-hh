@@ -113,21 +113,36 @@ class LocationTest < ActiveSupport::TestCase
   # Norderstedt sits inside Hamburg-Nord's bounding rectangle.
   OUTSIDE_HAMBURG = [53.6742, 9.9894].freeze
 
-  test 'outside_hamburg? rejects a point the district bounding box would accept' do
+  test 'outside_district? rejects a point the district bounding box would accept' do
     assert_not Location.out_of_bounds?(*OUTSIDE_HAMBURG, @district.bounds),
                'precondition: the rectangle accepts this point'
-    assert Location.outside_hamburg?(*OUTSIDE_HAMBURG, @district)
+    assert Location.outside_district?(*OUTSIDE_HAMBURG, @district)
   end
 
-  test 'outside_hamburg? accepts a point inside a Quarter' do
-    assert_not Location.outside_hamburg?(53.5891, 10.0028, @district)
+  test 'outside_district? accepts a point inside the district' do
+    assert_not Location.outside_district?(53.5891, 10.0028, @district)
   end
 
-  test 'outside_hamburg? falls back to the bounding box when no boundaries are imported' do
+  # The old rectangle accepted anything in its box, including places belonging
+  # to a neighbouring Bezirk. The real outline does not.
+  test 'outside_district? rejects a point in another Bezirk' do
+    lokstedt = quarters(:lokstedt)
+    point = [lokstedt.min_lat + 0.01, lokstedt.min_lng + 0.01]
+
+    assert_equal ['Lokstedt'], Quarter.covering(*point), 'precondition: the point is in Bezirk 3'
+    assert Location.outside_district?(*point, @district), 'but hamburg_nord is Bezirk 4'
+  end
+
+  test 'district contains? follows its Stadtteile, not its bounding box' do
+    assert @district.contains?(53.5891, 10.0028)
+    assert_not @district.contains?(*OUTSIDE_HAMBURG)
+  end
+
+  test 'outside_district? falls back to the bounding box when no boundaries are imported' do
     Quarter.delete_all
     Quarter.reset!
 
-    assert_not Location.outside_hamburg?(*OUTSIDE_HAMBURG, @district),
+    assert_not Location.outside_district?(*OUTSIDE_HAMBURG, @district),
                'without polygons it can only fall back to the rectangle'
   end
 

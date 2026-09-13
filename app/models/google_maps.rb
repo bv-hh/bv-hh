@@ -20,6 +20,9 @@ class GoogleMaps
     end
 
     def find_places_uncached(query, district, options = {})
+      # A rectangle on purpose: the Places API's locationbias takes nothing
+      # else. It is only a hint — results are checked against the district's
+      # real outline in Location.outside_district?.
       nw = district.bounds.first.join(',')
       se = district.bounds.last.join(',')
       bias = "rectangle:#{nw}|#{se}"

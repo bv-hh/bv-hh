@@ -49,9 +49,15 @@ class Quarter < ApplicationRecord
     # Names of every Quarter containing the point. Normally one; two on a
     # shared boundary; none for a point outside Hamburg (or without coordinates).
     def covering(latitude, longitude)
+      covering_quarters(latitude, longitude).map(&:name)
+    end
+
+    # The records behind +covering+, for callers that need more than the name —
+    # District#contains? asks them which Bezirk the point is in.
+    def covering_quarters(latitude, longitude)
       return [] if latitude.blank? || longitude.blank?
 
-      all_cached.select { |quarter| quarter.contains?(latitude, longitude) }.map(&:name)
+      all_cached.select { |quarter| quarter.contains?(latitude, longitude) }
     end
 
     # Whether boundaries have been imported at all. Callers use this to decide
