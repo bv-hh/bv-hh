@@ -12,8 +12,10 @@
 #
 # Indexes
 #
-#  index_document_locations_on_document_id  (document_id)
-#  index_document_locations_on_location_id  (location_id)
+#  index_document_locations_on_document_and_location  (document_id,location_id) UNIQUE
+#  index_document_locations_on_document_id            (document_id)
+#  index_document_locations_on_location_and_document  (location_id,document_id)
+#  index_document_locations_on_location_id            (location_id)
 #
 
 class DocumentLocation < ApplicationRecord
