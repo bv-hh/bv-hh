@@ -27,7 +27,10 @@
 class Location < ApplicationRecord
   BLOCKED_LOCATIONS = %w[deutschland norderstedt hamburg hamburgs straße] +
                       District.all.map { |d| [d.name.downcase, "bezirk #{d.name.downcase}"] }.flatten + ['hamburg nord', 'hamburg mitte']
-  VALID_TYPES = %w[park route political sublocality]
+  # 'political' covered countries, states and whole districts — the vague end,
+  # and the source of pins like "Innenstadt". 'sublocality' stays: it is what
+  # names a real sub-area such as Jarrestadt or Karolinenviertel.
+  VALID_TYPES = %w[park route sublocality]
 
   belongs_to :district
 
@@ -55,6 +58,9 @@ class Location < ApplicationRecord
 
   def self.determine_locations(extracted_name, district)
     return [] if blocked?(extracted_name)
+    # Stadtteile are areas, recorded on the document as documents.quarters.
+    # Geocoding one would put a point in the middle of it.
+    return [] if Quarter.canonical_names([extracted_name]).any?
 
     locations = Location.normalized(extracted_name)
     return locations if locations.present?

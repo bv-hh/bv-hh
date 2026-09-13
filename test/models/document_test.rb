@@ -84,4 +84,30 @@ class DocumentTest < ActiveSupport::TestCase
     assert_predicate document.attachments, :empty?
     assert_includes document.extractable_text, document.title
   end
+
+  test 'extracted_quarters picks Stadtteile out of the extracted names' do
+    document = documents(:document_7)
+    document.extracted_locations = %w[Heilwigstraße barmbek-nord Gibtsnicht]
+
+    assert_equal ['Barmbek-Nord'], document.extracted_quarters, 'canonicalised to the register spelling'
+  end
+
+  test 'extracted_quarters ignores the Stadtteil a local committee is named for' do
+    document = documents(:document_7)
+    document.extracted_locations = ['Barmbek-Nord']
+    # A local committee is identified by its name, and #area is derived from it.
+    committee = document.meetings.first.committee
+    committee.update!(name: 'Regionalausschuss Barmbek-Nord')
+
+    assert_equal 'Barmbek-Nord', committee.reload.area, 'precondition'
+
+    assert_empty document.extracted_quarters
+  end
+
+  test 'extracted_quarters is empty when nothing matches' do
+    document = documents(:document_7)
+    document.extracted_locations = ['Heilwigstraße']
+
+    assert_empty document.extracted_quarters
+  end
 end

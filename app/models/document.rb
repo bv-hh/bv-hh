@@ -266,6 +266,7 @@ class Document < ApplicationRecord
 
     self.locations_extracted_at = Time.zone.now
     self.extracted_locations = (gazetteer_locations + ner_locations).uniq
+    self.quarters = extracted_quarters
     save!
 
     assign_locations_later! if extracted_locations.present?
@@ -285,6 +286,17 @@ class Document < ApplicationRecord
         document_locations.find_or_create_by!(location: location)
       end
     end
+  end
+
+  # Stadtteile named outright in the text. Recorded on the document rather than
+  # geocoded, because a Stadtteil is an area and Google would answer with a
+  # point in the middle of it.
+  #
+  # A regional committee is named after the Stadtteile it covers, so its own
+  # name would otherwise tag every one of its Drucksachen — the same reason
+  # assign_locations! skips those.
+  def extracted_quarters
+    Quarter.canonical_names(extracted_locations).reject { |name| from_local_committee?(name) }
   end
 
   def from_local_committee?(location_name)

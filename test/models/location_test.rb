@@ -180,4 +180,26 @@ class LocationTest < ActiveSupport::TestCase
     assert_empty attributes[:quarters]
     assert_equal 'heilwigstraße', attributes[:street_name], 'the street name still applies'
   end
+
+  # --- Stadtteile are areas, not points ---------------------------------------
+
+  test 'determine_locations refuses to geocode a Stadtteil name' do
+    assert_no_difference -> { Location.count } do
+      assert_empty Location.determine_locations('Barmbek-Nord', @district)
+    end
+  end
+
+  test 'determine_locations is case insensitive about Stadtteil names' do
+    assert_empty Location.determine_locations('barmbek-nord', @district)
+  end
+
+  test 'determine_locations still resolves a street' do
+    assert_equal ['Testallee'], Location.determine_locations('Testallee', @district).map(&:name)
+  end
+
+  test 'political is no longer an acceptable Google place type' do
+    assert_not_includes Location::VALID_TYPES, 'political'
+    assert_includes Location::VALID_TYPES, 'sublocality'
+    assert_includes Location::VALID_TYPES, 'route'
+  end
 end
