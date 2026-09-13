@@ -39,8 +39,10 @@ class Location < ApplicationRecord
 
   before_save :normalize_name
 
+  # BLOCKED_LOCATIONS is the hand-written core; BlockedLocationName is the list
+  # derived from the corpus and extended by editors. See LocationBlocklist.
   def self.blocked?(location)
-    BLOCKED_LOCATIONS.include?(normalize(location))
+    BLOCKED_LOCATIONS.include?(normalize(location)) || BlockedLocationName.blocked?(location)
   end
 
   def self.normalized(name)

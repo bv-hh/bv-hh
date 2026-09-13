@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -197,6 +197,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_210000) do
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
+  end
+
+  create_table "blocked_location_names", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "district_count", default: 0, null: false
+    t.string "name", null: false
+    t.string "normalized_name", null: false
+    t.integer "occurrences", default: 0, null: false
+    t.string "source", default: "computed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["normalized_name"], name: "index_blocked_location_names_on_normalized_name", unique: true
+    t.index ["source"], name: "index_blocked_location_names_on_source"
   end
 
   create_table "committees", force: :cascade do |t|
