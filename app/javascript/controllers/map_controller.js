@@ -13,7 +13,30 @@ export default class extends Controller {
     let center = [this.data.get('lat'), this.data.get('lng')]
     this.map.setView(center, this.data.get('zoom'))
 
+    this.showBoundary()
     this.showLocations(3)
+  }
+
+  // The district outline, drawn like the one on a Stadtteil page. The city-wide
+  // map has no boundary URL and stays as it was.
+  async showBoundary() {
+    let url = this.data.get('boundary')
+    if (!url) return
+
+    let response = await fetch(url, { headers: { Accept: "application/json" }})
+    if (!response.ok) return
+
+    let data = await response.json()
+    this.drawBoundary(data.boundary)
+  }
+
+  // GeoJSON is [polygon][ring][point][lng, lat]; Leaflet wants [lat, lng].
+  drawBoundary(polygons) {
+    if (!polygons || polygons.length == 0) return
+
+    let rings = polygons.map(polygon => polygon.map(ring => ring.map(([lng, lat]) => [lat, lng])))
+
+    L.polygon(rings, { color: "#0d6efd", weight: 2, fillOpacity: 0.06, interactive: false }).addTo(this.map)
   }
 
   createMap() {

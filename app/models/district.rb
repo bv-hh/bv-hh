@@ -95,6 +95,12 @@ class District < ApplicationRecord
     NUMBERS[name]
   end
 
+  # The district's outline as GeoJSON MultiPolygon coordinates, for drawing it
+  # on a map. Empty until the Stadtteile have been imported.
+  def outline
+    DistrictOutline.for(number)
+  end
+
   def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))
     html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
 

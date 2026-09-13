@@ -11,6 +11,11 @@ class MapsController < ApplicationController
       @center = HH_CENTER
       @zoom = 11
     end
+
+    respond_to do |format|
+      format.html
+      format.json { render json: boundary_data }
+    end
   end
 
   def markers
@@ -40,5 +45,15 @@ class MapsController < ApplicationController
     end
 
     render json: markers
+  end
+
+  private
+
+  # The district's outline, so the map can draw it around the markers. The
+  # city-wide map has nothing to outline.
+  def boundary_data
+    return { boundary: nil, bounds: nil } if @district.blank?
+
+    { boundary: @district.outline, bounds: @district.bounds }
   end
 end

@@ -7,7 +7,7 @@ h1
     - else
       ' Alle Bezirke
 
-#map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path
+#map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path data-map-boundary=(map_path(format: :json) if @district.present?)
   .float-end.mt-1
     .beta.mb-3
       span.badge.text-bg-warning> Beta

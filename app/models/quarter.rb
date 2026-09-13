@@ -86,6 +86,7 @@ class Quarter < ApplicationRecord
     def reset!
       @all_cached = nil
       @by_slug = nil
+      DistrictOutline.reset!
     end
 
     private
