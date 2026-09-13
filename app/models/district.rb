@@ -67,6 +67,15 @@ class District < ApplicationRecord
     @districts[path.parameterize]
   end
 
+  # The district for an official Hamburg Bezirk number, memoized like .lookup.
+  # Quarters carry that number rather than a district_id, because the Bezirk
+  # boundaries come from the geo register and not from Allris.
+  def self.by_bezirk_number(number)
+    @by_bezirk_number ||= District.all.index_by(&:bezirk_number)
+
+    @by_bezirk_number[number]
+  end
+
   def bounds
     [[ne_lat, ne_lng], [sw_lat, sw_lng]]
   end
