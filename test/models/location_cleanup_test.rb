@@ -65,7 +65,64 @@ class LocationCleanupTest < ActiveSupport::TestCase
     assert_not DocumentLocation.exists?(link.id)
   end
 
+  # --- links left behind by the cross-district reuse -------------------------
+
+  test 'finds a document claiming a location its own district would not resolve' do
+    location = foreign_location
+    link_to(location, district: @district)
+
+    entry = links_for(location).sole
+
+    assert_equal @district, entry.district
+    assert_equal 1, entry.documents
+  end
+
+  test 'keeps a link from the district the register places the street in' do
+    location = Location.determine_locations('Testallee', @district).sole
+    link_to(location, district: @district)
+
+    assert_empty links_for(location)
+  end
+
+  test 'apply! drops the foreign links without deleting the location' do
+    location = foreign_location
+    link = link_to(location, district: @district)
+
+    LocationCleanup.new.apply!
+
+    assert Location.exists?(location.id), 'Weitweg is a real street in Wandsbek'
+    assert_not DocumentLocation.exists?(link.id)
+  end
+
+  test 'apply! reports the locations and the links separately' do
+    build_legacy(extracted_name: 'Stadtpark', name: 'Ententeich im Stadtpark')
+    link_to(foreign_location, district: @district)
+
+    deleted, dropped = LocationCleanup.new.apply!
+
+    assert_operator deleted, :positive?
+    assert_equal 1, dropped
+  end
+
   private
+
+  # A row the register places in Wandsbek, which Hamburg-Nord documents used to
+  # be able to claim because the reuse was not district-confined.
+  def foreign_location
+    wandsbek = District.create!(name: 'Wandsbek', order: 5, allris_base_url: 'https://example.test')
+
+    Location.determine_locations('Weitweg', wandsbek).sole
+  end
+
+  def link_to(location, district:)
+    document = Document.create!(district: district, title: 'Test', allris_id: rand(1_000_000))
+
+    document.document_locations.create!(location: location)
+  end
+
+  def links_for(location)
+    LocationCleanup.new.stale_links.select { |entry| entry.location == location }
+  end
 
   def stale_locations
     LocationCleanup.new.stale.map(&:location)

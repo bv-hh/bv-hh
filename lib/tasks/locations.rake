@@ -23,20 +23,36 @@ namespace :locations do
   # Everything the Google era left behind, found by asking of each row whether
   # the registers would produce it today. Broader than purge_blocked, which only
   # knows about blocked names.
+  #
+  # Two questions, because there are two ways to be wrong. A row can be a place
+  # no register names any more, and a document can claim a row its own district
+  # would never resolve — the residue of the cross-district reuse that let one
+  # word pin all seven. The first deletes locations, the second only the links.
   desc 'Show (or delete) locations no register would produce any more'
   task :sweep, [:apply] => :environment do |_task, args|
     cleanup = LocationCleanup.new
     stale = cleanup.stale
+    doomed = stale.to_set { |entry| entry.location.id }
+    links = cleanup.stale_links.reject { |entry| doomed.include?(entry.location.id) }
 
     stale.sort_by { |entry| -entry.documents }.each do |entry|
       puts format('%<docs>4d docs  %<name>-40s %<reason>s',
                   docs: entry.documents, name: entry.location.name.to_s.truncate(40), reason: entry.reason)
     end
 
+    puts '' if links.any?
+    links.sort_by { |entry| -entry.documents }.each do |entry|
+      puts format('%<docs>4d docs  %<name>-40s not a place in %<district>s',
+                  docs: entry.documents, name: entry.location.name.to_s.truncate(40), district: entry.district.name)
+    end
+
     if args[:apply] == 'apply'
-      puts "Deleted #{cleanup.apply!} locations"
+      deleted, dropped = cleanup.apply!
+      puts "Deleted #{deleted} locations and #{dropped} stale document links"
     else
-      puts "#{stale.size} of #{Location.count} locations would be deleted. Re-run as locations:sweep[apply]."
+      puts "#{stale.size} of #{Location.count} locations would be deleted, " \
+           "plus #{links.sum(&:documents)} document links on rows that stay. " \
+           'Re-run as locations:sweep[apply].'
     end
   end
 

@@ -17,6 +17,7 @@
 # Dry run by default; the rake task writes only when told to.
 class LocationCleanup
   Stale = Struct.new(:location, :reason, :documents, keyword_init: true)
+  StaleLinks = Struct.new(:location, :district, :documents, keyword_init: true)
 
   def stale
     @stale ||= Location.includes(:district, documents: :district).filter_map do |location|
@@ -27,35 +28,77 @@ class LocationCleanup
     end
   end
 
+  # Documents still claiming a location their own district would not resolve.
+  #
+  # Assignment is additive — it find_or_create_by!s a link and never removes
+  # one — so the links a shared row collected while the reuse was cross-district
+  # outlive the row's repair. Deleting the location cannot fix these: a street
+  # that is real in one district keeps its row, and only the foreign documents
+  # hanging off it are wrong.
+  #
+  # Asked once per (location, district) pair rather than once per link: there
+  # are seven districts and hundreds of thousands of links.
+  def stale_links
+    @stale_links ||= link_pairs.filter_map do |(location_id, district_id), count|
+      location = locations_by_id[location_id]
+      district = districts_by_id[district_id]
+      next if location.blank? || district.blank?
+      next if expected_names(location.extracted_name, district).include?(location.name)
+
+      StaleLinks.new(location: location, district: district, documents: count)
+    end
+  end
+
   # Destroying a location takes its document_locations with it, which is the
   # point: the documents stop claiming a place that is not one.
   def apply!
-    stale.each { |entry| entry.location.destroy }.size
+    dropped = drop_stale_links!
+    [stale.each { |entry| entry.location.destroy }.size, dropped]
   end
 
   private
 
+  # Links belonging to a location that is going away anyway are left to the
+  # cascade; counting them twice would only inflate the report.
+  def drop_stale_links!
+    doomed = stale.to_set { |entry| entry.location.id }
+
+    stale_links.reject { |entry| doomed.include?(entry.location.id) }.sum do |entry|
+      DocumentLocation.where(location: entry.location)
+                      .where(document: Document.where(district: entry.district)).delete_all
+    end
+  end
+
+  def link_pairs
+    @link_pairs ||= DocumentLocation.joins(:document).group(:location_id, 'documents.district_id').count
+  end
+
+  def locations_by_id
+    @locations_by_id ||= Location.includes(:district).index_by(&:id)
+  end
+
+  def districts_by_id
+    @districts_by_id ||= District.all.index_by(&:id)
+  end
+
   # Why this row would not be created today, or nil when it still would be.
+  #
+  # Asked of the row's own district alone. It used to be asked of every district
+  # holding a document, because reuse was cross-district and a row's district_id
+  # was merely whichever got there first — but that is the behaviour that let
+  # one word pin seven districts, and resolution no longer works that way. A row
+  # the register does not place in its own district is now debris; reanalysis
+  # rebuilds it under the district that does own the street.
   def staleness(location)
-    districts = districts_for(location)
-    return 'no district' if districts.empty?
+    district = location.district
+    return 'no district' if district.blank?
 
     name = location.extracted_name
     return 'blocked name' if Location.blocked?(name)
     return 'Stadtteil, recorded on the document instead' if Quarter.canonical_names([name]).any?
-
-    return nil if districts.any? { |district| expected_names(name, district).include?(location.name) }
+    return nil if expected_names(name, district).include?(location.name)
 
     'no register answers with this place'
-  end
-
-  # Every district that could have created this row. Location.normalized has no
-  # district filter, so one row is shared by every district that mentions the
-  # name and its own district_id is merely whichever got there first — asking
-  # only that one would condemn a Hamburg-Nord street held by a Hamburg-Mitte
-  # row.
-  def districts_for(location)
-    ([location.district] + location.documents.map(&:district)).compact.uniq
   end
 
   # The names the registers would answer with, in the resolution order of
