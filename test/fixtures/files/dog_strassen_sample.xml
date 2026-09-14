@@ -4,7 +4,7 @@
     xmlns:gml="http://www.opengis.net/gml/3.2"
     xmlns:iso19112="http://www.opengis.net/iso19112"
     xmlns:dog="http://www.adv-online.de/namespaces/adv/dog"
-    numberMatched="3" numberReturned="3">
+    numberMatched="4" numberReturned="4">
   <wfs:member>
     <dog:Strassen gml:id="HH_STR_1">
       <iso19112:position>
@@ -52,6 +52,20 @@
       <dog:strassenname_normalisiert>WEITWEG</dog:strassenname_normalisiert>
       <dog:ortsteilname>Duvenstedt,OT 0525</dog:ortsteilname>
       <dog:postleitzahl>22397</dog:postleitzahl>
+    </dog:Strassen>
+  </wfs:member>
+  <wfs:member>
+    <dog:Strassen gml:id="HH_STR_4">
+      <iso19112:position>
+        <gml:Point gml:id="HH_STR_4_POS" srsName="EPSG:4326">
+          <gml:pos>9.99 53.65</gml:pos>
+        </gml:Point>
+      </iso19112:position>
+      <dog:strassenschluessel>02;4;13;432;0432;00200</dog:strassenschluessel>
+      <dog:strassenname>-Parkanlagen</dog:strassenname>
+      <dog:strassenname_normalisiert>-PARKANLAGEN</dog:strassenname_normalisiert>
+      <dog:ortsteilname>Langenhorn,OT 0432</dog:ortsteilname>
+      <dog:postleitzahl>22419</dog:postleitzahl>
     </dog:Strassen>
   </wfs:member>
 </wfs:FeatureCollection>

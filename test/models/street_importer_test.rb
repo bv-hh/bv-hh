@@ -44,6 +44,10 @@ class StreetImporterTest < ActiveSupport::TestCase
     assert_equal 'julius vosseler straße', julius[:normalized_name]
   end
 
+  test 'parse drops a register row whose name is a compound fragment' do
+    assert_not_includes @rows.pluck(:name), '-Parkanlagen'
+  end
+
   test 'parse uses the representative position, not the street axis' do
     testallee = @rows.find { |row| row[:name] == 'Testallee' }
     assert_in_delta 53.58, testallee[:latitude]

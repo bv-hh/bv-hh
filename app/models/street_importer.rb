@@ -61,7 +61,7 @@ class StreetImporter
 
     doc.xpath('//Strassen').filter_map do |node|
       name = text_at(node, './strassenname')
-      next if name.blank?
+      next if name.blank? || fragment?(name)
 
       latitude, longitude = coordinates(node)
 
@@ -85,6 +85,19 @@ class StreetImporter
   end
 
   private
+
+  # The register carries park grounds as "<street>-Parkanlagen" — there are
+  # hundreds of them, "Adlerstraße-Parkanlagen", "Am Brabandkanal-Parkanlagen".
+  # One row has lost its street and is named "-Parkanlagen" outright, which made
+  # the register answer authoritatively for the bare word "Parkanlagen" and put
+  # 389 documents from all seven districts on one point in Langenhorn.
+  #
+  # A name that opens with punctuation is the tail of a compound, not a street.
+  # It is the only such row in the 9535, and the register is not going to grow a
+  # legitimate one.
+  def fragment?(name)
+    name.match?(/\A[^\p{L}\p{N}]/)
+  end
 
   def text_at(node, xpath)
     node.at_xpath(xpath)&.text&.squish.presence
