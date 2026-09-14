@@ -91,6 +91,11 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
   re-fetch; the cache expires by itself after three days.
 - `rake pois:coverage` reports which resolution step answers each extracted name
   in the corpus. Read-only.
+- **After an import, `rake locations:reassign`, not `rake streets:reanalyze`.**
+  Reanalysis re-reads every document through the NER model; an import changes
+  only how a name resolves to a place, not which names were found. Reanalyse
+  only when the extraction itself changed. `locations:sweep` needs neither — it
+  enqueues exactly the documents it took a link from.
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
 
 ## Initial Setup
