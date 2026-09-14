@@ -43,6 +43,33 @@ class DistrictOutlineTest < ActiveSupport::TestCase
     assert_equal 2, DistrictOutline.for(99).size
   end
 
+  # --- distance to the border -------------------------------------------------
+
+  test 'distance_to measures to the nearest segment, not the nearest corner' do
+    quarter(:box, square(9.95, 53.55, 10.05, 53.62))
+
+    # Opposite the middle of the northern edge: 0.005 degrees of latitude out,
+    # but more than a kilometre from either corner.
+    metres = DistrictOutline.distance_to(99, 53.625, 10.00)
+
+    assert_in_delta 556, metres, 30
+  end
+
+  test 'distance_to is zero on the border and measures outwards from it either way' do
+    quarter(:box, square(9.95, 53.55, 10.05, 53.62))
+
+    assert_in_delta 0, DistrictOutline.distance_to(99, 53.62, 10.00), 1, 'on the border'
+    assert_in_delta 2226, DistrictOutline.distance_to(99, 53.60, 10.00), 30, 'inside, and still measured to the border'
+  end
+
+  test 'distance_to is infinite without an outline or a point' do
+    assert_equal Float::INFINITY, DistrictOutline.distance_to(99, 53.6, 10.0)
+
+    quarter(:box, square(9.95, 53.55, 10.05, 53.62))
+
+    assert_equal Float::INFINITY, DistrictOutline.distance_to(99, nil, nil)
+  end
+
   test 'is empty for a district without imported Stadtteile' do
     assert_empty DistrictOutline.for(99)
     assert_empty DistrictOutline.for(nil)

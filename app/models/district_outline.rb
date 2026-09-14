@@ -12,6 +12,12 @@ class DistrictOutline
   # precision would triple the size of the response.
   PRECISION = 5
 
+  # One degree of latitude, and of longitude at the equator. Hamburg spans a
+  # fiftieth of a degree, so treating the outline as flat over that span and
+  # scaling longitude by cos(latitude) is accurate to well under a metre —
+  # far inside what this is asked to distinguish.
+  METRES_PER_DEGREE = 111_320.0
+
   class << self
     # GeoJSON MultiPolygon coordinates, [polygon][ring][point][lng, lat] — the
     # same shape as Quarter#geometry, so the map draws both the same way.
@@ -21,12 +27,51 @@ class DistrictOutline
       cache[district_number] ||= new(Quarter.in_district(district_number).to_a).polygons
     end
 
+    # Metres from a point to the district's border, 0 for a point on it. This is
+    # distance to the *border*, not to the district: a point deep inside is far
+    # from it too. Its caller only ever asks about points outside, where the two
+    # readings agree — see Street.near_for.
+    #
+    # Distance to the nearest *segment*, not the nearest vertex: ALKIS puts a
+    # vertex only where the border changes direction, so a point opposite the
+    # middle of a long straight stretch has no vertex anywhere near it.
+    def distance_to(district_number, latitude, longitude)
+      return Float::INFINITY if latitude.blank? || longitude.blank?
+
+      rings = self.for(district_number).flatten(1)
+      return Float::INFINITY if rings.empty?
+
+      scale = Math.cos(latitude * Math::PI / 180)
+      rings.filter_map { |ring| nearest_on_ring(ring, latitude, longitude, scale) }.min || Float::INFINITY
+    end
+
     # Drops the memoized outlines; called from Quarter.reset! after an import.
     def reset!
       @cache = nil
     end
 
     private
+
+    def nearest_on_ring(ring, latitude, longitude, scale)
+      ring.each_cons(2).map do |(lng1, lat1), (lng2, lat2)|
+        nearest_on_segment(latitude, longitude, [lat1, lng1], [lat2, lng2], scale)
+      end.min
+    end
+
+    # Distance to a line segment, in the flat projection: the foot of the
+    # perpendicular where it falls between the endpoints, and the nearer
+    # endpoint where it does not.
+    def nearest_on_segment(latitude, longitude, from, to, scale)
+      x = (longitude - from.last) * scale
+      y = latitude - from.first
+      dx = (to.last - from.last) * scale
+      dy = to.first - from.first
+
+      length = (dx * dx) + (dy * dy)
+      along = length.zero? ? 0.0 : (((x * dx) + (y * dy)) / length).clamp(0.0, 1.0)
+
+      Math.hypot(x - (along * dx), y - (along * dy)) * METRES_PER_DEGREE
+    end
 
     def cache
       @cache ||= {}

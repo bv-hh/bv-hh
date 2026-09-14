@@ -146,4 +146,35 @@ class StreetTest < ActiveSupport::TestCase
     assert_empty Street.fuzzy_for('Testalee', districts(:hamburg_nord), floor: 0.99)
     assert_equal [streets(:testallee)], Street.fuzzy_for('Testalee', districts(:hamburg_nord), floor: 0.5).to_a
   end
+
+  # --- streets just over the district border ----------------------------------
+
+  # districts(:hamburg_nord) is Bezirk 4; quarters.yml puts its northern border
+  # at 53.62 between lng 10.00 and 10.05.
+  test 'near_for finds a street of another district close to the border' do
+    street = border_street('Grenzweg', latitude: 53.625)
+
+    assert_equal [street], Street.near_for('Grenzweg', districts(:hamburg_nord)).to_a
+  end
+
+  test 'near_for refuses one further away than the threshold' do
+    border_street('Fernweg', latitude: 53.65)
+
+    assert_empty Street.near_for('Fernweg', districts(:hamburg_nord))
+  end
+
+  test 'near_for never answers with a street the district already owns' do
+    assert_empty Street.near_for('Testallee', districts(:hamburg_nord))
+  end
+
+  test 'near_for takes the threshold as an argument, so it can be measured' do
+    border_street('Fernweg', latitude: 53.65)
+
+    assert_predicate Street.near_for('Fernweg', districts(:hamburg_nord), metres: 5_000), :one?
+  end
+
+  def border_street(name, latitude:)
+    Street.create!(name: name, latitude: latitude, longitude: 10.02, district_numbers: [5],
+                   street_key: "02;5;00;000;0000;#{name[0, 1]}0010")
+  end
 end

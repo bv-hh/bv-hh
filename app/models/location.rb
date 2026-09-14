@@ -57,7 +57,8 @@ class Location < ApplicationRecord
   #
   #   1. the official street register, exactly
   #   2. the OpenStreetMap POI gazetteer, exactly
-  #   3. the street register again, through a trigram match, for OCR damage
+  #   3. either register again, for a place just over the district border
+  #   4. the street register again, through a trigram match, for OCR damage
   #
   # Google Places used to sit at the end and answer for anything, which is why
   # the blocklist had to exist. With it gone, an unknown name simply produces
@@ -71,7 +72,8 @@ class Location < ApplicationRecord
   # Reusing a row across districts threw that answer away and let whichever
   # district happened to mention the word first pin all seven — 1041 documents
   # on one point for "Plan" alone. A district that the register does not place
-  # the street in now resolves nothing, which is what it should have said.
+  # the street in now resolves nothing — unless the place is right on its
+  # border, which step 3 is for.
   def self.determine_locations(extracted_name, district)
     return [] if blocked?(extracted_name)
     # Stadtteile are areas, recorded on the document as documents.quarters.
@@ -83,6 +85,7 @@ class Location < ApplicationRecord
 
     from_gazetteer(extracted_name, district).presence ||
       from_poi(extracted_name, district).presence ||
+      from_nearby(extracted_name, district).presence ||
       from_fuzzy_gazetteer(extracted_name, district)
   end
 
@@ -118,6 +121,24 @@ class Location < ApplicationRecord
   # answered — unlike the Google path, which needed one.
   def self.from_poi(extracted_name, district)
     Poi.for(extracted_name, district).map do |poi|
+      build_location(extracted_name, district, name: poi.name, latitude: poi.latitude,
+                                               longitude: poi.longitude, place_id: poi.place_key,
+                                               formatted_address: poi.formatted_address)
+    end
+  end
+
+  # A street or POI just outside the district, close enough to its border that
+  # a document from it means the real place. Above the trigram match because a
+  # real place 400 m away is a better answer than a corrected spelling, and
+  # below both exact steps because a district's own register always wins.
+  def self.from_nearby(extracted_name, district)
+    nearby = Street.near_for(extracted_name, district).map do |street|
+      build_location(extracted_name, district, name: street.name, latitude: street.latitude,
+                                               longitude: street.longitude, place_id: "gazetteer:#{street.street_key}",
+                                               formatted_address: street.formatted_address)
+    end
+
+    nearby.presence || Poi.near_for(extracted_name, district).map do |poi|
       build_location(extracted_name, district, name: poi.name, latitude: poi.latitude,
                                                longitude: poi.longitude, place_id: poi.place_key,
                                                formatted_address: poi.formatted_address)

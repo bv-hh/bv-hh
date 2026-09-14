@@ -51,9 +51,9 @@ class LocationCleanup
   end
 
   # Destroying a location takes its document_locations with it, which is the
-  # point: the documents stop claiming a place that is not one.
-  # Reports the documents it touched, because they are exactly the ones that
-  # need assigning again — see affected_document_ids.
+  # point: the documents stop claiming a place that is not one. Reports the
+  # documents it touched, because they are exactly the ones that need assigning
+  # again — see affected_document_ids.
   def apply!
     documents = affected_document_ids
     dropped = drop_stale_links!
@@ -64,15 +64,16 @@ class LocationCleanup
 
   # The documents losing a link here, collected before anything is deleted.
   #
-  # This is the whole set that needs reassigning. A sweep only ever removes, and
-  # so does the resolution change behind it: confining a name to the district
-  # the register gives it can narrow what a document resolves, never widen it.
-  # So a document the sweep does not touch cannot gain a location either, and
-  # the rows the sweep deletes are rebuilt from these documents under the
-  # district that owns the street.
+  # Enough whenever the sweep is the only thing that changed: it only removes,
+  # and the rows it deletes are rebuilt from these same documents under the
+  # district that owns the street. Worth the bookkeeping, since this is a few
+  # thousand documents where re-running extraction is 58000, each an NER pass
+  # over a PDF's text.
   #
-  # Worth the bookkeeping: this is a few thousand documents, where re-running
-  # extraction over the corpus is 58000, each one an NER pass over a PDF's text.
+  # NOT enough after a change that lets a name resolve where it did not before —
+  # a widened threshold in Street.near_for, a register import. A document the
+  # sweep never touches can gain a location then, and only locations:reassign
+  # over the corpus finds it.
   def affected_document_ids
     @affected_document_ids ||= begin
       ids = DocumentLocation.where(location: stale.map(&:location)).pluck(:document_id)
@@ -155,8 +156,13 @@ class LocationCleanup
   def expected_names(name, district)
     names = Street.for(name, district).map(&:name)
     names = Poi.for(name, district).map(&:name) if names.empty?
+    names = near_names(name, district) if names.empty?
     names = Street.fuzzy_for(name, district).map(&:name) if names.empty?
 
     names + Poi.transit_for(name, district).map(&:name)
+  end
+
+  def near_names(name, district)
+    Street.near_for(name, district).map(&:name).presence || Poi.near_for(name, district).map(&:name)
   end
 end

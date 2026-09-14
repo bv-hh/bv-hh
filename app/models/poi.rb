@@ -82,6 +82,21 @@ class Poi < ApplicationRecord
             .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
   end
 
+  # POIs of this name just outside the district but close to its border, the
+  # counterpart of Street.near_for. Parks and green spaces straddle district
+  # lines more often than streets do — the Niendorfer Gehege and the Stadtpark
+  # are each written about from both sides.
+  def self.near_for(name, district, metres: Street::NEAR_METRES)
+    number = district.number
+    normalized = normalize(name)
+    return none if number.blank? || normalized.blank?
+
+    candidates = pinnable.where.not(district_number: number)
+                         .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
+
+    where(id: candidates.select { |poi| Street.near?(poi, number, metres) }.map(&:id))
+  end
+
   # The spellings +name+ might appear as, minus the name itself. Too-short
   # results are dropped for the same reason MIN_LENGTH exists at all.
   def self.aliases_for(name)

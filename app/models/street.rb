@@ -46,6 +46,10 @@ class Street < ApplicationRecord
   FUZZY_MIN_LENGTH = 8
   FUZZY_CANDIDATES = 5
 
+  # How far outside its district a street may sit and still be worth pinning
+  # for a document from that district. See near_for.
+  NEAR_METRES = 1_000
+
   validates :name, presence: true
   validates :normalized_name, presence: true
 
@@ -61,6 +65,33 @@ class Street < ApplicationRecord
     return none if number.blank?
 
     where(normalized_name: canonical_name(name)).where('district_numbers @> ARRAY[?]::integer[]', number)
+  end
+
+  # Streets of this name just outside the district, close enough to its border
+  # that a document from it is plainly talking about the real street.
+  #
+  # A district's own register is the authority on what it may pin, and it has
+  # to be, or a word like "Plan" pins seven districts at once. But a border is
+  # not a wall: "An der Alster" is a Hamburg-Mitte street 489 m from the
+  # Hamburg-Nord line, along a lake both districts sit on, and Hamburg-Nord
+  # writes about it 53 times. Refusing that is as wrong as pinning "Plan".
+  #
+  # Distance is what separates them, and only partly — Eimsbüttel's
+  # Bundesstraße is 279 m from Altona, so Altona gets it back, while Harburg,
+  # 5.7 km away, where the name means a federal road, does not. Altona getting
+  # it is the right answer anyway: the street really is next to Altona.
+  def self.near_for(name, district, metres: NEAR_METRES)
+    number = district.number
+    return none if number.blank?
+
+    candidates = where(normalized_name: canonical_name(name))
+                 .where.not('district_numbers @> ARRAY[?]::integer[]', number)
+
+    where(id: candidates.select { |street| near?(street, number, metres) }.map(&:id))
+  end
+
+  def self.near?(street, district_number, metres)
+    DistrictOutline.distance_to(district_number, street.latitude, street.longitude) <= metres
   end
 
   # The register's spelling of +name+: "krausestrasse" and "bramfelder str"

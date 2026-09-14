@@ -85,6 +85,25 @@ class LocationTest < ActiveSupport::TestCase
     assert_empty Location.determine_locations('Weitweg', @district)
   end
 
+  test 'resolves a street just over the border, which the district does not own' do
+    Street.create!(name: 'Grenzweg', latitude: 53.625, longitude: 10.02, district_numbers: [5],
+                   street_key: '02;5;00;000;0000;G0010')
+
+    location = Location.determine_locations('Grenzweg', @district).sole
+
+    assert_equal 'Grenzweg', location.name
+    assert_equal @district, location.district, 'the row belongs to the district that wrote the name'
+  end
+
+  test 'prefers the district own street over one across the border' do
+    Street.create!(name: 'Testallee', latitude: 53.625, longitude: 10.02, district_numbers: [5],
+                   street_key: '02;5;00;000;0000;T0020')
+
+    location = Location.determine_locations('Testallee', @district).sole
+
+    assert_equal streets(:testallee).latitude, location.latitude
+  end
+
   test 'reuses an existing row within the district that owns the street' do
     first = Location.determine_locations('Testallee', @district).sole
 
