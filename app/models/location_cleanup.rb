@@ -127,13 +127,33 @@ class LocationCleanup
 
     name = location.extracted_name
     return 'blocked name' if Location.blocked?(name)
-    return 'Stadtteil, recorded on the document instead' if Quarter.canonical_names([name]).any?
+    return 'Stadtteil, recorded on the document instead' if quarter_point?(location, name)
     return nil if expected_names(name, district).include?(location.name)
 
     elsewhere = districts_answering(location)
     return 'no register answers with this place' if elsewhere.empty?
 
     "not in #{district.name}, the register places it in #{elsewhere.join(' and ')}"
+  end
+
+  # A Stadtteil geocoded to a point, from before that stopped being allowed.
+  #
+  # Not a station, though: most of Hamburg's S-Bahn is named after the Stadtteil
+  # it serves, and Poppenbüttel, Volksdorf, Blankenese and Ohlsdorf are stations
+  # as well as areas. Those rows are right — determine_station_locations built
+  # them from a "U/S Poppenbüttel" in the text, and a station *is* a point.
+  # Condemning them deleted 22 rows and 268 document links that reassignment
+  # then rebuilt, every single sweep.
+  def quarter_point?(location, name)
+    !station?(location) && Quarter.canonical_names([name]).any?
+  end
+
+  def station?(location)
+    transit_place_ids.include?(location.place_id)
+  end
+
+  def transit_place_ids
+    @transit_place_ids ||= Poi.transit.to_set(&:place_key)
   end
 
   # The districts whose registers do answer with this place. A row that one of
@@ -159,7 +179,13 @@ class LocationCleanup
     names = near_names(name, district) if names.empty?
     names = Street.fuzzy_for(name, district).map(&:name) if names.empty?
 
-    names + Poi.transit_for(name, district).map(&:name)
+    names + station_names(name, district)
+  end
+
+  def station_names(name, district)
+    stations = Poi.transit_for(name, district).presence || Poi.transit_near_for(name, district)
+
+    stations.map(&:name)
   end
 
   def near_names(name, district)

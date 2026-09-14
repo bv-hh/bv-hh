@@ -48,6 +48,18 @@ class Location < ApplicationRecord
     Location.where(normalized_name: normalize(name))
   end
 
+  # Everything but the station rows.
+  #
+  # A station row records the station's own name as its extracted name —
+  # "Barmbek" for the row a document writing "U/S Barmbek" created. Reusing it
+  # for a plain "Barmbek" would hand the station to the one path that must never
+  # reach it, undoing the separation the whole transit design rests on. The
+  # registers cannot do this: Poi.for excludes transit rows outright. Only the
+  # reuse of an existing row can, so only it needs saying.
+  scope :not_a_station, lambda {
+    where.not(place_id: Poi.transit_place_ids).or(where(place_id: nil))
+  }
+
   def self.normalize(name)
     name&.downcase&.strip
   end
@@ -80,7 +92,7 @@ class Location < ApplicationRecord
     # Geocoding one would put a point in the middle of it.
     return [] if Quarter.canonical_names([extracted_name]).any?
 
-    locations = Location.normalized(extracted_name).where(district: district)
+    locations = Location.normalized(extracted_name).where(district: district).not_a_station
     return locations if locations.present?
 
     from_gazetteer(extracted_name, district).presence ||
@@ -108,7 +120,10 @@ class Location < ApplicationRecord
   def self.determine_station_locations(station_name, district)
     return [] if blocked?(station_name)
 
-    Poi.transit_for(station_name, district).map do |poi|
+    stations = Poi.transit_for(station_name, district).presence ||
+               Poi.transit_near_for(station_name, district)
+
+    stations.map do |poi|
       build_location(poi.name, district, name: poi.name, latitude: poi.latitude,
                                          longitude: poi.longitude, place_id: poi.place_key,
                                          formatted_address: poi.formatted_address)

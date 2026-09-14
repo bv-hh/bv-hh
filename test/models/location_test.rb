@@ -104,6 +104,23 @@ class LocationTest < ActiveSupport::TestCase
     assert_equal streets(:testallee).latitude, location.latitude
   end
 
+  test 'pins a station just over the border, reached only through the transit path' do
+    Poi.create!(name: 'Grenzbahnhof', normalized_name: 'grenzbahnhof', latitude: 53.625, longitude: 10.02,
+                district_number: 5, transit: true, category: 'railway=station', osm_type: 'node', osm_id: 9901)
+
+    assert_equal 'Grenzbahnhof', Location.determine_station_locations('Grenzbahnhof', @district).sole.name
+    assert_empty Location.determine_locations('Grenzbahnhof', @district), 'the plain name still reaches no station'
+  end
+
+  test 'never reuses a station row for the plain name that made it' do
+    Poi.create!(name: 'Grenzbahnhof', normalized_name: 'grenzbahnhof', latitude: 53.625, longitude: 10.02,
+                district_number: 4, transit: true, category: 'railway=station', osm_type: 'node', osm_id: 9902)
+    Location.determine_station_locations('Grenzbahnhof', @district).sole
+
+    assert_empty Location.determine_locations('Grenzbahnhof', @district),
+                 'the row exists, but only the transit path may have it'
+  end
+
   test 'reuses an existing row within the district that owns the street' do
     first = Location.determine_locations('Testallee', @district).sole
 

@@ -47,6 +47,21 @@ class LocationCleanupTest < ActiveSupport::TestCase
     assert_equal 'not in Hamburg-Nord, the register places it in Wandsbek', reason_for(location)
   end
 
+  # Most of Hamburg's S-Bahn is named after the Stadtteil it serves.
+  test 'keeps a station named after a Stadtteil, which is a point as well as an area' do
+    Poi.create!(name: 'Barmbek-Nord', normalized_name: 'barmbek nord', latitude: 53.58, longitude: 10.00,
+                district_number: 4, transit: true, category: 'railway=station', osm_type: 'node', osm_id: 9903)
+    location = Location.determine_station_locations('Barmbek-Nord', @district).sole
+
+    assert_not_includes stale_locations, location
+  end
+
+  test 'still finds a Stadtteil geocoded to a point when no station backs it' do
+    location = build_legacy(extracted_name: 'Barmbek-Nord', name: 'Barmbek-Nord')
+
+    assert_equal 'Stadtteil, recorded on the document instead', reason_for(location)
+  end
+
   test 'finds a place no register answers with' do
     location = build_legacy(extracted_name: 'Stadtpark', name: 'Ententeich im Stadtpark')
 

@@ -73,4 +73,31 @@ class PoiTest < ActiveSupport::TestCase
   test 'place_key identifies the OSM feature' do
     assert_equal 'osm:way/1001', pois(:teststadtpark).place_key
   end
+
+  # --- stations just over the district border ----------------------------------
+
+  test 'transit_near_for finds a station close to the border of another district' do
+    station = border_station('Grenzbahnhof', latitude: 53.625)
+
+    assert_equal [station], Poi.transit_near_for('Grenzbahnhof', districts(:hamburg_nord)).to_a
+  end
+
+  test 'transit_near_for refuses one further away than the threshold' do
+    border_station('Fernbahnhof', latitude: 53.65)
+
+    assert_empty Poi.transit_near_for('Fernbahnhof', districts(:hamburg_nord))
+  end
+
+  test 'near_for never answers with a station, however close it is' do
+    border_station('Grenzbahnhof', latitude: 53.625)
+
+    assert_empty Poi.near_for('Grenzbahnhof', districts(:hamburg_nord)),
+                 'a station stays reachable only through the transit path'
+  end
+
+  def border_station(name, latitude:)
+    Poi.create!(name: name, normalized_name: Poi.normalize(name), latitude: latitude, longitude: 10.02,
+                district_number: 5, transit: true, category: 'railway=station',
+                osm_type: 'node', osm_id: name.hash.abs)
+  end
 end

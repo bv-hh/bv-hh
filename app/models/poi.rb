@@ -74,12 +74,7 @@ class Poi < ApplicationRecord
   # without a known number gets nothing rather than everything. Matches the
   # register's own name or any of the spellings recorded for it.
   def self.for(name, district)
-    number = district.number
-    normalized = normalize(name)
-    return none if number.blank? || normalized.blank?
-
-    pinnable.where(district_number: number)
-            .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
+    inside(pinnable, name, district)
   end
 
   # POIs of this name just outside the district but close to its border, the
@@ -87,14 +82,7 @@ class Poi < ApplicationRecord
   # lines more often than streets do — the Niendorfer Gehege and the Stadtpark
   # are each written about from both sides.
   def self.near_for(name, district, metres: Street::NEAR_METRES)
-    number = district.number
-    normalized = normalize(name)
-    return none if number.blank? || normalized.blank?
-
-    candidates = pinnable.where.not(district_number: number)
-                         .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
-
-    where(id: candidates.select { |poi| Street.near?(poi, number, metres) }.map(&:id))
+    beyond(pinnable, name, district, metres)
   end
 
   # The spellings +name+ might appear as, minus the name itself. Too-short
@@ -136,12 +124,48 @@ class Poi < ApplicationRecord
   # only TransitGazetteer, which has seen the "U/S" or "Haltestelle" prefix in
   # the text, may ask for these.
   def self.transit_for(name, district)
+    inside(transit, name, district)
+  end
+
+  # Stations just over the district border. Stations sit on borders more than
+  # anything else does — they are named after the Stadtteil they serve and built
+  # where lines cross one — so this is not an edge case: Friedrichsberg is 52 m
+  # from Wandsbek, Landwehr 21 m from Hamburg-Nord, and each is written about
+  # from both sides. Still reachable only through TransitGazetteer, so a bare
+  # "Barmbek" reaches no station here either.
+  def self.transit_near_for(name, district, metres: Street::NEAR_METRES)
+    beyond(transit, name, district, metres)
+  end
+
+  # POIs of +scope+ carrying +name+ inside the district.
+  def self.inside(scope, name, district)
     number = district.number
     normalized = normalize(name)
     return none if number.blank? || normalized.blank?
 
-    transit.where(district_number: number)
-           .where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
+    named(scope.where(district_number: number), normalized)
+  end
+
+  # The same, outside the district but within +metres+ of its border.
+  def self.beyond(scope, name, district, metres)
+    number = district.number
+    normalized = normalize(name)
+    return none if number.blank? || normalized.blank?
+
+    candidates = named(scope.where.not(district_number: number), normalized)
+
+    where(id: candidates.select { |poi| Street.near?(poi, number, metres) }.map(&:id))
+  end
+
+  # place_key expressed in SQL, as a subquery: the place_id values that station
+  # Locations carry. Kept next to place_key so the two formats stay together.
+  def self.transit_place_ids
+    transit.select(Arel.sql("'osm:' || osm_type || '/' || osm_id"))
+  end
+
+  # The register's own name, or any of the spellings recorded for it.
+  def self.named(scope, normalized)
+    scope.where('normalized_name = ? OR aliases @> ARRAY[?]::varchar[]', normalized, normalized)
   end
 
   # The same rule as Street.normalize, deliberately: a name extracted from a
