@@ -47,13 +47,38 @@ namespace :locations do
     end
 
     if args[:apply] == 'apply'
-      deleted, dropped = cleanup.apply!
-      puts "Deleted #{deleted} locations and #{dropped} stale document links"
+      result = cleanup.apply!
+      puts "Deleted #{result.locations} locations and #{result.links} stale document links"
+
+      Document.where(id: result.document_ids).find_each(&:assign_locations_later!)
+      puts "Enqueued #{result.document_ids.size} documents for reassignment"
     else
       puts "#{stale.size} of #{Location.count} locations would be deleted, " \
            "plus #{links.sum(&:documents)} document links on rows that stay. " \
            'Re-run as locations:sweep[apply].'
     end
+  end
+
+  # Assignment only, without re-running extraction.
+  #
+  # streets:reanalyze re-reads every document's text through the gazetteer and
+  # the NER model, which is the expensive half and the one that rarely needs to
+  # happen: extraction writes documents.extracted_locations, and a change to how
+  # a *name* resolves to a place does not change the names. Use this after an
+  # import that alters the registers, and streets:reanalyze only when the
+  # extraction itself changed.
+  #
+  # Additive, like assignment always is — it creates links and removes none.
+  # locations:sweep is what removes, and it enqueues exactly the documents it
+  # touched, so a sweep needs no separate run of this.
+  desc 'Re-assign locations from the names already extracted, skipping extraction'
+  task :reassign, [:district] => :environment do |_task, args|
+    scope = Document.complete.where.not(extracted_locations: []).or(Document.complete.where.not(stations: []))
+    scope = scope.where(district: District.find_by!(name: args[:district])) if args[:district].present?
+
+    count = scope.count
+    scope.find_each(&:assign_locations_later!)
+    puts "Enqueued #{count} documents for re-assignment"
   end
 
   # Locations created before a name was blocked stay until they are cleared out.

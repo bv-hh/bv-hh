@@ -98,10 +98,27 @@ class LocationCleanupTest < ActiveSupport::TestCase
     build_legacy(extracted_name: 'Stadtpark', name: 'Ententeich im Stadtpark')
     link_to(foreign_location, district: @district)
 
-    deleted, dropped = LocationCleanup.new.apply!
+    result = LocationCleanup.new.apply!
 
-    assert_operator deleted, :positive?
-    assert_equal 1, dropped
+    assert_operator result.locations, :positive?
+    assert_equal 1, result.links
+  end
+
+  test 'apply! reports the documents that lost a link, for reassignment' do
+    stale_document = link_to(build_legacy(extracted_name: 'Stadtpark', name: 'Ententeich im Stadtpark'),
+                             district: @district).document
+    foreign_document = link_to(foreign_location, district: @district).document
+
+    result = LocationCleanup.new.apply!
+
+    assert_includes result.document_ids, stale_document.id
+    assert_includes result.document_ids, foreign_document.id, 'the row stays, but this document may not claim it'
+  end
+
+  test 'apply! leaves out a document whose link it keeps' do
+    kept = link_to(Location.determine_locations('Testallee', @district).sole, district: @district).document
+
+    assert_not_includes LocationCleanup.new.apply!.document_ids, kept.id
   end
 
   private

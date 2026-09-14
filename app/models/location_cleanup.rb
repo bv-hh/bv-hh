@@ -18,6 +18,7 @@
 class LocationCleanup
   Stale = Struct.new(:location, :reason, :documents, keyword_init: true)
   StaleLinks = Struct.new(:location, :district, :documents, keyword_init: true)
+  Result = Struct.new(:locations, :links, :document_ids, keyword_init: true)
 
   def stale
     @stale ||= Location.includes(:district, documents: :district).filter_map do |location|
@@ -51,9 +52,39 @@ class LocationCleanup
 
   # Destroying a location takes its document_locations with it, which is the
   # point: the documents stop claiming a place that is not one.
+  # Reports the documents it touched, because they are exactly the ones that
+  # need assigning again — see affected_document_ids.
   def apply!
+    documents = affected_document_ids
     dropped = drop_stale_links!
-    [stale.each { |entry| entry.location.destroy }.size, dropped]
+    deleted = stale.each { |entry| entry.location.destroy }.size
+
+    Result.new(locations: deleted, links: dropped, document_ids: documents)
+  end
+
+  # The documents losing a link here, collected before anything is deleted.
+  #
+  # This is the whole set that needs reassigning. A sweep only ever removes, and
+  # so does the resolution change behind it: confining a name to the district
+  # the register gives it can narrow what a document resolves, never widen it.
+  # So a document the sweep does not touch cannot gain a location either, and
+  # the rows the sweep deletes are rebuilt from these documents under the
+  # district that owns the street.
+  #
+  # Worth the bookkeeping: this is a few thousand documents, where re-running
+  # extraction over the corpus is 58000, each one an NER pass over a PDF's text.
+  def affected_document_ids
+    @affected_document_ids ||= begin
+      ids = DocumentLocation.where(location: stale.map(&:location)).pluck(:document_id)
+
+      ids += stale_links.flat_map do |entry|
+        DocumentLocation.where(location: entry.location)
+                        .joins(:document).where(documents: { district_id: entry.district.id })
+                        .pluck(:document_id)
+      end
+
+      ids.uniq
+    end
   end
 
   private
