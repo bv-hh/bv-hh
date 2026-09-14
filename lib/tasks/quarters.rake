@@ -24,7 +24,7 @@ namespace :quarters do
       # computed below describe where the location actually is.
       repaired += 1 if location.repair_coordinates!
 
-      attributes = Location.place_attributes(location.name, location.latitude, location.longitude)
+      attributes = Location.place_attributes(location.name, location.latitude, location.longitude, location.district)
       next if attributes.all? { |key, value| location.public_send(key) == value }
 
       location.update_columns(attributes.merge(updated_at: Time.current)) # rubocop:disable Rails/SkipsModelValidations

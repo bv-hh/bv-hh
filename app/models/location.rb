@@ -62,13 +62,23 @@ class Location < ApplicationRecord
   # Google Places used to sit at the end and answer for anything, which is why
   # the blocklist had to exist. With it gone, an unknown name simply produces
   # no location.
+  #
+  # Every step is confined to the district, the reuse of an existing row
+  # included. That last one is the whole point: many street names are also
+  # ordinary German words, so the NER model proposes them everywhere. "Plan",
+  # "Sand", "Heimat", "Schulweg", "Am Bahnhof", "Durchschnitt", "Bundesstraße"
+  # are each a real street in exactly one district, and the register says which.
+  # Reusing a row across districts threw that answer away and let whichever
+  # district happened to mention the word first pin all seven — 1041 documents
+  # on one point for "Plan" alone. A district that the register does not place
+  # the street in now resolves nothing, which is what it should have said.
   def self.determine_locations(extracted_name, district)
     return [] if blocked?(extracted_name)
     # Stadtteile are areas, recorded on the document as documents.quarters.
     # Geocoding one would put a point in the middle of it.
     return [] if Quarter.canonical_names([extracted_name]).any?
 
-    locations = Location.normalized(extracted_name)
+    locations = Location.normalized(extracted_name).where(district: district)
     return locations if locations.present?
 
     from_gazetteer(extracted_name, district).presence ||
@@ -133,7 +143,7 @@ class Location < ApplicationRecord
       location.longitude = longitude
       location.place_id = place_id
       location.formatted_address = formatted_address
-      location.assign_attributes(place_attributes(name, latitude, longitude))
+      location.assign_attributes(place_attributes(name, latitude, longitude, district))
     end
   end
 
@@ -142,11 +152,14 @@ class Location < ApplicationRecord
   # The street register wins over the polygons wherever both apply: a street's
   # registered Quarter list covers the whole street, whereas its single
   # representative point would land in only one of the Quarters it crosses.
-  # Street rows are looked up across ALL districts on purpose — Location.normalized
-  # has no district filter, so one row is shared by every district that mentions
-  # the name, and narrowing here would silently lose the others' documents.
-  def self.place_attributes(name, latitude, longitude)
-    streets = Street.where(normalized_name: Street.normalize(name))
+  #
+  # Confined to the district, like every other register lookup. A street that
+  # genuinely spans two districts is one register row carrying both, so the
+  # union across the whole street survives; what does not is a *different*
+  # street of the same name elsewhere, which would otherwise lend this row its
+  # Quarters and put it on their pages.
+  def self.place_attributes(name, latitude, longitude, district)
+    streets = Street.for(name, district)
     covering = Quarter.covering(latitude, longitude)
 
     {

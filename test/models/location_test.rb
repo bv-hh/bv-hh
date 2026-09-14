@@ -76,17 +76,43 @@ class LocationTest < ActiveSupport::TestCase
     assert_equal 'testallee', location.street_name
   end
 
+  # --- a street belongs to the district the register puts it in ---------------
+
+  test 'does not lend a street to a district the register places it outside' do
+    wandsbek = District.create!(name: 'Wandsbek', order: 5, allris_base_url: 'https://example.test')
+
+    assert_predicate Location.determine_locations('Weitweg', wandsbek), :one?, 'precondition'
+    assert_empty Location.determine_locations('Weitweg', @district)
+  end
+
+  test 'reuses an existing row within the district that owns the street' do
+    first = Location.determine_locations('Testallee', @district).sole
+
+    assert_equal [first], Location.determine_locations('Testallee', @district).to_a
+  end
+
+  test 'place_attributes does not borrow a same-named street from another district' do
+    %w[4 5].zip([['Barmbek-Nord'], ['Duvenstedt']]).each do |number, quarters|
+      Street.create!(name: 'Doppelweg', latitude: 53.58, longitude: 10.03, quarters: quarters,
+                     district_numbers: [number.to_i], street_key: "02;#{number};00;000;0000;D00#{number}")
+    end
+
+    attributes = Location.place_attributes('Doppelweg', 53.58, 10.03, @district)
+
+    assert_equal ['Barmbek-Nord'], attributes[:quarters]
+  end
+
   test 'place_attributes takes the union of Quarters across every Bezirk' do
-    # streets(:julius_vosseler) is registered in Bezirk 3 and 4; Street.for would
-    # narrow to one of them, but a locations row is shared by both districts.
-    attributes = Location.place_attributes('Julius-Vosseler-Straße', 53.58, 9.75)
+    # streets(:julius_vosseler) is one register row carrying Bezirk 3 and 4, so
+    # narrowing to the district still yields the whole street.
+    attributes = Location.place_attributes('Julius-Vosseler-Straße', 53.58, 9.75, @district)
 
     assert_equal ['Lokstedt', 'Groß Borstel'], attributes[:quarters]
     assert_equal 'julius vosseler straße', attributes[:street_name]
   end
 
   test 'place_attributes falls back to point-in-polygon when no street matches' do
-    attributes = Location.place_attributes('Stadtpark', 53.5975, 10.0150)
+    attributes = Location.place_attributes('Stadtpark', 53.5975, 10.0150, @district)
 
     assert_nil attributes[:street_name]
     assert_equal ['Barmbek-Nord'], attributes[:quarters]
@@ -95,14 +121,14 @@ class LocationTest < ActiveSupport::TestCase
   test 'place_attributes prefers the register over the representative point' do
     # The point alone sits in Lokstedt, but the register says the street also
     # runs through Groß Borstel — the whole street has to win.
-    attributes = Location.place_attributes('Julius-Vosseler-Straße', 53.58, 9.75)
+    attributes = Location.place_attributes('Julius-Vosseler-Straße', 53.58, 9.75, @district)
 
     assert_includes attributes[:quarters], 'Groß Borstel'
     assert_not_equal Quarter.covering(53.58, 9.75), attributes[:quarters]
   end
 
   test 'place_attributes returns empty Quarters for a point outside Hamburg' do
-    attributes = Location.place_attributes('Deutschland', 51.1657, 10.4515)
+    attributes = Location.place_attributes('Deutschland', 51.1657, 10.4515, @district)
 
     assert_empty attributes[:quarters]
   end
@@ -175,7 +201,7 @@ class LocationTest < ActiveSupport::TestCase
 
   test 'place_attributes gives no Quarters to a point outside Hamburg' do
     # Even though the register knows a Heilwigstraße, this point is not in it.
-    attributes = Location.place_attributes('Heilwigstraße', *OUTSIDE_HAMBURG)
+    attributes = Location.place_attributes('Heilwigstraße', *OUTSIDE_HAMBURG, @district)
 
     assert_empty attributes[:quarters]
     assert_equal 'heilwigstraße', attributes[:street_name], 'the street name still applies'
