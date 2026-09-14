@@ -129,7 +129,23 @@ class LocationCleanup
     return 'Stadtteil, recorded on the document instead' if Quarter.canonical_names([name]).any?
     return nil if expected_names(name, district).include?(location.name)
 
-    'no register answers with this place'
+    elsewhere = districts_answering(location)
+    return 'no register answers with this place' if elsewhere.empty?
+
+    "not in #{district.name}, the register places it in #{elsewhere.join(' and ')}"
+  end
+
+  # The districts whose registers do answer with this place. A row that one of
+  # them owns is not debris but misfiled: its district_id records which district
+  # happened to write the name first, back when a row was shared by all of them.
+  # Deleting it is still right — reassignment rebuilds it under the district
+  # that owns the street, from the same documents — but the dry run has to say
+  # so, because "no register answers with this place" reads like the register
+  # has never heard of Kollaustraße.
+  def districts_answering(location)
+    districts_by_id.each_value.reject { |district| district == location.district }
+                   .select { |district| expected_names(location.extracted_name, district).include?(location.name) }
+                   .map(&:name)
   end
 
   # The names the registers would answer with, in the resolution order of

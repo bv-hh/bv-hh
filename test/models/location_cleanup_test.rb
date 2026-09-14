@@ -39,6 +39,14 @@ class LocationCleanupTest < ActiveSupport::TestCase
     assert_equal 'Stadtteil, recorded on the document instead', reason_for(location)
   end
 
+  test 'names the district that owns the street when a row is merely misfiled' do
+    location = foreign_location
+    location.update!(district: @district)
+
+    assert_includes stale_locations, location
+    assert_equal 'not in Hamburg-Nord, the register places it in Wandsbek', reason_for(location)
+  end
+
   test 'finds a place no register answers with' do
     location = build_legacy(extracted_name: 'Stadtpark', name: 'Ententeich im Stadtpark')
 
