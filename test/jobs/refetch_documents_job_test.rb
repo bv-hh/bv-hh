@@ -78,4 +78,20 @@ class RefetchDocumentsJobTest < ActiveSupport::TestCase
     assert_empty @fetched
     assert_equal Parsing::VERSION, document.reload.parser_version
   end
+
+  test 'a page the parser cannot read is marked done so the chain does not ask for it every night' do
+    broken = @district.documents.first
+    broken.update!(updated_at: 10.years.ago)
+
+    assert_enqueued_with(job: RefetchDocumentsJob) do
+      job { raise NoMethodError, "undefined method 'css' for nil" }.perform(@district, @deadline, 5)
+    end
+    assert_equal Parsing::VERSION, broken.reload.parser_version
+  end
+
+  test 'a district can be refetched by hand without a deadline' do
+    assert_enqueued_with(job: RefetchDocumentsJob) do
+      job.perform(@district)
+    end
+  end
 end

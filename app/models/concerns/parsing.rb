@@ -28,13 +28,16 @@ module Parsing
   }.freeze
   RENAMED_TAGS = { 'h1' => 'h3', 'h2' => 'h3', 'h5' => 'h4', 'h6' => 'h4', 'b' => 'strong', 'i' => 'em' }.freeze
 
-  # Inline styles that carry meaning. Everything else in a style attribute goes.
+  # Inline styles that carry meaning, each with the style that switches it on
+  # and the one that switches it off again further in: Word writes
+  # <p style="font-weight:bold"><span style="font-weight:normal">. Everything
+  # else in a style attribute goes.
   EMPHASIS_STYLES = {
-    'strong' => /font-weight:\s*(bold|[6-9]00)/,
-    'em' => /font-style:\s*italic/,
-    'u' => /text-decoration:[^;]*underline/,
-    'sup' => /vertical-align:\s*super/, # footnote marks: "2020²", not "20202"
-    'sub' => /vertical-align:\s*sub/,
+    'strong' => [/font-weight:\s*(bold|[6-9]00)/, /font-weight:\s*(normal|[1-5]00)/],
+    'em' => [/font-style:\s*italic/, /font-style:\s*normal/],
+    'u' => [/text-decoration:[^;]*underline/, /text-decoration:\s*none/],
+    'sup' => [/vertical-align:\s*super/, /vertical-align:\s*(baseline|sub)/], # footnote marks: "2020²", not "20202"
+    'sub' => [/vertical-align:\s*sub/, /vertical-align:\s*(baseline|super)/],
   }.freeze
   EMPHASIS_TAGS = EMPHASIS_STYLES.keys.join('|')
 
@@ -110,8 +113,8 @@ module Parsing
       end
     end
 
-    # Cleaned HTML of the given sections, their labels stripped. Returns nil
-    # unless there is text besides the labels and a placeholder like "ohne".
+    # Cleaned HTML of the given sections, their labels stripped, or nil unless
+    # there is substance? besides the labels.
     def clean_sections(sections)
       html = sections.map do |section|
         div = section.div.dup
@@ -119,8 +122,16 @@ module Parsing
         clean(div)
       end.join("\n")
 
+      html if substance?(html)
+    end
+
+    # Whether cleaned HTML has anything to show: text that is not a placeholder
+    # like "ohne", or an image (a Sachverhalt can be nothing but a scanned map).
+    def substance?(html)
+      return false if html.nil?
+
       content = text(html)
-      html if content.present? && !content.match?(PLACEHOLDER)
+      (content.present? && !content.match?(PLACEHOLDER)) || html.include?('<img')
     end
 
     # Plain text of stored HTML, for search and NER: block boundaries and <br>
@@ -141,6 +152,7 @@ module Parsing
 
     def clean_container(container)
       container.xpath(*XPATHS_TO_REMOVE).remove
+      emphasize_text(container)
       container.css('*').each { |element| normalize_element(element) }
       container.css('*').reverse_each { |element| element.replace(element.children) unless ALLOWED_TAGS.include?(element.name) }
       container.inner_html
@@ -150,25 +162,31 @@ module Parsing
       element.name = RENAMED_TAGS.fetch(element.name, element.name)
       element.name = 'p' if element.name == 'div' && element.at_css(BLOCK_TAGS).nil?
 
-      style = element['style'].to_s.downcase
-      EMPHASIS_STYLES.each do |tag, pattern|
-        wrap_children(element, tag) if style.match?(pattern) && inline_content?(element)
-      end
-
       allowed = ALLOWED_ATTRIBUTES.fetch(element.name, [])
       element.attribute_nodes.each { |attribute| attribute.remove unless allowed.include?(attribute.name) }
     end
 
-    # Only wrap what can legally sit inside <strong>: a bold <ol> or <table>
-    # keeps its emphasis on the spans inside it, which carry their own style.
-    def inline_content?(element)
-      element.text.strip.present? && element.at_css(BLOCK_TAGS).nil?
+    # Wraps every run of text in the emphasis its nearest styled ancestor gives
+    # it. Working on the text rather than the styled element keeps <strong>
+    # inside the block it belongs to (a bold <ol> becomes bold list items), and
+    # lets an inner "normal" win. tidy merges the runs Word split up.
+    def emphasize_text(container)
+      container.xpath('.//text()[normalize-space()]').each do |text_node|
+        EMPHASIS_STYLES.each do |tag, (on, off)|
+          text_node.wrap("<#{tag}></#{tag}>") if emphasized?(text_node, container, on, off)
+        end
+      end
     end
 
-    def wrap_children(element, tag)
-      wrapper = element.document.create_element(tag)
-      wrapper.add_child(element.children)
-      element.add_child(wrapper)
+    def emphasized?(text_node, container, on, off)
+      text_node.ancestors.each do |ancestor|
+        break if ancestor == container
+
+        style = ancestor['style'].to_s.downcase
+        return true if style.match?(on)
+        return false if style.match?(off)
+      end
+      false
     end
 
     def tidy(html)
@@ -181,7 +199,8 @@ module Parsing
         html = merged
       end
       html = html.gsub(%r{<p>(\s|<br>)*</p>}, '')
-      html = html.gsub(/<(p|li|td|th|h3|h4)>\s+/, '<\1>').gsub(%r{\s+</(p|li|td|th|h3|h4)>}, '</\1>')
+      html = html.gsub(/<(p|li|td|th|h3|h4)>((?:<(?:#{EMPHASIS_TAGS})>)*)\s+/o, '<\1>\2')
+      html = html.gsub(%r{\s+((?:</(?:#{EMPHASIS_TAGS})>)*)</(p|li|td|th|h3|h4)>}o, '\1</\2>')
       collapse_whitespace(html)
     end
 
@@ -229,12 +248,12 @@ module Parsing
     Parsing.clean(node)
   end
 
-  # Cleaned HTML, or nil if there is no text in it: ALLRIS leaves empty
+  # Cleaned HTML, or nil unless it has Parsing.substance?: ALLRIS leaves empty
   # paragraphs where minutes are still to come, and those must not count as
   # minutes (AgendaItem.with_minutes, AgendaItem.incomplete).
   def clean_text(node)
     cleaned = clean_html(node)
-    cleaned if html_to_text(cleaned).present?
+    cleaned if Parsing.substance?(cleaned)
   end
 
   def html_to_text(html)

@@ -75,7 +75,14 @@ class AgendaItem < ApplicationRecord
 
     retrieve_attachments(html)
     save!
-    store_page(source)
+    store_logged_page(source)
+  end
+
+  # Only once there is something to parse again. Until then this is a future
+  # item, and Meeting#retrieve_agenda_items replaces those with delete_all,
+  # which would leave their pages behind.
+  def store_logged_page(source)
+    store_page(source) if minutes || result
   end
 
   def extract_attachment_table(html)

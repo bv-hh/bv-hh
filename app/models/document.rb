@@ -153,10 +153,28 @@ class Document < ApplicationRecord
   # Parses the stored page again, for when only the parser changed: no request
   # to ALLRIS, and attachments and images stay as they are.
   def reparse!
-    parse_page(allris_page.body)
+    update_from_page!(allris_page.body)
+  end
+
+  # Parses a fresh copy of the page, for a document an older parser read
+  # (RefetchDocumentsJob). Only the page is read: attachments and images stay
+  # as they are, since ALLRIS may have dropped files archived here years ago.
+  # A page that is not public now, or a login redirect, which ALLRIS serves
+  # when it has a bad moment, leaves a document the site has shown for years
+  # as it is.
+  def refetch!(source = Net::HTTP.get(URI(allris_url)))
+    return update!(parser_version: Parsing::VERSION) if non_public_page?(source)
+
+    update_from_page!(source)
+    store_page(source)
+  end
+
+  # Re-extraction runs the NER model, so only when the text actually changed.
+  def update_from_page!(source)
+    parse_page(source)
     save!
 
-    extract_locations_later! if full_text.present?
+    extract_locations_later! if saved_change_to_full_text? && full_text.present?
   end
 
   # Sets the attributes from an ALLRIS vo020 page and returns its content table,
@@ -164,7 +182,7 @@ class Document < ApplicationRecord
   def parse_page(source)
     self.parser_version = Parsing::VERSION
 
-    if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
+    if non_public_page?(source)
       self.non_public = true
       return nil
     end
@@ -179,6 +197,10 @@ class Document < ApplicationRecord
     retrieve_meta(html)
     retrieve_body(html)
     html
+  end
+
+  def non_public_page?(source)
+    source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
   end
 
   def retrieve_meta(html)

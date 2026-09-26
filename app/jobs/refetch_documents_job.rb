@@ -8,19 +8,27 @@
 # are done. A district's ALLRIS instance therefore never sees two requests at
 # once, and a slow one (Wandsbek takes 10-15 s per page) simply gets through
 # fewer documents instead of piling up requests. Every link is its own job, so
-# a deploy in the middle of the night loses nothing.
+# a deploy in the middle of the night loses nothing. Only the page itself is
+# fetched (Document#refetch!), no attachments or images.
 #
 # A document whose page is stored (AllrisPage) is only parsed again: no
 # request, no pause, and it does not count towards BATCH_SIZE, which exists to
 # spare ALLRIS.
 #
-# Least recently updated documents go first. A document that fails is touched,
-# which puts it at the back of the queue instead of blocking the chain every
-# night.
+# Least recently updated documents go first. When ALLRIS cannot be reached the
+# document is touched, which puts it at the back of the queue for another
+# night. Any other failure means this parser cannot read the page: it is
+# reported and the document marked done, or the chain would ask for the same
+# broken pages every night once everything else is through.
 class RefetchDocumentsJob < ApplicationJob
   WINDOW = 2.5.hours
   BATCH_SIZE = 2_000
   PAUSE = 3.seconds
+
+  NETWORK_ERRORS = [
+    Net::OpenTimeout, Net::ReadTimeout, Net::HTTPBadResponse, SocketError, SystemCallError, EOFError,
+    OpenSSL::SSL::SSLError
+  ].freeze
 
   queue_as :documents
 
@@ -30,6 +38,7 @@ class RefetchDocumentsJob < ApplicationJob
       return
     end
 
+    deadline ||= WINDOW.from_now
     return if remaining <= 0 || Time.current > deadline
 
     document = district.documents.parsed_before(Parsing::VERSION).order(:updated_at, :id).first
@@ -48,12 +57,19 @@ class RefetchDocumentsJob < ApplicationJob
 
   def attempt(document)
     yield
-  rescue StandardError => e
+  rescue *NETWORK_ERRORS => e
     document.touch
-    Rails.error.report(e, handled: true, context: { document_id: document.id, allris_id: document.allris_id })
+    report(e, document)
+  rescue StandardError => e
+    document.reload.update!(parser_version: Parsing::VERSION)
+    report(e, document)
+  end
+
+  def report(error, document)
+    Rails.error.report(error, handled: true, context: { document_id: document.id, allris_id: document.allris_id })
   end
 
   def fetch(document)
-    document.retrieve_from_allris!
+    document.refetch!
   end
 end

@@ -117,4 +117,35 @@ class DocumentParsingTest < ActiveSupport::TestCase
     assert_equal parsed, document.reload.attributes.slice('title', 'content', 'resolution', 'full_text')
     assert_equal Parsing::VERSION, document.parser_version
   end
+
+  test 'refetch! parses and stores the page but leaves attachments and images alone' do
+    district = AllrisFixtures.build_district('wandsbek')
+    document = district.documents.create!(allris_id: 1_025_666)
+    document.define_singleton_method(:retrieve_attachments) { |_html| raise 'must not sync attachments' }
+    document.define_singleton_method(:retrieve_images) { |_html| raise 'must not fetch images' }
+    source = AllrisFixtures.page('wandsbek', 'vo020.html')
+
+    assert_enqueued_with(job: ExtractDocumentLocationsJob) { document.refetch!(source) }
+    assert_includes document.reload.full_text, 'Der Geschäftsstelle der Bezirksversammlung'
+    assert_equal source.b, document.allris_page.body
+  end
+
+  test 'refetch! does not hide a document because ALLRIS answered with a login redirect' do
+    document = AllrisFixtures.build_district('wandsbek').documents.create!(allris_id: 1, title: 'Alt', content: '<p>Alt</p>')
+
+    document.refetch!('<html><a href="noauth.asp">Anmelden</a></html>')
+
+    assert_not_predicate document.reload, :non_public?
+    assert_equal '<p>Alt</p>', document.content
+    assert_equal Parsing::VERSION, document.parser_version
+  end
+
+  test 'reparse! leaves location extraction alone when the text did not change' do
+    district = AllrisFixtures.build_district('wandsbek')
+    document = AllrisFixtures.stub_network(district.documents.new(allris_id: 1_025_666))
+    document.retrieve_from_allris!(AllrisFixtures.page('wandsbek', 'vo020.html'))
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs(only: ExtractDocumentLocationsJob) { document.reparse! }
+  end
 end

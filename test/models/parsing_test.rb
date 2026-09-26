@@ -40,6 +40,13 @@ class ParsingTest < ActiveSupport::TestCase
     assert_equal '<p><strong>Beschluss der Bezirksversammlung</strong> <em>einstimmig</em></p>', clean(html)
   end
 
+  test 'clean lets an inner normal weight cancel a bold paragraph' do
+    html = '<p style="font-weight:bold"><span>Petitum </span><span style="font-weight:normal">zur Kenntnis</span></p>' \
+           '<ol style="font-style:italic"><li>Eins</li></ol>'
+
+    assert_equal '<p><strong>Petitum </strong>zur Kenntnis</p><ol><li><em>Eins</em></li></ol>', clean(html)
+  end
+
   test 'clean turns raised footnote marks into superscript' do
     html = '<p><span>2020</span><span style="font-size:6pt; vertical-align:super">2</span></p>'
 
@@ -129,6 +136,10 @@ class ParsingTest < ActiveSupport::TestCase
 
   test 'sections skips blank divs' do
     assert_empty sections('<div><p><span>&nbsp;</span></p></div>')
+  end
+
+  test 'clean_sections keeps a section that is nothing but an image' do
+    assert_equal '<p><img src="scan.png"></p>', Parsing.clean_sections(sections('<div><p>Sachverhalt:</p><p><img src="scan.png"></p></div>'))
   end
 
   test 'clean_sections returns nil for nothing but labels and placeholders' do

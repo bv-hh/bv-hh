@@ -42,6 +42,7 @@ class AgendaItemParsingTest < ActiveSupport::TestCase
 
     assert_nil agenda_item.minutes
     assert_nil agenda_item.result
+    assert_nil agenda_item.allris_page
     assert_not_includes AgendaItem.with_minutes, agenda_item
   end
 end
