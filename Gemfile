@@ -23,7 +23,10 @@ gem 'jbuilder', '~> 2.15'
 gem 'bcrypt', '~> 3.1.22'
 
 # Use Active Storage variant
-gem 'image_processing', '~> 1.14'
+gem 'image_processing', '~> 2.1'
+# image_processing 2 no longer pulls in a backend. Not required at boot, since
+# loading it opens libvips, which only variant processing needs.
+gem 'ruby-vips', '~> 2.2', require: false
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
@@ -77,10 +80,10 @@ gem 'uglifier'
 # google-maps until that was removed; declare what we actually use.
 gem 'httpclient'
 
-# json 3 drops the create_additions keyword httpclient still passes and changes
-# the decoder arity ActiveSupport relies on, which breaks JSON columns. rubocop
-# used to hold the 2.x line for us; it no longer does, so pin it here.
-gem 'json', '~> 2.21'
+# json 3 drops the create_additions keyword execjs passed before 2.10.2 and
+# rejects the positional options hash ActiveSupport passed before 8.1.4, which
+# broke asset compilation and JSON columns. Keep those versions as the floor.
+gem 'json', '~> 3.0'
 
 gem 'redcarpet', '~> 3.6'
 
