@@ -16,28 +16,37 @@ class QuarterGazetteer
     [/\Ast /, 'sankt '],
   ].freeze
 
-  # Four Stadtteile share their name with the district around them. After one
-  # of these words the name is the district — "Bezirksamt Wandsbek" is the
-  # author of the Drucksache, not a place it is about.
-  DISTRICT_WORDS = %w[bezirk bezirks bezirksamt bezirksamts bezirksversammlung bezirksverwaltung
-                      bezirksamtsleitung].to_set.freeze
+  # Four Stadtteile share their name with the district around them. After a
+  # word starting like this the name is the district — "des Bezirksamtes
+  # Wandsbek" is the author of the Drucksache, not a place it is about.
+  DISTRICT_PREFIX = 'bezirk'
+
+  # "Herr Horn (CDU)" is a member of the Bezirksversammlung. Tokenizing drops
+  # the parentheses, so the party follows the name directly.
+  PERSON_BEFORE = %w[herr herrn frau dr].to_set.freeze
+  PERSON_AFTER = %w[cdu spd grüne grünen fdp linke afd volt].to_set.freeze
 
   class << self
     # The register's own spellings of every Stadtteil named in +text+.
+    #
+    # Not where the name is part of a longer street name: "Hinterm Horn" is a
+    # street in Bergedorf and "Wandsbek Markt" one in Wandsbek, and neither is
+    # about the Stadtteil.
     def match(text)
       return [] if text.blank?
 
       tokens = tokenize(text)
+      streets = StreetGazetteer.spans(tokens)
       names = []
 
       tokens.each_index do |i|
-        next if i.positive? && DISTRICT_WORDS.include?(tokens[i - 1])
+        next if district_or_person?(tokens, i)
 
         (1..max_words).each do |length|
           break if i + length > tokens.size
 
           canonical = index[tokens[i, length].join(' ')]
-          names << canonical if canonical
+          names << canonical if canonical && !inside_street?(streets, i, length)
         end
       end
 
@@ -51,6 +60,20 @@ class QuarterGazetteer
     end
 
     private
+
+    def district_or_person?(tokens, position)
+      before = position.positive? ? tokens[position - 1] : nil
+
+      before&.start_with?(DISTRICT_PREFIX) || PERSON_BEFORE.include?(before) ||
+        PERSON_AFTER.include?(tokens[position + 1])
+    end
+
+    # Whether a street match covers the window and is longer than it.
+    def inside_street?(streets, start, length)
+      streets.any? do |from, to|
+        from <= start && start + length - 1 <= to && to - from + 1 > length
+      end
+    end
 
     def index
       @index ||= build_index

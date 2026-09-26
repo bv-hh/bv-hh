@@ -31,7 +31,24 @@ class QuarterGazetteerTest < ActiveSupport::TestCase
     QuarterGazetteer.reset!
 
     assert_empty QuarterGazetteer.match('Das Bezirksamt Wandsbek teilt mit')
+    assert_empty QuarterGazetteer.match('Stellungnahme des Bezirksamtes Wandsbek')
     assert_equal ['Wandsbek'], QuarterGazetteer.match('Der Wandsbeker Markt liegt in Wandsbek')
+  end
+
+  test 'skips a Stadtteil that is part of a longer street name' do
+    Street.create!(name: 'Hinterm Ohlsdorf', normalized_name: 'hinterm ohlsdorf', street_key: 'test;hinterm',
+                   district_numbers: [6])
+    StreetGazetteer.reset!
+
+    assert_empty QuarterGazetteer.match('Der See Hinterm Ohlsdorf')
+    assert_equal ['Ohlsdorf'], QuarterGazetteer.match('Der See in Ohlsdorf')
+  ensure
+    StreetGazetteer.reset!
+  end
+
+  test 'skips a Stadtteil that is a person' do
+    assert_empty QuarterGazetteer.match('Herr Ohlsdorf (CDU) fragt')
+    assert_empty QuarterGazetteer.match('Frau Ohlsdorf fragt')
   end
 
   test 'does not match inside a longer word' do

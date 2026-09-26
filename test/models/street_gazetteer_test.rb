@@ -54,6 +54,45 @@ class StreetGazetteerTest < ActiveSupport::TestCase
     assert_equal ['schloßstraße'], StreetGazetteer.match('in der Schlossstr.')
   end
 
+  test 'matches ss for ß before a final e inside the name' do
+    Street.create!(name: 'Große Bergstraße', normalized_name: 'große bergstraße', street_key: 'test;berg',
+                   district_numbers: [2])
+    StreetGazetteer.reset!
+
+    assert_includes StreetGazetteer.match('in der Grosse Bergstrasse'), 'große bergstraße'
+  end
+
+  test 'matches a declined feminine or place-formed adjective' do
+    Street.create!(name: 'Große Johannisstraße', normalized_name: 'große johannisstraße', street_key: 'test;johannis',
+                   district_numbers: [1])
+    Street.create!(name: 'Hannoversche Straße', normalized_name: 'hannoversche straße', street_key: 'test;hannover',
+                   district_numbers: [7])
+    StreetGazetteer.reset!
+
+    assert_equal ['große johannisstraße'], StreetGazetteer.match('zwischen Großer Johannisstraße und Domstraße')
+    assert_equal ['hannoversche straße'], StreetGazetteer.match('am Rand der Hannoverschen Straße')
+  end
+
+  test 'matches a one-word name written as two' do
+    Street.create!(name: 'Spitalerstraße', normalized_name: 'spitalerstraße', street_key: 'test;spitaler',
+                   district_numbers: [1])
+    StreetGazetteer.reset!
+
+    assert_equal ['spitalerstraße'], StreetGazetteer.match('Weihnachtsmarkt Spitaler Straße')
+  end
+
+  test 'matches a hyphenated name written as one word' do
+    assert_includes StreetGazetteer.match('in der Juliusvosselerstraße'), 'julius vosseler straße'
+  end
+
+  test 'does not decline an adjective before a bare street word' do
+    Street.create!(name: 'Neuer Weg', normalized_name: 'neuer weg', street_key: 'test;neuerweg', district_numbers: [6])
+    StreetGazetteer.reset!
+
+    assert_empty StreetGazetteer.match('Wir müssen einen neuen Weg finden')
+    assert_equal ['neuer weg'], StreetGazetteer.match('Anwohner im Neuer Weg')
+  end
+
   test 'matches the -bütteler spelling of a -büttler street' do
     Street.create!(name: 'Poppenbüttler Landstraße', normalized_name: 'poppenbüttler landstraße',
                    street_key: 'test;poppenbuettel', district_numbers: [5])

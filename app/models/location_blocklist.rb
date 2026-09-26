@@ -10,8 +10,9 @@
 # references (Drs, hamburgisches Wegegesetz), other cities, and plain nouns
 # ("Sommermonaten", "Einzelfällen").
 #
-# The NER model that proposed those is gone, and every name extraction finds
-# now comes from a register, so a fresh run finds few candidates.
+# The NER model that proposed those is gone. Extraction now finds only names
+# some register knows, and a register name is never a candidate, so after a
+# full reanalysis the computed list empties itself on the next apply.
 #
 # This mattered more when Google Places answered for anything: every one of
 # these became a pinned Location. Now a name no register knows produces nothing
@@ -19,8 +20,9 @@
 # job is names the registers *do* know but should not pin, such as the street
 # the official register genuinely lists as "-Parkanlagen".
 #
-# Deliberately conservative: anything the official registers know is kept, so
-# this can never blocklist a real street or Stadtteil.
+# Deliberately conservative: anything the registers know is kept, so this can
+# never blocklist a real street, Stadtteil or POI. A POI that is only a word
+# ("Feuerwehr", a playground) is PoiGazetteer's to leave out, by breadth.
 class LocationBlocklist
   MIN_DISTRICTS = 3
   MIN_OCCURRENCES = 3
@@ -92,14 +94,21 @@ class LocationBlocklist
     entry[:districts] << district_id
   end
 
-  # The official registers are the authority: never blocklist something they
-  # know. Also skips what is already blocked, so the list stays minimal.
+  # The registers are the authority: never blocklist something they know.
+  # Also skips what is already blocked, so the list stays minimal.
   def known?(key)
-    street_names.include?(key) || quarter_names.include?(key) || Location::BLOCKED_LOCATIONS.include?(key)
+    street_names.include?(key) || quarter_names.include?(key) || poi_names.include?(key) ||
+      Location::BLOCKED_LOCATIONS.include?(key)
   end
 
   def street_names
     @street_names ||= Set.new(Street.distinct.pluck(:normalized_name))
+  end
+
+  # Under every spelling PoiGazetteer can report, since that is what ends up in
+  # extracted_locations.
+  def poi_names
+    @poi_names ||= Poi.pinnable.pluck(:normalized_name, :aliases).flat_map { |name, aliases| [name, *aliases] }.to_set
   end
 
   def quarter_names
