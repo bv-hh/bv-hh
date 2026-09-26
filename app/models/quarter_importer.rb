@@ -32,6 +32,7 @@ class QuarterImporter
     end
 
     Quarter.reset!
+    QuarterGazetteer.reset!
     Rails.logger.info "QuarterImporter: imported #{rows.size} Quarters"
     rows.size
   end

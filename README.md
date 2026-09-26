@@ -14,14 +14,16 @@ Um BV-HH lokal zu installieren und daran zu entwickeln, sind diese Dinge nötig:
 - PostgreSQL
 - NodeJS
 
-## NER Modell herunterladen
+## Geo-Register importieren
 
-Für die Analyze der Texte mittels NLP wird ein neuronales Netz verwendet.
-Das nötige Modell muss hier heruntergeladen werden:
+Orte werden in den Texten über lokale Register gefunden: Straßen, Stadtteile und
+OpenStreetMap-POIs. Diese müssen einmal importiert werden:
 
-https://github.com/mit-nlp/MITIE/releases/download/v0.4/MITIE-models-v0.2-German.tar.bz2
-
-Die ausgepackte Datei muss im Verzeichnis `data` verfügbar sein.
+```bash
+rake quarters:import
+rake streets:import
+rake pois:import
+```
 
 ## Beitragen
 

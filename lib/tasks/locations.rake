@@ -61,15 +61,15 @@ namespace :locations do
 
   # Assignment only, without re-running extraction.
   #
-  # streets:reanalyze re-reads every document's text through the gazetteer and
-  # the NER model, which is the expensive half and the one that rarely needs to
+  # streets:reanalyze re-reads every document's text and attachments through the
+  # gazetteers, which is the expensive half and the one that rarely needs to
   # happen: extraction writes documents.extracted_locations, and a change to how
   # a *name* resolves to a place does not change the names. Use this after an
   # import that alters the registers, and streets:reanalyze only when the
   # extraction itself changed.
   #
-  # Additive, like assignment always is — it creates links and removes none.
-  # locations:sweep is what removes, and it enqueues exactly the documents it
+  # Assignment reconciles: each document ends up linked to exactly what its
+  # names resolve to. locations:sweep enqueues exactly the documents it
   # touched, so a sweep needs no separate run of this.
   desc 'Re-assign locations from the names already extracted, skipping extraction'
   task :reassign, [:district] => :environment do |_task, args|

@@ -31,9 +31,9 @@ class LocationCleanup
 
   # Documents still claiming a location their own district would not resolve.
   #
-  # Assignment is additive — it find_or_create_by!s a link and never removes
-  # one — so the links a shared row collected while the reuse was cross-district
-  # outlive the row's repair. Deleting the location cannot fix these: a street
+  # Assignment reconciles a document's links only when that document is
+  # assigned again, so the links a shared row collected while the reuse was
+  # cross-district outlive the row's repair until then. Deleting the location cannot fix these: a street
   # that is real in one district keeps its row, and only the foreign documents
   # hanging off it are wrong.
   #
@@ -67,8 +67,8 @@ class LocationCleanup
   # Enough whenever the sweep is the only thing that changed: it only removes,
   # and the rows it deletes are rebuilt from these same documents under the
   # district that owns the street. Worth the bookkeeping, since this is a few
-  # thousand documents where re-running extraction is 58000, each an NER pass
-  # over a PDF's text.
+  # thousand documents where re-running extraction is 70000, each a pass over
+  # a PDF's text.
   #
   # NOT enough after a change that lets a name resolve where it did not before —
   # a widened threshold in Street.near_for, a register import. A document the

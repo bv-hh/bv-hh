@@ -35,7 +35,7 @@ namespace :quarters do
   end
 
   # Fills documents.quarters from names already extracted, without re-running
-  # NER over the corpus. Use this when a full streets:reanalyze is not wanted;
+  # extraction over the corpus. Use this when a full streets:reanalyze is not wanted;
   # reanalysis recomputes the column anyway.
   desc 'Backfill Stadtteil mentions onto existing documents'
   task backfill_documents: :environment do

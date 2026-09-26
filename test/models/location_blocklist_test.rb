@@ -57,6 +57,13 @@ class LocationBlocklistTest < ActiveSupport::TestCase
     assert_not_includes LocationBlocklist.new.candidates.map(&:name), 'Barmbek-Nord'
   end
 
+  test 'never flags a POI the register knows, under any spelling' do
+    spread('teststadtpark')
+    spread('testpark')
+
+    assert_empty LocationBlocklist.candidates
+  end
+
   test 'never flags something already blocked by the constant' do
     spread('Hamburg')
 
