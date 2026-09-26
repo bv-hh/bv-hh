@@ -35,10 +35,18 @@ module DocumentsHelper
 
     return '' if content.nil?
 
+    content = scrub_whitespace(content) if document.parser_version.nil?
     content = link_documents(content, document.district)
     content = link_images(content, document)
 
     Rinku.auto_link(content, :all, 'target="_blank"')
+  end
+
+  # Documents not yet re-fetched by RefetchDocumentsJob still carry the old
+  # parser's empty paragraphs and space-only spans. Remove once none are left.
+  def scrub_whitespace(content)
+    content = content.gsub(%r{<span[^>]*>[ \u00a0]*</span>}, ' ')
+    content.gsub(%r{<p[^>]*>[ \u00a0]*</p>}, ' ')
   end
 
   def highlight_multi_excerpt(text, terms)
