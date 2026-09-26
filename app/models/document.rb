@@ -57,6 +57,11 @@ class Document < ApplicationRecord
 
   NER_THRESHOLD = 0.4
 
+  # The expression behind documents_expr_idx, for a full-text query that has to
+  # be answered by that index.
+  SEARCH_VECTOR = "(setweight(to_tsvector('german', documents.title), 'A') || " \
+                  "setweight(to_tsvector('german', documents.full_text), 'B'))"
+
   belongs_to :district
 
   has_many :agenda_items, dependent: :nullify

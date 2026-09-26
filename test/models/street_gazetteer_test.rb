@@ -42,6 +42,30 @@ class StreetGazetteerTest < ActiveSupport::TestCase
     assert_equal ['heilwigstraße'], StreetGazetteer.match('Anwohner der Heilwigstrasse')
   end
 
+  test 'matches the adjective glued to the street word' do
+    assert_equal ['julius vosseler straße'], StreetGazetteer.match('Arbeiten in der Julius-Vosselerstraße').last(1)
+  end
+
+  test 'matches ss for ß inside the name, whatever the suffix' do
+    Street.create!(name: 'Schloßstraße', normalized_name: 'schloßstraße', street_key: 'test;schloss', district_numbers: [4])
+    StreetGazetteer.reset!
+
+    assert_equal ['schloßstraße'], StreetGazetteer.match('in der Schlossstraße')
+    assert_equal ['schloßstraße'], StreetGazetteer.match('in der Schlossstr.')
+  end
+
+  test 'matches the -bütteler spelling of a -büttler street' do
+    Street.create!(name: 'Poppenbüttler Landstraße', normalized_name: 'poppenbüttler landstraße',
+                   street_key: 'test;poppenbuettel', district_numbers: [5])
+    StreetGazetteer.reset!
+
+    assert_equal ['poppenbüttler landstraße'], StreetGazetteer.match('Poppenbütteler Landstraße')
+  end
+
+  test 'matches the genitive of a street' do
+    assert_equal ['weitweg'], StreetGazetteer.match('Anwohner des Weitwegs')
+  end
+
   test 'a variant never shadows a street that really carries that spelling' do
     # Whatever the variants generate, every register name still matches itself.
     Street.distinct.pluck(:normalized_name).first(50).each do |name|

@@ -11,9 +11,23 @@ class StreetGazetteer
   # normalized street name back to the register's own spelling, so a match on
   # "heilwigstr" still reports "heilwigstraße" and Street.for can find it.
   #
+  # Applied in order, each to every spelling the ones before it produced, so
+  # "Ohlsdorfer Straße" is also found as "Ohlsdorferstr".
+  #
   # Tokenizing drops the full stop, so "Heilwigstr." arrives here as
   # "heilwigstr" and needs no separate entry.
   VARIANTS = [
+    # "Ohlsdorferstraße": the adjective glued to the street word.
+    [/er (straße|weg|platz|allee|chaussee|damm|brücke|ring)\z/, 'er\1'],
+    # "Poppenbütteler Landstraße" where the register drops the e, and the
+    # other way round: the register writes both.
+    [/üttler\b/, 'ütteler'],
+    [/ütteler\b/, 'üttler'],
+    # The genitive, "des Sülldorfer Brookswegs", "des Parnass-Platzes".
+    [/(weg|damm|markt|ring)\z/, '\1s'],
+    [/platz\z/, 'platzes'],
+    # "Harburger Schlossstraße": ss for ß in the name, ß kept in the suffix.
+    [/ß(?!e\b)/, 'ss'],
     [/straße\b/, 'strasse'],
     [/straße\b/, 'str'],
     [/strasse\b/, 'str'],
@@ -65,36 +79,30 @@ class StreetGazetteer
       @max_words
     end
 
-    # variant spelling => the register's own normalized name.
+    # variant spelling => the register's own normalized name. Every register
+    # name goes in before any variant, so a variant can never shadow a street
+    # that actually carries that spelling.
     def build_index
-      map = {}
-      @max_words = 1
-
-      Street.distinct.pluck(:normalized_name).each do |name|
-        next if name.blank? || name.length < MIN_LENGTH
-        next if Location.blocked?(name)
-
-        spellings(name).each do |spelling|
-          next if spelling.length < MIN_LENGTH
-
-          # First writer wins, so a variant can never shadow a street that
-          # actually carries that spelling.
-          map[spelling] ||= name
-          word_count = spelling.count(' ') + 1
-          @max_words = word_count if word_count > @max_words
-        end
+      names = Street.distinct.pluck(:normalized_name).select do |name|
+        name.present? && name.length >= MIN_LENGTH && !Location.blocked?(name)
       end
 
+      map = names.index_with { |name| name }
+      names.each do |name|
+        spellings(name).each { |spelling| map[spelling] ||= name if spelling.length >= MIN_LENGTH }
+      end
+
+      @max_words = map.keys.map { |spelling| spelling.count(' ') + 1 }.max || 1
       map
     end
 
     def spellings(name)
-      variants = VARIANTS.filter_map do |pattern, replacement|
-        variant = name.sub(pattern, replacement)
-        variant unless variant == name
-      end
-
-      [name, *variants].uniq
+      VARIANTS.reduce([name]) do |forms, (pattern, replacement)|
+        forms + forms.filter_map do |form|
+          variant = form.gsub(pattern, replacement)
+          variant unless variant == form
+        end
+      end.uniq
     end
 
     def tokenize(text)
