@@ -18,6 +18,16 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'GET show lists the topics of the document' do
+    document = documents(:document_7)
+    document.update_columns(topics: %w[spielplaetze unbekannt]) # rubocop:disable Rails/SkipsModelValidations
+
+    get document_path(document, district: document.district)
+
+    assert_select '.card-header', text: /Themen/
+    assert_select '.badge', text: 'Spielplätze'
+  end
+
   test 'GET allris redirects to the document' do
     document = documents(:document_7)
     get allris_documents_path(district: districts.first, allris_id: document.allris_id)

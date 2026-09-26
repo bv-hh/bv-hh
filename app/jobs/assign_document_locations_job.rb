@@ -5,5 +5,6 @@ class AssignDocumentLocationsJob < ApplicationJob
 
   def perform(document)
     document.assign_locations!
+    document.assign_topics_later!
   end
 end

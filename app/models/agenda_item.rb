@@ -42,6 +42,7 @@ class AgendaItem < ApplicationRecord
   scope :with_minutes, -> { where.not(minutes: nil) }
 
   before_save :cache_word_count
+  after_save_commit :assign_document_topics, if: :saved_change_to_document_id?
   scope :incomplete, lambda {
     joins(:meeting).where.not(allris_id: nil)
                    .where('meetings.date <= ? AND meetings.date >= ?', 30.days.ago, 270.days.ago)
@@ -122,6 +123,13 @@ class AgendaItem < ApplicationRecord
   end
 
   private
+
+  # The committee a document is on the agenda of is one of the signals for its
+  # topics, and a document usually reaches a committee long after it was
+  # fetched. A document still to be fetched gets its topics after that.
+  def assign_document_topics
+    document.assign_topics_later! if document&.complete?
+  end
 
   def cache_word_count
     self.word_count = computed_word_count

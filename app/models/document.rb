@@ -88,7 +88,7 @@ class Document < ApplicationRecord
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where(documents: { number: number.. }) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
-  scope :no_embeddings, -> { where(embeddings_created: false) }
+  scope :topics_outdated, -> { where(topics_version: nil).or(where.not(topics_version: Topic::VERSION)) }
   scope :current_legislation, ->(district) { where(district: district).since_number(district.first_legislation_number) }
   scope :children, ->(number) { where('number ILIKE ?', "#{number}.%") }
   scope :parsed_before, ->(version) { where(parser_version: nil).or(where(parser_version: ...version)) }
@@ -173,12 +173,17 @@ class Document < ApplicationRecord
   end
 
   # Re-extraction reads the whole text and its attachments, so only when the
-  # text actually changed.
+  # text actually changed. Topics follow extraction; a new title alone changes
+  # only them.
   def update_from_page!(source)
     parse_page(source)
     save!
 
-    extract_locations_later! if saved_change_to_full_text? && full_text.present?
+    if saved_change_to_full_text? && full_text.present?
+      extract_locations_later!
+    elsif saved_change_to_title?
+      assign_topics_later!
+    end
   end
 
   # Sets the attributes from an ALLRIS vo020 page and returns its content table,
@@ -321,6 +326,23 @@ class Document < ApplicationRecord
 
     locations.each { |location| document_locations.find_or_create_by!(location: location) }
     document_locations.where.not(location_id: locations.map(&:id)).delete_all
+  end
+
+  def assign_topics_later!
+    AssignDocumentTopicsJob.perform_later(self)
+  end
+
+  # Written with update_columns: topics are derived data, and touching
+  # updated_at would reorder RefetchDocumentsJob's queue and the feeds.
+  def assign_topics!
+    topics = TopicClassifier.new(self).topics
+    attributes = { topics_version: Topic::VERSION }
+    attributes[:topics] = topics unless topics.sort == self.topics.sort
+    update_columns(attributes) # rubocop:disable Rails/SkipsModelValidations
+  end
+
+  def topic_records
+    topics.filter_map { |key| Topic.find(key) }
   end
 
   def extracted_name_locations

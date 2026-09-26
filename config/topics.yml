@@ -1,0 +1,525 @@
+# The topics a Drucksache can be tagged with, and the rules that find them.
+# See Topic and TopicClassifier. Bump Topic::VERSION after changing anything
+# here, then run `rake topics:reassign`.
+#
+# terms          - to_tsquery('german', …) fragments, joined with |, matched
+#                  against the title and the full text.
+# title_terms    - the same, matched against the title only: words that name
+#                  the topic in a title but are mentioned in passing in any
+#                  long text ("Verkehr", "Mittel").
+# committees     - regular expressions (case-insensitive) against committee
+#                  names. Regionalausschüsse are skipped, they have no topic.
+# poi_categories - Poi#category values of places linked to the document.
+#
+# Terms are stemmed and umlauts folded like the text, so "spielplatz:*" matches
+# "Spielplätze". German compounds are not split: a prefix finds
+# "Fahrradstellplatz", but nothing finds "Durchgangsverkehr" from "verkehr",
+# so compounds that start with another word are listed on their own.
+# Stemming also merges words: "Park" and "parken" are both 'park', "Müller"
+# and "Müll" both 'mull'. A prefix that starts other words can exclude them:
+# "(schul:* & !schuld:*)" keeps "Schulden" out.
+#
+# Committee and street names are removed from the title before matching, so
+# "… Beschlussvorlage des Ausschusses für Haushalt und Kultur" is not about
+# Kultur and "Schulstraße" not about schools.
+
+oeffentlicher_raum:
+  label: Baustellen & Öffentlicher Raum
+  terms:
+    - strassenbau:*
+    - strassensanier:*
+    - strassenausbau:*
+    - fahrbahn:*
+    - gehweg:*
+    - fussweg:*
+    - grundinstandsetz:*
+    - baustell:*
+    - schlagloch:*
+    - bordstein:*
+    - beleucht:*
+    - strassenbeleucht:*
+    - brucke:*
+    - trepp:*
+    - toilett:*
+    - sitzbank:*
+    - parkbank:*
+    - (bank & !haspa:* & !sparkass:*)
+    - sitzmog:*
+    - wegweis:*
+    - beschild:*
+    - platzgestalt:*
+    - stadtmobiliar:*
+    - tauschregal:*
+    - bucherschrank:*
+    - erschliess:*
+  committees: []
+  poi_categories:
+    - man_made=bridge
+    - place=square
+
+radverkehr:
+  label: Radverkehr
+  terms:
+    - rad
+    - radweg:*
+    - radverkehr:*
+    - fahrrad:*
+    - radfahr:*
+    - velorout:*
+    - radstreif:*
+    - schutzstreif:*
+    - radbugel:*
+    - stadtrad:*
+    - lastenrad:*
+    - radschnell:*
+  committees:
+    - verkehr
+    - mobilität
+  poi_categories: []
+
+oepnv:
+  label: Bus & Bahn
+  terms:
+    - bus
+    - busse
+    - buslini:*
+    - busverkehr:*
+    - metrobus:*
+    - busbeschleun:*
+    - haltestell:*
+    - bushaltestell:*
+    - bahn
+    - bahnhof:*
+    - bahnverkehr:*
+    - schnellbahn:*
+    - hvv:*
+    - opnv:*
+    - ioki
+    - moia
+    - rufbus:*
+  committees:
+    - verkehr
+    - mobilität
+  poi_categories:
+    - railway=station
+    - railway=halt
+
+strassenverkehr:
+  label: Straßenverkehr
+  terms:
+    - strassenverkehr:*
+    - verkehrsfuhr:*
+    - verkehrssicher:*
+    - verkehrsberuhig:*
+    - verkehrsgefahrd:*
+    - durchgangsverkehr:*
+    - ausweichverkehr:*
+    - autoverkehr:*
+    - lieferverkehr:*
+    - fussverkehr:*
+    - fuss
+    - kfz:*
+    - lkw:*
+    - stau
+    - staubild:*
+    - signalis:*
+    - ampel:*
+    - lichtsignal:*
+    - zebrastreif:*
+    - querungshilf:*
+    - fussgang:*
+    - schulweg:*
+    - tempo
+    - geschwindigkeit:*
+    - baustell:*
+    - einbahn:*
+    - befahr:*
+    - parkplatz:*
+    - parkraum:*
+    - parkstreif:*
+    - anwohnerpark:*
+    - falschpark:*
+    - gehwegpark:*
+    - parkend:*
+    - parkverbot:*
+    - parkhaus:*
+    - parkdruck:*
+    - ladeinfrastruktur:*
+    - ladesaul:*
+    - elektromobil:*
+    - carsharing:*
+    - scoot:*
+    - taxi:*
+  title_terms:
+    - verkehr:*
+    - km
+  committees:
+    - verkehr
+    - mobilität
+  poi_categories: []
+
+gruen:
+  label: Grün, Parks & Bäume
+  terms:
+    - parkanlag:*
+    - stadtpark:*
+    - volkspark:*
+    - parkpfleg:*
+    - grunanlag:*
+    - grunflach:*
+    - grunzug:*
+    - grunstreif:*
+    - stadtnatur:*
+    - stadtgrun:*
+    - baum
+    - baumfall:*
+    - baumpflanz:*
+    - baumpfleg:*
+    - baumschutz:*
+    - strassenbaum:*
+    - gefahrenbaum:*
+    - nachpflanz:*
+    - kleingart:*
+    - friedhof:*
+    - vogel
+    - teich:*
+  committees:
+    - grün
+    - umwelt
+    - stadtnatur
+  poi_categories:
+    - leisure=park
+    - leisure=garden
+    - landuse=allotments
+    - landuse=cemetery
+    - leisure=nature_reserve
+    - landuse=recreation_ground
+    - leisure=dog_park
+
+spielplaetze:
+  label: Spielplätze
+  terms:
+    - spielplatz:*
+    - spielgerat:*
+    - bolzplatz:*
+    - spielflach:*
+  committees: []
+  poi_categories:
+    - leisure=playground
+
+umwelt:
+  label: Umwelt & Klima
+  terms:
+    - klimaschutz:*
+    - klimaanpass:*
+    - klimawandel:*
+    - umweltschutz:*
+    - naturschutz:*
+    - naturnah:*
+    - artenschutz:*
+    - insekt:*
+    - larm:*
+    - luftqualitat:*
+    - gewass:*
+    - hochwass:*
+    - starkreg:*
+    - begrun:*
+    - entsiegel:*
+    - photovolta:*
+    - solar:*
+    - windenerg:*
+    - windkraft:*
+    - energ:*
+    - biotonn:*
+    - mulltrenn:*
+    - recycl:*
+  committees:
+    - umwelt
+    - klima
+    - stadtnatur
+  poi_categories:
+    - leisure=nature_reserve
+
+soziales:
+  label: Soziales & Gesundheit
+  terms:
+    - sozial
+    - sozialraum:*
+    - senior:*
+    - obdachlos:*
+    - wohnungslos:*
+    - armut:*
+    - inklusion:*
+    - barrierefrei:*
+    - pflege:*
+    - gesundheit:*
+    - klinik:*
+    - krankenhaus:*
+    - arzt:*
+    - hospiz:*
+    - beratungsstell:*
+    - stadtteilzentr:*
+    - burgerhaus:*
+  committees:
+    - sozial
+    - gesundheit
+  poi_categories:
+    - amenity=social_facility
+    - amenity=community_centre
+    - amenity=hospital
+
+kinder_jugend:
+  label: Kinder & Jugend
+  terms:
+    - kita:*
+    - kindertag:*
+    - jugend:*
+    - kinderbetreu:*
+    - jugendhilf:*
+    - familienzentr:*
+    - elternschul:*
+  committees:
+    - jugend
+  poi_categories:
+    - amenity=kindergarten
+
+bildung:
+  label: Schule & Bildung
+  terms:
+    - (schul:* & !schuld:*)
+    - grundschul:*
+    - gymnasi:*
+    - stadtteilschul:*
+    - musikschul:*
+    - hochschul:*
+    - universitat:*
+    - campus:*
+    - bildung:*
+    - bucherhall:*
+    - bibliothek:*
+    - volkshochschul:*
+  committees:
+    - schule
+    - bildung
+  poi_categories:
+    - amenity=school
+    - amenity=library
+    - amenity=college
+    - amenity=university
+
+sport:
+  label: Sport
+  terms:
+    - sport:*
+    - wassersport:*
+    - sportplatz:*
+    - kunstrasen:*
+    - sporthall:*
+    - turnhall:*
+    - schwimm:*
+    - sportverein:*
+  committees:
+    - sport
+  poi_categories:
+    - leisure=sports_centre
+    - leisure=pitch
+    - leisure=stadium
+
+# Plain "Kultur" is mostly a committee or an office being named; the
+# compounds are what the documents are about.
+kultur:
+  label: Kultur & Erinnerung
+  terms:
+    - kulturell
+    - stadtteilkultur:*
+    - interkulturell:*
+    - soziokultur:*
+    - kulturzentr:*
+    - kulturhaus:*
+    - kulturlad:*
+    - kulturverein:*
+    - kulturpalast:*
+    - kulturforder:*
+    - kulturmittel:*
+    - kulturprojekt:*
+    - kulturfestival:*
+    - geschichtswerkstatt:*
+    - museum:*
+    - theat:*
+    - musik:*
+    - kunst
+    - kunstl:*
+    - kunstwerk:*
+    - kunstprojekt:*
+    - festival:*
+    - stadtteilfest:*
+    - denkmal:*
+    - gedenk:*
+    - stolperstein:*
+    - erinnerungskultur:*
+    - strassennam:*
+    - strassenbenenn:*
+    - strassenumbenenn:*
+    - (benenn:* & (strass | platz:* | weg))
+    - (umbenenn:* & (strass | platz:* | weg))
+  committees:
+    - kultur
+    - straßennamen
+  poi_categories:
+    - amenity=theatre
+    - tourism=museum
+    - tourism=artwork
+    - historic=memorial
+
+wohnen_bauen:
+  label: Wohnen & Bauleitplanung
+  terms:
+    - bebauungsplan:*
+    - bplan:*
+    - bebauung:*
+    - flachennutzungsplan:*
+    - wohnungsbau:*
+    - wohnung:*
+    - mietwohn:*
+    - sozialwohn:*
+    - leerstand:*
+    - zweckentfremd:*
+    - bauvorhab:*
+    - bauantrag:*
+    - bauvoranfrag:*
+    - baugenehm:*
+    - neubau:*
+    - nachverdicht:*
+    - vorhabenbezog:*
+    - erhaltungsverordn:*
+    - stadtentwickl:*
+    - stadtteilentwickl:*
+    - quartiersentwickl:*
+    - rise
+    - fordergebiet:*
+    - sanierungsgebiet:*
+    - stadtteilbeirat:*
+    - quartiersbeirat:*
+    - masterplan:*
+    - evokation:*
+  title_terms:
+    - areal:*
+    - grundstuck:*
+  committees:
+    - bau
+    - planung
+    - stadtentwicklung
+    - rise
+    - oberbillwerder
+    - science city
+    - öffentlichkeitsbeteiligung
+  poi_categories: []
+
+wirtschaft:
+  label: Wirtschaft & Märkte
+  terms:
+    - wirtschaft:*
+    - wochenmarkt:*
+    - gewerb:*
+    - einzelhandel:*
+    - gastronom:*
+    - aussengastronom:*
+    - tourism:*
+    - digitalis:*
+    - startup:*
+    - (start <-> up)
+  committees:
+    - wirtschaft
+    - wochenmärkte
+    - tourismus
+  poi_categories:
+    - amenity=marketplace
+
+unterbringung:
+  label: Unterbringung & Integration
+  terms:
+    - gefluchtet:*
+    - fluchtling:*
+    - unterkunft:*
+    - unterbring:*
+    - folgeunterkunft:*
+    - integration:*
+  committees:
+    - flüchtling
+    - integration
+  poi_categories: []
+
+# "Müll" is not a term: it stems like "Müller".
+sauberkeit:
+  label: Sauberkeit & Sicherheit
+  terms:
+    - vermull:*
+    - sperrmull:*
+    - mullei:*
+    - mulltonn:*
+    - mullabfuhr:*
+    - mullsammel:*
+    - sauber:*
+    - abfall:*
+    - papierkorb:*
+    - depotcontain:*
+    - containerstandort:*
+    - graffiti:*
+    - illegal
+    - polizei:*
+    - ordnungsamt:*
+    - kriminal:*
+    - angstraum:*
+    - unsicher:*
+    - sicherheitsgefuhl:*
+  committees:
+    - inneres
+  poi_categories: []
+
+haushalt:
+  label: Sondermittel & Haushalt
+  terms:
+    - sondermittel:*
+    - sonderfond:*
+    - quartiersfond:*
+    - gestaltungsmittel:*
+    - (politisch <-> mittel)
+    - haushalt:*
+    - zuwend:*
+    - fordermittel:*
+    - bezirksmittel:*
+  title_terms:
+    - mittel
+  committees:
+    - haushalt
+    - vergabe
+  poi_categories: []
+
+# Procedural documents: the assembly and its committees organising themselves.
+# Title only, because every minute mentions the Tagesordnung.
+gremien:
+  label: Gremien & Verwaltung
+  terms: []
+  title_terms:
+    - umbesetz:*
+    - ausschussbesetz:*
+    - ausschussumbesetz:*
+    - (umbenenn:* & !strass & !platz:* & !weg)
+    - geschaftsordn:*
+    - nachwahl:*
+    - wahlausschuss:*
+    - kreiswahlausschuss:*
+    - burgervertret:*
+    - jury:*
+    - jurymitglied:*
+    - referentenanforder:*
+    - sitzungstermin:*
+    - sitzungsplan:*
+    - tagesordnung:*
+    - niederschrift:*
+    - koalition:*
+    - losverfahr:*
+  committees:
+    - ältestenrat
+    - geschäftsordnung
+  poi_categories: []

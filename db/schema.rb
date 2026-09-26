@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_26_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_26_183134) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -282,6 +282,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_130000) do
     t.text "resolution"
     t.string "stations", default: [], null: false, array: true
     t.string "title"
+    t.string "topics", default: [], null: false, array: true
+    t.integer "topics_version"
     t.datetime "updated_at", null: false
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
@@ -295,6 +297,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_130000) do
     t.index ["stations"], name: "index_documents_on_stations", using: :gin
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+    t.index ["topics"], name: "index_documents_on_topics", using: :gin
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

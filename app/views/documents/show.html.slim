@@ -111,6 +111,24 @@ h3.text-muted
           | Die Erkennung von Orten anhand des Textes der Drucksache kann ungenau sein. Es ist daher möglich, das Orte
             gar nicht oder falsch erkannt werden.
 
+    .card.mt-3
+      .card-header.fw-bold
+        ' Themen
+        span.badge.text-bg-warning.float-end Beta
+
+      .card-body
+        - if @document.topic_records.present?
+          .d-flex.flex-wrap.gap-1
+            - @document.topic_records.each do |topic|
+              span.badge.text-bg-secondary = topic.label
+        - else
+          p
+            | Keine Themen erkannt.
+
+        p.small.text-secondary.mt-3
+          | Die Themen werden automatisch anhand von Stichworten, Ausschüssen und Orten zugeordnet und können daher
+            unvollständig oder falsch sein.
+
 
 
 script type="application/ld+json"
