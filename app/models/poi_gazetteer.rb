@@ -8,9 +8,8 @@
 # TransitGazetteer. What is reported is the matched spelling, the register's
 # own name or one of its aliases, which is exactly what Poi.for looks up.
 #
-# Matching every word of every document is a far wider net than looking up a
-# name the model proposed, so two kinds of name are left out that Poi.for would
-# still resolve:
+# Matching every word of every document is a wide net, so two kinds of name are
+# left out that Poi.for would still resolve:
 #
 # * Categories whose names are titles or people rather than places. An artwork
 #   is called "Zwei", "Prüfung" or "Fischer"; a memorial or a tomb carries a
@@ -20,8 +19,6 @@
 #   LocationBlocklist, made relative. "Feuerwehr" is a playground in OSM and a
 #   word in every district. "Meiendorf" is mentioned by three districts too,
 #   but most of the documents naming it are Wandsbek's, where it is.
-#
-# Used by NerComparison to measure whether it can replace the model.
 class PoiGazetteer
   EXCLUDED_CATEGORIES = %w[tourism=artwork historic=memorial historic=tomb historic=boundary_stone
                            historic=milestone historic=stone historic=wayside_shrine amenity=townhall].freeze

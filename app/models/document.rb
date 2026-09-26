@@ -55,8 +55,6 @@ class Document < ApplicationRecord
     attached: %r{\AAnlagen?(/n)?:},
   }.freeze
 
-  NER_THRESHOLD = 0.4
-
   # The expression behind documents_expr_idx, for a full-text query that has to
   # be answered by that index.
   SEARCH_VECTOR = "(setweight(to_tsvector('german', documents.title), 'A') || " \
@@ -174,7 +172,8 @@ class Document < ApplicationRecord
     store_page(source)
   end
 
-  # Re-extraction runs the NER model, so only when the text actually changed.
+  # Re-extraction reads the whole text and its attachments, so only when the
+  # text actually changed.
   def update_from_page!(source)
     parse_page(source)
     save!
@@ -287,50 +286,46 @@ class Document < ApplicationRecord
     ExtractDocumentLocationsJob.perform_later(self)
   end
 
+  # Every name comes from a local register, found by whole-word lookup:
+  # streets, Stadtteile and POIs by name, stations behind a transit prefix.
+  # There used to be an NER model here as well. Most of what it proposed was
+  # agency acronyms and plain nouns no register knows, and on a sample of 1000
+  # documents it found about half the Stadtteile and POIs the registers do.
   def extract_locations!
     all_text = extractable_text
     return if all_text.blank?
 
     self.locations_extracted_at = Time.zone.now
-    self.extracted_locations = (StreetGazetteer.match(all_text) + ner_locations(all_text)).uniq
+    self.extracted_locations = extracted_names(all_text)
     self.quarters = extracted_quarters
     self.stations = TransitGazetteer.match(all_text)
     save!
 
-    assign_locations_later! if extracted_locations.present?
+    assign_locations_later!
   end
 
-  # LOCATION entities the NER model is confident about. The gsub is what splits
-  # a compound like Fuhlsbüttel-Ohlsdorf-Langenhorn into fragments; see the
-  # extraction notes before changing it.
-  def ner_locations(text)
-    NerModel.model.doc(text).entities.filter_map do |entity|
-      entity_text = entity[:text].to_s.scrub
-      next if entity_text.blank?
-      next unless entity[:tag] == 'LOCATION' && entity[:score] >= NER_THRESHOLD
-
-      entity_text.gsub(/[^0-9a-zöäüß\- ]/i, '')
-    end.uniq
+  def extracted_names(text)
+    (StreetGazetteer.match(text) + QuarterGazetteer.match(text) + PoiGazetteer.match(text)).uniq
   end
 
   def assign_locations_later!
     AssignDocumentLocationsJob.perform_later(self)
   end
 
+  # Links the document to exactly the places its names and stations resolve
+  # to, and drops any other link. Assignment used to be additive, so a link
+  # outlived the name that made it: re-extraction could change the names, but
+  # never take a place off the document.
   def assign_locations!
-    assign_extracted_locations!
-    assign_stations!
+    locations = (extracted_name_locations + station_locations).uniq
+
+    locations.each { |location| document_locations.find_or_create_by!(location: location) }
+    document_locations.where.not(location_id: locations.map(&:id)).delete_all
   end
 
-  def assign_extracted_locations!
-    return if extracted_locations.blank?
-
-    extracted_locations.each do |extracted_location|
-      next if from_local_committee?(extracted_location)
-
-      Location.determine_locations(extracted_location, district).each do |location|
-        document_locations.find_or_create_by!(location: location)
-      end
+  def extracted_name_locations
+    extracted_locations.to_a.reject { |name| from_local_committee?(name) }.flat_map do |name|
+      Location.determine_locations(name, district)
     end
   end
 
@@ -338,14 +333,8 @@ class Document < ApplicationRecord
   # bare name means something else — "Barmbek" is a Stadtteil, "Habichtstraße"
   # a street — so it is reachable only through Poi.transit_for, never through
   # the plain name lookup.
-  def assign_stations!
-    return if stations.blank?
-
-    stations.each do |station|
-      Location.determine_station_locations(station, district).each do |location|
-        document_locations.find_or_create_by!(location: location)
-      end
-    end
+  def station_locations
+    stations.to_a.flat_map { |station| Location.determine_station_locations(station, district) }
   end
 
   # Stadtteile named outright in the text. Recorded on the document rather than
@@ -353,7 +342,7 @@ class Document < ApplicationRecord
   #
   # A regional committee is named after the Stadtteile it covers, so its own
   # name would otherwise tag every one of its Drucksachen — the same reason
-  # assign_locations! skips those.
+  # extracted_name_locations skips those.
   def extracted_quarters
     Quarter.canonical_names(extracted_locations).reject { |name| from_local_committee?(name) }
   end

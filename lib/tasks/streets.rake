@@ -7,10 +7,10 @@ namespace :streets do
     puts "Imported #{total} streets"
   end
 
-  # Re-runs location extraction (gazetteer + NER) over existing documents so they
-  # pick up newly recognised streets. Re-analysis is additive and idempotent:
-  # extract_locations! overwrites the document's extracted names and assignment
-  # uses find_or_create_by!, so no duplicate document_locations are created.
+  # Re-runs location extraction over existing documents so they pick up newly
+  # recognised names. Idempotent: extract_locations! overwrites the document's
+  # extracted names, and assignment then links exactly the places those resolve
+  # to, dropping links no name accounts for any more.
   #
   #   rake streets:reanalyze              # current legislation, all districts
   #   rake "streets:reanalyze[Altona]"    # one district

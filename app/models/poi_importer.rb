@@ -111,6 +111,8 @@ class PoiImporter
       mark_generic!
     end
 
+    PoiGazetteer.reset!
+    TransitGazetteer.reset!
     Rails.logger.info "PoiImporter: imported #{rows.size} POIs"
     rows.size
   end

@@ -247,8 +247,6 @@ GEM
     minitest-rails (8.1.0)
       minitest (~> 5.20)
       railties (>= 8.1.0, < 8.2.0)
-    mitie (0.3.3)
-      fiddle
     msgpack (1.8.5)
     mutex_m (0.3.0)
     net-imap (0.6.6)
@@ -514,7 +512,6 @@ DEPENDENCIES
   mcp
   minitest-ci
   minitest-rails (~> 8.1.0)
-  mitie
   mutex_m
   nokogiri
   pg

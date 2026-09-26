@@ -73,8 +73,6 @@ gem 'blazer'
 
 gem 'uglifier'
 
-gem 'mitie'
-
 # Used directly by the three geo importers. It arrived transitively with
 # google-maps until that was removed; declare what we actually use.
 gem 'httpclient'

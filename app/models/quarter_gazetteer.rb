@@ -3,13 +3,11 @@
 # Finds the 104 official Stadtteile inside free text, the way StreetGazetteer
 # finds streets: whole-word windows over a memoized index, no model.
 #
-# The NER model is the only thing that finds Stadtteile today, and it misses
-# the forms Drucksachen write most: the genitive ("Eppendorfs") and the
-# compound a regional committee is named after
-# ("Barmbek-Uhlenhorst-Hohenfelde-Dulsberg"). Tokenizing splits the compound on
-# its hyphens, so each Stadtteil in it is found on its own.
-#
-# Used by NerComparison to measure whether it can replace the model.
+# It also finds the forms Drucksachen write most, which the NER model it
+# replaced missed: the genitive ("Eppendorfs") and the compound a regional
+# committee is named after ("Barmbek-Uhlenhorst-Hohenfelde-Dulsberg").
+# Tokenizing splits the compound on its hyphens, so each Stadtteil in it is
+# found on its own.
 class QuarterGazetteer
   # Spellings the register never uses but documents do, generated for every
   # name. "St. Georg" is the register's own form; "Sankt Georg" is not.

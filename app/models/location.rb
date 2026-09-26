@@ -78,7 +78,7 @@ class Location < ApplicationRecord
   #
   # Every step is confined to the district, the reuse of an existing row
   # included. That last one is the whole point: many street names are also
-  # ordinary German words, so the NER model proposes them everywhere. "Plan",
+  # ordinary German words, so the gazetteer finds them everywhere. "Plan",
   # "Sand", "Heimat", "Schulweg", "Am Bahnhof", "Durchschnitt", "Bundesstraße"
   # are each a real street in exactly one district, and the register says which.
   # Reusing a row across districts threw that answer away and let whichever

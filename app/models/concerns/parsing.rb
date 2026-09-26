@@ -134,7 +134,7 @@ module Parsing
       (content.present? && !content.match?(PLACEHOLDER)) || html.include?('<img')
     end
 
-    # Plain text of stored HTML, for search and NER: block boundaries and <br>
+    # Plain text of stored HTML, for search and location extraction: block boundaries and <br>
     # become line breaks (strip_tags glues "folgt:<br>Die" into "folgt:Die"),
     # and entities are decoded rather than left as "&amp;".
     def text(html)

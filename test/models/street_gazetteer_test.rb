@@ -66,6 +66,14 @@ class StreetGazetteerTest < ActiveSupport::TestCase
     assert_equal ['weitweg'], StreetGazetteer.match('Anwohner des Weitwegs')
   end
 
+  test 'matches a leading adjective declined after a preposition' do
+    Street.create!(name: 'Alter Teichweg', normalized_name: 'alter teichweg', street_key: 'test;teichweg',
+                   district_numbers: [4])
+    StreetGazetteer.reset!
+
+    assert_equal ['alter teichweg'], StreetGazetteer.match('Bebauung am Alten Teichweg')
+  end
+
   test 'a variant never shadows a street that really carries that spelling' do
     # Whatever the variants generate, every register name still matches itself.
     Street.distinct.pluck(:normalized_name).first(50).each do |name|

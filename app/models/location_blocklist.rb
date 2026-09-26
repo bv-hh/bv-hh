@@ -3,12 +3,15 @@
 # Derives the blocklist from the corpus itself.
 #
 # The signal is breadth. A real place belongs to one part of the city, so a name
-# that the NER model keeps proposing across several districts — while the street
+# that extraction keeps proposing across several districts — while the street
 # register and the Stadtteil register have both never heard of it — is not a
 # place at all. In practice that catches agency acronyms (BUKEA, LSBG, BWI),
 # organisations (Stadtreinigung Hamburg, Hochbahn), legal and document
 # references (Drs, hamburgisches Wegegesetz), other cities, and plain nouns
 # ("Sommermonaten", "Einzelfällen").
+#
+# The NER model that proposed those is gone, and every name extraction finds
+# now comes from a register, so a fresh run finds few candidates.
 #
 # This mattered more when Google Places answered for anything: every one of
 # these became a pinned Location. Now a name no register knows produces nothing

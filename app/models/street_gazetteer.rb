@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Finds official Hamburg street names (from the Street gazetteer) inside free
-# text. Instead of NER, it looks up every 1..N word window of the text against
+# text. It looks up every 1..N word window of the text against
 # the set of known street names — deterministic, morphology-independent and
 # fast. The name/word index is built once per process and memoized.
 class StreetGazetteer
@@ -16,6 +16,10 @@ class StreetGazetteer
   #
   # Tokenizing drops the full stop, so "Heilwigstr." arrives here as
   # "heilwigstr" and needs no separate entry.
+  # Adjectives street names start with, for the declined forms below.
+  ADJECTIVES = %w[alt neu groß klein hoh lang kurz breit schmal grün rot weiß schwarz
+                  unter ober mittler hinter vorder nieder].join('|')
+
   VARIANTS = [
     # "Ohlsdorferstraße": the adjective glued to the street word.
     [/er (straße|weg|platz|allee|chaussee|damm|brücke|ring)\z/, 'er\1'],
@@ -23,6 +27,9 @@ class StreetGazetteer
     # other way round: the register writes both.
     [/üttler\b/, 'ütteler'],
     [/ütteler\b/, 'üttler'],
+    # A leading adjective declined after a preposition: "am Alten Teichweg"
+    # for Alter Teichweg, "in der Alten Landstraße" for Alte Landstraße.
+    [/\A(#{ADJECTIVES})e[rs]? /o, '\1en '],
     # The genitive, "des Sülldorfer Brookswegs", "des Parnass-Platzes".
     [/(weg|damm|markt|ring)\z/, '\1s'],
     [/platz\z/, 'platzes'],

@@ -38,7 +38,7 @@ This is a Ruby on Rails application for Hamburg's district assembly parliamentar
 - **Place** - Named places within districts
 
 ### Key Features
-- Document parsing and text extraction using NLP/NER models
+- Document parsing and text extraction
 - Location extraction and mapping integration (Google Maps)
 - Search functionality across documents and meetings
 - Background job processing with GoodJob
@@ -58,7 +58,6 @@ Uses GoodJob for background processing:
 
 ### External Dependencies
 - PostgreSQL database
-- MITIE NER model (stored in `data/` directory)
 - Google Maps API for geocoding
 
 ### Testing Setup
@@ -73,9 +72,12 @@ Requires PostgreSQL and Redis services for full test suite. The CI pipeline in `
 
 ## Geo registers
 
-Location extraction resolves names against three local registers and never
-calls an external service at request time. Each is filled by a rake task and
-refreshed occasionally — there is no scheduled job.
+Location extraction finds names by whole-word lookup against three local
+registers (`StreetGazetteer`, `QuarterGazetteer`, `PoiGazetteer`, plus
+`TransitGazetteer` for stations behind a "U/S" prefix) and never calls an
+external service. There is no NER model: everything extracted is a name some
+register knows. Each register is filled by a rake task and refreshed
+occasionally — there is no scheduled job.
 
 ```bash
 rake quarters:import   # 104 Stadtteil polygons, ALKIS WFS          (~2s)
@@ -83,8 +85,8 @@ rake streets:import    # 9535 official street names, AdressService  (~40s)
 rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 ```
 
-- **Restart web and workers afterwards.** `Quarter`, `StreetGazetteer` and
-  `TransitGazetteer` memoize per process; a process that touched one before the
+- **Restart web and workers afterwards.** `Quarter` and the gazetteers
+  memoize per process; a process that touched one before the
   import keeps an empty memo.
 - **Import during a quiet window.** Each task does `delete_all` then re-inserts.
 - `pois:import` reads Overpass (one request per tag value, rotating endpoints on
@@ -98,17 +100,16 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 - `rake pois:coverage` reports which resolution step answers each extracted name
   in the corpus. Read-only.
 - **After an import, `rake locations:reassign`, not `rake streets:reanalyze`.**
-  Reanalysis re-reads every document through the NER model; an import changes
-  only how a name resolves to a place, not which names were found. Reanalyse
-  only when the extraction itself changed. `locations:sweep` needs neither — it
+  Reanalysis re-reads every document and its attachments; an import mostly
+  changes how a name resolves to a place, not which names were found.
+  Reanalyse when the extraction itself changed, or after a POI or Stadtteil
+  import that should find new names. `locations:sweep` needs neither — it
   enqueues exactly the documents it took a link from.
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
 
 ## Initial Setup
 
-1. Download MITIE German NER model from: https://github.com/mit-nlp/MITIE/releases/download/v0.4/MITIE-models-v0.2-German.tar.bz2
-2. Extract to `data/` directory
-3. Create at least one district via `seeds.rb`
-4. Import the geo registers (see above)
-5. Run initial data sync: `CheckForDocumentUpdatesJob.perform_now(District.first)`
-6. Run meeting sync: `CheckForMeetingUpdatesJob.perform_now(District.first)`
+1. Create at least one district via `seeds.rb`
+2. Import the geo registers (see above)
+3. Run initial data sync: `CheckForDocumentUpdatesJob.perform_now(District.first)`
+4. Run meeting sync: `CheckForMeetingUpdatesJob.perform_now(District.first)`

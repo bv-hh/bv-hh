@@ -130,6 +130,28 @@ class DocumentTest < ActiveSupport::TestCase
     assert_empty document.reload.locations
   end
 
+  test 'assign_locations! drops a link no extracted name accounts for any more' do
+    document = extracted_document(extracted_locations: ['Testallee'])
+    document.assign_locations!
+    assert_equal ['Testallee'], document.reload.locations.map(&:name)
+
+    document.update!(extracted_locations: ['Teststadtpark'])
+    document.assign_locations!
+
+    assert_equal ['Teststadtpark'], document.reload.locations.map(&:name)
+  end
+
+  test 'extract_locations! finds streets, Stadtteile and POIs from the registers alone' do
+    [StreetGazetteer, QuarterGazetteer, PoiGazetteer].each(&:reset!)
+    document = Document.create!(district: @district, title: 'Bänke', allris_id: 987_655,
+                                full_text: 'Neue Bänke in der Testallee und im Teststadtpark, Ohlsdorfs Mitte. Die BUKEA prüft.')
+
+    document.extract_locations!
+
+    assert_equal %w[testallee Ohlsdorf teststadtpark], document.extracted_locations
+    assert_equal ['Ohlsdorf'], document.quarters
+  end
+
   private
 
   def extracted_document(extracted_locations: [], stations: [])
