@@ -26,13 +26,13 @@ h3.text-muted
   .col-md-8
     .card.mt-3
       .card-header.fw-bold Sachverhalt
-      .card-body
+      .card-body.allris-content
         == document_format(@document, :content)
 
     - if @document.resolution.present?
       .card.mt-3
         .card-header.fw-bold Petitum/Beschluss
-        .card-body
+        .card-body.allris-content
           == document_format(@document, :resolution)
 
   .col-md-4
@@ -62,7 +62,7 @@ h3.text-muted
     - if attachments
       .card.mt-3
         .card-header.fw-bold Anhänge
-        .card-body
+        .card-body.allris-content
           == document_format(@document, :attached)
 
           .mt-3
