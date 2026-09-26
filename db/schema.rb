@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_26_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -107,6 +107,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
     t.index ["user_id"], name: "index_ahoy_visits_on_user_id"
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
     t.index ["visitor_token", "started_at"], name: "index_ahoy_visits_on_visitor_token_and_started_at"
+  end
+
+  create_table "allris_pages", force: :cascade do |t|
+    t.binary "compressed_body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "fetched_at", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_allris_pages_on_record", unique: true
   end
 
   create_table "attachment_searches", force: :cascade do |t|
@@ -267,6 +277,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
     t.boolean "noindex", default: false, null: false
     t.boolean "non_public", default: false
     t.string "number"
+    t.integer "parser_version"
     t.string "quarters", default: [], null: false, array: true
     t.text "resolution"
     t.string "stations", default: [], null: false, array: true
@@ -275,6 +286,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_200000) do
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
+    t.index ["district_id", "parser_version", "updated_at"], name: "idx_on_district_id_parser_version_updated_at_4aac032a73"
     t.index ["district_id"], name: "index_documents_on_district_id"
     t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist

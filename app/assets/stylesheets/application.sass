@@ -33,6 +33,21 @@ body.districts.show
   .table > tbody > tr:first-child > td
     border-top: none
 
+// Stored ALLRIS content is Word output with its formatting stripped (see
+// Parsing.clean), so its tables arrive bare. Nearly all of them are data tables
+// that had borders in Word. A wide one scrolls sideways instead of widening the
+// page on a phone.
+.allris-content
+  table
+    @extend .table, .table-bordered, .table-sm
+    display: block
+    width: auto
+    max-width: 100%
+    overflow-x: auto
+
+  td p, th p
+    margin-bottom: 0
+
 .jumbotron p.lead b
   font-weight: 700
 

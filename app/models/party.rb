@@ -48,7 +48,7 @@ class Party < ApplicationRecord
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
 
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
     self.name = html.css('h1').first&.text&.squish.presence || name
 
     if expired?(html)

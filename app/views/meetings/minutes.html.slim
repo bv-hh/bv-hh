@@ -30,8 +30,9 @@ h1.h1
     .row.border-bottom.pb-3
       .col-12
         - if item.logged?
-          == meeting_format(item.minutes, @meeting)
-          == meeting_format(item.result, @meeting)
+          .allris-content
+            == meeting_format(item.minutes, @meeting)
+            == meeting_format(item.result, @meeting)
 
         - if item.attachments.present?
           - if item.logged?

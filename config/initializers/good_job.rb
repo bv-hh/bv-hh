@@ -38,6 +38,11 @@ Rails.application.configure do
       class: 'GenerateSitemapJob',
       cron: '0 59 2 * * *',
     },
+    # Ends by 01:45 (RefetchDocumentsJob::WINDOW), before the sitemap at 02:59.
+    refetch_documents: {
+      class: 'RefetchDocumentsJob',
+      cron: '0 15 23 * * *',
+    },
     update_committee_averages: {
       class: 'UpdateCommitteeAveragesJob',
       cron: '0 23 1 1 * *',

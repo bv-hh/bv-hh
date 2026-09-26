@@ -54,7 +54,7 @@ class Meeting < ApplicationRecord
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
     return nil if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
 
-    html = Nokogiri::HTML.parse(source, nil, 'ISO-8859-1')
+    html = Parsing.parse(source)
 
     self.title = html.css('h1').first&.text&.gsub('Tagesordnung -', '')&.squish
 
@@ -213,7 +213,7 @@ class Meeting < ApplicationRecord
   # agenda page, e.g. "DOLFDNR=1392414&options=64". Returns nil when the meeting
   # has no public protocol yet.
   def minutes_download_params(source)
-    html = Nokogiri::HTML.parse(source, nil, 'ISO-8859-1')
+    html = Parsing.parse(source)
 
     form = html.css('form[action="do027.asp"]').find do |candidate|
       button = candidate.at_css('input[type="submit"]')

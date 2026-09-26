@@ -37,6 +37,7 @@ require 'net/http'
 class Document < ApplicationRecord
   include Parsing
   include WithAttachments
+  include WithAllrisPage
 
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
@@ -44,6 +45,15 @@ class Document < ApplicationRecord
 
   NON_PUBLIC = 'Keine Information verf&uuml;gbar'
   AUTH_REDIRECT = 'noauth.asp'
+
+  # Labels that open a section of a vo020 page, matched against the start of
+  # the section's first paragraph (see Parsing.sections). Unlabelled sections
+  # belong to the content.
+  SECTION_LABELS = {
+    content: /\A(Sachverhalt( und Petitum)?\b:?|Hintergrund:)/,
+    resolution: %r{\A(Petitum\b(\s*/\s*(Beschluss\w*)?)?:?|Beschluss:)},
+    attached: %r{\AAnlagen?(/n)?:},
+  }.freeze
 
   NER_THRESHOLD = 0.4
 
@@ -78,6 +88,7 @@ class Document < ApplicationRecord
   scope :no_embeddings, -> { where(embeddings_created: false) }
   scope :current_legislation, ->(district) { where(district: district).since_number(district.first_legislation_number) }
   scope :children, ->(number) { where('number ILIKE ?', "#{number}.%") }
+  scope :parsed_before, ->(version) { where(parser_version: nil).or(where(parser_version: ...version)) }
 
   default_scope -> { where(non_public: false) }
 
@@ -128,13 +139,55 @@ class Document < ApplicationRecord
   end
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
-    if source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
+    html = parse_page(source)
+    save!
+    return self if html.nil?
+
+    store_page(source)
+    retrieve_attachments(html)
+    retrieve_images(html)
+
+    extract_locations_later! if full_text.present?
+  end
+
+  # Parses the stored page again, for when only the parser changed: no request
+  # to ALLRIS, and attachments and images stay as they are.
+  def reparse!
+    update_from_page!(allris_page.body)
+  end
+
+  # Parses a fresh copy of the page, for a document an older parser read
+  # (RefetchDocumentsJob). Only the page is read: attachments and images stay
+  # as they are, since ALLRIS may have dropped files archived here years ago.
+  # A page that is not public now, or a login redirect, which ALLRIS serves
+  # when it has a bad moment, leaves a document the site has shown for years
+  # as it is.
+  def refetch!(source = Net::HTTP.get(URI(allris_url)))
+    return update!(parser_version: Parsing::VERSION) if non_public_page?(source)
+
+    update_from_page!(source)
+    store_page(source)
+  end
+
+  # Re-extraction runs the NER model, so only when the text actually changed.
+  def update_from_page!(source)
+    parse_page(source)
+    save!
+
+    extract_locations_later! if saved_change_to_full_text? && full_text.present?
+  end
+
+  # Sets the attributes from an ALLRIS vo020 page and returns its content table,
+  # or nil for a page that is not public.
+  def parse_page(source)
+    self.parser_version = Parsing::VERSION
+
+    if non_public_page?(source)
       self.non_public = true
-      save!
-      return self
+      return nil
     end
 
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
 
     headline = html.css('h1').first&.text
     self.number = headline&.gsub('Drucksache -', '')&.gsub('Vorlage -', '')&.squish
@@ -143,13 +196,11 @@ class Document < ApplicationRecord
 
     retrieve_meta(html)
     retrieve_body(html)
+    html
+  end
 
-    save!
-
-    retrieve_attachments(html)
-    retrieve_images(html)
-
-    extract_locations_later! if content.present?
+  def non_public_page?(source)
+    source.include?(NON_PUBLIC) || source.include?(AUTH_REDIRECT)
   end
 
   def retrieve_meta(html)
@@ -160,34 +211,13 @@ class Document < ApplicationRecord
   end
 
   def retrieve_body(html)
-    retrieve_content(html)
-    retrieve_resolution(html)
+    sections = Parsing.sections(html.css('td[bgcolor=white] > div'), SECTION_LABELS).group_by { |section| section.key || :content }
 
-    self.attached = retrieve_xpath_div(html, 'Anlage/n:')
+    self.content = Parsing.clean_sections(sections.fetch(:content, []))
+    self.resolution = Parsing.clean_sections(sections.fetch(:resolution, []))
+    self.attached = Parsing.clean_sections(sections.fetch(:attached, []))
 
-    self.full_text = strip_tags(content) || ''
-    if resolution.present?
-      self.full_text += ' '
-      self.full_text += strip_tags(resolution)
-    end
-  end
-
-  def retrieve_content(html)
-    self.content = nil
-    self.content = retrieve_xpath_div(html, 'Sachverhalt:')
-    self.content ||= retrieve_xpath_div(html, 'Sachverhalt')
-    self.content ||= retrieve_xpath_div(html, 'Hintergrund:')
-    self.content ||= clean_html(html.css('td[bgcolor=white] > div')[0])
-  end
-
-  def retrieve_resolution(html)
-    self.resolution = nil
-    self.resolution = retrieve_xpath_div(html, 'Petitum/Beschluss:')
-    self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussvorschlag:')
-    self.resolution ||= retrieve_xpath_div(html, 'Petitum/Beschlussempfehlung:')
-    self.resolution ||= retrieve_xpath_div(html, 'Petitum/')
-    self.resolution ||= retrieve_xpath_div(html, 'Petitum:')
-    self.resolution ||= retrieve_xpath_div(html, 'Petitum')
+    self.full_text = [content, resolution].filter_map { |part| html_to_text(part) }.join("\n")
   end
 
   def extract_attachment_table(html)
@@ -198,16 +228,16 @@ class Document < ApplicationRecord
     main_content = html.xpath('.//title[contains(., "ALLRIS® Office Integration")]/following-sibling::div')
     main_content.css('img').each do |image_tag|
       src = image_tag['src']&.squish
-      if src.present?
-        io = URI.parse("#{district.allris_base_url}/bi/#{src}").open
-        images.attach(io:, filename: File.basename(src))
-      end
+      next if src.blank? || images.any? { |image| image.filename.to_s == File.basename(src) }
+
+      io = URI.parse("#{district.allris_base_url}/bi/#{src}").open
+      images.attach(io:, filename: File.basename(src))
     end
   end
 
   def retrieve_images!
     source = Net::HTTP.get(URI(allris_url))
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
     html = html.css('table.risdeco').first
 
     retrieve_images(html)

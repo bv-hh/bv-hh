@@ -98,7 +98,7 @@ class Committee < ApplicationRecord
   def retrieve_members_from_allris!(source = Net::HTTP.get(URI(allris_members_url)))
     return if source.include?(OBJECT_MOVED) || source.include?(AUTH_REDIRECT)
 
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
     table = html.css('table.tl1').find { |t| t.css('a[href*="kp020"]').any? }
     return if table.nil?
 

@@ -102,7 +102,7 @@ class District < ApplicationRecord
   end
 
   def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
 
     latest_link = html.css('tr.zl12 a').first['href']
     current_allris_id = latest_link[/VOLFDNR=(\d+)/, 1].to_i
@@ -132,7 +132,7 @@ class District < ApplicationRecord
   end
 
   def check_for_meetings_in_month(month, source = Net::HTTP.get(URI(allris_base_url + ALLRIS_MEETING_UPDATES_URL + "?MM=#{month.month}&YY=#{month.year}")))
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
 
     day = nil
 
@@ -190,7 +190,7 @@ class District < ApplicationRecord
   end
 
   def check_for_party_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_PARTY_UPDATES_URL)))
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
 
     html.css('table.tl1 a[href*="fr020"]').each do |link|
       allris_id = link['href'][/FRLFDNR=(\d+)/, 1]
