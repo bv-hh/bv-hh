@@ -10,7 +10,7 @@
 #
 # The `*_id` values are the real ALLRIS record ids the pages were fetched with;
 # tests build records with them so allris_url and id-dependent parsing behave
-# exactly as in production. Files are stored as raw ISO-8859-1 bytes, matching
+# exactly as in production. Files are stored as raw Windows-1252 bytes, matching
 # what Net::HTTP.get returns in production.
 hamburg_nord:
   name: Hamburg-Nord

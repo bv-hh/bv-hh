@@ -35,7 +35,6 @@ module DocumentsHelper
 
     return '' if content.nil?
 
-    content = scrub_whitespace(content)
     content = link_documents(content, document.district)
     content = link_images(content, document)
 

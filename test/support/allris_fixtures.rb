@@ -19,7 +19,8 @@ module AllrisFixtures
     District.create!(name: info['name'], allris_base_url: info['base_url'])
   end
 
-  # Raw ISO-8859-1 bytes of a captured page, exactly as Net::HTTP.get returns.
+  # Raw bytes of a captured page (Windows-1252, see Parsing.decode), exactly as
+  # Net::HTTP.get returns them.
   def page(slug, name)
     ROOT.join(slug, name).read
   end

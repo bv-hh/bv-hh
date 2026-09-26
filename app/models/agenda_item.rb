@@ -30,6 +30,7 @@
 class AgendaItem < ApplicationRecord
   include Parsing
   include WithAttachments
+  include WithAllrisPage
 
   belongs_to :meeting
   belongs_to :document, optional: true
@@ -60,7 +61,7 @@ class AgendaItem < ApplicationRecord
 
     source ||= retrieve_source
 
-    html = Nokogiri::HTML.parse(source.force_encoding('ISO-8859-1'))
+    html = Parsing.parse(source)
     return if html.blank?
 
     html = html.css('table.risdeco').first
@@ -69,11 +70,12 @@ class AgendaItem < ApplicationRecord
     decision_text = html.css('td.text3')&.first&.text&.squish
     self.decision = decision_text unless decision_text == '(offen)'
 
-    self.minutes = clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]")).presence
+    self.minutes = clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisWP'] and following-sibling::a[@name='allrisBS']]"))
     self.result = extract_result(html)
 
     retrieve_attachments(html)
     save!
+    store_page(source)
   end
 
   def extract_attachment_table(html)
@@ -95,8 +97,8 @@ class AgendaItem < ApplicationRecord
   end
 
   def extract_result(html)
-    clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")).presence ||
-      clean_html(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]")).presence
+    clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")) ||
+      clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]"))
   end
 
   def as_json

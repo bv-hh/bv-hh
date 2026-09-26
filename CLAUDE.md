@@ -49,6 +49,12 @@ Uses GoodJob for background processing:
 - Document synchronization from Allris
 - Text extraction and NLP processing
 - Location extraction and geocoding
+- Re-fetching documents parsed by an older parser (`RefetchDocumentsJob`,
+  nightly 23:15–01:45, one request at a time per district). Bump
+  `Parsing::VERSION` when a parser change alters what is stored for a document.
+  Fetched pages are kept in `allris_pages`, so after a bump
+  `rake documents:reparse` updates every document that has one without asking
+  ALLRIS; the nightly job fetches only the rest.
 
 ### External Dependencies
 - PostgreSQL database
