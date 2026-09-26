@@ -41,11 +41,6 @@ module DocumentsHelper
     Rinku.auto_link(content, :all, 'target="_blank"')
   end
 
-  def scrub_whitespace(content)
-    content = content.gsub(%r{<span[^>]*>[  ]*</span>}, ' ')
-    content.gsub(%r{<p[^>]*>[  ]*</p>}, ' ')
-  end
-
   def highlight_multi_excerpt(text, terms)
     multiple_terms = terms.squish.split
     multi_excerpt = multiple_terms.map do |term|

@@ -38,6 +38,19 @@ module Parsing
   }.freeze
   EMPHASIS_TAGS = EMPHASIS_STYLES.keys.join('|')
 
+  # Word writes text set in the Symbol or Wingdings font as Private Use Area
+  # code points, which no browser font draws. These are the ones ALLRIS pages
+  # use: mostly the bullets of paragraphs that only look like a list, and the
+  # brackets of a footnote mark.
+  SYMBOL_FONT_CHARACTERS = {
+    "\uF0B7" => '•', # Symbol bullet
+    "\uF0A7" => '▪', # Wingdings small square
+    "\uF05B" => '[',
+    "\uF05D" => ']',
+    "\uF02A" => '*',
+  }.freeze
+  SYMBOL_FONT_PATTERN = Regexp.union(SYMBOL_FONT_CHARACTERS.keys)
+
   BLOCK_TAGS = %w[p div h1 h2 h3 h4 h5 h6 ol ul li table thead tbody tr th td hr].join(',')
   TEXT_BREAK_TAGS = "#{BLOCK_TAGS},br".freeze
   XPATHS_TO_REMOVE = %w[.//script .//style .//form .//noscript comment()].freeze
@@ -159,7 +172,7 @@ module Parsing
     end
 
     def tidy(html)
-      html = html.gsub(/\u00a0|&nbsp;/, ' ')
+      html = html.gsub(/\u00a0|&nbsp;/, ' ').gsub(SYMBOL_FONT_PATTERN, SYMBOL_FONT_CHARACTERS)
       loop do
         merged = html.gsub(%r{</(#{EMPHASIS_TAGS})>(\s*)<\1>}o, '\2') # runs Word split into spans
                      .gsub(%r{<(#{EMPHASIS_TAGS})>(\s*)</\1>}o, '\2') # emphasis around nothing

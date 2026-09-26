@@ -25,6 +25,11 @@ module AllrisFixtures
     ROOT.join(slug, name).read
   end
 
+  # A page kept for one shape of ALLRIS markup, see test/models/document_sections_test.rb.
+  def case_page(name)
+    ROOT.join('cases', "#{name}.html").read
+  end
+
   # The content parsers (Document/Meeting/AgendaItem) download attachments and
   # images over HTTP directly (not via a job) as a side effect of parsing.
   # Neutralise those on a single transient record so a test can parse offline.
