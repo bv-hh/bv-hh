@@ -1,0 +1,62 @@
+# frozen_string_literal: true
+
+# One of the topics a Drucksache can be tagged with, read from
+# config/topics.yml. Documents store the keys in documents.topics; which ones
+# apply is decided by TopicClassifier.
+class Topic
+  # Stored in documents.topics_version. Bump it whenever config/topics.yml or
+  # TopicClassifier change what a document would be tagged with, then run
+  # `rake topics:reassign`.
+  VERSION = 1
+
+  CONFIG = Rails.root.join('config/topics.yml')
+
+  attr_reader :key, :label, :terms, :title_terms, :committees, :poi_categories
+
+  class << self
+    include Enumerable
+
+    def all
+      @all ||= YAML.load_file(CONFIG).map { |key, attributes| new(key, **attributes.symbolize_keys) }.freeze
+    end
+
+    def each(&)
+      all.each(&)
+    end
+
+    def keys
+      map(&:key)
+    end
+
+    def find(key)
+      all.find { |topic| topic.key == key.to_s }
+    end
+  end
+
+  def initialize(key, label:, terms: [], title_terms: [], committees: [], poi_categories: [])
+    @key = key.to_s
+    @label = label
+    @terms = terms
+    @title_terms = title_terms
+    @committees = committees.map { |pattern| Regexp.new(pattern, Regexp::IGNORECASE) }
+    @poi_categories = poi_categories
+  end
+
+  # to_tsquery input for the title, or nil when the topic has no terms for it.
+  def title_tsquery
+    (terms + title_terms).join(' | ').presence
+  end
+
+  # to_tsquery input for the full text, or nil.
+  def body_tsquery
+    terms.join(' | ').presence
+  end
+
+  def committee?(name)
+    committees.any? { |pattern| pattern.match?(name.to_s) }
+  end
+
+  def to_s
+    label
+  end
+end

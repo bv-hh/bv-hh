@@ -92,6 +92,14 @@ class StreetGazetteer
       spans
     end
 
+    # +text+ with every street name taken out, as lowercase words. For matching
+    # topic terms against a title without "Schulstraße" counting as a school.
+    def remove(text)
+      tokens = tokenize(text.to_s)
+      named = spans(tokens).flat_map { |first, last| (first..last).to_a }.to_set
+      tokens.reject.with_index { |_token, i| named.include?(i) }.join(' ')
+    end
+
     # The register's own spelling for a normalized name, or nil when the
     # register has never heard of it in any spelling. Street.for resolves
     # through this so that a name extracted as "Krausestrasse" reaches the

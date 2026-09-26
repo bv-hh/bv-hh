@@ -148,4 +148,24 @@ class DocumentParsingTest < ActiveSupport::TestCase
 
     assert_no_enqueued_jobs(only: ExtractDocumentLocationsJob) { document.reparse! }
   end
+
+  test 'reparse! reassigns topics when only the title changed' do
+    district = AllrisFixtures.build_district('wandsbek')
+    document = AllrisFixtures.stub_network(district.documents.new(allris_id: 1_025_666))
+    document.retrieve_from_allris!(AllrisFixtures.page('wandsbek', 'vo020.html'))
+    document.update_columns(title: 'Alter Titel') # rubocop:disable Rails/SkipsModelValidations
+    clear_enqueued_jobs
+
+    assert_enqueued_with(job: AssignDocumentTopicsJob, args: [document]) { document.reparse! }
+    assert_no_enqueued_jobs(only: ExtractDocumentLocationsJob)
+  end
+
+  test 'reparse! leaves topics alone when nothing changed' do
+    district = AllrisFixtures.build_district('wandsbek')
+    document = AllrisFixtures.stub_network(district.documents.new(allris_id: 1_025_666))
+    document.retrieve_from_allris!(AllrisFixtures.page('wandsbek', 'vo020.html'))
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs(only: AssignDocumentTopicsJob) { document.reparse! }
+  end
 end

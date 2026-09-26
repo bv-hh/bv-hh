@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+# Decides which topics a document is about from signals that are already in
+# the data, without a model:
+#
+# - title:     a term of the topic in the title
+# - body:      a term of the topic in the full text
+# - committee: the document was on the agenda of a committee for the topic
+# - poi:       a place linked to the document belongs to one of the topic's
+#              POI categories
+#
+# A title hit is enough on its own. The others are weak: a long Mitteilung
+# mentions many things in passing, a Mobilitätsausschuss also handles bus
+# stops, and a school is also a polling station. Any two of them together are
+# taken as a topic.
+#
+# The signals are kept separately so they can be counted and exported as weak
+# labels for training a classifier later.
+class TopicClassifier
+  WEAK_SIGNALS = %i[body committee poi].freeze
+  WEAK_SIGNALS_NEEDED = 2
+
+  attr_reader :document
+
+  # Every committee name with "Ausschuss" in it, in the genitive too, as one
+  # pattern. Names without it ("Mobilität") are ordinary words in a title.
+  def self.committee_pattern
+    @committee_pattern ||= begin
+      names = Committee.where('name ILIKE ?', '%ausschuss%').distinct.pluck(:name)
+      alternatives = names.sort_by { |name| -name.length }.map do |name|
+        Regexp.escape(name).gsub(/ausschuss/i) { |word| "#{word}(?:es)?" }.gsub('\ ', '\s+')
+      end
+      alternatives.any? ? Regexp.new(alternatives.join('|'), Regexp::IGNORECASE) : /(?!)/
+    end
+  end
+
+  def self.reset!
+    @committee_pattern = nil
+  end
+
+  def initialize(document)
+    @document = document
+  end
+
+  def topics
+    signals.filter_map { |key, found| key if topic?(found) }
+  end
+
+  # { topic_key => { title:, body:, committee:, poi: } }
+  def signals
+    @signals ||= Topic.to_h do |topic|
+      [topic.key, {
+        title: term_hits["title_#{topic.key}"] == true,
+        body: term_hits["body_#{topic.key}"] == true,
+        committee: committee_names.any? { |name| topic.committee?(name) },
+        poi: topic.poi_categories.intersect?(poi_categories),
+      }]
+    end
+  end
+
+  private
+
+  def topic?(found)
+    found[:title] || WEAK_SIGNALS.count { |signal| found[signal] } >= WEAK_SIGNALS_NEEDED
+  end
+
+  # One query for every topic: the title and the full text are turned into a
+  # tsvector once and matched against each topic's terms.
+  def term_hits
+    @term_hits ||= begin
+      connection = Document.connection
+      columns = Topic.flat_map do |topic|
+        [match_column('title_vector', topic.title_tsquery, "title_#{topic.key}"),
+         match_column('body_vector', topic.body_tsquery, "body_#{topic.key}")]
+      end
+
+      sql = <<~SQL.squish
+        WITH vectors AS (
+          SELECT to_tsvector('german', #{connection.quote(matchable_title)}) AS title_vector,
+                 to_tsvector('german', coalesce(documents.full_text, '')) AS body_vector
+          FROM documents WHERE documents.id = #{Integer(document.id)}
+        )
+        SELECT #{columns.join(', ')} FROM vectors
+      SQL
+
+      connection.select_one(sql) || {}
+    end
+  end
+
+  def match_column(vector, tsquery, name)
+    return "false AS #{name}" if tsquery.nil?
+
+    "(#{vector} @@ to_tsquery('german', #{Document.connection.quote(tsquery)})) AS #{name}"
+  end
+
+  # The title without the committee it comes from ("… Beschlussvorlage des
+  # Ausschusses für Haushalt und Kultur") and without street names
+  # ("Schulstraße"): both name a topic the document is not about.
+  def matchable_title
+    StreetGazetteer.remove(document.title.to_s.gsub(self.class.committee_pattern, ' '))
+  end
+
+  # A Regionalausschuss handles every topic of its area, so it says nothing
+  # about the document.
+  def committee_names
+    @committee_names ||= document.committees.distinct.reject(&:local?).map(&:name)
+  end
+
+  # Locations resolved to a POI carry its place_key ("osm:node/123") as
+  # place_id, which leads back to the POI and its category.
+  def poi_categories
+    @poi_categories ||= begin
+      place_ids = document.locations.where('locations.place_id LIKE ?', 'osm:%').pluck(:place_id)
+      osm_ids = place_ids.map { |place_id| place_id.split('/').last.to_i }
+      Poi.where(osm_id: osm_ids).select { |poi| place_ids.include?(poi.place_key) }.map(&:category).uniq
+    end
+  end
+end

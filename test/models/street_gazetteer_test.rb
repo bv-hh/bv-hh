@@ -6,6 +6,10 @@ class StreetGazetteerTest < ActiveSupport::TestCase
   setup { StreetGazetteer.reset! }
   teardown { StreetGazetteer.reset! }
 
+  test 'remove takes street names out of a text' do
+    assert_equal 'querung der und zurück', StreetGazetteer.remove('Querung der Heilwigstraße und zurück')
+  end
+
   test 'finds a single-word street name in running text' do
     text = 'Die Sanierung der Testallee wurde beschlossen.'
     assert_equal ['testallee'], StreetGazetteer.match(text)
