@@ -162,14 +162,12 @@ class Document < ApplicationRecord
   # Parses a fresh copy of the page, for a document an older parser read
   # (RefetchDocumentsJob). Only the page is read: attachments and images stay
   # as they are, since ALLRIS may have dropped files archived here years ago.
-  # A page that is not public now, or a login redirect, which ALLRIS serves
-  # when it has a bad moment, leaves a document the site has shown for years
-  # as it is.
+  # A login redirect or a "Keine Information verfügbar" page means the document
+  # is not public any more: it goes offline, exactly as retrieve_from_allris!
+  # would take it, and its page is not stored.
   def refetch!(source = Net::HTTP.get(URI(allris_url)))
-    return update!(parser_version: Parsing::VERSION) if non_public_page?(source)
-
     update_from_page!(source)
-    store_page(source)
+    store_page(source) unless non_public?
   end
 
   # Re-extraction reads the whole text and its attachments, so only when the

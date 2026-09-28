@@ -15,15 +15,16 @@
 # request, no pause, and it does not count towards BATCH_SIZE, which exists to
 # spare ALLRIS.
 #
-# Least recently updated documents go first. When ALLRIS cannot be reached the
-# document is touched, which puts it at the back of the queue for another
-# night. Any other failure means this parser cannot read the page: it is
+# Least recently updated documents go first. A document ALLRIS now shows only
+# behind its login goes offline (Document#refetch!). When ALLRIS cannot be
+# reached the document is touched, which puts it at the back of the queue for
+# another night. Any other failure means this parser cannot read the page: it is
 # reported and the document marked done, or the chain would ask for the same
 # broken pages every night once everything else is through.
 class RefetchDocumentsJob < ApplicationJob
   WINDOW = 2.5.hours
-  BATCH_SIZE = 2_000
-  PAUSE = 3.seconds
+  BATCH_SIZE = 3_000 # above what WINDOW allows at PAUSE, so the window decides
+  PAUSE = 1.second
 
   NETWORK_ERRORS = [
     Net::OpenTimeout, Net::ReadTimeout, Net::HTTPBadResponse, SocketError, SystemCallError, EOFError,

@@ -60,6 +60,13 @@ class ParsingTest < ActiveSupport::TestCase
     assert_equal '<p>• Fischbeker Heidbrook</p><p>▪ Sandbek</p>', clean(html)
   end
 
+  test 'clean replaces the Symbol and Wingdings arrows, dashes and digits ALLRIS pages use' do
+    html = '<p><span style="font-family:Wingdings">&#xF0D8;</span> Pfeil</p>' \
+           '<p><span style="font-family:Symbol">&#xF02D;</span> Strich <span style="font-family:Symbol">&#xF031;&#xF032;</span></p>'
+
+    assert_equal '<p>➢ Pfeil</p><p>– Strich 12</p>', clean(html)
+  end
+
   test 'clean keeps lists, their numbering and table structure' do
     html = '<ol start="3" style="margin-left:18pt"><li style="color:#333333"><span>Frage</span></li></ol>' \
            '<table style="width:100%" cellpadding="0"><tr><td colspan="2" style="border:1px solid">Zelle</td></tr></table>'
