@@ -16,7 +16,8 @@ module Parsing
   # RefetchDocumentsJob then fetches every document parsed with an older one.
   #   1 (NULL) regex cleaner, lost the spaces between words
   #   2        DOM cleaner, sections in page order
-  VERSION = 2
+  #   3        every Symbol and Wingdings character ALLRIS pages use
+  VERSION = 3
 
   ALLOWED_TAGS = %w[p br hr h3 h4 ol ul li table thead tbody tr th td strong em u sub sup a img].freeze
   ALLOWED_ATTRIBUTES = {
@@ -42,15 +43,20 @@ module Parsing
   EMPHASIS_TAGS = EMPHASIS_STYLES.keys.join('|')
 
   # Word writes text set in the Symbol or Wingdings font as Private Use Area
-  # code points, which no browser font draws. These are the ones ALLRIS pages
-  # use: mostly the bullets of paragraphs that only look like a list, and the
-  # brackets of a footnote mark.
+  # code points (U+F000 plus the character's code in that font), which no
+  # browser font draws. These are the ones found in 20k stored pages, mostly
+  # bullets and dashes of paragraphs that only look like a list. Each occurs in
+  # one of the two fonts only, and often the font name is gone by the time the
+  # character is reached (a Calibri span), so one table serves both. Where the
+  # exact Unicode arrow is missing from most fonts, the nearest common one.
   SYMBOL_FONT_CHARACTERS = {
-    "\uF0B7" => '•', # Symbol bullet
-    "\uF0A7" => '▪', # Wingdings small square
-    "\uF05B" => '[',
-    "\uF05D" => ']',
-    "\uF02A" => '*',
+    # Symbol
+    "\uF020" => ' ', "\uF028" => '(', "\uF029" => ')', "\uF02A" => '*', "\uF02D" => '–', "\uF02E" => '.',
+    "\uF05B" => '[', "\uF05D" => ']', "\uF0AE" => '→', "\uF0B7" => '•', "\uF0DE" => '⇒',
+    **('0'..'9').index_by { |digit| (0xF030 + digit.to_i).chr(Encoding::UTF_8) },
+    # Wingdings
+    "\uF075" => '◆', "\uF076" => '❖', "\uF0A0" => '▪', "\uF0A7" => '▪', "\uF0D8" => '➢', "\uF0E0" => '→',
+    "\uF0E8" => '➔', "\uF0F0" => '⇨'
   }.freeze
   SYMBOL_FONT_PATTERN = Regexp.union(SYMBOL_FONT_CHARACTERS.keys)
 

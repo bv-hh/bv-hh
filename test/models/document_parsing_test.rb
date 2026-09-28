@@ -130,14 +130,20 @@ class DocumentParsingTest < ActiveSupport::TestCase
     assert_equal source.b, document.allris_page.body
   end
 
-  test 'refetch! does not hide a document because ALLRIS answered with a login redirect' do
-    document = AllrisFixtures.build_district('wandsbek').documents.create!(allris_id: 1, title: 'Alt', content: '<p>Alt</p>')
+  test 'refetch! takes a document offline when ALLRIS shows it only behind its login' do
+    [
+      '<html><a href="noauth.asp">Anmelden</a></html>',
+      "<html>#{Document::NON_PUBLIC}</html>",
+    ].each do |page|
+      document = AllrisFixtures.build_district('wandsbek').documents.create!(allris_id: 1, title: 'Alt', content: '<p>Alt</p>')
 
-    document.refetch!('<html><a href="noauth.asp">Anmelden</a></html>')
+      document.refetch!(page)
 
-    assert_not_predicate document.reload, :non_public?
-    assert_equal '<p>Alt</p>', document.content
-    assert_equal Parsing::VERSION, document.parser_version
+      assert_predicate document.reload, :non_public?
+      assert_equal Parsing::VERSION, document.parser_version
+      assert_nil document.allris_page
+      assert_not_includes Document.all, document
+    end
   end
 
   test 'reparse! leaves location extraction alone when the text did not change' do
