@@ -5,6 +5,17 @@ topics:evaluate` measures the rules against it (see `TopicEvaluation`), and so
 will the classifier of phase 2. Each line identifies a document by district and
 number, which mean the same in every environment.
 
+## Two sets
+
+- `topics.jsonl`, the **tuning set**: 324 documents in three strata. Rule
+  changes are read from its misses and measured against it, so its numbers
+  flatter the rules once they have been tuned on it.
+- `topics_test.jsonl`, the **test set**: 150 random documents, none of them in
+  the tuning set. It is only for measuring, never for changing a rule: the
+  honest number, for the rules and later for a classifier.
+
+Every task below takes `GOLD_SET=test` to work on the test set.
+
 ## Workflow
 
 ```bash
