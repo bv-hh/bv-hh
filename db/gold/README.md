@@ -40,3 +40,24 @@ lean on them.
   as the project's own topic.
 - Only the start of long texts is shown. If it is not enough to decide, label
   what the title and the shown text support.
+
+## Conventions used so far
+
+The first labelling (all 324 documents, `"labeler": "claude"`) settled these
+boundary cases. Change them only together with the labels they affect.
+
+- **Sondermittel & Haushalt** is money the district decides on or reports:
+  Sondermittel, Quartiersfonds, Zuwendungen, Rahmenzuweisungen, Haushalt. A
+  request to a state authority to find funding for something is not.
+- **Soziales & Gesundheit** includes Barrierefreiheit wherever it is part of the
+  request, also for bus stops, pavements and toilets.
+- **Kultur & Erinnerung** includes Straßen(um)benennungen, Denkmalschutz and
+  Gedenken; **Schule & Bildung** includes libraries only where learning is the
+  point (a women's library: both).
+- A **Spielplatz** includes Bolzplätze and play areas in parks.
+- Appointments to a Beirat or committee are **Gremien & Verwaltung**, plus the
+  Beirat's subject when the document discusses it.
+- Safety near a school or Kita (Tempo 30, crossings, Elterntaxis) is
+  **Straßenverkehr**, not Schule or Kinder.
+- A pure listing without content ("Beschlüsse des Hauptausschusses") gets no
+  topic.
