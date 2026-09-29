@@ -1,6 +1,6 @@
 # The topics a Drucksache can be tagged with, and the rules that find them.
 # See Topic and TopicClassifier. Bump Topic::VERSION after changing anything
-# here, then run `rake topics:reassign`.
+# here, then run `rake topics:reassign_later`.
 #
 # terms          - to_tsquery('german', …) fragments, joined with |, matched
 #                  against the title and the full text.
