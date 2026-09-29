@@ -3,6 +3,7 @@
 class DocumentsController < ApplicationController
   include ActionView::Helpers::TextHelper
 
+  before_action :require_district, only: :index
   skip_after_action :track_event, only: :suggest
 
   MAX_SUGGESTIONS = 5

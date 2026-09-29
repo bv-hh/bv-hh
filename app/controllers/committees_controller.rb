@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class CommitteesController < ApplicationController
+  before_action :require_district
+
   def index
     @committees = @district.committees.open.order(:inactive, :order)
     @title = "Gremien und Ausschüsse der Bezirksversammlung #{@district.name}"

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class PartiesController < ApplicationController
+  before_action :require_district
+
   def index
     @regular_counts = @district.members.active.regular.group(:party_id).count
     @parties = @district.parties.active.sort_by { |party| [-(@regular_counts[party.id] || 0), party.name] }

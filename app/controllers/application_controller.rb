@@ -24,6 +24,12 @@ class ApplicationController < ActionController::Base
     { district: @district&.name&.parameterize }
   end
 
+  # For pages that only exist within a district. Without one in the path (bots
+  # probing /documents or /statistics) there is nothing to show.
+  def require_district
+    raise ActionController::RoutingError, "#{request.path} needs a district" if @district.nil?
+  end
+
   def without_district
     redirect_to url_for(district: nil), status: :moved_permanently and return false if params[:district].present?
   end
