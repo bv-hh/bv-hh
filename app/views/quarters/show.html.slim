@@ -32,7 +32,7 @@
         url: ->(topic) { quarter_page.call(topic: topic == @topic ? nil : topic.slug) }
     - if @topic
       p.small.text-secondary.mt-2.mb-0
-        = link_to 'Filter aufheben', quarter_page.call
+        = link_to 'alle Themen', quarter_page.call
         '  ·
         = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil)
 
