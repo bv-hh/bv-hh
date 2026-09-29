@@ -19,6 +19,11 @@
 class TopicClassifier
   WEAK_SIGNALS = %i[body committee poi].freeze
   WEAK_SIGNALS_NEEDED = 2
+  # A procedural title ("Benennung für den Ausschuss Bildung und Sport",
+  # "Umbesetzung im Ausschuss für Umwelt und Gesundheit") names committees, and
+  # committees are named after topics. In such a document the title only
+  # speaks for this topic; the others need the weak signals.
+  PROCEDURAL = 'gremien'
 
   attr_reader :document
 
@@ -43,7 +48,7 @@ class TopicClassifier
   end
 
   def topics
-    signals.filter_map { |key, found| key if topic?(found) }
+    signals.filter_map { |key, found| key if topic?(found, title: key == PROCEDURAL || !procedural?) }
   end
 
   # { topic_key => { title:, body:, committee:, poi: } }
@@ -60,8 +65,12 @@ class TopicClassifier
 
   private
 
-  def topic?(found)
-    found[:title] || WEAK_SIGNALS.count { |signal| found[signal] } >= WEAK_SIGNALS_NEEDED
+  def topic?(found, title:)
+    (title && found[:title]) || WEAK_SIGNALS.count { |signal| found[signal] } >= WEAK_SIGNALS_NEEDED
+  end
+
+  def procedural?
+    signals.dig(PROCEDURAL, :title)
   end
 
   # One query for every topic: the title and the full text are turned into a
@@ -77,8 +86,7 @@ class TopicClassifier
       sql = <<~SQL.squish
         WITH vectors AS (
           SELECT to_tsvector('german', #{connection.quote(matchable_title)}) AS title_vector,
-                 to_tsvector('german', coalesce(documents.full_text, '')) AS body_vector
-          FROM documents WHERE documents.id = #{Integer(document.id)}
+                 to_tsvector('german', #{connection.quote(matchable_body)}) AS body_vector
         )
         SELECT #{columns.join(', ')} FROM vectors
       SQL
@@ -98,6 +106,13 @@ class TopicClassifier
   # ("Schulstraße"): both name a topic the document is not about.
   def matchable_title
     StreetGazetteer.remove(document.title.to_s.gsub(self.class.committee_pattern, ' '))
+  end
+
+  # The full text without committee names, for the same reason: "der Ausschuss
+  # für Grün, Naturschutz und Sport hat sich befasst" is not about sport, and
+  # every Mitteilung names the committee it goes to.
+  def matchable_body
+    document.full_text.to_s.gsub(self.class.committee_pattern, ' ')
   end
 
   # A Regionalausschuss handles every topic of its area, so it says nothing

@@ -56,6 +56,15 @@ oeffentlicher_raum:
     - tauschregal:*
     - bucherschrank:*
     - erschliess:*
+    - instandsetz:*
+    - pflaster:*
+    - latern:*
+    - gelander:*
+    - wegschad:*
+    - wegeschad:*
+    - strassenplan:*
+  title_terms:
+    - verschick:*
   committees: []
   poi_categories:
     - man_made=bridge
@@ -106,9 +115,9 @@ oepnv:
   committees:
     - verkehr
     - mobilität
-  poi_categories:
-    - railway=station
-    - railway=halt
+  # No stations among the POI categories: they are the most common landmark
+  # there is ("am S-Bahnhof Veddel"), whatever the document is about.
+  poi_categories: []
 
 strassenverkehr:
   label: Straßenverkehr
@@ -191,6 +200,11 @@ gruen:
     - friedhof:*
     - vogel
     - teich:*
+    - wald
+    - geheg:*
+    - wildgeheg:*
+    - forst:*
+    - fallung:*
   committees:
     - grün
     - umwelt
@@ -299,7 +313,7 @@ bildung:
   label: Schule & Bildung
   description: "Schulen (Bau, Ausstattung, Plätze), Hochschulen, Bücherhallen, Volkshochschule und Musikschule, Bildungsangebote."
   terms:
-    - (schul:* & !schuld:*)
+    - (schul:* & !schuld:* & !schulweg:*)
     - grundschul:*
     - gymnasi:*
     - stadtteilschul:*
@@ -377,6 +391,13 @@ kultur:
     - strassenumbenenn:*
     - (benenn:* & (strass | platz:* | weg))
     - (umbenenn:* & (strass | platz:* | weg))
+    - zubenenn:*
+    - mitbenenn:*
+    - zirkus:*
+    - konzert:*
+    - ausstellung:*
+    - auffuhr:*
+    - kulturfest:*
   committees:
     - kultur
     - straßennamen
@@ -491,6 +512,15 @@ sauberkeit:
     - angstraum:*
     - unsicher:*
     - sicherheitsgefuhl:*
+    - gewalt:*
+    - vandalism:*
+    - (offentlich <-> ordnung)
+    - sicherheitskonferenz:*
+    - mullbehalt:*
+    - mulleim:*
+    - belastig:*
+    - prostitution:*
+    - taubenplag:*
   committees:
     - inneres
   poi_categories: []
@@ -508,6 +538,12 @@ haushalt:
     - zuwend:*
     - fordermittel:*
     - bezirksmittel:*
+    - projektmittel:*
+    - stadtteilkulturmittel:*
+    - zuschuss:*
+    - ehrenamtsfond:*
+    - forderfond:*
+    - (forder:* <-> kulturell)
   title_terms:
     - mittel
   committees:
@@ -522,9 +558,17 @@ gremien:
   description: "Die Bezirksversammlung und ihre Gremien organisieren sich: Besetzung von Ausschüssen, Nachwahlen, Geschäftsordnung, Sitzungstermine, Jurys, Bürgervertreter. Nicht die inhaltliche Arbeit der Ausschüsse."
   terms: []
   title_terms:
+    - besetz:*
     - umbesetz:*
+    - nachbesetz:*
     - ausschussbesetz:*
     - ausschussumbesetz:*
+    - (benenn:* & !strass & !platz:* & !weg)
+    - wahl
+    - beisitz:*
+    - wahlkreis:*
+    - bezirkswahlausschuss:*
+    - geschaftsstell:*
     - (umbenenn:* & !strass & !platz:* & !weg)
     - geschaftsordn:*
     - nachwahl:*
