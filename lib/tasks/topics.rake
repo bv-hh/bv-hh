@@ -7,16 +7,17 @@ namespace :topics do
   # reparsed documents get their topics through AssignDocumentLocationsJob.
   desc 'Enqueue topic assignment for documents classified by an older Topic::VERSION'
   task :reassign, [:district] => :environment do |_task, args|
-    documents = Document.complete.topics_outdated
-    documents = documents.where(district: District.find_by!(name: args[:district])) if args[:district]
+    district = District.find_by!(name: args[:district]) if args[:district]
+    puts "Enqueued #{ReassignDocumentTopicsJob.perform_now(district)} documents"
+  end
 
-    count = 0
-    documents.find_each do |document|
-      document.assign_topics_later!
-      count += 1
-    end
-
-    puts "Enqueued #{count} documents"
+  # The same, but the enqueueing runs in the worker: returns at once, for a
+  # deploy that should not wait for tens of thousands of inserts.
+  desc 'Start the topic reassignment in the worker and return immediately'
+  task :reassign_later, [:district] => :environment do |_task, args|
+    district = District.find_by!(name: args[:district]) if args[:district]
+    ReassignDocumentTopicsJob.perform_later(district)
+    puts "ReassignDocumentTopicsJob enqueued#{" for #{district.name}" if district}"
   end
 
   # Read-only. The stored topics of the corpus, and which signal carries each

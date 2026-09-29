@@ -1,6 +1,6 @@
 # The topics a Drucksache can be tagged with, and the rules that find them.
 # See Topic and TopicClassifier. Bump Topic::VERSION after changing anything
-# here, then run `rake topics:reassign`.
+# here, then run `rake topics:reassign_later`.
 #
 # terms          - to_tsquery('german', …) fragments, joined with |, matched
 #                  against the title and the full text.
@@ -63,6 +63,10 @@ oeffentlicher_raum:
     - wegschad:*
     - wegeschad:*
     - strassenplan:*
+    - winterdienst:*
+    - burgersteig:*
+    - tauschbox:*
+    - aufenthaltsqualitat:*
   title_terms:
     - verschick:*
   committees: []
@@ -112,6 +116,14 @@ oepnv:
     - ioki
     - moia
     - rufbus:*
+    - kraftomnibus:*
+    - linienverkehr:*
+    - fahrgastunterstand:*
+    - zob
+    - u4
+    - u5
+    - bahnstation:*
+    - switchh:*
   committees:
     - verkehr
     - mobilität
@@ -166,6 +178,17 @@ strassenverkehr:
     - carsharing:*
     - scoot:*
     - taxi:*
+    - bewohnerpark:*
+    - querung:*
+    - kreisel:*
+    - blitz:*
+    - grunpfeil:*
+    - abbieg:*
+    - parksituation:*
+    - stellplatz:*
+    - tempolimit:*
+    - tempobeschrank:*
+    - leitpfost:*
   title_terms:
     - verkehr:*
     - km
@@ -205,6 +228,14 @@ gruen:
     - wildgeheg:*
     - forst:*
     - fallung:*
+    - hundeauslauf:*
+    - bluhwies:*
+    - begleitgrun:*
+    - naturerlebnis:*
+    - grillplatz:*
+    - moor
+    - feldmark:*
+    - bewasser:*
   committees:
     - grün
     - umwelt
@@ -226,13 +257,19 @@ spielplaetze:
     - spielgerat:*
     - bolzplatz:*
     - spielflach:*
+    - kinderspielplatz:*
+    - mehrgenerationenspielplatz:*
+    - aktivspielplatz:*
+    - bauspielplatz:*
+  title_terms:
+    - ksp
   committees: []
   poi_categories:
     - leisure=playground
 
 umwelt:
   label: Umwelt & Klima
-  description: "Klimaschutz und Klimaanpassung, Energie und Solar, Lärm, Luft, Gewässer, Hochwasser und Starkregen, Arten- und Naturschutz, Entsiegelung, Recycling."
+  description: "Klimaschutz und Klimaanpassung, Energie und Solar, Lärm (auch Fluglärm), Luft, Gewässer, Entwässerung, Gräben und Siele, Hochwasser und Starkregen, Arten-, Natur- und Tierschutz, Ausgleichsmaßnahmen, Entsiegelung, Recycling."
   terms:
     - klimaschutz:*
     - klimaanpass:*
@@ -257,6 +294,24 @@ umwelt:
     - biotonn:*
     - mulltrenn:*
     - recycl:*
+    - entwasser:*
+    - siel:*
+    - uberschwemm:*
+    - grabenverrohr:*
+    - ruckhaltebeck:*
+    - schopfwerk:*
+    - sperrwerk:*
+    - fluglarm:*
+    - verkehrslarm:*
+    - ultrafeinstaub:*
+    - landschaftsschutz:*
+    - ausgleichsmassnahm:*
+    - naturcent
+    - tierschutz:*
+    - taubenschlag:*
+    - taubenpopulation:*
+    - katzenschutz:*
+    - geflugelpest:*
   committees:
     - umwelt
     - klima
@@ -304,6 +359,8 @@ kinder_jugend:
     - jugendhilf:*
     - familienzentr:*
     - elternschul:*
+    - madchen:*
+    - kinderkultur:*
   committees:
     - jugend
   poi_categories:
@@ -346,6 +403,10 @@ sport:
     - turnhall:*
     - schwimm:*
     - sportverein:*
+    - schwimmhall:*
+    - lehrschwimm:*
+    - nichtschwimm:*
+    - freibad:*
   committees:
     - sport
   poi_categories:
@@ -398,6 +459,9 @@ kultur:
     - ausstellung:*
     - auffuhr:*
     - kulturfest:*
+    - weltkulturerb:*
+    - erinnerungsweg:*
+    - sternwart:*
   committees:
     - kultur
     - straßennamen
@@ -439,6 +503,10 @@ wohnen_bauen:
     - quartiersbeirat:*
     - masterplan:*
     - evokation:*
+    - ferienwohnung:*
+    - wohnraum:*
+    - stadtwerkstatt:*
+    - leerstehend:*
   title_terms:
     - areal:*
     - grundstuck:*
@@ -466,6 +534,9 @@ wirtschaft:
     - digitalis:*
     - startup:*
     - (start <-> up)
+  title_terms:
+    - unternehm:*
+    - innovation:*
   committees:
     - wirtschaft
     - wochenmärkte
@@ -483,6 +554,9 @@ unterbringung:
     - unterbring:*
     - folgeunterkunft:*
     - integration:*
+    - zea
+    - erstaufnahm:*
+    - winternotprogramm:*
   committees:
     - flüchtling
     - integration
@@ -491,7 +565,7 @@ unterbringung:
 # "Müll" is not a term: it stems like "Müller".
 sauberkeit:
   label: Sauberkeit & Sicherheit
-  description: "Müll, Sperrmüll, Papierkörbe, Container, Graffiti und Stadtreinigung; Sicherheit, Polizei, Ordnungsamt, Kriminalität, Angsträume."
+  description: "Müll, Sperrmüll, Papierkörbe, Container, Graffiti und Stadtreinigung; Sicherheit, Polizei, Ordnungsamt, Kriminalität, Angsträume; Feuerwehr, Rettungsdienst, Katastrophenschutz, Defibrillatoren."
   terms:
     - vermull:*
     - sperrmull:*
@@ -521,6 +595,16 @@ sauberkeit:
     - belastig:*
     - prostitution:*
     - taubenplag:*
+    - zigarett:*
+    - feuerwerk:*
+    - shisha:*
+    - feuerwehr:*
+    - rettungsdienst:*
+    - rettungswag:*
+    - defibrillator:*
+    - aed
+    - hydrant:*
+    - katastrophenschutz:*
   committees:
     - inneres
   poi_categories: []
@@ -554,8 +638,8 @@ haushalt:
 # Procedural documents: the assembly and its committees organising themselves.
 # Title only, because every minute mentions the Tagesordnung.
 gremien:
-  label: Gremien & Verwaltung
-  description: "Die Bezirksversammlung und ihre Gremien organisieren sich: Besetzung von Ausschüssen, Nachwahlen, Geschäftsordnung, Sitzungstermine, Jurys, Bürgervertreter. Nicht die inhaltliche Arbeit der Ausschüsse."
+  label: Gremien
+  description: "Die Bezirksversammlung und ihre Gremien organisieren sich: Besetzung von Ausschüssen und Beiräten, Wahlen und Nachwahlen, Geschäftsordnung, Sitzungen und ihre Öffentlichkeit, Jurys. Nicht die inhaltliche Arbeit der Ausschüsse, und nicht das Bezirksamt als Verwaltung (Bürgerservice & Verwaltung)."
   terms: []
   title_terms:
     - besetz:*
@@ -587,4 +671,60 @@ gremien:
   committees:
     - ältestenrat
     - geschäftsordnung
+  poi_categories: []
+
+# The district as a service provider and as an administration, as residents
+# meet it. The assembly organising itself is Gremien.
+buergerservice:
+  label: Bürgerservice & Verwaltung
+  description: "Kundenzentren und Hamburg Service, Standesamt, Postfilialen und -agenturen, Öffnungszeiten und Erreichbarkeit der Ämter, das Bezirksamt als Verwaltung: Personal, Ausstattung, Digitalisierung, Bürokratie, Beschaffung."
+  terms:
+    - kundenzentr:*
+    - hamburgservic:*
+    - (hamburg <-> servic:*)
+    - burgerservic:*
+    - standesamt:*
+    - postfilial:*
+    - postagentur:*
+    - postservic:*
+    - einschichtbetrieb:*
+    - burokrati:*
+    - burokratieabbau:*
+    - verwaltungsdigitalis:*
+    - personalentwickl:*
+    - personalausstatt:*
+    - beschaffungswes:*
+    - homeoffic:*
+  committees: []
+  poi_categories: []
+
+# Whether a society holds together: democracy, discrimination, equality.
+demokratie_vielfalt:
+  label: Demokratie, Vielfalt & Gleichstellung
+  description: "Demokratieförderung und Engagement gegen Rechtsextremismus, Rassismus und Antisemitismus, Antidiskriminierung, queeres Leben (Pride, CSD), Gleichstellung von Frauen und Männern, Schutz vor häuslicher Gewalt."
+  terms:
+    - vielfalt:*
+    - gleichstell:*
+    - gleichberecht:*
+    - antidiskrimin:*
+    - diskrimin:*
+    - rassism:*
+    - rassist:*
+    - rechtsextrem:*
+    - antisemit:*
+    - queer:*
+    - lsbti:*
+    - homophob:*
+    - transphob:*
+    - pride
+    - csd
+    - regenbog:*
+    - (gegen <-> rechts)
+    - frauenschutz:*
+    - frauenhaus:*
+    - periodenarm:*
+    - sexism:*
+  title_terms:
+    - demokrati:*
+  committees: []
   poi_categories: []
