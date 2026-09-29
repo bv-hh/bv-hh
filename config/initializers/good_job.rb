@@ -3,6 +3,12 @@
 Rails.application.configure do
   config.good_job.max_threads = 8
 
+  # Finished jobs are kept for the dashboard, and cleaned up by GoodJob itself.
+  # The default of 14 days lets a topic reassignment (one job per document,
+  # ~70k) or a few nights of re-fetching pile up hundreds of thousands of rows;
+  # three days is plenty to look into a failure.
+  config.good_job.cleanup_preserved_jobs_before_seconds_ago = 3.days.to_i
+
   config.good_job.enable_cron = true
 
   config.good_job.cron = {
