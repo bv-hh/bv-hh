@@ -132,4 +132,34 @@ class TopicClassifierTest < ActiveSupport::TestCase
 
     assert_empty classifier.topics
   end
+
+  test 'a committee named in the body is not a body hit for its topics' do
+    doc = document(full_text: 'Der Ausschuss für Grün, Naturschutz und Sport hat die Baumfällungen zur Kenntnis genommen.')
+    on_agenda_of(doc, 'Ausschuss für Grün, Naturschutz und Sport')
+
+    classifier = TopicClassifier.new(doc)
+
+    assert_not classifier.signals['sport'][:body]
+    assert_not_includes classifier.topics, 'sport'
+  end
+
+  test 'a procedural title speaks only for Gremien' do
+    classifier = TopicClassifier.new(document(title: 'Benennung für den Ausschuss Bildung und Sport'))
+
+    assert classifier.signals['bildung'][:title], 'precondition: the committee name is in the title'
+    assert_equal ['gremien'], classifier.topics
+  end
+
+  test 'a Schulweg is traffic, not school' do
+    classifier = TopicClassifier.new(document(title: 'Schulwegsicherung in der Stadtbahnstraße'))
+
+    assert_not_includes classifier.topics, 'bildung'
+  end
+
+  test 'district funds are Haushalt' do
+    %w[Projektmittel Stadtteilkulturmittel Zuschuss].each do |word|
+      assert_includes TopicClassifier.new(document(title: "Antrag auf #{word} für ein Konzert")).topics, 'haushalt', word
+    end
+    assert_includes TopicClassifier.new(document(title: 'Förderung kultureller Projekte - Kulturverein')).topics, 'haushalt'
+  end
 end
