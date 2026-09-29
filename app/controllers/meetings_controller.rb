@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class MeetingsController < ApplicationController
+  before_action :require_district, only: :index
+
   def index
     @meetings = @district.meetings.complete.latest_first.includes(:agenda_items)
 

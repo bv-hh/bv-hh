@@ -11,6 +11,8 @@ class StatisticsController < ApplicationController
     'AfD' => '#add8e6',
   }.freeze
 
+  before_action :require_district
+
   def show
     @title = "Statistiken zur Bezirkspolitik in #{@district.name}"
 
