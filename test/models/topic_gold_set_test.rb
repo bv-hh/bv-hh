@@ -23,6 +23,21 @@ class TopicGoldSetTest < ActiveSupport::TestCase
     assert_equal set.entries.map(&:to_h), TopicGoldSet.load(@path).entries.map(&:to_h)
   end
 
+  test 'sample skips excluded documents and still draws the count asked for' do
+    excluded = ['hamburg-nord/21-4776', 'hamburg-nord/21-4512']
+    set = TopicGoldSet.sample(random: 5, per_topic: 0, untagged: 0, path: @path, exclude: excluded)
+
+    assert_equal 5, set.entries.size
+    assert_empty set.entries.map(&:key) & excluded
+    assert(set.entries.all? { |entry| entry.stratum == 'random' })
+  end
+
+  test 'path_for knows the tuning and the test set' do
+    assert_equal TopicGoldSet::PATH, TopicGoldSet.path_for('tuning')
+    assert_equal TopicGoldSet::TEST_PATH, TopicGoldSet.path_for(:test)
+    assert_raises(ArgumentError) { TopicGoldSet.path_for('other') }
+  end
+
   test 'sample refuses to replace an existing set' do
     File.write(@path, '')
 

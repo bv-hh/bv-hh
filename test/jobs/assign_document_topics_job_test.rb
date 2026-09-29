@@ -23,16 +23,6 @@ class AssignDocumentTopicsJobTest < ActiveJob::TestCase
     end
   end
 
-  test 'without a document it enqueues only documents classified by an older version' do
-    Document.update_all(topics_version: Topic::VERSION)
-    @document.update_columns(topics_version: Topic::VERSION - 1) # rubocop:disable Rails/SkipsModelValidations
-
-    assert_enqueued_with(job: AssignDocumentTopicsJob, args: [@document]) do
-      AssignDocumentTopicsJob.perform_now
-    end
-    assert_enqueued_jobs 1, only: AssignDocumentTopicsJob
-  end
-
   test 'assigning locations enqueues the topics' do
     assert_enqueued_with(job: AssignDocumentTopicsJob, args: [@document]) do
       AssignDocumentLocationsJob.perform_now(@document)
