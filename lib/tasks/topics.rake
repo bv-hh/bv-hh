@@ -83,24 +83,31 @@ namespace :topics do
   end
 
   # --- gold set (see db/gold/README.md) ---------------------------------------
+  #
+  # Every gold task works on the tuning set unless GOLD_SET=test is given.
 
-  desc 'Draw the gold sample into db/gold/topics.jsonl (refuses to replace one)'
+  gold_set = -> { ENV.fetch('GOLD_SET', 'tuning') }
+  gold_texts_dir = -> { Rails.root.join('tmp/gold', gold_set.call) }
+
+  # The test set is random documents only, none of them in the tuning set.
+  desc 'Draw a gold sample (refuses to replace one; GOLD_SET=test for the held-out set)'
   task :gold_sample, %i[random per_topic untagged] => :environment do |_task, args|
     options = { random: args[:random], per_topic: args[:per_topic], untagged: args[:untagged] }.compact.transform_values(&:to_i)
-    set = TopicGoldSet.sample(**options)
+    options = { per_topic: 0, untagged: 0, exclude: TopicGoldSet.load.entries.map(&:key) }.merge(options) if gold_set.call == 'test'
+    set = TopicGoldSet.sample(path: TopicGoldSet.path_for(gold_set.call), **options)
     puts "#{set.entries.size} documents: #{set.entries.map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"
   end
 
-  desc 'Write the unlabelled gold documents as markdown batches into tmp/gold'
+  desc 'Write the unlabelled gold documents as markdown batches into tmp/gold/<set>'
   task :gold_texts, [:batch_size] => :environment do |_task, args|
-    set = TopicGoldSet.load
-    files = set.write_texts(Rails.root.join('tmp/gold'), batch_size: (args[:batch_size] || 25).to_i)
-    puts "#{set.unlabelled.size} unlabelled, #{files.size} files in tmp/gold"
+    set = TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))
+    files = set.write_texts(gold_texts_dir.call, batch_size: (args[:batch_size] || 25).to_i)
+    puts "#{set.unlabelled.size} unlabelled, #{files.size} files in #{gold_texts_dir.call}"
   end
 
   desc 'Import labels ("district/number: key, key" per line, "-" for none) into the gold set'
   task :gold_import, %i[file labeler] => :environment do |_task, args|
-    set = TopicGoldSet.load
+    set = TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))
     count = set.import(File.readlines(args[:file] || abort('usage: rake "topics:gold_import[file,labeler]"')),
                        labeler: args[:labeler] || 'human')
     set.save
@@ -110,10 +117,10 @@ namespace :topics do
   # Read-only. Pass verbose to list every wrong or missing tag.
   desc 'Measure the rules against the gold set: precision and recall per topic'
   task :evaluate, [:verbose] => :environment do |_task, args|
-    evaluation = TopicEvaluation.new.run
+    evaluation = TopicEvaluation.new(TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))).run
     percent = ->(value) { value ? format('%5.1f%%', 100 * value) : '    –' }
 
-    puts "#{evaluation.evaluated} labelled documents evaluated" \
+    puts "#{gold_set.call} set: #{evaluation.evaluated} labelled documents evaluated" \
          "#{", #{evaluation.missing} not in this database" if evaluation.missing.positive?}\n\n"
     puts 'precision  recall  recall (random)   tp   fp   fn  topic'
     rows = evaluation.scores.map { |key, score| [Topic.find(key).label, score] } + [['all topics', evaluation.total]]

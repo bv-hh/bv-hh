@@ -19,8 +19,16 @@
 #   topic    — documents the rules tag with a topic, a few per topic, so that
 #              rare topics have enough cases for precision
 #   untagged — documents the rules tag with nothing, where misses concentrate
+#
+# There are two sets. The tuning set is what rule changes are read from and
+# measured against, so its numbers flatter the rules once they have been tuned
+# on it. The test set (db/gold/topics_test.jsonl) is random documents only,
+# none of them in the tuning set, and is never used to change a rule: it is the
+# honest number, for the rules and later for a classifier.
 class TopicGoldSet
   PATH = Rails.root.join('db/gold/topics.jsonl')
+  TEST_PATH = Rails.root.join('db/gold/topics_test.jsonl')
+  SETS = { 'tuning' => PATH, 'test' => TEST_PATH }.freeze
   STRATA = %w[random topic untagged].freeze
   LABELERS = %w[claude human].freeze
   TEXT_LENGTH = 3000
@@ -41,6 +49,10 @@ class TopicGoldSet
 
   attr_reader :path, :entries
 
+  def self.path_for(name)
+    SETS.fetch(name.to_s) { raise ArgumentError, "unknown gold set #{name}, known: #{SETS.keys.join(', ')}" }
+  end
+
   def self.load(path = PATH)
     entries = File.exist?(path) ? File.readlines(path, chomp: true).compact_blank.map { |line| Entry.new(**JSON.parse(line)) } : []
     new(entries, path)
@@ -49,11 +61,13 @@ class TopicGoldSet
   # Draws a new sample. Refuses to replace one that exists: its labels are the
   # work this whole thing is for. Not reproducible, and need not be: the drawn
   # set is committed.
-  def self.sample(random: 150, per_topic: 8, untagged: 30, path: PATH)
+  # exclude: keys ("district/number") that must not be drawn, such as the
+  # tuning set when drawing the test set.
+  def self.sample(random: 150, per_topic: 8, untagged: 30, path: PATH, exclude: [])
     raise ArgumentError, "#{path} exists; delete it to draw a new sample" if File.exist?(path)
 
     new([], path).tap do |set|
-      set.draw(random:, per_topic:, untagged:)
+      set.draw(random:, per_topic:, untagged:, exclude:)
       set.save
     end
   end
@@ -63,10 +77,11 @@ class TopicGoldSet
     @path = Pathname(path)
   end
 
-  def draw(random:, per_topic:, untagged:)
-    add(population.order(Arel.sql('random()')).limit(random), 'random')
-    Topic.each { |topic| add(population.with_topics(topic.key).order(Arel.sql('random()')).limit(per_topic), 'topic') }
-    add(population.where(topics: []).order(Arel.sql('random()')).limit(untagged), 'untagged')
+  def draw(random:, per_topic:, untagged:, exclude: [])
+    @excluded = exclude.to_set
+    add(population.order(Arel.sql('random()')), 'random', random)
+    Topic.each { |topic| add(population.with_topics(topic.key).order(Arel.sql('random()')), 'topic', per_topic) }
+    add(population.where(topics: []).order(Arel.sql('random()')), 'untagged', untagged)
   end
 
   def save
@@ -142,12 +157,22 @@ class TopicGoldSet
     Document.complete.where.not(full_text: [nil, ''])
   end
 
-  def add(documents, stratum)
-    taken = entries.to_set(&:key)
+  # Adds up to count of the documents, skipping those already in the set or
+  # excluded. Over-fetches by the number that could be skipped, so the count is
+  # reached whenever the population allows it.
+  def add(documents, stratum, count)
+    return if count.zero?
+
+    taken = entries.to_set(&:key) | @excluded
+    added = 0
     # to_a, not find_each: find_each drops the random order and the limit.
-    documents.includes(:district).to_a.each do |document|
+    documents.includes(:district).limit(count + taken.size).to_a.each do |document|
       entry = Entry.new(district: document.district.to_param, number: document.number, stratum:, topics: nil, labeler: nil)
-      entries << entry unless taken.include?(entry.key)
+      next if taken.include?(entry.key)
+
+      entries << entry
+      taken << entry.key
+      break if (added += 1) == count
     end
   end
 
