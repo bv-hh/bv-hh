@@ -60,7 +60,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10.8
+        image: pgvector/pgvector:pg18
         env:
           POSTGRES_USER: bezirkr
           POSTGRES_PASSWORD: bezirkr
@@ -134,7 +134,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10.8
+        image: pgvector/pgvector:pg18
         env:
           POSTGRES_USER: bezirkr
           POSTGRES_PASSWORD: bezirkr

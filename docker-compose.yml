@@ -2,7 +2,7 @@ version: '2'
 
 services:
   db:
-    image: postgres:9.4.1
+    image: pgvector/pgvector:pg18
     environment:
       POSTGRES_DB: bezirkr_dev
       POSTGRES_USER: bezirkr
