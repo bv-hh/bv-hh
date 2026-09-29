@@ -51,4 +51,11 @@ class TopicTest < ActiveSupport::TestCase
   test 'canonical_keys drops unknown values and returns keys in config order' do
     assert_equal %w[radverkehr kinder_jugend], Topic.canonical_keys(%w[kinder-jugend gibtsnicht radverkehr radverkehr])
   end
+
+  test 'ranked orders by count, then label, and drops unknown keys' do
+    ranked = Topic.ranked('kultur' => 2, 'radverkehr' => 2, 'gruen' => 5, 'unbekannt' => 9)
+                  .map { |topic, count| [topic.key, count] }
+
+    assert_equal [['gruen', 5], ['kultur', 2], ['radverkehr', 2]], ranked
+  end
 end

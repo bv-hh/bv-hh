@@ -39,6 +39,13 @@ class Topic
       all.find { |topic| topic.slug == value || topic.key == value }
     end
 
+    # [Topic, count] pairs from Document.topic_counts, most frequent first.
+    # Keys no longer in the config are dropped.
+    def ranked(counts)
+      counts.filter_map { |key, count| (topic = find(key)) && [topic, count] }
+            .sort_by { |topic, count| [-count, topic.label] }
+    end
+
     # Keys only, unknown ones dropped, in config order: whatever reaches SQL is
     # a key the corpus can actually hold.
     def canonical_keys(values)

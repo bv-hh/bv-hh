@@ -2,14 +2,14 @@
 
 class DistrictsController < ApplicationController
   def show
-    redirect_elsewhere and return if @district.nil?
+    return redirect_elsewhere if @district.nil?
 
     @title = "Übersicht zur Bezirkspolitik in #{@district.name}: Bezirksversammlung, Gremien, Drucksachen und Termine"
 
     @quarters = Quarter.in_district(@district.number).by_name
     @documents = @district.documents.complete.latest_first.limit(10)
     @meetings = @district.meetings.complete.recent.latest_first.limit(10)
-    @topic_counts = @district.documents.complete.topic_counts
+    @topic_counts = cached_topic_counts(:district, @district.id) { @district.documents.complete }
   end
 
   private

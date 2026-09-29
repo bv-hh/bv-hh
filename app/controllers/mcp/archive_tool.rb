@@ -76,4 +76,6 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     documents = documents.authored_by(party) if party.present?
     topic ? documents.with_topics(topic.key) : documents
   end
+
+  private_class_method :filter
 end

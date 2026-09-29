@@ -61,4 +61,48 @@ class TopicsControllerTest < ActionDispatch::IntegrationTest
   ensure
     Quarter.reset!
   end
+
+  test 'GET show lists a district by number and Hamburg by created_at' do
+    documents(:document_7).update_columns(topics: %w[kultur]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_227).update_columns(topics: %w[kultur]) # rubocop:disable Rails/SkipsModelValidations
+    Document.where(id: documents(:document_7)).update_all(created_at: 3.days.ago)
+    Document.where(id: documents(:document_227)).update_all(created_at: 1.hour.ago)
+    first = ->(a, b) { @response.body.index(a.number) < @response.body.index(b.number) }
+
+    get topic_path(topic: 'kultur', district: districts(:hamburg_nord))
+
+    assert first.call(documents(:document_7), documents(:document_227)), 'higher number first within a district'
+
+    get '/themen/kultur'
+
+    assert first.call(documents(:document_227), documents(:document_7)), 'newest first across Hamburg'
+  end
+
+  test 'GET show pages the list' do
+    get topic_path(topic: 'strassenverkehr', district: districts(:hamburg_nord), page: 2)
+
+    assert_response :success
+    assert_includes @response.body, 'keine Drucksachen erfasst'
+  end
+
+  test 'GET show is not indexed when the topic has no documents, and is otherwise' do
+    get topic_path(topic: 'kultur', district: districts(:hamburg_nord))
+    assert_includes @response.body, 'noindex'
+
+    get topic_path(topic: 'strassenverkehr', district: districts(:hamburg_nord))
+    assert_not_includes @response.body, 'noindex'
+  end
+
+  test 'GET show links only to other topics that have documents' do
+    get topic_path(topic: 'strassenverkehr', district: districts(:hamburg_nord))
+
+    assert_select "a[href='#{topic_path(topic: 'gruen', district: districts(:hamburg_nord))}']"
+    assert_select "a[href='#{topic_path(topic: 'kultur', district: districts(:hamburg_nord))}']", count: 0
+  end
+
+  test 'GET show serves no other format' do
+    get "/#{districts(:hamburg_nord).to_param}/themen/strassenverkehr.rss"
+
+    assert_response :not_found
+  end
 end

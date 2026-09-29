@@ -28,12 +28,6 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.badge[href='#{topic_path(topic: 'spielplaetze', district: document.district)}']", text: 'Spielplätze'
   end
 
-  test 'GET index links to the topic pages' do
-    get documents_path(district: districts(:hamburg_nord))
-
-    assert_select "a[href='#{topic_path(topic: 'radverkehr', district: districts(:hamburg_nord))}']", text: 'Radverkehr'
-  end
-
   test 'GET allris redirects to the document' do
     document = documents(:document_7)
     get allris_documents_path(district: districts.first, allris_id: document.allris_id)

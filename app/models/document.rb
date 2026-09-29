@@ -344,15 +344,12 @@ class Document < ApplicationRecord
     topics.filter_map { |key| Topic.find(key) }
   end
 
-  # [Topic, count] pairs for the documents in the current scope, most frequent
-  # first. The scope must not join rows that repeat a document, or it counts
-  # twice. A subquery because Postgres allows no unnest() in GROUP BY.
+  # { topic key => number of documents } for the current scope. The scope must
+  # not join rows that repeat a document, or it counts twice. A subquery
+  # because Postgres allows no unnest() in GROUP BY.
   def self.topic_counts
     tagged = unscope(:order, :limit, :offset).select('unnest(documents.topics) AS topic')
-    counts = unscoped.from(tagged, :tagged).group('tagged.topic').count
-
-    counts.filter_map { |key, count| (topic = Topic.find(key)) && [topic, count] }
-          .sort_by { |topic, count| [-count, topic.label] }
+    unscoped.from(tagged, :tagged).group('tagged.topic').count
   end
 
   def extracted_name_locations

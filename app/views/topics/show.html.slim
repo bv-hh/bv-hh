@@ -58,5 +58,5 @@
 
 .mt-5.pt-3.border-top
   h2.h6 Weitere Themen
-  = render 'topics/chips', items: Topic.all.map { |topic| [topic, nil] }, active: @topic.key,
+  = render 'topics/chips', items: @topic_counts, active: @topic.key,
       url: ->(topic) { topic_path(topic: topic, district: @district&.to_param) }

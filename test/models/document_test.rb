@@ -159,13 +159,11 @@ class DocumentTest < ActiveSupport::TestCase
                      extracted_locations: extracted_locations, stations: stations)
   end
 
-  test 'topic_counts counts each topic once per document, most frequent first' do
+  test 'topic_counts counts each topic once per document' do
     Document.update_all(topics: [])
     documents(:document_7).update_columns(topics: %w[radverkehr kultur]) # rubocop:disable Rails/SkipsModelValidations
     documents(:document_4).update_columns(topics: %w[kultur unbekannt]) # rubocop:disable Rails/SkipsModelValidations
 
-    counts = Document.complete.latest_first.topic_counts.map { |topic, count| [topic.key, count] }
-
-    assert_equal [['kultur', 2], ['radverkehr', 1]], counts
+    assert_equal({ 'kultur' => 2, 'radverkehr' => 1, 'unbekannt' => 1 }, Document.complete.latest_first.topic_counts)
   end
 end
