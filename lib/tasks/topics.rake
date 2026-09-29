@@ -81,4 +81,57 @@ namespace :topics do
       end
     end
   end
+
+  # --- gold set (see db/gold/README.md) ---------------------------------------
+
+  desc 'Draw the gold sample into db/gold/topics.jsonl (refuses to replace one)'
+  task :gold_sample, %i[random per_topic untagged] => :environment do |_task, args|
+    options = { random: args[:random], per_topic: args[:per_topic], untagged: args[:untagged] }.compact.transform_values(&:to_i)
+    set = TopicGoldSet.sample(**options)
+    puts "#{set.entries.size} documents: #{set.entries.map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"
+  end
+
+  desc 'Write the unlabelled gold documents as markdown batches into tmp/gold'
+  task :gold_texts, [:batch_size] => :environment do |_task, args|
+    set = TopicGoldSet.load
+    files = set.write_texts(Rails.root.join('tmp/gold'), batch_size: (args[:batch_size] || 25).to_i)
+    puts "#{set.unlabelled.size} unlabelled, #{files.size} files in tmp/gold"
+  end
+
+  desc 'Import labels ("district/number: key, key" per line, "-" for none) into the gold set'
+  task :gold_import, %i[file labeler] => :environment do |_task, args|
+    set = TopicGoldSet.load
+    count = set.import(File.readlines(args[:file] || abort('usage: rake "topics:gold_import[file,labeler]"')),
+                       labeler: args[:labeler] || 'human')
+    set.save
+    puts "#{count} labels imported, #{set.labelled.size} of #{set.entries.size} labelled"
+  end
+
+  # Read-only. Pass verbose to list every wrong or missing tag.
+  desc 'Measure the rules against the gold set: precision and recall per topic'
+  task :evaluate, [:verbose] => :environment do |_task, args|
+    evaluation = TopicEvaluation.new.run
+    percent = ->(value) { value ? format('%5.1f%%', 100 * value) : '    –' }
+
+    puts "#{evaluation.evaluated} labelled documents evaluated" \
+         "#{", #{evaluation.missing} not in this database" if evaluation.missing.positive?}\n\n"
+    puts 'precision  recall  recall (random)   tp   fp   fn  topic'
+    rows = evaluation.scores.map { |key, score| [Topic.find(key).label, score] } + [['all topics', evaluation.total]]
+    rows.each do |label, score|
+      puts format('%<p>9s %<r>7s %<rr>16s %<tp>4d %<fp>4d %<fn>4d  %<label>s', p: percent[score.precision], r: percent[score.recall],
+                                                                               rr: percent[score.random_recall], tp: score.tp,
+                                                                               fp: score.fp, fn: score.fn, label:)
+    end
+    puts "\nRandom documents with a topic that the rules tag with nothing: #{evaluation.random_untagged}"
+
+    next unless args[:verbose]
+
+    evaluation.misses.group_by(&:topic).each do |topic, misses|
+      puts "\n#{topic.label}"
+      misses.sort_by(&:kind).each do |miss|
+        sign = miss.kind == :false_positive ? '+' : '-'
+        puts "  #{sign} #{miss.entry.key.ljust(28)} #{miss.document.title.to_s.squish.truncate(110)}"
+      end
+    end
+  end
 end

@@ -10,6 +10,9 @@
 # committees     - regular expressions (case-insensitive) against committee
 #                  names. Regionalausschüsse are skipped, they have no topic.
 # poi_categories - Poi#category values of places linked to the document.
+# description    - what the topic covers, in words: the codebook for labelling
+#                  the gold set (db/gold). It decides nothing here, so changing
+#                  it needs no bump of Topic::VERSION.
 #
 # Terms are stemmed and umlauts folded like the text, so "spielplatz:*" matches
 # "Spielplätze". German compounds are not split: a prefix finds
@@ -25,6 +28,7 @@
 
 oeffentlicher_raum:
   label: Baustellen & Öffentlicher Raum
+  description: "Bau und Zustand von Straßen, Gehwegen, Brücken, Treppen und Plätzen, Baustellen, Straßenbeleuchtung, Bänke, öffentliche Toiletten, Beschilderung und anderes Stadtmobiliar. Wie der Verkehr darauf geregelt ist, gehört zu Straßenverkehr, Radwege zu Radverkehr."
   terms:
     - strassenbau:*
     - strassensanier:*
@@ -59,6 +63,7 @@ oeffentlicher_raum:
 
 radverkehr:
   label: Radverkehr
+  description: "Radwege, Radfahrstreifen, Fahrradstraßen, Velorouten, Fahrradbügel und Abstellanlagen, StadtRAD, Lastenräder, die Sicherheit von Radfahrenden."
   terms:
     - rad
     - radweg:*
@@ -79,6 +84,7 @@ radverkehr:
 
 oepnv:
   label: Bus & Bahn
+  description: "Busse, U- und S-Bahn, Linien, Takte, Haltestellen und Bahnhöfe, der HVV, On-Demand-Angebote wie MOIA und ioki."
   terms:
     - bus
     - busse
@@ -106,6 +112,7 @@ oepnv:
 
 strassenverkehr:
   label: Straßenverkehr
+  description: "Auto- und Fußverkehr: Tempo, Ampeln, Querungen, Verkehrssicherheit, Schulwege, Parken, Durchgangs- und Lieferverkehr, Ladesäulen, Carsharing, E-Scooter."
   terms:
     - strassenverkehr:*
     - verkehrsfuhr:*
@@ -160,6 +167,7 @@ strassenverkehr:
 
 gruen:
   label: Grün, Parks & Bäume
+  description: "Parks und Grünanlagen, Bäume (Fällungen, Pflanzungen, Pflege), Kleingärten, Friedhöfe, Teiche, Stadtnatur, Hundeauslaufflächen."
   terms:
     - parkanlag:*
     - stadtpark:*
@@ -198,6 +206,7 @@ gruen:
 
 spielplaetze:
   label: Spielplätze
+  description: "Spielplätze, Spielgeräte, Bolzplätze."
   terms:
     - spielplatz:*
     - spielgerat:*
@@ -209,6 +218,7 @@ spielplaetze:
 
 umwelt:
   label: Umwelt & Klima
+  description: "Klimaschutz und Klimaanpassung, Energie und Solar, Lärm, Luft, Gewässer, Hochwasser und Starkregen, Arten- und Naturschutz, Entsiegelung, Recycling."
   terms:
     - klimaschutz:*
     - klimaanpass:*
@@ -242,6 +252,7 @@ umwelt:
 
 soziales:
   label: Soziales & Gesundheit
+  description: "Seniorinnen und Senioren, Obdach- und Wohnungslosigkeit, Armut, Inklusion und Barrierefreiheit, Pflege, Gesundheit und ärztliche Versorgung, Beratungsstellen, Stadtteilzentren und Bürgerhäuser."
   terms:
     - sozial
     - sozialraum:*
@@ -270,6 +281,7 @@ soziales:
 
 kinder_jugend:
   label: Kinder & Jugend
+  description: "Kitas und Kinderbetreuung, offene Kinder- und Jugendarbeit, Jugendhilfe, Familienzentren. Schulen gehören zu Schule & Bildung, Spielplätze zu Spielplätze."
   terms:
     - kita:*
     - kindertag:*
@@ -285,6 +297,7 @@ kinder_jugend:
 
 bildung:
   label: Schule & Bildung
+  description: "Schulen (Bau, Ausstattung, Plätze), Hochschulen, Bücherhallen, Volkshochschule und Musikschule, Bildungsangebote."
   terms:
     - (schul:* & !schuld:*)
     - grundschul:*
@@ -309,6 +322,7 @@ bildung:
 
 sport:
   label: Sport
+  description: "Sportplätze und Sporthallen, Schwimmbäder, Sportvereine und ihre Förderung, Bewegungsangebote."
   terms:
     - sport:*
     - wassersport:*
@@ -329,6 +343,7 @@ sport:
 # compounds are what the documents are about.
 kultur:
   label: Kultur & Erinnerung
+  description: "Stadtteilkultur und Kultureinrichtungen, Kunst, Musik, Theater, Feste, Geschichtswerkstätten, Denkmäler, Gedenken und Stolpersteine, Straßenbenennungen."
   terms:
     - kulturell
     - stadtteilkultur:*
@@ -373,6 +388,7 @@ kultur:
 
 wohnen_bauen:
   label: Wohnen & Bauleitplanung
+  description: "Bebauungspläne, Bauvorhaben und Baugenehmigungen, Wohnungsbau, Mieten, Leerstand und Zweckentfremdung, Stadt- und Quartiersentwicklung, Fördergebiete (RISE), Erhaltungsverordnungen."
   terms:
     - bebauungsplan:*
     - bplan:*
@@ -417,6 +433,7 @@ wohnen_bauen:
 
 wirtschaft:
   label: Wirtschaft & Märkte
+  description: "Gewerbe, Einzelhandel, Gastronomie und Außengastronomie, Wochenmärkte, Tourismus, Digitalisierung, Wirtschaftsförderung."
   terms:
     - wirtschaft:*
     - wochenmarkt:*
@@ -437,6 +454,7 @@ wirtschaft:
 
 unterbringung:
   label: Unterbringung & Integration
+  description: "Unterkünfte für Geflüchtete und Wohnungslose (öffentlich-rechtliche Unterbringung), Integration."
   terms:
     - gefluchtet:*
     - fluchtling:*
@@ -452,6 +470,7 @@ unterbringung:
 # "Müll" is not a term: it stems like "Müller".
 sauberkeit:
   label: Sauberkeit & Sicherheit
+  description: "Müll, Sperrmüll, Papierkörbe, Container, Graffiti und Stadtreinigung; Sicherheit, Polizei, Ordnungsamt, Kriminalität, Angsträume."
   terms:
     - vermull:*
     - sperrmull:*
@@ -478,6 +497,7 @@ sauberkeit:
 
 haushalt:
   label: Sondermittel & Haushalt
+  description: "Geld des Bezirks: Sondermittel, Quartiersfonds, politische Mittel, Zuwendungen, Haushaltspläne, Förderanträge. Auch dann, wenn das Geld für ein Vorhaben eines anderen Themas bewilligt wird; das andere Thema gilt dann zusätzlich."
   terms:
     - sondermittel:*
     - sonderfond:*
@@ -499,6 +519,7 @@ haushalt:
 # Title only, because every minute mentions the Tagesordnung.
 gremien:
   label: Gremien & Verwaltung
+  description: "Die Bezirksversammlung und ihre Gremien organisieren sich: Besetzung von Ausschüssen, Nachwahlen, Geschäftsordnung, Sitzungstermine, Jurys, Bürgervertreter. Nicht die inhaltliche Arbeit der Ausschüsse."
   terms: []
   title_terms:
     - umbesetz:*

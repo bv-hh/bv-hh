@@ -11,7 +11,7 @@ class Topic
 
   CONFIG = Rails.root.join('config/topics.yml')
 
-  attr_reader :key, :label, :terms, :title_terms, :committees, :poi_categories
+  attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories
 
   class << self
     include Enumerable
@@ -54,9 +54,10 @@ class Topic
     end
   end
 
-  def initialize(key, label:, terms: [], title_terms: [], committees: [], poi_categories: [])
+  def initialize(key, label:, description: nil, terms: [], title_terms: [], committees: [], poi_categories: [])
     @key = key.to_s
     @label = label
+    @description = description
     @terms = terms
     @title_terms = title_terms
     @committees = committees.map { |pattern| Regexp.new(pattern, Regexp::IGNORECASE) }
