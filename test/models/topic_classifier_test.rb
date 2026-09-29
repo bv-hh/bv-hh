@@ -162,4 +162,22 @@ class TopicClassifierTest < ActiveSupport::TestCase
     end
     assert_includes TopicClassifier.new(document(title: 'Förderung kultureller Projekte - Kulturverein')).topics, 'haushalt'
   end
+
+  test 'the district as a service provider is Bürgerservice, not Gremien' do
+    classifier = TopicClassifier.new(document(title: 'Das Kundenzentrum Blankenese muss erhalten bleiben!'))
+
+    assert_equal ['buergerservice'], classifier.topics
+  end
+
+  test 'equality and discrimination are Demokratie & Vielfalt' do
+    assert_includes TopicClassifier.new(document(title: 'Ein Frauenhaus für Altona')).topics, 'demokratie_vielfalt'
+    assert_includes TopicClassifier.new(document(title: 'Diskriminierung bei der Wohnungsvergabe entgegentreten')).topics,
+                    'demokratie_vielfalt'
+  end
+
+  test 'compounds the prefixes did not reach' do
+    assert_includes TopicClassifier.new(document(title: 'Sanierung des Kinderspielplatzes Heerbuckhoop')).topics, 'spielplaetze'
+    assert_includes TopicClassifier.new(document(title: 'Linienverkehr mit Kraftomnibussen, Linie 600')).topics, 'oepnv'
+    assert_includes TopicClassifier.new(document(title: 'Bewohnerparken in Borgfelde')).topics, 'strassenverkehr'
+  end
 end

@@ -66,8 +66,14 @@ boundary cases. Change them only together with the labels they affect.
   Gedenken; **Schule & Bildung** includes libraries only where learning is the
   point (a women's library: both).
 - A **Spielplatz** includes Bolzplätze and play areas in parks.
-- Appointments to a Beirat or committee are **Gremien & Verwaltung**, plus the
-  Beirat's subject when the document discusses it.
+- Appointments to a Beirat or committee are **Gremien**, plus the Beirat's
+  subject when the document discusses it. The Bezirksamt as an administration
+  and a service provider (Kundenzentren, Hamburg Service, Post, staff,
+  paperwork) is **Bürgerservice & Verwaltung**; the assembly's own office and
+  sessions stay Gremien.
+- Democracy promotion, work against the far right, racism and antisemitism,
+  queer life, gender equality and protection from domestic violence are
+  **Demokratie, Vielfalt & Gleichstellung**, besides a memorial's Kultur.
 - Safety near a school or Kita (Tempo 30, crossings, Elterntaxis) is
   **Straßenverkehr**, not Schule or Kinder.
 - A pure listing without content ("Beschlüsse des Hauptausschusses") gets no

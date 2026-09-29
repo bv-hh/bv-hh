@@ -7,7 +7,7 @@ class Topic
   # Stored in documents.topics_version. Bump it whenever config/topics.yml or
   # TopicClassifier change what a document would be tagged with, then run
   # `rake topics:reassign`.
-  VERSION = 2
+  VERSION = 3
 
   CONFIG = Rails.root.join('config/topics.yml')
 

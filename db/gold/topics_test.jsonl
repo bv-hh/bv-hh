@@ -18,7 +18,7 @@
 {"district":"eimsbuettel","number":"21-0118","stratum":"random","topics":["haushalt","kultur"],"labeler":"claude"}
 {"district":"bergedorf","number":"21-0009.09","stratum":"random","topics":["gremien"],"labeler":"claude"}
 {"district":"altona","number":"22-2239","stratum":"random","topics":["wohnen_bauen"],"labeler":"claude"}
-{"district":"hamburg-mitte","number":"22-2387","stratum":"random","topics":["kinder_jugend","soziales"],"labeler":"claude"}
+{"district":"hamburg-mitte","number":"22-2387","stratum":"random","topics":["demokratie_vielfalt","kinder_jugend","soziales"],"labeler":"claude"}
 {"district":"altona","number":"22-0013.1","stratum":"random","topics":["oepnv"],"labeler":"claude"}
 {"district":"bergedorf","number":"20-1048.01","stratum":"random","topics":["oeffentlicher_raum"],"labeler":"claude"}
 {"district":"bergedorf","number":"21-1481","stratum":"random","topics":["radverkehr","strassenverkehr"],"labeler":"claude"}
@@ -47,7 +47,7 @@
 {"district":"hamburg-nord","number":"22-2450","stratum":"random","topics":["strassenverkehr"],"labeler":"claude"}
 {"district":"harburg","number":"21-1154.04","stratum":"random","topics":["wohnen_bauen"],"labeler":"claude"}
 {"district":"altona","number":"20-5554","stratum":"random","topics":["oeffentlicher_raum","strassenverkehr"],"labeler":"claude"}
-{"district":"harburg","number":"21-2588.01","stratum":"random","topics":["gremien","umwelt"],"labeler":"claude"}
+{"district":"harburg","number":"21-2588.01","stratum":"random","topics":["buergerservice","umwelt"],"labeler":"claude"}
 {"district":"hamburg-mitte","number":"23-0409.1","stratum":"random","topics":["sauberkeit"],"labeler":"claude"}
 {"district":"hamburg-nord","number":"20-4761","stratum":"random","topics":["strassenverkehr"],"labeler":"claude"}
 {"district":"wandsbek","number":"22-0698","stratum":"random","topics":["oeffentlicher_raum","radverkehr"],"labeler":"claude"}
@@ -98,7 +98,7 @@
 {"district":"wandsbek","number":"22-4208","stratum":"random","topics":["strassenverkehr"],"labeler":"claude"}
 {"district":"eimsbuettel","number":"20-2482","stratum":"random","topics":["haushalt","sport"],"labeler":"claude"}
 {"district":"hamburg-nord","number":"20-4587","stratum":"random","topics":["wohnen_bauen"],"labeler":"claude"}
-{"district":"altona","number":"21-2826.2","stratum":"random","topics":["haushalt","soziales"],"labeler":"claude"}
+{"district":"altona","number":"21-2826.2","stratum":"random","topics":["demokratie_vielfalt","haushalt"],"labeler":"claude"}
 {"district":"wandsbek","number":"21-0284","stratum":"random","topics":["radverkehr"],"labeler":"claude"}
 {"district":"hamburg-mitte","number":"22-2376.1","stratum":"random","topics":["strassenverkehr"],"labeler":"claude"}
 {"district":"altona","number":"21-0938","stratum":"random","topics":[],"labeler":"claude"}
