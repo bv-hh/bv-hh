@@ -25,7 +25,7 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     get document_path(document, district: document.district)
 
     assert_select '.card-header', text: /Themen/
-    assert_select '.badge', text: 'Spielplätze'
+    assert_select "a.badge[href='#{topic_path(topic: 'spielplaetze', district: document.district)}']", text: 'Spielplätze'
   end
 
   test 'GET allris redirects to the document' do

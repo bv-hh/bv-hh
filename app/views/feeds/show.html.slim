@@ -4,7 +4,7 @@
 h1.my-3 Individueller RSS-Feed
 
 p
-  ' Wählen Sie Stadtteile und/oder Straßen aus. Daraus entsteht eine individueller RSS-Feed, den Sie
+  ' Wählen Sie Stadtteile, Straßen und/oder Themen aus. Daraus entsteht eine individueller RSS-Feed, den Sie
   ' in einem RSS-Reader abonnieren können. Sobald eine neue Drucksache zu einem Ort in Ihrer Auswahl
     veröffentlicht wird, erscheint sie im Feed.
 
@@ -66,6 +66,18 @@ p.text-secondary
             = hidden_field_tag 'streets[]', name, id: nil
             button.btn-close.btn-close-white type="button" aria-label="Entfernen" data-action="feed-streets#remove"
 
+      h2.h5.mt-4 Themen
+      p.text-secondary.small
+        ' Themen schränken die Auswahl ein: Stadtteile und Straßen zusammen mit einem Thema ergeben nur die
+        ' Drucksachen zu diesem Thema. Ein Thema allein ergibt alle Drucksachen dazu aus ganz Hamburg.
+      .row
+        - Topic.each do |topic|
+          .col-6
+            .form-check
+              = check_box_tag 'topics[]', topic.slug, @query.topics.include?(topic.key),
+                  id: "topic-#{topic.slug}", class: 'form-check-input'
+              = label_tag "topic-#{topic.slug}", topic.label, class: 'form-check-label'
+
   .mt-4
     = submit_tag 'Feed erstellen', class: 'btn btn-primary', name: nil
 
@@ -74,7 +86,7 @@ p.text-secondary
 = turbo_frame_tag 'feed_results', data: { turbo_action: 'advance' } do
   - if @query.empty?
     .alert.alert-secondary.mt-4
-      | Noch nichts ausgewählt. Wählen Sie oben mindestens einen Stadtteil oder eine Straße.
+      | Noch nichts ausgewählt. Wählen Sie oben mindestens einen Stadtteil, eine Straße oder ein Thema.
   - else
     .card.mt-4
       .card-body

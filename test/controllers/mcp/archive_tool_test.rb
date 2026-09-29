@@ -39,4 +39,18 @@ class Mcp::ArchiveToolTest < ActiveSupport::TestCase
 
     assert result.dig(:error, :message).present?
   end
+
+  test 'call filters by topic and returns the topics of each document' do
+    @document.update_columns(topics: %w[radverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    matching = Mcp::ArchiveTool.call(topic: 'radverkehr').structured_content[:documents]
+    other = Mcp::ArchiveTool.call(topic: 'kultur').structured_content[:documents]
+
+    assert_includes matching, { 'id' => @document.id, 'number' => '21-9999', 'title' => 'Antrag zur Sache', 'topics' => %w[radverkehr] }
+    assert_not_includes other.pluck('number'), '21-9999'
+  end
+
+  test 'call rejects an unknown topic' do
+    assert Mcp::ArchiveTool.call(topic: 'gibtsnicht').error?
+  end
 end

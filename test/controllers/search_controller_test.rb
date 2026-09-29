@@ -23,4 +23,17 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get search_path(district: districts.first, q: document.number)
     assert_redirected_to document_path(document, district: districts.first)
   end
+
+  test 'GET show with a topic keeps only documents tagged with it' do
+    Document.update_all(topics: [])
+    get search_path(district: districts.first, q: 'Eingabe', topic: 'radverkehr')
+
+    assert_response :success
+    assert_not_includes @response.body, documents(:document_7).number
+
+    documents(:document_7).update_columns(topics: %w[radverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    get search_path(district: districts.first, q: 'Eingabe', topic: 'radverkehr')
+
+    assert_includes @response.body, documents(:document_7).number
+  end
 end

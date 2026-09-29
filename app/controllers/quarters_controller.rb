@@ -16,7 +16,10 @@ class QuartersController < ApplicationController
 
     redirect_to(canonical_path, status: :moved_permanently) and return unless request.path == canonical_path
 
-    @query = FeedQuery.new(quarters: [@quarter.name])
+    # ?topic= narrows the page to one topic. The combination is a filter, not a
+    # page of its own: only the plain Quarter page is indexed.
+    @topic = Topic.lookup(params[:topic]) if params[:topic].present?
+    @query = FeedQuery.new(quarters: [@quarter.name], topics: [@topic&.key].compact)
 
     respond_to do |format|
       format.html { show_html }
@@ -69,12 +72,14 @@ class QuartersController < ApplicationController
   end
 
   def show_html
-    @title = "Drucksachen zu #{@quarter.name} — Bezirkspolitik in Hamburg"
+    @title = "Drucksachen zu #{@quarter.name}#{" · #{@topic.label}" if @topic} — Bezirkspolitik in Hamburg"
+    @noindex = true if @topic
     @meta_description = "Aktuelle Drucksachen der Bezirksversammlung, die Orte in #{@quarter.name} erwähnen."
     # created_at rather than document number. A Stadtteil collects documents from
     # every district that mentions a place in it, and numbers only run in
     # sequence within one district, so there is nothing to compare across them.
     # Same order as the feed.
     @documents = page_documents.preload(:district, meetings: :committee)
+    @topic_counts = cached_topic_counts(:quarter, @quarter.name) { FeedQuery.new(quarters: [@quarter.name]).relation(limit: nil) }
   end
 end

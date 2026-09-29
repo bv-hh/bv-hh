@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-# The one query behind both the RSS feed and the Quarter pages: Drucksachen
-# that mention a location in any of the selected Quarters, or that mention any
-# of the selected streets by name.
+# The one query behind the RSS feed, the Quarter pages and the topic pages:
+# Drucksachen that mention a location in any of the selected Quarters, or that
+# mention any of the selected streets by name, optionally narrowed to a district
+# and to topics.
 #
 # Nothing here is persisted. A subscription is just a URL, which is what keeps
 # the feature free of personal data.
@@ -16,6 +17,9 @@
 #   Quarter — "everything mentioning a location within this Quarter,
 #               including partial streets": a street crossing three Quarters
 #               matches all three, which is what locations.quarters stores.
+#   topic     — narrows like the district: "Radverkehr in Eppendorf" is
+#               Eppendorf's documents about cycling. Several topics are OR'd
+#               among themselves. A topic alone is a valid selection.
 class FeedQuery
   MAX_ITEMS = 50
   # Per selection kind. Past this the extra terms are dropped rather than
@@ -36,14 +40,15 @@ class FeedQuery
     )
   SQL
 
-  attr_reader :district, :quarters, :street_names
+  attr_reader :district, :quarters, :street_names, :topics
 
   # Every value is canonicalised and validated against the database here, so the
   # relation can never see one that is not already in it.
   def self.from_params(params)
     new(district: District.lookup(params[:district].to_s),
         quarters: list_param(params[:quarters]),
-        streets: list_param(params[:streets]))
+        streets: list_param(params[:streets]),
+        topics: list_param(params[:topics]))
   end
 
   # Rack is happy to parse ?quarters[a]=x into a Hash and ?quarters=x into a
@@ -61,20 +66,21 @@ class FeedQuery
     values.grep(String).filter_map { |value| value.strip.presence }.uniq.first(MAX_TERMS)
   end
 
-  # district narrows; quarters and streets widen. "Hamburg-Nord plus Eppendorf"
+  # district and topics narrow; quarters and streets widen. "Hamburg-Nord plus Eppendorf"
   # means Eppendorf's documents that belong to Hamburg-Nord, not both sets — the
   # other reading would make the Stadtteil selection meaningless, since the
   # district already contains it.
-  def initialize(district: nil, quarters: [], streets: [])
+  def initialize(district: nil, quarters: [], streets: [], topics: [])
     @district = district
     # locations.quarters holds the register's own casing and PG's && is exact,
     # so a lowercase query param has to be mapped back before it reaches SQL.
     @quarters = Quarter.canonical_names(quarters)
     @street_names = canonical_street_names(streets)
+    @topics = Topic.canonical_keys(topics)
   end
 
   def empty?
-    district.blank? && !places?
+    district.blank? && !places? && topics.empty?
   end
 
   # Whether a place filter was given at all. A district on its own needs no
@@ -89,6 +95,7 @@ class FeedQuery
     scope = documents
     scope = scope.where(district: district) if district.present?
     scope = scope.where(*match_condition) if places?
+    scope = scope.with_topics(topics) if topics.any?
     scope = order == :created_at ? scope.order(created_at: :desc) : scope.latest_first
     limit ? scope.limit(limit) : scope
   end
@@ -96,7 +103,7 @@ class FeedQuery
   # Order-independent, and built from the sanitised terms rather than the raw
   # ones, so ?a=1&b=2 and ?b=2&a=1 share an ETag.
   def cache_key
-    Digest::SHA256.hexdigest([district&.id, quarters.sort, street_names.sort].to_json)
+    Digest::SHA256.hexdigest([district&.id, quarters.sort, street_names.sort, topics.sort].to_json)
   end
 
   def description
@@ -104,7 +111,12 @@ class FeedQuery
     parts << "Bezirk: #{district.name}" if district.present?
     parts << "Stadtteile: #{quarters.to_sentence}" if quarters.any?
     parts << "Straßen: #{street_display_names.to_sentence}" if street_names.any?
+    parts << "Themen: #{topic_labels.to_sentence}" if topics.any?
     parts.join(' · ')
+  end
+
+  def topic_labels
+    topics.map { |key| Topic.find(key).label }
   end
 
   def street_display_names

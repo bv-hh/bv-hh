@@ -15,6 +15,7 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
       types: { type: 'string', description: "A comma-separated list of document types to include in the result. Valid values include #{TYPES.join(' ,')}" },
       district: { type: 'string', description: 'An optional district to restrict the list to. One of Hamburg-Mitte, Altona, Eimsbüttel, Hamburg-Nord, Wandsbek, Bergedorf, Harburg' },
       party: { type: 'string', description: 'An optional authoring party of a document, somthing like CDU, SPD, Grüne, Volt or Linke' },
+      topic: TOPIC_INPUT,
     }
   )
 
@@ -29,6 +30,7 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
             id: { type: 'number', description: 'The unique identifier for the document' },
             number: { type: 'string', description: 'The reference number assigned to the document' },
             title: { type: 'string', description: 'The title of the document' },
+            topics: TOPICS_OUTPUT,
           },
         },
       },
@@ -42,15 +44,29 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     idempotent_hint: true
   )
 
-  def self.call(days_ago: DEFAULT_DAYS_AGO, types: '', district: nil, party: nil)
+  def self.call(days_ago: DEFAULT_DAYS_AGO, types: '', district: nil, party: nil, topic: nil)
     if district.present?
       district = District.lookup(district)
       return error_response('Invalid district provided.') if district.blank?
     end
 
-    days_ago = [days_ago.to_i, MAX_DAYS_AGO].min
+    if topic.present?
+      topic = Topic.lookup(topic)
+      return error_response('Invalid topic provided.') if topic.blank?
+    end
 
-    documents = Document.complete.in_last_days(days_ago)
+    documents = filter(Document.complete.in_last_days([days_ago.to_i, MAX_DAYS_AGO].min), district:, types:, party:, topic:)
+    documents = documents.distinct.pluck(:id, :number, :title, :topics).map do |id, number, title, topics|
+      { id:, number:, title:, topics: }
+    end
+
+    MCP::Tool::Response.new(
+      [{ type: 'text', text: { documents: documents }.to_json }],
+      structured_content: { documents: documents.as_json }
+    )
+  end
+
+  def self.filter(documents, district:, types:, party:, topic:)
     documents = documents.where(district: district) if district
 
     types.split(',').each do |type|
@@ -58,11 +74,8 @@ class Mcp::ArchiveTool < Mcp::ApplicationTool
     end
 
     documents = documents.authored_by(party) if party.present?
-    documents = documents.distinct.pluck(:id, :number, :title).map { { id: it.first, number: it.second, title: it.third } }
-
-    MCP::Tool::Response.new(
-      [{ type: 'text', text: { documents: documents }.to_json }],
-      structured_content: { documents: documents.as_json }
-    )
+    topic ? documents.with_topics(topic.key) : documents
   end
+
+  private_class_method :filter
 end

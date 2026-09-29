@@ -49,6 +49,15 @@
               = link_to quarter.name, quarter_path(district: @district, quarter: quarter.slug),
                   class: 'btn btn-sm btn-outline-secondary'
 
+  - if @topic_counts.present?
+    .topics.mt-4
+      .card
+        .card-header Themen in #{@district.name}
+        .card-body
+          p.card-text.text-secondary.small
+            | Drucksachen nach Thema, automatisch zugeordnet (Beta).
+          = render 'topics/chips', items: @topic_counts, url: ->(topic) { topic_path(topic:) }
+
   .row.mt-4
     .meetings.col-sm.mb-3
       .card

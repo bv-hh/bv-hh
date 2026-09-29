@@ -22,4 +22,15 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, feed_path(format: :rss, district: district.to_param)
     assert_includes @response.body, 'application/rss+xml'
   end
+
+  test 'GET show lists the topics of the district with counts' do
+    Document.update_all(topics: [])
+    documents(:document_7).update_columns(topics: %w[radverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    district = districts(:hamburg_nord)
+
+    get root_with_district_path(district: district)
+
+    assert_select "a[href='#{topic_path(topic: 'radverkehr', district:)}']", text: /Radverkehr\s*1/
+    assert_select "a[href='#{topic_path(topic: 'kultur', district:)}']", count: 0
+  end
 end

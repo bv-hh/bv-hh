@@ -27,6 +27,7 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
       resolution: { type: 'string', description: 'The resolution text of the document, if applicable' },
       attached: { type: 'string', description: 'Information of attached files if any' },
       district: { type: 'string', description: 'The name of the district the document belongs to' },
+      topics: TOPICS_OUTPUT,
       meetings: { type: 'array', description: 'An array of meetings having this document on their agenda',
                   items: {
                     type: 'object',

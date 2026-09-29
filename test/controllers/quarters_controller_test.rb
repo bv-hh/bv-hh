@@ -124,4 +124,26 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes @response.body, 'keine Drucksachen erfasst'
   end
+
+  test 'GET show with a topic narrows the list and is not indexed' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_227).update_columns(topics: %w[kultur]) # rubocop:disable Rails/SkipsModelValidations
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', topic: 'kultur')
+
+    assert_response :success
+    assert_includes @response.body, documents(:document_227).number
+    assert_not_includes @response.body, documents(:document_7).number
+    assert_includes @response.body, 'noindex'
+    assert_includes @response.body, CGI.escapeHTML(feed_path(format: :rss, district: nil, quarters: ['Barmbek-Nord'], topics: ['kultur']))
+  end
+
+  test 'GET show offers the topics of its documents with counts' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_includes @response.body, CGI.escapeHTML(quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', topic: 'strassenverkehr'))
+    assert_not_includes @response.body, 'noindex'
+  end
 end

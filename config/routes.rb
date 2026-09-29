@@ -80,6 +80,10 @@ Rails.application.routes.draw do
 
     resource :statistics, only: :show
 
+    # HTML only: without format: false, /themen/radverkehr.rss would reach the
+    # controller and be bounced to the HTML page.
+    get 'themen/:topic' => 'topics#show', as: :topic, format: false
+
     resource :admin, only: :show, controller: :admin
 
     root to: 'districts#show', as: :root_with_district

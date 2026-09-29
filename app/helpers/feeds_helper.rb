@@ -7,15 +7,17 @@ module FeedsHelper
     return 'BV-HH — Drucksachen' if query.empty?
 
     places = [*query.quarters, *query.street_display_names]
-    return "BV-HH — Drucksachen aus #{query.district.name}" if places.empty?
-
-    title = "BV-HH — Drucksachen zu #{places.to_sentence}"
-    query.district.present? ? "#{title} (#{query.district.name})" : title
+    title = 'BV-HH — Drucksachen'
+    title += " zu #{places.to_sentence}" if places.any?
+    if query.district.present?
+      title += places.any? ? " (#{query.district.name})" : " aus #{query.district.name}"
+    end
+    query.topics.any? ? "#{title} · #{query.topic_labels.to_sentence}" : title
   end
 
   def feed_description(query)
     if query.empty?
-      'Es sind keine Stadtteile oder Straßen ausgewählt. Rufen Sie /feed auf, um einen Feed zusammenzustellen.'
+      'Es sind keine Stadtteile, Straßen oder Themen ausgewählt. Rufen Sie /feed auf, um einen Feed zusammenzustellen.'
     else
       "Neue Drucksachen der Hamburger Bezirksversammlungen. Auswahl — #{query.description}."
     end
@@ -23,7 +25,8 @@ module FeedsHelper
 
   # The params that reproduce this selection, for self-referencing links.
   def feed_link_params(query)
-    { district: query.district&.to_param, quarters: query.quarters, streets: query.street_display_names }.compact_blank
+    { district: query.district&.to_param, quarters: query.quarters, streets: query.street_display_names,
+      topics: query.topics.map { |key| Topic.find(key).slug } }.compact_blank
   end
 
   def feed_item_description(document)

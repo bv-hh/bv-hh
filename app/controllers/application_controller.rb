@@ -28,6 +28,14 @@ class ApplicationController < ActionController::Base
     redirect_to url_for(district: nil), status: :moved_permanently and return false if params[:district].present?
   end
 
+  # [Topic, count] pairs for the documents the block returns. Counting walks
+  # every document of a district or Stadtteil, and the counts only move when
+  # documents are fetched or classified, so an hour's staleness is fine.
+  def cached_topic_counts(*key)
+    counts = Rails.cache.fetch(['topic_counts', Topic::VERSION, *key], expires_in: 1.hour) { yield.topic_counts }
+    Topic.ranked(counts)
+  end
+
   def track_event
     ahoy.track 'Action', request.path_parameters
   end

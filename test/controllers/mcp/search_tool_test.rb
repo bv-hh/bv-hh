@@ -22,4 +22,19 @@ class Mcp::SearchToolTest < ActiveSupport::TestCase
     assert_empty result[:documents]
     assert_empty result[:minutes]
   end
+
+  test 'call filters by topic and returns the topics of each document' do
+    Document.update_all(topics: [])
+    documents(:document_7).update_columns(topics: %w[radverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    result = Mcp::SearchTool.call(query: 'Eingabe', topic: 'radverkehr').structured_content
+
+    assert_equal ['21-4776'], result[:documents].pluck(:number)
+    assert_equal [%w[radverkehr]], result[:documents].pluck(:topics)
+    assert_empty result[:minutes]
+  end
+
+  test 'call rejects an unknown topic' do
+    assert Mcp::SearchTool.call(query: 'Eingabe', topic: 'gibtsnicht').error?
+  end
 end

@@ -41,3 +41,12 @@
             p.card-text
               => number_with_delimiter district.documents.complete.count
               | Drucksachen
+
+  - if @topic_counts.present?
+    .topics.mb-4
+      .card
+        .card-header Themen in allen Bezirken
+        .card-body
+          p.card-text.text-secondary.small
+            | Drucksachen nach Thema, automatisch zugeordnet (Beta).
+          = render 'topics/chips', items: @topic_counts, url: ->(topic) { topic_path(topic:, district: nil) }

@@ -36,4 +36,26 @@ class TopicTest < ActiveSupport::TestCase
   test 'find returns nil for an unknown key' do
     assert_nil Topic.find('unbekannt')
   end
+
+  test 'slug dasherizes the key and serves as its param' do
+    assert_equal 'kinder-jugend', Topic.find('kinder_jugend').slug
+    assert_equal 'kinder-jugend', Topic.find('kinder_jugend').to_param
+  end
+
+  test 'lookup finds a topic by slug and by key' do
+    assert_equal 'kinder_jugend', Topic.lookup('kinder-jugend').key
+    assert_equal 'kinder_jugend', Topic.lookup('kinder_jugend').key
+    assert_nil Topic.lookup('unbekannt')
+  end
+
+  test 'canonical_keys drops unknown values and returns keys in config order' do
+    assert_equal %w[radverkehr kinder_jugend], Topic.canonical_keys(%w[kinder-jugend gibtsnicht radverkehr radverkehr])
+  end
+
+  test 'ranked orders by count, then label, and drops unknown keys' do
+    ranked = Topic.ranked('kultur' => 2, 'radverkehr' => 2, 'gruen' => 5, 'unbekannt' => 9)
+                  .map { |topic, count| [topic.key, count] }
+
+    assert_equal [['gruen', 5], ['kultur', 2], ['radverkehr', 2]], ranked
+  end
 end

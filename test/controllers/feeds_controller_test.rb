@@ -195,4 +195,22 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not_includes @response.body, '&amp;nbsp;'
   end
+
+  test 'GET show as RSS filters by topic alone' do
+    Document.update_all(topics: [])
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    get feed_path(format: :rss, topics: ['strassenverkehr'])
+
+    assert_response :success
+    assert_includes @response.body, documents(:document_7).number
+    assert_not_includes @response.body, documents(:document_4).number
+    assert_includes @response.body, 'Straßenverkehr'
+  end
+
+  test 'GET show offers the topics and keeps a selected one checked' do
+    get feed_path(topics: ['radverkehr'])
+
+    assert_match(/<input[^>]*value="radverkehr"[^>]*checked/, @response.body)
+  end
 end
