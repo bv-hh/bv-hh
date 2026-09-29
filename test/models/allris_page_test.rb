@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: allris_pages
+#
+#  id              :integer          not null, primary key
+#  record_type     :string           not null
+#  record_id       :integer          not null
+#  compressed_body :binary           not null
+#  fetched_at      :datetime         not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  index_allris_pages_on_record  (record_type,record_id) UNIQUE
+#
+
 # frozen_string_literal: true
 
 require 'test_helper'
