@@ -31,6 +31,20 @@ class Topic
     def find(key)
       all.find { |topic| topic.key == key.to_s }
     end
+
+    # By URL slug, and by key too, so /themen/kinder_jugend still resolves and
+    # can be redirected to its canonical /themen/kinder-jugend.
+    def lookup(value)
+      value = value.to_s
+      all.find { |topic| topic.slug == value || topic.key == value }
+    end
+
+    # Keys only, unknown ones dropped, in config order: whatever reaches SQL is
+    # a key the corpus can actually hold.
+    def canonical_keys(values)
+      wanted = Array(values).filter_map { |value| lookup(value)&.key }
+      keys & wanted
+    end
   end
 
   def initialize(key, label:, terms: [], title_terms: [], committees: [], poi_categories: [])
@@ -40,6 +54,14 @@ class Topic
     @title_terms = title_terms
     @committees = committees.map { |pattern| Regexp.new(pattern, Regexp::IGNORECASE) }
     @poi_categories = poi_categories
+  end
+
+  def slug
+    key.dasherize
+  end
+
+  def to_param
+    slug
   end
 
   # to_tsquery input for the title, or nil when the topic has no terms for it.

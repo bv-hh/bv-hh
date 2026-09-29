@@ -11,6 +11,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
     properties: {
       query: { type: 'string', description: 'The query string to search for' },
       district: { type: 'string', description: 'Optional: a district to limit the search to' },
+      topic: TOPIC_INPUT.merge(description: "#{TOPIC_INPUT[:description]}. Minutes carry no topics, so none are returned with one."),
     },
     required: ['query']
   )
@@ -31,6 +32,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
             resolution: { type: 'string', description: 'The resolution text of the document, if applicable' },
             attached: { type: 'string', description: 'Information of attached files if any' },
             district: { type: 'string', description: 'The name of the district the document belongs to' },
+            topics: TOPICS_OUTPUT,
             meetings: { type: 'array', description: 'An array of meetings having this document on their agenda',
                         items: {
                           type: 'object',
@@ -69,11 +71,19 @@ class Mcp::SearchTool < Mcp::ApplicationTool
     idempotent_hint: true
   )
 
-  def self.call(query:, district: nil)
+  def self.call(query:, district: nil, topic: nil)
     term = (query || '').strip
     district = District.lookup(district || '')
     documents_root = (district ? district.documents : Document.all).complete.include_meetings
     agenda_items_root = (district ? district.agenda_items : AgendaItem.all).includes(:meeting)
+
+    if topic.present?
+      topic = Topic.lookup(topic)
+      return error_response('Invalid topic provided.') if topic.blank?
+
+      documents_root = documents_root.with_topics(topic.key)
+      agenda_items_root = agenda_items_root.none
+    end
 
     documents = Document.search(term, root: documents_root).limit(LIMIT)
     minutes = AgendaItem.minutes_prefix_search(term, agenda_items_root).limit(LIMIT)

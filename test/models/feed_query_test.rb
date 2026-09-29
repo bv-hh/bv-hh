@@ -240,4 +240,40 @@ class FeedQueryTest < ActiveSupport::TestCase
   test 'description names the district' do
     assert_includes FeedQuery.new(district: districts(:hamburg_nord)).description, 'Hamburg-Nord'
   end
+
+  # --- topics -----------------------------------------------------------------
+
+  test 'a topic narrows a place selection' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_227).update_columns(topics: []) # rubocop:disable Rails/SkipsModelValidations
+
+    documents = FeedQuery.new(quarters: ['Barmbek-Nord'], streets: ['Julius-Vosseler-Straße'],
+                              topics: ['strassenverkehr']).relation
+
+    assert_includes documents, documents(:document_7)
+    assert_not_includes documents, documents(:document_227)
+  end
+
+  test 'a topic alone is a selection, and several topics are OR\'d' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_4).update_columns(topics: %w[gruen]) # rubocop:disable Rails/SkipsModelValidations
+    query = FeedQuery.new(topics: %w[strassenverkehr gruen])
+
+    assert_not query.empty?
+    assert_includes query.relation, documents(:document_7)
+    assert_includes query.relation, documents(:document_4)
+  end
+
+  test 'unknown topics are dropped and slugs mapped to keys' do
+    query = FeedQuery.from_params(topics: %w[kinder-jugend gibtsnicht])
+
+    assert_equal %w[kinder_jugend], query.topics
+  end
+
+  test 'topics are part of the cache key and the description' do
+    with_topic = FeedQuery.new(quarters: ['Barmbek-Nord'], topics: ['radverkehr'])
+
+    assert_not_equal FeedQuery.new(quarters: ['Barmbek-Nord']).cache_key, with_topic.cache_key
+    assert_includes with_topic.description, 'Themen: Radverkehr'
+  end
 end

@@ -3,6 +3,9 @@ h1.h2
 
   small.text-muted= number_with_delimiter @documents.total_count
 
+.mt-3
+  = render 'topics/chips', items: Topic.all.map { |topic| [topic, nil] }, url: ->(topic) { topic_path(topic:) }
+
 .row.mt-4.border-bottom.font-weight-bold
   .col-2.col-lg-1.py-2 Drs.
   .col.col-lg-7.py-2 Titel / Art

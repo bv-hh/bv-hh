@@ -1,0 +1,22 @@
+/ One row of a Drucksachen list whose documents can come from several Bezirke
+/ (Stadtteil and topic pages). show_district marks the ones that do.
+.row.pt-3.border-top
+  .col-3.col-lg-2.text-nowrap
+    = link_to document_path(document, district: document.district) do
+      strong= document.number
+  .col
+    = link_to document_path(document, district: document.district) do
+      = document.title.html_safe
+    br
+    span.text-secondary.small= document.kind
+    - if show_district
+      = ' '
+      span.badge.bg-light.text-secondary.border= document.district.name
+    - if (meeting = document.meetings.max_by(&:date))
+      br
+      = link_to meeting.committee.name, meeting_path(meeting, district: document.district), class: 'text-secondary small'
+      span.text-secondary.small
+        = ' · '
+        = l meeting.date
+  .col-1.text-end
+    = allris_link(document.allris_url)

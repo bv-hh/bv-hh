@@ -88,6 +88,7 @@ class Document < ApplicationRecord
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   scope :since_number, ->(number) { where(documents: { number: number.. }) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
+  scope :with_topics, ->(keys) { where('documents.topics && ARRAY[?]::varchar[]', Array(keys)) }
   scope :topics_outdated, -> { where(topics_version: nil).or(where.not(topics_version: Topic::VERSION)) }
   scope :current_legislation, ->(district) { where(district: district).since_number(district.first_legislation_number) }
   scope :children, ->(number) { where('number ILIKE ?', "#{number}.%") }
@@ -343,6 +344,17 @@ class Document < ApplicationRecord
     topics.filter_map { |key| Topic.find(key) }
   end
 
+  # [Topic, count] pairs for the documents in the current scope, most frequent
+  # first. The scope must not join rows that repeat a document, or it counts
+  # twice. A subquery because Postgres allows no unnest() in GROUP BY.
+  def self.topic_counts
+    tagged = unscope(:order, :limit, :offset).select('unnest(documents.topics) AS topic')
+    counts = unscoped.from(tagged, :tagged).group('tagged.topic').count
+
+    counts.filter_map { |key, count| (topic = Topic.find(key)) && [topic, count] }
+          .sort_by { |topic, count| [-count, topic.label] }
+  end
+
   def extracted_name_locations
     extracted_locations.to_a.reject { |name| from_local_committee?(name) }.flat_map do |name|
       Location.determine_locations(name, district)
@@ -399,6 +411,7 @@ class Document < ApplicationRecord
       created_at: created_at,
       updated_at: updated_at,
       district: district.name,
+      topics: topics,
       meetings: meetings.map do |meeting|
         {
           id: meeting.id,

@@ -120,7 +120,8 @@ h3.text-muted
         - if @document.topic_records.present?
           .d-flex.flex-wrap.gap-1
             - @document.topic_records.each do |topic|
-              span.badge.text-bg-secondary = topic.label
+              = link_to topic.label, topic_path(topic: topic, district: @document.district),
+                  class: 'badge text-bg-secondary text-decoration-none'
         - else
           p
             | Keine Themen erkannt.

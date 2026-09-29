@@ -7,6 +7,10 @@ h1.mb-4
     .col-12.col-lg
       .form-group
         = select_tag :kind, options_for_select(@kinds, @kind), include_blank: 'Alle Drucksachenarten', class: 'form-control'
+    .col-12.col-lg
+      .form-group
+        = select_tag :topic, options_for_select(Topic.map { |topic| [topic.label, topic.slug] }, @topic&.slug),
+            include_blank: 'Alle Themen', class: 'form-control'
     .col-6.col-lg
       .form-group.form-check.mt-1
         => check_box_tag :attachments, 'true', @attachments

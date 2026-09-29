@@ -1,0 +1,11 @@
+/ A row of topic links. items is a list of [Topic, count] pairs (count may be
+/ nil), url a proc giving each topic's link, active the key shown as selected.
+- active = local_assigns[:active]
+.d-flex.flex-wrap.gap-2
+  - items.each do |topic, count|
+    - selected = topic.key == active
+    = link_to url.call(topic), class: ['btn', 'btn-sm', selected ? 'btn-secondary' : 'btn-outline-secondary'],
+        'aria-current': (selected ? 'true' : nil) do
+      = topic.label
+      - if count
+        span.ms-1.opacity-75= number_with_delimiter(count)

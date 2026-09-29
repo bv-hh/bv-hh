@@ -1,8 +1,10 @@
+- topic_slugs = [@topic&.slug].compact.presence
 / district: nil explicitly — default_url_options would otherwise scope the
 / feed to the Bezirk being browsed, and it would then drop the cross-Bezirk
 / documents this page deliberately shows.
-- quarter_feed_url = feed_url(format: :rss, district: nil, quarters: [@quarter.name])
-- markers_url = quarter_path(district: @quarter.district, quarter: @quarter.slug, format: :json, page: params[:page])
+- quarter_feed_url = feed_url(format: :rss, district: nil, quarters: [@quarter.name], topics: topic_slugs)
+- quarter_page = ->(**options) { quarter_path(district: @quarter.district, quarter: @quarter.slug, **options) }
+- markers_url = quarter_page.call(format: :json, page: params[:page], topic: @topic&.slug)
 
 - content_for :head do
   = auto_discovery_link_tag :rss, quarter_feed_url, title: "Drucksachen zu #{@quarter.name}"
@@ -24,6 +26,16 @@
   span.badge.text-bg-warning> Beta
   span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
 
+- if @topic_counts.present?
+  .mb-3
+    = render 'topics/chips', items: @topic_counts, active: @topic&.key,
+        url: ->(topic) { quarter_page.call(topic: topic == @topic ? nil : topic.slug) }
+    - if @topic
+      p.small.text-secondary.mt-2.mb-0
+        = link_to 'Filter aufheben', quarter_page.call
+        '  ·
+        = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil)
+
 / Two columns from lg up, list left and map right. Below lg the row collapses
 / to one column and the map follows the list, because that is the DOM order.
 .row
@@ -32,36 +44,17 @@
       p.text-secondary
         / "betreffen" rather than "erwähnen einen Ort": a Drucksache can reach
         / this page by naming the Stadtteil outright, with no place in it.
-        = "#{number_with_delimiter @documents.total_count} #{@documents.total_count == 1 ? 'Drucksache betrifft' : 'Drucksachen betreffen'} #{@quarter.name}."
+        = "#{number_with_delimiter @documents.total_count} #{@documents.total_count == 1 ? 'Drucksache betrifft' : 'Drucksachen betreffen'} #{@quarter.name}#{" zum Thema #{@topic.label}" if @topic}."
 
       .row.border-bottom.font-weight-bold
         .col-3.col-lg-2.py-2 Drs.
         .col.py-2 Titel / Art
         .col-1
 
+      / A street crossing a Bezirk boundary puts documents from a neighbouring
+      / Bezirk on this page. That is intended, but it has to be visible.
       - @documents.each do |document|
-        .row.pt-3.border-top
-          .col-3.col-lg-2.text-nowrap
-            = link_to document_path(document, district: document.district) do
-              strong= document.number
-          .col
-            = link_to document_path(document, district: document.district) do
-              = document.title.html_safe
-            br
-            span.text-secondary.small= document.kind
-            / A street crossing a Bezirk boundary puts documents from a neighbouring
-            / Bezirk on this page. That is intended, but it has to be visible.
-            - if document.district != @quarter.district
-              = ' '
-              span.badge.bg-light.text-secondary.border= document.district.name
-            - if (meeting = document.meetings.max_by(&:date))
-              br
-              = link_to meeting.committee.name, meeting_path(meeting, district: document.district), class: 'text-secondary small'
-              span.text-secondary.small
-                = ' · '
-                = l meeting.date
-          .col-1.text-end
-            = allris_link(document.allris_url)
+        = render 'documents/list_row', document:, show_district: document.district != @quarter.district
 
       .mt-4
         = paginate @documents, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'
@@ -84,5 +77,5 @@
   p.mb-0.text-secondary.small
     | Sie möchten mehrere Stadtteile oder einzelne Straßen beobachten?
     = ' '
-    = link_to 'Stellen Sie sich einen eigenen RSS-Feed zusammen', feed_path(district: nil, quarters: [@quarter.name])
+    = link_to 'Stellen Sie sich einen eigenen RSS-Feed zusammen', feed_path(district: nil, quarters: [@quarter.name], topics: topic_slugs)
     | .

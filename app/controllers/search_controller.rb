@@ -22,6 +22,7 @@ class SearchController < ApplicationController
     documents_root = (@all_districts ? Document.all : @district.documents).complete.include_meetings
 
     documents_root = documents_root.where(kind: @kind) if @kind
+    documents_root = documents_root.with_topics(@topic.key) if @topic
     documents_root = documents_root.joins(:attachments) if @attachments
 
     @documents = Document.search(@term, root: documents_root, order: @order, attachments: @attachments)
@@ -31,6 +32,8 @@ class SearchController < ApplicationController
 
   def search_agenda_items
     agenda_items_root = (@all_districts ? AgendaItem.all : @district.agenda_items).includes(:meeting)
+    # Minutes carry no topics, so a topic filter leaves none of them.
+    agenda_items_root = agenda_items_root.none if @topic
 
     @agenda_items = AgendaItem.minutes_prefix_search(@term, agenda_items_root)
     @more_agenda_items = [@agenda_items.count - LIMIT, 0].max
@@ -47,5 +50,6 @@ class SearchController < ApplicationController
     @all_districts = params[:all_districts] == 'true' || @district.blank?
 
     @kind = params[:kind] if params[:kind].present? && @kinds.include?(params[:kind])
+    @topic = Topic.lookup(params[:topic]) if params[:topic].present?
   end
 end

@@ -80,6 +80,8 @@ Rails.application.routes.draw do
 
     resource :statistics, only: :show
 
+    get 'themen/:topic' => 'topics#show', as: :topic
+
     resource :admin, only: :show, controller: :admin
 
     root to: 'districts#show', as: :root_with_district
