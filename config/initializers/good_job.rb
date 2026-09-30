@@ -44,7 +44,8 @@ Rails.application.configure do
       class: 'GenerateSitemapJob',
       cron: '0 59 2 * * *',
     },
-    # Ends by 01:45 (RefetchDocumentsJob::WINDOW), before the sitemap at 02:59.
+    # Ends by 04:15 (RefetchDocumentsJob::WINDOW, 5 hours during the catch-up;
+    # 01:45 at the usual 2.5 hours, before the sitemap at 02:59).
     # All times here are UTC.
     refetch_documents: {
       class: 'RefetchDocumentsJob',

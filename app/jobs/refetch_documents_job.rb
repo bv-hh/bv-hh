@@ -22,8 +22,11 @@
 # reported and the document marked done, or the chain would ask for the same
 # broken pages every night once everything else is through.
 class RefetchDocumentsJob < ApplicationJob
-  WINDOW = 2.5.hours
-  BATCH_SIZE = 3_000 # above what WINDOW allows at PAUSE, so the window decides
+  # 5 hours while the first catch-up after the parser rebuild is under way
+  # (Wandsbek alone had 12.8k pages to fetch on 2026-10-01, ~2000 a night in
+  # 2.5 hours); back to 2.5 hours once it is through.
+  WINDOW = 5.hours
+  BATCH_SIZE = 6_000 # above what WINDOW allows at PAUSE, so the window decides
   PAUSE = 1.second
 
   NETWORK_ERRORS = [
