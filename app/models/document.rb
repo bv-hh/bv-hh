@@ -70,6 +70,8 @@ class Document < ApplicationRecord
   has_many :document_locations, dependent: :destroy
   has_many :locations, through: :document_locations
 
+  has_one :embedding, class_name: 'DocumentEmbedding', dependent: :delete
+
   has_many_attached :images
 
   validates :allris_id, presence: true
