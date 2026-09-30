@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_201936) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_211837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -282,6 +282,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_201936) do
     t.integer "parser_version"
     t.string "topics", default: [], null: false, array: true
     t.integer "topics_version"
+    t.string "classified_topics", default: [], null: false, array: true
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
@@ -550,6 +551,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_201936) do
     t.index ["quarter_keys"], name: "index_streets_on_quarter_keys", using: :gin
     t.index ["quarters"], name: "index_streets_on_quarters", using: :gin
     t.index ["street_key"], name: "index_streets_on_street_key"
+  end
+
+  create_table "topic_models", force: :cascade do |t|
+    t.string "topic", null: false
+    t.string "model", null: false
+    t.vector "weights", limit: 768, null: false
+    t.float "bias", null: false
+    t.float "threshold", null: false
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["topic"], name: "index_topic_models_on_topic", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

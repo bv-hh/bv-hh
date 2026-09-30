@@ -333,12 +333,17 @@ class Document < ApplicationRecord
     AssignDocumentTopicsJob.perform_later(self)
   end
 
-  # Written with update_columns: topics are derived data, and touching
-  # updated_at would reorder RefetchDocumentsJob's queue and the feeds.
+  # The rules' topics and those only the classifier (TopicModel) adds, which
+  # are also kept in classified_topics. Written with update_columns: topics
+  # are derived data, and touching updated_at would reorder
+  # RefetchDocumentsJob's queue and the feeds.
   def assign_topics!
-    topics = TopicClassifier.new(self).topics
+    rules = TopicClassifier.new(self).topics
+    added = TopicModel.predict(self) - rules
+    topics = Topic.keys & (rules + added)
     attributes = { topics_version: Topic::VERSION }
     attributes[:topics] = topics unless topics.sort == self.topics.sort
+    attributes[:classified_topics] = added unless added.sort == classified_topics.sort
     update_columns(attributes) # rubocop:disable Rails/SkipsModelValidations
   end
 

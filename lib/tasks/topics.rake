@@ -83,6 +83,27 @@ namespace :topics do
     end
   end
 
+  # Trains a classifier per topic on the embeddings (TopicTrainer) and applies
+  # it to the corpus. Run after the embeddings are complete, and again after a
+  # rule change, since the rules are its teacher.
+  desc 'Train the topic classifier on the embeddings and reclassify the corpus'
+  task train: :environment do
+    percent = ->(value) { value ? format('%5.1f%%', 100 * value) : '    –' }
+
+    puts 'precision  recall  positives  topic      (validation, against the rules)'
+    TopicTrainer.new.train!.each do |result|
+      metrics = result.metrics.symbolize_keys
+      puts format('%<p>9s %<r>7s %<n>10d  %<label>s', p: percent[metrics[:precision]], r: percent[metrics[:recall]],
+                                                      n: metrics[:positives], label: Topic.find(result.topic).label)
+    end
+    Rake::Task['topics:classify'].invoke
+  end
+
+  desc 'Apply the trained topic classifier to every embedded document'
+  task classify: :environment do
+    puts "#{TopicModel.classify_all!} documents changed"
+  end
+
   # --- gold set (see db/gold/README.md) ---------------------------------------
   #
   # Every gold task works on the tuning set unless GOLD_SET=test is given.
@@ -115,22 +136,35 @@ namespace :topics do
     puts "#{count} labels imported, #{set.labelled.size} of #{set.entries.size} labelled"
   end
 
-  # Read-only. Pass verbose to list every wrong or missing tag.
-  desc 'Measure the rules against the gold set: precision and recall per topic'
+  # Read-only. Pass verbose to list every wrong or missing tag. With trained
+  # topic models, rules + classifier are measured next to the rules alone, and
+  # the misses listed are those of the combination.
+  desc 'Measure the rules (and the classifier) against the gold set: precision and recall per topic'
   task :evaluate, [:verbose] => :environment do |_task, args|
-    evaluation = TopicEvaluation.new(TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))).run
+    set = TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))
+    rules = TopicEvaluation.new(set).run
+    combined = TopicEvaluation.new(set, tagger: TopicEvaluation::COMBINED).run if TopicModel.current.exists?
+    evaluation = combined || rules
     percent = ->(value) { value ? format('%5.1f%%', 100 * value) : '    –' }
+    counts = ->(score) { format('%<tp>4d %<fp>4d %<fn>4d', tp: score.tp, fp: score.fp, fn: score.fn) }
+    rates = lambda do |score|
+      format('%<p>9s %<r>7s %<rr>16s', p: percent[score.precision], r: percent[score.recall], rr: percent[score.random_recall])
+    end
 
     puts "#{gold_set.call} set: #{evaluation.evaluated} labelled documents evaluated" \
          "#{", #{evaluation.missing} not in this database" if evaluation.missing.positive?}\n\n"
-    puts 'precision  recall  recall (random)   tp   fp   fn  topic'
-    rows = evaluation.scores.map { |key, score| [Topic.find(key).label, score] } + [['all topics', evaluation.total]]
-    rows.each do |label, score|
-      puts format('%<p>9s %<r>7s %<rr>16s %<tp>4d %<fp>4d %<fn>4d  %<label>s', p: percent[score.precision], r: percent[score.recall],
-                                                                               rr: percent[score.random_recall], tp: score.tp,
-                                                                               fp: score.fp, fn: score.fn, label:)
+    puts 'precision  recall  recall (random)   tp   fp   fn' \
+         "#{'  | rules + classifier: precision  recall  recall (random)   tp   fp   fn' if combined}  topic"
+
+    rows = Topic.keys.map { |key| [Topic.find(key).label, rules.scores[key], combined&.scores&.dig(key)] }
+    rows << ['all topics', rules.total, combined&.total]
+    rows.each do |label, score, combined_score|
+      columns = [rates[score], counts[score]]
+      columns += ['  |              ', rates[combined_score], counts[combined_score]] if combined_score
+      puts "#{columns.join(' ')}  #{label}"
     end
-    puts "\nRandom documents with a topic that the rules tag with nothing: #{evaluation.random_untagged}"
+    puts "\nRandom documents with a topic that the rules tag with nothing: #{rules.random_untagged}"
+    puts "... that rules + classifier tag with nothing: #{combined.random_untagged}" if combined
 
     next unless args[:verbose]
 

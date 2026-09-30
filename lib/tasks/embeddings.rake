@@ -6,6 +6,7 @@ namespace :embeddings do
   # and can be interrupted and started again. Newest documents first.
   desc 'Embed documents that have no embedding of the current model and text'
   task update: :environment do
+    $stdout.sync = true # progress shows up in a log file as it happens
     documents = DocumentEmbedder.outdated
     total = documents.count
     embedder = DocumentEmbedder.new

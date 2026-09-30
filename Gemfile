@@ -81,6 +81,9 @@ gem 'neighbor', '~> 1.2'
 # Runs the embedding model locally (ONNX). Only DocumentEmbedder needs it, so
 # web processes don't load onnxruntime at boot.
 gem 'informers', '~> 1.3', require: false
+# Matrix arithmetic for training the topic classifier (TopicTrainer). Only
+# rake topics:train needs it.
+gem 'numo-narray-alt', require: false
 
 # Used directly by the three geo importers. It arrived transitively with
 # google-maps until that was removed; declare what we actually use.

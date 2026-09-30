@@ -58,6 +58,9 @@ class TopicEvaluation
   Miss = Struct.new(:topic, :kind, :entry, :document, keyword_init: true)
 
   RULES = ->(document) { TopicClassifier.new(document).topics }
+  # The rules and the trained topic models together, as Document#assign_topics!
+  # combines them.
+  COMBINED = ->(document) { RULES.call(document) | TopicModel.predict(document) }
 
   attr_reader :scores, :misses, :evaluated, :missing, :random_untagged
 
