@@ -50,6 +50,12 @@ Rails.application.configure do
       class: 'RefetchDocumentsJob',
       cron: '0 15 23 * * *',
     },
+    # After the refetch and the sitemap, so the day's changes are in and the
+    # model has the machine to itself.
+    embed_documents: {
+      class: 'EmbedDocumentsJob',
+      cron: '0 7 4 * * *',
+    },
     update_committee_averages: {
       class: 'UpdateCommitteeAveragesJob',
       cron: '0 23 1 1 * *',

@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_29_185570) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_211837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
+  enable_extension "vector"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -237,6 +238,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_185570) do
     t.float "sw_lng"
   end
 
+  create_table "document_embeddings", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.string "model", null: false
+    t.string "digest", null: false
+    t.vector "embedding", limit: 768, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_document_embeddings_on_document_id", unique: true
+    t.index ["embedding"], name: "index_document_embeddings_on_embedding", opclass: :vector_cosine_ops, using: :hnsw
+  end
+
   create_table "document_locations", force: :cascade do |t|
     t.bigint "document_id"
     t.bigint "location_id"
@@ -270,6 +282,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_185570) do
     t.integer "parser_version"
     t.string "topics", default: [], null: false, array: true
     t.integer "topics_version"
+    t.string "classified_topics", default: [], null: false, array: true
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
@@ -540,8 +553,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_29_185570) do
     t.index ["street_key"], name: "index_streets_on_street_key"
   end
 
+  create_table "topic_models", force: :cascade do |t|
+    t.string "topic", null: false
+    t.string "model", null: false
+    t.vector "weights", limit: 768, null: false
+    t.float "bias", null: false
+    t.float "threshold", null: false
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["topic"], name: "index_topic_models_on_topic", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "document_embeddings", "documents", on_delete: :cascade
   add_foreign_key "members", "districts"
   add_foreign_key "members", "parties"
   add_foreign_key "memberships", "committees"
