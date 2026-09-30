@@ -1,7 +1,8 @@
 / A row of topic links. items is a list of [Topic, count] pairs (count may be
-/ nil), url a proc giving each topic's link, active the key shown as selected.
+/ nil), url a proc giving each topic's link, active the key shown as selected,
+/ css optional classes for the row (such as justify-content-center).
 - active = local_assigns[:active]
-.d-flex.flex-wrap.gap-2
+.d-flex.flex-wrap.gap-2 class=local_assigns[:css]
   - items.each do |topic, count|
     - selected = topic.key == active
     = link_to url.call(topic), class: ['btn', 'btn-sm', selected ? 'btn-secondary' : 'btn-outline-secondary'],

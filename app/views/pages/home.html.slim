@@ -31,6 +31,7 @@
       ' Aber
       = link_to 'wozu soll das hier gut sein?', about_path
 
+  h2.text-center.mb-4 Die sieben Hamburger Bezirke
   .row.justify-content-center
     - District.all.by_order.each do |district|
       .col-12.col-sm-6.col-md-4.col-lg-3.mb-4
@@ -43,10 +44,7 @@
               | Drucksachen
 
   - if @topic_counts.present?
+    h2.text-center.mt-2.mb-4 Themen in den Bezirken
     .topics.mb-4
-      .card
-        .card-header Themen in allen Bezirken
-        .card-body
-          p.card-text.text-secondary.small
-            | Drucksachen nach Thema, automatisch zugeordnet (Beta).
-          = render 'topics/chips', items: @topic_counts, url: ->(topic) { topic_path(topic:, district: nil) }
+      = render 'topics/chips', items: @topic_counts, url: ->(topic) { topic_path(topic:, district: nil) },
+               css: 'justify-content-center'
