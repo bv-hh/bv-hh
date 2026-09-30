@@ -50,7 +50,8 @@ Uses GoodJob for background processing:
 - Text extraction and NLP processing
 - Location extraction and geocoding
 - Re-fetching documents parsed by an older parser (`RefetchDocumentsJob`,
-  nightly 23:15–01:45 UTC, one request at a time per district). Bump
+  nightly from 23:15 UTC for `RefetchDocumentsJob::WINDOW`, one request at a
+  time per district). Bump
   `Parsing::VERSION` when a parser change alters what is stored for a document.
   Fetched pages are kept in `allris_pages`, so after a bump
   `rake documents:reparse` updates every document that has one without asking
