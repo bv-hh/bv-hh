@@ -67,6 +67,23 @@ class RefetchDocumentsJobTest < ActiveSupport::TestCase
     assert_operator failing.updated_at, :>, 1.minute.ago
   end
 
+  test 'a document that failed tonight is not tried again before the next night' do
+    failing = @district.documents.first
+    failing.update!(updated_at: 10.years.ago)
+    @district.documents.where.not(id: failing.id).update_all(parser_version: Parsing::VERSION)
+
+    job { raise Net::ReadTimeout }.perform(@district, @deadline, 5)
+    @fetched.clear
+
+    assert_no_enqueued_jobs(only: RefetchDocumentsJob) { job.perform(@district, @deadline, 5) }
+    assert_empty @fetched
+
+    travel_to(@deadline + 1.day) do
+      job.perform(@district, 1.hour.from_now, 5)
+    end
+    assert_equal [failing], @fetched
+  end
+
   test 'a document with a stored page is parsed again instead of fetched' do
     document = @district.documents.first
     document.update!(updated_at: 10.years.ago)
@@ -90,6 +107,8 @@ class RefetchDocumentsJobTest < ActiveSupport::TestCase
   end
 
   test 'a district can be refetched by hand without a deadline' do
+    @district.documents.update_all(updated_at: 1.day.ago)
+
     assert_enqueued_with(job: RefetchDocumentsJob) do
       job.perform(@district)
     end

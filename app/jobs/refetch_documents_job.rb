@@ -17,8 +17,8 @@
 #
 # Least recently updated documents go first. A document ALLRIS now shows only
 # behind its login goes offline (Document#refetch!). When ALLRIS cannot be
-# reached the document is touched, which puts it at the back of the queue for
-# another night. Any other failure means this parser cannot read the page: it is
+# reached the document is touched, which puts it at the back of the queue and
+# out of this night's chain. Any other failure means this parser cannot read the page: it is
 # reported and the document marked done, or the chain would ask for the same
 # broken pages every night once everything else is through.
 class RefetchDocumentsJob < ApplicationJob
@@ -45,7 +45,12 @@ class RefetchDocumentsJob < ApplicationJob
     deadline ||= WINDOW.from_now
     return if remaining <= 0 || Time.current > deadline
 
-    document = district.documents.parsed_before(Parsing::VERSION).order(:updated_at, :id).first
+    # Not the documents this night's chain touched already: one whose page
+    # timed out is tried again the next night, not as soon as it is the only
+    # one left, which would ask ALLRIS for it every two minutes until morning.
+    started = deadline - WINDOW
+    document = district.documents.parsed_before(Parsing::VERSION).where(updated_at: ...started)
+                       .order(:updated_at, :id).first
     return if document.nil?
 
     if document.allris_page
