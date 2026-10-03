@@ -29,7 +29,7 @@
 # Kultur and "Schulstraße" not about schools.
 
 oeffentlicher_raum:
-  label: Baustellen & Öffentlicher Raum
+  label: Öffentlicher Raum & Baustellen
   description: "Bau und Zustand von Straßen, Gehwegen, Brücken, Treppen und Plätzen, Baustellen, Straßenbeleuchtung, Bänke, öffentliche Toiletten, Beschilderung und anderes Stadtmobiliar. Wie der Verkehr darauf geregelt ist, gehört zu Straßenverkehr, Radwege zu Radverkehr."
   terms:
     - strassenbau:*
