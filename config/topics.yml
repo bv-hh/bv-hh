@@ -10,6 +10,8 @@
 # committees     - regular expressions (case-insensitive) against committee
 #                  names. Regionalausschüsse are skipped, they have no topic.
 # poi_categories - Poi#category values of places linked to the document.
+# yields_to      - topics that take precedence: when one of them has a term
+#                  in the title, this topic is not assigned.
 # description    - what the topic covers, in words: the codebook for labelling
 #                  the gold set (db/gold). It decides nothing here, so changing
 #                  it needs no bump of Topic::VERSION.
@@ -99,14 +101,9 @@ oepnv:
   label: Bus & Bahn
   description: "Busse, U- und S-Bahn, Linien, Takte, Haltestellen und Bahnhöfe, der HVV, On-Demand-Angebote wie MOIA und ioki."
   terms:
-    - bus
-    - busse
-    - buslini:*
-    - busverkehr:*
+    - (bus:* & !business:* & !busch:* & !busold:*)
     - metrobus:*
-    - busbeschleun:*
     - haltestell:*
-    - bushaltestell:*
     - bahn
     - bahnhof:*
     - bahnverkehr:*
@@ -124,9 +121,7 @@ oepnv:
     - u5
     - bahnstation:*
     - switchh:*
-  committees:
-    - verkehr
-    - mobilität
+  committees: []
   # No stations among the POI categories: they are the most common landmark
   # there is ("am S-Bahnhof Veddel"), whatever the document is about.
   poi_categories: []
@@ -180,7 +175,7 @@ strassenverkehr:
     - taxi:*
     - bewohnerpark:*
     - querung:*
-    - kreisel:*
+    - (kreisel:* & !kreiseltern:*)
     - blitz:*
     - grunpfeil:*
     - abbieg:*
@@ -386,10 +381,12 @@ bildung:
     - schule
     - bildung
   poi_categories:
-    - amenity=school
     - amenity=library
     - amenity=college
     - amenity=university
+  # Safety on the way to a school or Kita is Straßenverkehr (db/gold/README.md).
+  yields_to:
+    - strassenverkehr
 
 sport:
   label: Sport

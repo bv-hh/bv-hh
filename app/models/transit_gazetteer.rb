@@ -47,6 +47,28 @@ class TransitGazetteer
       names.uniq
     end
 
+    # +text+ with every station reference ("S-Bahnhof Neuwiedenthal") taken
+    # out, prefix and name, as lowercase words. For matching topic terms
+    # against a title that names a station only as a landmark.
+    def remove(text)
+      tokens = tokenize(text.to_s)
+      kept = []
+      position = 0
+
+      while position < tokens.size
+        run = prefix_run(tokens, position)
+        length = run.positive? ? station_length(tokens, position + run) : 0
+        if length.zero?
+          kept << tokens[position]
+          position += 1
+        else
+          position += run + length
+        end
+      end
+
+      kept.join(' ')
+    end
+
     # Drops the memoized index; call after (re)importing POIs.
     def reset!
       @index = nil
@@ -65,14 +87,19 @@ class TransitGazetteer
     # The longest station name starting at +position+, or nil. Longest wins so
     # "S Hamburg Dammtor" does not stop at a station called "Hamburg".
     def station_at(tokens, position)
+      length = station_length(tokens, position)
+      index[tokens[position, length].join(' ')] if length.positive?
+    end
+
+    # The number of words of the longest station name starting at +position+,
+    # 0 for none.
+    def station_length(tokens, position)
       max_words.downto(1) do |length|
         next if position + length > tokens.size
-
-        canonical = index[tokens[position, length].join(' ')]
-        return canonical if canonical
+        return length if index.key?(tokens[position, length].join(' '))
       end
 
-      nil
+      0
     end
 
     def index
