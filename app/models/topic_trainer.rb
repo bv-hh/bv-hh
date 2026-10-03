@@ -11,7 +11,10 @@
 # - The gold sets are left out, so `rake topics:evaluate` measures documents
 #   the classifier has not seen.
 # - Every fifth document is held back for validation. The threshold per topic
-#   is the one with the best F1 there, against the weak labels.
+#   is the lowest that still keeps PRECISION there, against the weak labels: a
+#   wrong tag costs more than a missing one. A topic the classifier can't
+#   separate that well gets the threshold with the best F0.5, which also
+#   leans to precision.
 #
 # The embeddings are standardised per dimension for training, which lets
 # gradient descent converge; the weights are converted back, so the stored
@@ -21,6 +24,7 @@ class TopicTrainer
   LEARNING_RATE = 0.05
   L2 = 1e-3
   VALIDATION = 5 # every n-th document
+  PRECISION = 0.8 # on validation, against the weak labels
 
   Result = Struct.new(:topic, :weights, :bias, :threshold, :metrics, keyword_init: true)
 
@@ -134,8 +138,9 @@ class TopicTrainer
     end
   end
 
-  # The score threshold with the best F1 on the validation documents, and the
-  # precision and recall there. It lies halfway between the last document
+  # The score threshold on the validation documents with the best recall at
+  # PRECISION or above, else the one with the best F0.5, and the precision,
+  # recall and F1 there. It lies halfway between the last document
   # taken and the next one, not on the last one taken, which would leave the
   # model no margin at all.
   def best_threshold(scores, truths)
@@ -150,14 +155,20 @@ class TopicTrainer
       cut(tp, index + 1, positives).merge(threshold: (score + following) / 2)
     end
 
-    best = cuts.max_by { |candidate| candidate[:f1] }
-    [best[:threshold], best.except(:threshold).transform_values { |value| value.round(4) }]
+    best = choose(cuts)
+    [best[:threshold], best.except(:threshold, :f05).transform_values { |value| value.round(4) }]
+  end
+
+  def choose(cuts)
+    precise = cuts.select { |candidate| candidate[:precision] >= PRECISION }
+    precise.max_by { |candidate| candidate[:recall] } || cuts.max_by { |candidate| candidate[:f05] }
   end
 
   def cut(true_positives, taken, positives)
     precision = true_positives.to_f / taken
     recall = true_positives.to_f / positives
     f1 = true_positives.zero? ? 0.0 : 2 * precision * recall / (precision + recall)
-    { f1:, precision:, recall: }
+    f05 = true_positives.zero? ? 0.0 : 1.25 * precision * recall / ((0.25 * precision) + recall)
+    { f1:, f05:, precision:, recall: }
   end
 end

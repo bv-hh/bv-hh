@@ -63,4 +63,26 @@ class TopicTrainerTest < ActiveSupport::TestCase
 
     assert_equal Topic.count, TopicModel.count
   end
+
+  test 'the threshold keeps the precision rather than maximising F1' do
+    # Ranked: four right, then every other one wrong.
+    scores = [10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]
+    truths = [true, true, true, true, false, true, false, true, false, true]
+
+    threshold, metrics = TopicTrainer.new(exclude: []).send(:best_threshold, scores, truths)
+
+    assert_in_delta 4.5, threshold # 5 of 6 right; F1 would take all ten
+    assert_operator metrics[:precision], :>=, TopicTrainer::PRECISION
+    assert_in_delta 5 / 7.0, metrics[:recall], 0.001
+  end
+
+  test 'a topic that never reaches the precision gets the best F0.5' do
+    scores = [4.0, 3.0, 2.0, 1.0]
+    truths = [false, true, false, false]
+
+    threshold, metrics = TopicTrainer.new(exclude: []).send(:best_threshold, scores, truths)
+
+    assert_in_delta 2.5, threshold
+    assert_in_delta 0.5, metrics[:precision]
+  end
 end
