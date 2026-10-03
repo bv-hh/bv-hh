@@ -15,6 +15,8 @@
 #   wrong tag costs more than a missing one. A topic the classifier can't
 #   separate that well gets the threshold with the best F0.5, which also
 #   leans to precision.
+# - TopicCalibration then raises that threshold until what the classifier adds
+#   to the rules is right often enough on the hand-labelled calibration set.
 #
 # The embeddings are standardised per dimension for training, which lets
 # gradient descent converge; the weights are converted back, so the stored
@@ -28,13 +30,14 @@ class TopicTrainer
 
   Result = Struct.new(:topic, :weights, :bias, :threshold, :metrics, keyword_init: true)
 
-  def initialize(exclude: TopicTrainer.gold_document_ids)
+  def initialize(exclude: TopicTrainer.gold_document_ids, calibration: TopicCalibration.load)
     require 'numo/narray'
     @exclude = exclude
+    @calibration = calibration
   end
 
   def self.gold_document_ids
-    %w[tuning test].flat_map do |name|
+    TopicGoldSet::SETS.keys.flat_map do |name|
       set = TopicGoldSet.load(TopicGoldSet.path_for(name))
       set.documents(set.entries).map { |_entry, document| document.id }
     end
@@ -63,13 +66,19 @@ class TopicTrainer
     scores = @x[validation_rows, true].dot(weights) + bias
     threshold, metrics = best_threshold(scores.to_a, labels[validation_rows].to_a.map(&:positive?))
 
-    # Back from standardised to raw embeddings: w·(x - mean)/std + b.
-    raw = weights / @std
-    Result.new(topic: key, weights: raw.to_a, bias: bias - raw.dot(@mean), threshold:,
-               metrics: metrics.merge(positives: labels.sum.to_i, documents: labels.size))
+    raw, raw_bias = unstandardised(weights, bias)
+    threshold, calibration = @calibration.threshold(key, raw, raw_bias, threshold)
+    Result.new(topic: key, weights: raw, bias: raw_bias, threshold:,
+               metrics: metrics.merge(positives: labels.sum.to_i, documents: labels.size, calibration:))
   end
 
   private
+
+  # Back from standardised to raw embeddings: w·(x - mean)/std + b.
+  def unstandardised(weights, bias)
+    raw = weights / @std
+    [raw.to_a, bias - raw.dot(@mean)]
+  end
 
   def documents
     DocumentEmbedding.where(model: DocumentEmbedder::NAME).joins(:document)

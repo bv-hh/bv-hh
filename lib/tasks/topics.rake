@@ -111,11 +111,15 @@ namespace :topics do
   gold_set = -> { ENV.fetch('GOLD_SET', 'tuning') }
   gold_texts_dir = -> { Rails.root.join('tmp/gold', gold_set.call) }
 
-  # The test set is random documents only, none of them in the tuning set.
-  desc 'Draw a gold sample (refuses to replace one; GOLD_SET=test for the held-out set)'
+  # The test and calibration sets are random documents only, none of them in
+  # another set.
+  desc 'Draw a gold sample (refuses to replace one; GOLD_SET=test or calibration for the random-only sets)'
   task :gold_sample, %i[random per_topic untagged] => :environment do |_task, args|
     options = { random: args[:random], per_topic: args[:per_topic], untagged: args[:untagged] }.compact.transform_values(&:to_i)
-    options = { per_topic: 0, untagged: 0, exclude: TopicGoldSet.load.entries.map(&:key) }.merge(options) if gold_set.call == 'test'
+    unless gold_set.call == 'tuning'
+      others = (TopicGoldSet::SETS.keys - [gold_set.call]).flat_map { |name| TopicGoldSet.load(TopicGoldSet.path_for(name)).entries }
+      options = { per_topic: 0, untagged: 0, exclude: others.map(&:key) }.merge(options)
+    end
     set = TopicGoldSet.sample(path: TopicGoldSet.path_for(gold_set.call), **options)
     puts "#{set.entries.size} documents: #{set.entries.map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"
   end

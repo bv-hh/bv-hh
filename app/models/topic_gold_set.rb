@@ -20,15 +20,18 @@
 #              rare topics have enough cases for precision
 #   untagged — documents the rules tag with nothing, where misses concentrate
 #
-# There are two sets. The tuning set is what rule changes are read from and
+# There are three sets. The tuning set is what rule changes are read from and
 # measured against, so its numbers flatter the rules once they have been tuned
 # on it. The test set (db/gold/topics_test.jsonl) is random documents only,
 # none of them in the tuning set, and is never used to change a rule: it is the
-# honest number, for the rules and later for a classifier.
+# honest number, for the rules and later for a classifier. The calibration set
+# (db/gold/topics_calibration.jsonl), random documents in neither of the
+# others, is where TopicTrainer chooses each topic's threshold.
 class TopicGoldSet
   PATH = Rails.root.join('db/gold/topics.jsonl')
   TEST_PATH = Rails.root.join('db/gold/topics_test.jsonl')
-  SETS = { 'tuning' => PATH, 'test' => TEST_PATH }.freeze
+  CALIBRATION_PATH = Rails.root.join('db/gold/topics_calibration.jsonl')
+  SETS = { 'tuning' => PATH, 'test' => TEST_PATH, 'calibration' => CALIBRATION_PATH }.freeze
   STRATA = %w[random topic untagged].freeze
   LABELERS = %w[claude human].freeze
   TEXT_LENGTH = 3000
