@@ -177,6 +177,10 @@ class TopicClassifierTest < ActiveSupport::TestCase
 
   test 'compounds the prefixes did not reach' do
     assert_includes TopicClassifier.new(document(title: 'Sanierung des Kinderspielplatzes Heerbuckhoop')).topics, 'spielplaetze'
+    ['Waldspielplatz Wellingsbüttel aufwerten', 'Sondermittel für den Abenteuerspielplatz', 'Neue Geräte am Rüschspielplatz',
+     'Außenspielfläche der Kita'].each do |title|
+      assert_includes TopicClassifier.new(document(title:)).topics, 'spielplaetze', title
+    end
     assert_includes TopicClassifier.new(document(title: 'Linienverkehr mit Kraftomnibussen, Linie 600')).topics, 'oepnv'
     assert_includes TopicClassifier.new(document(title: 'Bewohnerparken in Borgfelde')).topics, 'strassenverkehr'
   end

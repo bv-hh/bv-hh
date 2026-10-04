@@ -19,6 +19,9 @@
 #   topic    — documents the rules tag with a topic, a few per topic, so that
 #              rare topics have enough cases for precision
 #   untagged — documents the rules tag with nothing, where misses concentrate
+#   added:<topic> — calibration set only: documents the classifier for that
+#              topic adds to the rules (draw_additions). A random sample sees
+#              too few of them for a rare topic to calibrate on.
 #
 # There are three sets. The tuning set is what rule changes are read from and
 # measured against, so its numbers flatter the rules once they have been tuned
@@ -85,6 +88,17 @@ class TopicGoldSet
     add(population.order(Arel.sql('random()')), 'random', random)
     Topic.each { |topic| add(population.with_topics(topic.key).order(Arel.sql('random()')), 'topic', per_topic) }
     add(population.where(topics: []).order(Arel.sql('random()')), 'untagged', untagged)
+  end
+
+  # Adds per_topic documents for each trained topic that its classifier tags
+  # and the rules don't, at the threshold chosen against the rules
+  # (metrics validation_threshold), before any calibration.
+  def draw_additions(per_topic:, exclude: [])
+    @excluded = exclude.to_set
+    TopicModel.current.order(:id).each do |model|
+      threshold = model.metrics['validation_threshold'] or next
+      add(additions(model, threshold).order(Arel.sql('random()')), "added:#{model.topic}", per_topic)
+    end
   end
 
   def save
@@ -158,6 +172,15 @@ class TopicGoldSet
 
   def population
     Document.complete.where.not(full_text: [nil, ''])
+  end
+
+  # The rules' topics are topics minus classified_topics.
+  def additions(model, threshold)
+    population.joins(:embedding)
+              .where(document_embeddings: { model: model.model })
+              .where('? - (document_embeddings.embedding <#> ?::vector) >= ?', model.bias, model.weights.to_s, threshold)
+              .where('NOT documents.topics @> ARRAY[:key]::varchar[] OR documents.classified_topics @> ARRAY[:key]::varchar[]',
+                     key: model.topic)
   end
 
   # Adds up to count of the documents, skipping those already in the set or

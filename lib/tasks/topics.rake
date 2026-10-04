@@ -124,6 +124,19 @@ namespace :topics do
     puts "#{set.entries.size} documents: #{set.entries.map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"
   end
 
+  # The classifier's additions per topic, into the calibration set: a random
+  # sample holds too few of a rare topic's. Needs trained topic models.
+  desc 'Add documents each topic classifier adds to the rules to the calibration set'
+  task :gold_sample_additions, [:per_topic] => :environment do |_task, args|
+    set = TopicGoldSet.load(TopicGoldSet::CALIBRATION_PATH)
+    others = (TopicGoldSet::SETS.keys - ['calibration']).flat_map { |name| TopicGoldSet.load(TopicGoldSet.path_for(name)).entries }
+    before = set.entries.size
+    set.draw_additions(per_topic: (args[:per_topic] || 15).to_i, exclude: others.map(&:key))
+    set.save
+    puts "#{set.entries.size - before} documents added: " \
+         "#{set.entries.drop(before).map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"
+  end
+
   desc 'Write the unlabelled gold documents as markdown batches into tmp/gold/<set>'
   task :gold_texts, [:batch_size] => :environment do |_task, args|
     set = TopicGoldSet.load(TopicGoldSet.path_for(gold_set.call))

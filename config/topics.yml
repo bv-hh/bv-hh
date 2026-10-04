@@ -69,6 +69,10 @@ oeffentlicher_raum:
     - burgersteig:*
     - tauschbox:*
     - aufenthaltsqualitat:*
+    - bahnbruck:*
+    - fussgangerbruck:*
+    - kopfsteinpflast:*
+    - dauerbaustell:*
   title_terms:
     - verschick:*
   committees: []
@@ -92,6 +96,10 @@ radverkehr:
     - stadtrad:*
     - lastenrad:*
     - radschnell:*
+    - lastenfahrrad:*
+    - alsterradweg:*
+    - schulradweg:*
+    - zweirichtungsradweg:*
   committees:
     - verkehr
     - mobilität
@@ -184,6 +192,8 @@ strassenverkehr:
     - tempolimit:*
     - tempobeschrank:*
     - leitpfost:*
+    - kreisverkehr:*
+    - behindertenparkpl:*
   title_terms:
     - verkehr:*
     - km
@@ -256,11 +266,24 @@ spielplaetze:
     - mehrgenerationenspielplatz:*
     - aktivspielplatz:*
     - bauspielplatz:*
+    - waldspielplatz:*
+    - abenteuerspielplatz:*
+    - wasserspielplatz:*
+    - bolzspielplatz:*
+    - affenspielplatz:*
+    - ruschspielplatz:*
+    - piratenspielplatz:*
+    - dschungelspielplatz:*
+    - aussenspielflach:*
+    - grossspielflach:*
   title_terms:
     - ksp
   committees: []
   poi_categories:
     - leisure=playground
+  # Parking at a playground or the way to it is Straßenverkehr.
+  yields_to:
+    - strassenverkehr
 
 umwelt:
   label: Umwelt & Klima
@@ -307,6 +330,12 @@ umwelt:
     - taubenpopulation:*
     - katzenschutz:*
     - geflugelpest:*
+    - badegewass:*
+    - erholungsgewass:*
+    - dachbegrun:*
+    - binnenhochwass:*
+    - baularm:*
+    - abpflast:*
   committees:
     - umwelt
     - klima
@@ -335,6 +364,8 @@ soziales:
     - beratungsstell:*
     - stadtteilzentr:*
     - burgerhaus:*
+    - strassensozialarbeit:*
+    - erziehungsberat:*
   committees:
     - sozial
     - gesundheit
@@ -356,6 +387,14 @@ kinder_jugend:
     - elternschul:*
     - madchen:*
     - kinderkultur:*
+    - okj
+    - okja
+    - hdj
+    - kifaz:*
+    - familienforder:*
+    - weltkindertag:*
+    - waldkindertag:*
+    - heimerzieh:*
   committees:
     - jugend
   poi_categories:
@@ -377,6 +416,8 @@ bildung:
     - bucherhall:*
     - bibliothek:*
     - volkshochschul:*
+    - umweltbild:*
+    - familienbild:*
   committees:
     - schule
     - bildung
@@ -404,6 +445,13 @@ sport:
     - lehrschwimm:*
     - nichtschwimm:*
     - freibad:*
+    - parksport:*
+    - radsport:*
+    - feriensport:*
+    - kanusport:*
+    - breitensport:*
+    - schulschwimm:*
+    - lernschwimm:*
   committees:
     - sport
   poi_categories:
@@ -531,6 +579,8 @@ wirtschaft:
     - digitalis:*
     - startup:*
     - (start <-> up)
+    - landwirtschaft:*
+    - neustartfond:*
   title_terms:
     - unternehm:*
     - innovation:*
@@ -554,6 +604,12 @@ unterbringung:
     - zea
     - erstaufnahm:*
     - winternotprogramm:*
+    - wohnunterkunft:*
+    - fluchtlingsunterkunft:*
+    - notunterkunft:*
+    - weltfluchtlingstag:*
+    - weltgefluchtetentag:*
+    - hotelunterbring:*
   committees:
     - flüchtling
     - integration
@@ -625,6 +681,8 @@ haushalt:
     - ehrenamtsfond:*
     - forderfond:*
     - (forder:* <-> kulturell)
+    - kulturmittel:*
+    - projektforder:*
   title_terms:
     - mittel
   committees:
@@ -665,6 +723,8 @@ gremien:
     - niederschrift:*
     - koalition:*
     - losverfahr:*
+    - beiratsbesetz:*
+    - neuwahl:*
   committees:
     - ältestenrat
     - geschäftsordnung
@@ -692,6 +752,10 @@ buergerservice:
     - personalausstatt:*
     - beschaffungswes:*
     - homeoffic:*
+    - filialnetz:*
+    - postbank:*
+    - einwohnerwes:*
+    - personalausweis:*
   committees: []
   poi_categories: []
 
