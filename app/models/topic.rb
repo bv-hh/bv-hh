@@ -8,11 +8,11 @@ class Topic
   # TopicClassifier change what a document would be tagged with, then run
   # `rake topics:reassign_later` (or `rake topics:reassign`, which enqueues
   # from the rake process and waits).
-  VERSION = 3
+  VERSION = 4
 
   CONFIG = Rails.root.join('config/topics.yml')
 
-  attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories
+  attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories, :yields_to
 
   class << self
     include Enumerable
@@ -55,7 +55,8 @@ class Topic
     end
   end
 
-  def initialize(key, label:, description: nil, terms: [], title_terms: [], committees: [], poi_categories: [])
+  def initialize(key, label:, description: nil, terms: [], title_terms: [], committees: [], poi_categories: [],
+    yields_to: [])
     @key = key.to_s
     @label = label
     @description = description
@@ -63,6 +64,7 @@ class Topic
     @title_terms = title_terms
     @committees = committees.map { |pattern| Regexp.new(pattern, Regexp::IGNORECASE) }
     @poi_categories = poi_categories
+    @yields_to = yields_to
   end
 
   def slug

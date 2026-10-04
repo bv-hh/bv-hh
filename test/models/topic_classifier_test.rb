@@ -180,4 +180,36 @@ class TopicClassifierTest < ActiveSupport::TestCase
     assert_includes TopicClassifier.new(document(title: 'Linienverkehr mit Kraftomnibussen, Linie 600')).topics, 'oepnv'
     assert_includes TopicClassifier.new(document(title: 'Bewohnerparken in Borgfelde')).topics, 'strassenverkehr'
   end
+
+  test 'a station named as a landmark is not Bus & Bahn' do
+    classifier = TopicClassifier.new(document(title: 'Hinweisschild auf die Toiletten am S-Bahnhof Barmbek'))
+
+    assert_not_includes classifier.topics, 'oepnv'
+  end
+
+  test 'a bus mentioned in a traffic committee document is not Bus & Bahn' do
+    doc = document(full_text: 'Auch der Bus fährt hier.')
+    on_agenda_of(doc, 'Ausschuss für Verkehr und Mobilität')
+
+    assert_not_includes TopicClassifier.new(doc).topics, 'oepnv'
+  end
+
+  test 'bus compounds are Bus & Bahn, Business is not' do
+    assert_includes TopicClassifier.new(document(title: 'Bustaktung in Osdorf verbessern')).topics, 'oepnv'
+    assert_not_includes TopicClassifier.new(document(title: 'Business-Frühstück im Bezirksamt')).topics, 'oepnv'
+  end
+
+  test 'safety in front of a school is traffic, not school' do
+    classifier = TopicClassifier.new(document(title: 'Tempo 30 vor der Schule am Park'))
+
+    assert_includes classifier.topics, 'strassenverkehr'
+    assert_not_includes classifier.topics, 'bildung'
+  end
+
+  test 'a Kreiselternrat is not a roundabout' do
+    classifier = TopicClassifier.new(document(title: 'Schulentwicklung in Harburg - Kreiselternrat'))
+
+    assert_includes classifier.topics, 'bildung'
+    assert_not_includes classifier.topics, 'strassenverkehr'
+  end
 end

@@ -57,8 +57,17 @@ Uses GoodJob for background processing:
   `rake documents:reparse` updates every document that has one without asking
   ALLRIS; the nightly job fetches only the rest.
 
+- Embedding documents (`EmbedDocumentsJob`, nightly 04:07 UTC) with
+  `multilingual-e5-base` run locally via ONNX. The model takes ~0.8 GB, so the
+  job starts `rake embeddings:update` as a separate process instead of loading
+  it into the worker. The first run downloads the model (~280 MB) into
+  `~/.cache/informers`. The initial backfill runs on a development machine
+  (`rake embeddings:update`, resumable) and is moved over with
+  `rake embeddings:export` / `rake "embeddings:import[file]"`, keyed by
+  district and ALLRIS id; the import skips rows whose text differs there.
+
 ### External Dependencies
-- PostgreSQL database
+- PostgreSQL database with the `pgvector` extension
 - Google Maps API for geocoding
 
 ### Testing Setup

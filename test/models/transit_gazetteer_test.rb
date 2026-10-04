@@ -40,4 +40,9 @@ class TransitGazetteerTest < ActiveSupport::TestCase
     assert_empty TransitGazetteer.match(nil)
     assert_empty TransitGazetteer.match('')
   end
+
+  test 'removes station references, prefix and name, and keeps the rest' do
+    assert_equal 'toiletten am und spielplatz', TransitGazetteer.remove('Toiletten am S-Bahnhof Barmbek und Spielplatz')
+    assert_equal 'bahnhof ohne namen', TransitGazetteer.remove('Bahnhof ohne Namen')
+  end
 end

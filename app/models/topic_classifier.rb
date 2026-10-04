@@ -48,7 +48,8 @@ class TopicClassifier
   end
 
   def topics
-    signals.filter_map { |key, found| key if topic?(found, title: key == PROCEDURAL || !procedural?) }
+    found = signals.filter_map { |key, hits| key if topic?(hits, title: key == PROCEDURAL || !procedural?) }
+    found.reject { |key| yielded?(key) }
   end
 
   # { topic_key => { title:, body:, committee:, poi: } }
@@ -67,6 +68,12 @@ class TopicClassifier
 
   def topic?(found, title:)
     (title && found[:title]) || WEAK_SIGNALS.count { |signal| found[signal] } >= WEAK_SIGNALS_NEEDED
+  end
+
+  # A topic yields to another whose terms are in the title: a title about
+  # Tempo 30 in front of a school is about traffic, and the school is where.
+  def yielded?(key)
+    Topic.find(key).yields_to.any? { |other| signals.dig(other, :title) }
   end
 
   def procedural?
@@ -102,10 +109,11 @@ class TopicClassifier
   end
 
   # The title without the committee it comes from ("… Beschlussvorlage des
-  # Ausschusses für Haushalt und Kultur") and without street names
-  # ("Schulstraße"): both name a topic the document is not about.
+  # Ausschusses für Haushalt und Kultur"), street names ("Schulstraße") and
+  # stations ("Toiletten am S-Bahnhof Neuwiedenthal"): all name a topic the
+  # document is not about.
   def matchable_title
-    StreetGazetteer.remove(document.title.to_s.gsub(self.class.committee_pattern, ' '))
+    TransitGazetteer.remove(StreetGazetteer.remove(document.title.to_s.gsub(self.class.committee_pattern, ' ')))
   end
 
   # The full text without committee names, for the same reason: "der Ausschuss
