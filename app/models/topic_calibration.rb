@@ -14,10 +14,14 @@
 #
 # The threshold only ever goes up, so a calibration set too small to judge a
 # topic leaves the rules' threshold as it is.
+#
+# A topic is judged on the random documents plus those drawn as its own
+# additions (stratum added:<topic>), not on another topic's additions: those
+# were drawn by a different classifier and would skew the share.
 class TopicCalibration
   PRECISION = 0.8
 
-  Sample = Struct.new(:embedding, :rules, :gold, keyword_init: true)
+  Sample = Struct.new(:embedding, :rules, :gold, :stratum, keyword_init: true)
 
   attr_reader :samples
 
@@ -28,7 +32,7 @@ class TopicCalibration
                                   .pluck(:document_id, :embedding).to_h
     new(found.filter_map do |entry, document|
       embedding = embeddings[document.id] or next
-      Sample.new(embedding:, rules: document.topics - document.classified_topics, gold: entry.topics)
+      Sample.new(embedding:, rules: document.topics - document.classified_topics, gold: entry.topics, stratum: entry.stratum)
     end)
   end
 
@@ -39,10 +43,7 @@ class TopicCalibration
   # [threshold, metrics] for the topic key, its raw weights and bias, starting
   # from threshold.
   def threshold(key, weights, bias, threshold)
-    added = samples.reject { |sample| sample.rules.include?(key) }
-                   .map { |sample| [score(sample, weights, bias), sample.gold.include?(key)] }
-                   .select { |score, _right| score >= threshold }
-                   .sort_by { |score, _right| -score }
+    added = additions(key, weights, bias, threshold)
     return [threshold, { added: 0 }] if added.empty?
 
     kept = kept_count(added.map(&:last))
@@ -51,6 +52,16 @@ class TopicCalibration
   end
 
   private
+
+  # [score, right?] of the samples the classifier adds to the rules for key at
+  # threshold, best first.
+  def additions(key, weights, bias, threshold)
+    samples.select { |sample| [nil, 'random', "added:#{key}"].include?(sample.stratum) }
+           .reject { |sample| sample.rules.include?(key) }
+           .map { |sample| [score(sample, weights, bias), sample.gold.include?(key)] }
+           .select { |score, _right| score >= threshold }
+           .sort_by { |score, _right| -score }
+  end
 
   def score(sample, weights, bias)
     sample.embedding.each_with_index.sum { |value, index| value * weights[index] } + bias

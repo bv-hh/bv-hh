@@ -67,9 +67,10 @@ class TopicTrainer
     threshold, metrics = best_threshold(scores.to_a, labels[validation_rows].to_a.map(&:positive?))
 
     raw, raw_bias = unstandardised(weights, bias)
-    threshold, calibration = @calibration.threshold(key, raw, raw_bias, threshold)
-    Result.new(topic: key, weights: raw, bias: raw_bias, threshold:,
-               metrics: metrics.merge(positives: labels.sum.to_i, documents: labels.size, calibration:))
+    calibrated, calibration = @calibration.threshold(key, raw, raw_bias, threshold)
+    Result.new(topic: key, weights: raw, bias: raw_bias, threshold: calibrated,
+               metrics: metrics.merge(positives: labels.sum.to_i, documents: labels.size, validation_threshold: threshold,
+                                      calibration:))
   end
 
   private

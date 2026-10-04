@@ -41,4 +41,15 @@ class TopicCalibrationTest < ActiveSupport::TestCase
   test 'leaves the threshold alone without additions' do
     assert_equal [2.0, { added: 0 }], threshold([sample(1.0)], from: 2.0)
   end
+
+  test 'judges a topic on random documents and its own additions only' do
+    samples = [TopicCalibration::Sample.new(embedding: [9.0], rules: [], gold: [], stratum: 'added:kultur'),
+               TopicCalibration::Sample.new(embedding: [8.0], rules: [], gold: %w[sport], stratum: 'added:sport'),
+               TopicCalibration::Sample.new(embedding: [7.0], rules: [], gold: %w[sport], stratum: 'random')]
+
+    threshold, metrics = threshold(samples)
+
+    assert_in_delta 0.0, threshold
+    assert_equal 2, metrics[:added]
+  end
 end
