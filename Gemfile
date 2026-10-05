@@ -23,7 +23,7 @@ gem 'jbuilder', '~> 2.15'
 gem 'bcrypt', '~> 3.1.22'
 
 # Use Active Storage variant
-gem 'image_processing', '~> 2.1'
+gem 'image_processing', '~> 2.2'
 # image_processing 2 no longer pulls in a backend. Not required at boot, since
 # loading it opens libvips, which only variant processing needs.
 gem 'ruby-vips', '~> 2.2', require: false
