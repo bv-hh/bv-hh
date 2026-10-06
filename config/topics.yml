@@ -106,8 +106,8 @@ radverkehr:
   poi_categories: []
 
 oepnv:
-  label: Bus & Bahn
-  description: "Busse, U- und S-Bahn, Linien, Takte, Haltestellen und Bahnhöfe, der HVV, On-Demand-Angebote wie MOIA und ioki."
+  label: Bus, Bahn & Fähren
+  description: "Busse, U- und S-Bahn, Fern- und Güterbahn, Fähren, Linien, Takte, Haltestellen, Bahnhöfe und Anleger, der HVV, On-Demand-Angebote wie MOIA und ioki."
   terms:
     - (bus:* & !business:* & !busch:* & !busold:*)
     - metrobus:*
@@ -129,6 +129,12 @@ oepnv:
     - u5
     - bahnstation:*
     - switchh:*
+    - eisenbahn:*
+    # "Fähre" stems like "fahren", so only its compounds and the operator.
+    - hadag:*
+    - fahranleg:*
+    - fahrverbind:*
+    - fahrlini:*
   committees: []
   # No stations among the POI categories: they are the most common landmark
   # there is ("am S-Bahnhof Veddel"), whatever the document is about.
@@ -347,15 +353,21 @@ soziales:
   label: Soziales & Gesundheit
   description: "Seniorinnen und Senioren, Obdach- und Wohnungslosigkeit, Armut, Inklusion und Barrierefreiheit, Pflege, Gesundheit und ärztliche Versorgung, Beratungsstellen, Stadtteilzentren und Bürgerhäuser."
   terms:
-    - sozial
-    - sozialraum:*
     - senior:*
     - obdachlos:*
     - wohnungslos:*
     - armut:*
     - inklusion:*
     - barrierefrei:*
-    - pflege:*
+    # Care, not "Pflege" of a Grünanlage, a Deich or a Lärmschutzwall.
+    - pflegeheim:*
+    - pflegedien:*
+    - pflegebedurf:*
+    - pflegestutzpunkt:*
+    - pflegeeinricht:*
+    - pflegekraft:*
+    - pflegend:*
+    - altenpfleg:*
     - gesundheit:*
     - klinik:*
     - krankenhaus:*
@@ -366,12 +378,18 @@ soziales:
     - burgerhaus:*
     - strassensozialarbeit:*
     - erziehungsberat:*
+  # "Sozial" is in every Rahmenzuweisung, Quartiersfonds and Stadtteilkultur
+  # text; a soziale Erhaltungsverordnung is about housing.
+  title_terms:
+    - (sozial & !erhaltungsverordn:*)
+    - (sozialraum:* & !rahmenzuweis:*)
   committees:
     - sozial
     - gesundheit
+  # Not amenity=community_centre: Bürgerhäuser host Stadtteilkultur and every
+  # kind of meeting.
   poi_categories:
     - amenity=social_facility
-    - amenity=community_centre
     - amenity=hospital
 
 kinder_jugend:
@@ -525,7 +543,7 @@ wohnen_bauen:
     - bebauung:*
     - flachennutzungsplan:*
     - wohnungsbau:*
-    - wohnung:*
+    - (wohnung:* & !wohnungslos:*)
     - mietwohn:*
     - sozialwohn:*
     - leerstand:*
@@ -534,7 +552,10 @@ wohnen_bauen:
     - bauantrag:*
     - bauvoranfrag:*
     - baugenehm:*
-    - neubau:*
+    # Bare "Neubau" is as often a school kitchen or a Bauspielplatz.
+    - neubaugebiet:*
+    - neubauvorhab:*
+    - neubauprojekt:*
     - nachverdicht:*
     - vorhabenbezog:*
     - erhaltungsverordn:*
