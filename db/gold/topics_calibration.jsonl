@@ -88,7 +88,7 @@
 {"district":"altona","number":"21-4919.1","stratum":"random","topics":["oepnv"],"labeler":"human"}
 {"district":"altona","number":"21-0525","stratum":"random","topics":["demokratie_vielfalt","wohnen_bauen"],"labeler":"human"}
 {"district":"harburg","number":"21-1656.01","stratum":"random","topics":["sauberkeit","umwelt"],"labeler":"claude"}
-{"district":"hamburg-nord","number":"21-4698","stratum":"random","topics":["haushalt","kultur"],"labeler":"claude"}
+{"district":"hamburg-nord","number":"21-4698","stratum":"random","topics":["haushalt","kultur"],"labeler":"human"}
 {"district":"hamburg-nord","number":"21-4388","stratum":"random","topics":["gremien"],"labeler":"human"}
 {"district":"altona","number":"22-2254","stratum":"random","topics":["gruen","strassenverkehr"],"labeler":"claude"}
 {"district":"wandsbek","number":"21-2397.1","stratum":"random","topics":["sauberkeit"],"labeler":"claude"}
@@ -179,7 +179,7 @@
 {"district":"altona","number":"22-1823","stratum":"random","topics":["oeffentlicher_raum"],"labeler":"human"}
 {"district":"altona","number":"21-0303","stratum":"random","topics":["oeffentlicher_raum"],"labeler":"human"}
 {"district":"hamburg-nord","number":"20-5799","stratum":"random","topics":["radverkehr","strassenverkehr"],"labeler":"claude"}
-{"district":"hamburg-nord","number":"21-4605.1","stratum":"random","topics":["strassenverkehr"],"labeler":"claude"}
+{"district":"hamburg-nord","number":"21-4605.1","stratum":"random","topics":["strassenverkehr"],"labeler":"human"}
 {"district":"harburg","number":"XIX-1649","stratum":"random","topics":["haushalt","kultur"],"labeler":"claude"}
 {"district":"altona","number":"21-1345","stratum":"random","topics":["radverkehr"],"labeler":"human"}
 {"district":"wandsbek","number":"22-0730","stratum":"random","topics":["gremien","wohnen_bauen"],"labeler":"claude"}
