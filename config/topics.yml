@@ -382,6 +382,7 @@ soziales:
   # text; a soziale Erhaltungsverordnung is about housing.
   title_terms:
     - barrierefrei:*
+    - barrierearm:*
     - (sozial & !erhaltungsverordn:*)
     - (sozialraum:* & !rahmenzuweis:*)
   committees:
@@ -399,6 +400,7 @@ soziales:
     - strassenverkehr
   yields_unless:
     - barrierefrei:*
+    - barrierearm:*
 
 kinder_jugend:
   label: Kinder & Jugend
