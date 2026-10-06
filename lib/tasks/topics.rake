@@ -126,12 +126,13 @@ namespace :topics do
 
   # The classifier's additions per topic, into the calibration set: a random
   # sample holds too few of a rare topic's. Needs trained topic models.
-  desc 'Add documents each topic classifier adds to the rules to the calibration set'
-  task :gold_sample_additions, [:per_topic] => :environment do |_task, args|
+  desc 'Add documents each topic classifier adds to the rules to the calibration set (optionally for one topic)'
+  task :gold_sample_additions, %i[per_topic topic] => :environment do |_task, args|
     set = TopicGoldSet.load(TopicGoldSet::CALIBRATION_PATH)
     others = (TopicGoldSet::SETS.keys - ['calibration']).flat_map { |name| TopicGoldSet.load(TopicGoldSet.path_for(name)).entries }
     before = set.entries.size
-    set.draw_additions(per_topic: (args[:per_topic] || 15).to_i, exclude: others.map(&:key))
+    topic = args[:topic] && (Topic.find(args[:topic]) || abort("unknown topic #{args[:topic]}"))
+    set.draw_additions(per_topic: (args[:per_topic] || 15).to_i, exclude: others.map(&:key), topics: topic&.key)
     set.save
     puts "#{set.entries.size - before} documents added: " \
          "#{set.entries.drop(before).map(&:stratum).tally.map { |stratum, count| "#{count} #{stratum}" }.join(', ')}"

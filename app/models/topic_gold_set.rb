@@ -93,9 +93,11 @@ class TopicGoldSet
   # Adds per_topic documents for each trained topic that its classifier tags
   # and the rules don't, at the threshold chosen against the rules
   # (metrics validation_threshold), before any calibration.
-  def draw_additions(per_topic:, exclude: [])
+  def draw_additions(per_topic:, exclude: [], topics: nil)
     @excluded = exclude.to_set
-    TopicModel.current.order(:id).each do |model|
+    models = TopicModel.current.order(:id)
+    models = models.where(topic: topics) if topics
+    models.each do |model|
       threshold = model.metrics['validation_threshold'] or next
       add(additions(model, threshold).order(Arel.sql('random()')), "added:#{model.topic}", per_topic)
     end
