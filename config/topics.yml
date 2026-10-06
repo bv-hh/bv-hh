@@ -12,6 +12,7 @@
 # poi_categories - Poi#category values of places linked to the document.
 # yields_to      - topics that take precedence: when one of them has a term
 #                  in the title, this topic is not assigned.
+# yields_unless  - title terms that keep the topic despite yields_to.
 # description    - what the topic covers, in words: the codebook for labelling
 #                  the gold set (db/gold). It decides nothing here, so changing
 #                  it needs no bump of Topic::VERSION.
@@ -106,8 +107,8 @@ radverkehr:
   poi_categories: []
 
 oepnv:
-  label: Bus & Bahn
-  description: "Busse, U- und S-Bahn, Linien, Takte, Haltestellen und Bahnhöfe, der HVV, On-Demand-Angebote wie MOIA und ioki."
+  label: Bus, Bahn & Fähren
+  description: "Busse, U- und S-Bahn, Fern- und Güterbahn, Fähren, Linien, Takte, Haltestellen, Bahnhöfe und Anleger, der HVV, On-Demand-Angebote wie MOIA und ioki."
   terms:
     - (bus:* & !business:* & !busch:* & !busold:*)
     - metrobus:*
@@ -129,6 +130,12 @@ oepnv:
     - u5
     - bahnstation:*
     - switchh:*
+    - eisenbahn:*
+    # "Fähre" stems like "fahren", so only its compounds and the operator.
+    - hadag:*
+    - fahranleg:*
+    - fahrverbind:*
+    - fahrlini:*
   committees: []
   # No stations among the POI categories: they are the most common landmark
   # there is ("am S-Bahnhof Veddel"), whatever the document is about.
@@ -347,15 +354,20 @@ soziales:
   label: Soziales & Gesundheit
   description: "Seniorinnen und Senioren, Obdach- und Wohnungslosigkeit, Armut, Inklusion und Barrierefreiheit, Pflege, Gesundheit und ärztliche Versorgung, Beratungsstellen, Stadtteilzentren und Bürgerhäuser."
   terms:
-    - sozial
-    - sozialraum:*
     - senior:*
     - obdachlos:*
     - wohnungslos:*
     - armut:*
     - inklusion:*
-    - barrierefrei:*
-    - pflege:*
+    # Care, not "Pflege" of a Grünanlage, a Deich or a Lärmschutzwall.
+    - pflegeheim:*
+    - pflegedien:*
+    - pflegebedurf:*
+    - pflegestutzpunkt:*
+    - pflegeeinricht:*
+    - pflegekraft:*
+    - pflegend:*
+    - altenpfleg:*
     - gesundheit:*
     - klinik:*
     - krankenhaus:*
@@ -366,13 +378,29 @@ soziales:
     - burgerhaus:*
     - strassensozialarbeit:*
     - erziehungsberat:*
+  # "Sozial" is in every Rahmenzuweisung, Quartiersfonds and Stadtteilkultur
+  # text; a soziale Erhaltungsverordnung is about housing.
+  title_terms:
+    - barrierefrei:*
+    - barrierearm:*
+    - (sozial & !erhaltungsverordn:*)
+    - (sozialraum:* & !rahmenzuweis:*)
   committees:
     - sozial
     - gesundheit
+  # Not amenity=community_centre: Bürgerhäuser host Stadtteilkultur and every
+  # kind of meeting.
   poi_categories:
     - amenity=social_facility
-    - amenity=community_centre
     - amenity=hospital
+  # Seniors on a crossing, Tempo 30 for health: the traffic measure is the
+  # point. Barrierefreiheit in the title is the point itself; in the text it is
+  # mostly a requirement every new road meets anyway (human review).
+  yields_to:
+    - strassenverkehr
+  yields_unless:
+    - barrierefrei:*
+    - barrierearm:*
 
 kinder_jugend:
   label: Kinder & Jugend
@@ -525,7 +553,7 @@ wohnen_bauen:
     - bebauung:*
     - flachennutzungsplan:*
     - wohnungsbau:*
-    - wohnung:*
+    - (wohnung:* & !wohnungslos:*)
     - mietwohn:*
     - sozialwohn:*
     - leerstand:*
@@ -534,7 +562,10 @@ wohnen_bauen:
     - bauantrag:*
     - bauvoranfrag:*
     - baugenehm:*
-    - neubau:*
+    # Bare "Neubau" is as often a school kitchen or a Bauspielplatz.
+    - neubaugebiet:*
+    - neubauvorhab:*
+    - neubauprojekt:*
     - nachverdicht:*
     - vorhabenbezog:*
     - erhaltungsverordn:*
@@ -581,6 +612,12 @@ wirtschaft:
     - (start <-> up)
     - landwirtschaft:*
     - neustartfond:*
+    # Bank branches and the high street, not the Bezirksamt's service. Not
+    # "Filialschließung": that is as often the Post, which is Bürgerservice.
+    - haspa:*
+    - sparkass:*
+    - bankfilial:*
+    - kundenfrequenz:*
   title_terms:
     - unternehm:*
     - innovation:*
@@ -658,6 +695,10 @@ sauberkeit:
     - aed
     - hydrant:*
     - katastrophenschutz:*
+    - betrug:*
+    - betrugsanruf:*
+    - enkeltrick:*
+    - schockanruf:*
   committees:
     - inneres
   poi_categories: []

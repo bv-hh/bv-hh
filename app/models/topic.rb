@@ -8,11 +8,12 @@ class Topic
   # TopicClassifier change what a document would be tagged with, then run
   # `rake topics:reassign_later` (or `rake topics:reassign`, which enqueues
   # from the rake process and waits).
-  VERSION = 5
+  VERSION = 6
 
   CONFIG = Rails.root.join('config/topics.yml')
 
-  attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories, :yields_to
+  attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories, :yields_to,
+              :yields_unless
 
   class << self
     include Enumerable
@@ -56,7 +57,7 @@ class Topic
   end
 
   def initialize(key, label:, description: nil, terms: [], title_terms: [], committees: [], poi_categories: [],
-    yields_to: [])
+    yields_to: [], yields_unless: [])
     @key = key.to_s
     @label = label
     @description = description
@@ -65,6 +66,7 @@ class Topic
     @committees = committees.map { |pattern| Regexp.new(pattern, Regexp::IGNORECASE) }
     @poi_categories = poi_categories
     @yields_to = yields_to
+    @yields_unless = yields_unless
   end
 
   def slug
@@ -83,6 +85,12 @@ class Topic
   # to_tsquery input for the full text, or nil.
   def body_tsquery
     terms.join(' | ').presence
+  end
+
+  # to_tsquery input for the title terms that keep this topic although it
+  # would yield to another, or nil.
+  def yields_unless_tsquery
+    yields_unless.join(' | ').presence
   end
 
   def committee?(name)

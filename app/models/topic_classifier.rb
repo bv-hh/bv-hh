@@ -72,7 +72,11 @@ class TopicClassifier
 
   # A topic yields to another whose terms are in the title: a title about
   # Tempo 30 in front of a school is about traffic, and the school is where.
+  # Unless one of its yields_unless terms is in the title too: a barrier-free
+  # crossing is about Barrierefreiheit.
   def yielded?(key)
+    return false if term_hits["holds_#{key}"] == true
+
     Topic.find(key).yields_to.any? { |other| signals.dig(other, :title) }
   end
 
@@ -87,7 +91,8 @@ class TopicClassifier
       connection = Document.connection
       columns = Topic.flat_map do |topic|
         [match_column('title_vector', topic.title_tsquery, "title_#{topic.key}"),
-         match_column('body_vector', topic.body_tsquery, "body_#{topic.key}")]
+         match_column('body_vector', topic.body_tsquery, "body_#{topic.key}"),
+         match_column('title_vector', topic.yields_unless_tsquery, "holds_#{topic.key}")]
       end
 
       sql = <<~SQL.squish

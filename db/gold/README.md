@@ -5,16 +5,22 @@ topics:evaluate` measures the rules against it (see `TopicEvaluation`), and so
 will the classifier of phase 2. Each line identifies a document by district and
 number, which mean the same in every environment.
 
-## Two sets
+## Three sets
 
 - `topics.jsonl`, the **tuning set**: 324 documents in three strata. Rule
   changes are read from its misses and measured against it, so its numbers
   flatter the rules once they have been tuned on it.
 - `topics_test.jsonl`, the **test set**: 150 random documents, none of them in
-  the tuning set. It is only for measuring, never for changing a rule: the
-  honest number, for the rules and later for a classifier.
+  the tuning set. It is only for measuring, never for changing a rule or a
+  threshold: the honest number, for the rules and for the classifier.
+- `topics_calibration.jsonl`, the **calibration set**: 300 random documents
+  plus 15 per topic drawn from what that topic's classifier adds to the rules
+  (`rake topics:gold_sample_additions`). `TopicCalibration` sets each
+  classifier's threshold on it, together with the tuning set's random and
+  untagged documents, so its numbers flatter the classifier.
 
-Every task below takes `GOLD_SET=test` to work on the test set.
+Every task below takes `GOLD_SET=test` or `GOLD_SET=calibration` to work on
+that set.
 
 ## Workflow
 
@@ -60,8 +66,10 @@ boundary cases. Change them only together with the labels they affect.
 - **Sondermittel & Haushalt** is money the district decides on or reports:
   Sondermittel, Quartiersfonds, Zuwendungen, Rahmenzuweisungen, Haushalt. A
   request to a state authority to find funding for something is not.
-- **Soziales & Gesundheit** includes Barrierefreiheit wherever it is part of the
-  request, also for bus stops, pavements and toilets.
+- **Soziales & Gesundheit** includes Barrierefreiheit where it is the point
+  of the request (a barrier-free Bürgerhaus, a ramp). Barrierefreiheit as one
+  requirement of a road, pavement, crossing or bus stop project is not
+  Soziales: the project's own topic is (human review, 2026-10-06).
 - **Kultur & Erinnerung** includes Straßen(um)benennungen, Denkmalschutz and
   Gedenken; **Schule & Bildung** includes libraries only where learning is the
   point (a women's library: both).
