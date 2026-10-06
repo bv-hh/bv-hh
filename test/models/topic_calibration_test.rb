@@ -19,8 +19,8 @@ class TopicCalibrationTest < ActiveSupport::TestCase
 
     threshold, metrics = threshold(samples)
 
-    assert_in_delta 4.5, threshold # 4 of 5 right
-    assert_equal({ added: 7, right: 4, kept: 5, kept_right: 4 }, metrics)
+    assert_in_delta 5.5, threshold # 4 of 4 right; 4 of 5 is below PRECISION
+    assert_equal({ added: 7, right: 4, kept: 4, kept_right: 4 }, metrics)
   end
 
   test 'gives the topic no classifier when not even the best addition is right' do

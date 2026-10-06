@@ -1,39 +1,56 @@
 # frozen_string_literal: true
 
 # Raises a topic's classifier threshold until what the classifier adds is
-# right often enough, judged by the calibration gold set
-# (db/gold/topics_calibration.jsonl): random documents labelled by hand, none of
-# them trained on.
+# right often enough, judged by hand-labelled documents none of them trained
+# on: the calibration gold set (db/gold/topics_calibration.jsonl) and the
+# random and untagged documents of the tuning set. The test set stays out, so
+# `GOLD_SET=test rake topics:evaluate` remains an honest measure.
 #
 # TopicTrainer first picks a threshold against the rules (weak labels). That
 # says nothing about the documents the classifier exists for: those the rules
-# don't tag. Here only those count. Of the calibration documents the rules
-# don't tag with the topic but the classifier would, sorted by score, the
-# threshold keeps the most whose share of right ones is still PRECISION. If
-# not even the best-scored addition is right, the topic gets no classifier.
+# don't tag. Here only those count. Of the gold documents the rules don't tag
+# with the topic but the classifier would, sorted by score, the threshold
+# keeps the most whose share of right ones is still PRECISION. If not even the
+# best-scored addition is right, the topic gets no classifier.
+#
+# PRECISION aims above the 80% the additions should reach: a topic has only
+# a few dozen gold additions, and the cut that keeps the most of them at a
+# share overstates that share on documents it was not chosen on. Cross-
+# validated on the gold documents (2026-10-06), 80% in-sample kept 74% of the
+# additions right on held-out documents, 90% kept 79%.
 #
 # The threshold only ever goes up, so a calibration set too small to judge a
 # topic leaves the rules' threshold as it is.
 #
 # A topic is judged on the random documents plus those drawn as its own
 # additions (stratum added:<topic>), not on another topic's additions: those
-# were drawn by a different classifier and would skew the share.
+# were drawn by a different classifier and would skew the share. The tuning
+# set's untagged documents count as random ones: they were drawn from the
+# documents the rules tag with nothing, which is where additions happen.
 class TopicCalibration
-  PRECISION = 0.8
+  PRECISION = 0.9
+  # The gold sets judged on, with the strata that count (nil: all). The tuning
+  # set's other documents were drawn because the rules tag them.
+  SOURCES = { 'calibration' => nil, 'tuning' => %w[random untagged] }.freeze
 
   Sample = Struct.new(:embedding, :rules, :gold, :stratum, keyword_init: true)
 
   attr_reader :samples
 
-  def self.load(path = TopicGoldSet::CALIBRATION_PATH)
-    set = TopicGoldSet.load(path)
-    found = set.documents(set.labelled)
+  def self.load(sources = SOURCES)
+    new(sources.flat_map { |name, strata| samples(TopicGoldSet.load(TopicGoldSet.path_for(name)), strata) })
+  end
+
+  def self.samples(set, strata)
+    entries = set.labelled.select { |entry| strata.nil? || strata.include?(entry.stratum) }
+    found = set.documents(entries)
     embeddings = DocumentEmbedding.where(model: DocumentEmbedder::NAME, document_id: found.values.map(&:id))
                                   .pluck(:document_id, :embedding).to_h
-    new(found.filter_map do |entry, document|
+    found.filter_map do |entry, document|
       embedding = embeddings[document.id] or next
-      Sample.new(embedding:, rules: document.topics - document.classified_topics, gold: entry.topics, stratum: entry.stratum)
-    end)
+      stratum = entry.stratum == 'untagged' ? 'random' : entry.stratum
+      Sample.new(embedding:, rules: document.topics - document.classified_topics, gold: entry.topics, stratum:)
+    end
   end
 
   def initialize(samples)
