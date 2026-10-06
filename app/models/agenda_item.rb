@@ -32,6 +32,13 @@ class AgendaItem < ApplicationRecord
   include WithAttachments
   include WithAllrisPage
 
+  # The public question time, where anyone can ask the committee a question:
+  # "Öffentliche Fragestunde", "Aktuelle Bürgerfragestunde", "Anliegen der
+  # Bürgerinnen und Bürger und Öffentliche Fragestunde 1. Teil", ... On about
+  # four in five agendas; most specialist committees in Harburg and Bergedorf
+  # have none.
+  QUESTION_TIME = /fragestunde|anliegen der bürger/i
+
   belongs_to :meeting
   belongs_to :document, optional: true
   has_one :district, through: :meeting
@@ -98,6 +105,10 @@ class AgendaItem < ApplicationRecord
 
   def update_later!
     UpdateAgendaItemJob.perform_later(self)
+  end
+
+  def question_time?
+    title.to_s.match?(QUESTION_TIME)
   end
 
   def logged?

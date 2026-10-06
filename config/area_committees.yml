@@ -1,0 +1,81 @@
+# Committees responsible for an area of their district: the Regionalausschüsse,
+# and the committees that act as one under another name (Cityausschuss,
+# Kerngebietsausschuss). Read by AreaCommittee.
+#
+# Per district a list of areas, each with the committees responsible for it
+# (an area committee, its Bau-Unterausschuss, an earlier name) and its
+# Stadtteile, as named in the Stadtteil register (Quarter).
+#
+# Not from the committee names, which often don't name the area. Drafted from
+# the Stadtteile of the documents on each committee's agendas, 2023-2026, and
+# confirmed by hand. Altona has no area committees; Neuwerk belongs to none.
+# The Stadtplanungsausschüsse Nord and Süd in Hamburg-Mitte are topical
+# committees, not area committees.
+#
+# The non-public Bau-Unterausschüsse in Hamburg-Nord are left out: they have
+# no public agenda.
+
+Hamburg-Mitte:
+  - committees: [Cityausschuss]
+    quarters: [Hamburg-Altstadt, Neustadt, St. Pauli, St. Georg, HafenCity, Hammerbrook, Rothenburgsort]
+  - committees: [Regionalausschuss Billstedt]
+    quarters: [Billstedt, Billbrook]
+  - committees:
+      - Regionalausschuss Finkenwerder
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Finkenwerder
+    quarters: [Finkenwerder, Steinwerder, Waltershof]
+  - committees: [Regionalausschuss Horn / Hamm / Borgfelde]
+    quarters: [Horn, Hamm, Borgfelde]
+  - committees:
+      - Regionalausschuss Wilhelmsburg/Veddel/Kleiner Grasbrook
+      - Regionalausschuss Wilhelmsburg / Veddel
+    quarters: [Wilhelmsburg, Veddel, Kleiner Grasbrook]
+
+Eimsbüttel:
+  - committees: [Kerngebietsausschuss, Bauanträge Kerngebiet]
+    quarters: [Eimsbüttel, Rotherbaum, Harvestehude, Hoheluft-West]
+  - committees: [Regionalausschuss Lokstedt/Niendorf/Schnelsen]
+    quarters: [Lokstedt, Niendorf, Schnelsen]
+  - committees: [Regionalausschuss Stellingen/Eidelstedt]
+    quarters: [Stellingen, Eidelstedt]
+
+Hamburg-Nord:
+  - committees: [Regionalausschuss Barmbek-Uhlenhorst-Hohenfelde-Dulsberg]
+    quarters: [Barmbek-Süd, Barmbek-Nord, Uhlenhorst, Hohenfelde, Dulsberg]
+  - committees: [Regionalausschuss Eppendorf-Winterhude]
+    quarters: [Eppendorf, Winterhude, Hoheluft-Ost]
+  - committees: [Regionalausschuss Langenhorn-Fuhlsbüttel-Ohlsdorf-Alsterdorf-Groß Borstel]
+    quarters: [Langenhorn, Fuhlsbüttel, Ohlsdorf, Alsterdorf, Groß Borstel]
+
+Wandsbek:
+  - committees:
+      - Regionalausschuss Alstertal
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Alstertal
+    quarters: [Poppenbüttel, Sasel, Hummelsbüttel, Wellingsbüttel]
+  - committees:
+      - Regionalausschuss Bramfeld-Steilshoop-Farmsen-Berne
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Bramfeld-Steilshoop-Farmsen-Berne
+    quarters: [Bramfeld, Steilshoop, Farmsen-Berne]
+  - committees:
+      - Regionalausschuss Kerngebiet Wandsbek
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Kerngebiet Wandsbek
+    quarters: [Wandsbek, Marienthal, Eilbek, Jenfeld, Tonndorf]
+  - committees:
+      - Regionalausschuss Rahlstedt
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Rahlstedt
+    quarters: [Rahlstedt]
+  - committees:
+      - Regionalausschuss Walddörfer
+      - Unterausschuss für Bauangelegenheiten des Regionalausschusses Walddörfer
+    quarters: [Volksdorf, Bergstedt, Duvenstedt, Wohldorf-Ohlstedt, Lemsahl-Mellingstedt]
+
+Bergedorf:
+  - committees: [Regionalausschuss]
+    quarters: [Bergedorf, Lohbrügge, Neuallermöhe, Allermöhe, Billwerder, Moorfleet, Tatenberg, Spadenland,
+               Ochsenwerder, Reitbrook, Kirchwerder, Neuengamme, Altengamme, Curslack]
+
+Harburg:
+  - committees: [Regionalausschuss Harburg]
+    quarters: [Harburg, Wilstorf, Rönneburg, Heimfeld, Marmstorf, Eißendorf, Sinstorf, Langenbek, Gut Moor, Neuland]
+  - committees: [Regionalausschuss Süderelbe]
+    quarters: [Neugraben-Fischbek, Neuenfelde, Hausbruch, Cranz, Francop, Moorburg, Altenwerder]

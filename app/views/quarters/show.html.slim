@@ -36,6 +36,8 @@
         '  ·
         = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil)
 
+= render 'meetings/upcoming', upcoming: @upcoming, area_name: @quarter.name
+
 / Two columns from lg up, list left and map right. Below lg the row collapses
 / to one column and the map follows the list, because that is the DOM order.
 .row

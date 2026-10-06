@@ -14,6 +14,31 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, documents(:document_7).number
   end
 
+  test 'GET show lists the meetings of the next two weeks about the Quarter' do
+    district = districts(:hamburg_nord)
+    committee = district.committees.create!(name: 'Regionalausschuss Barmbek-Uhlenhorst-Hohenfelde-Dulsberg')
+    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now, start_time: '18:00', room: 'Saal 1')
+    meeting.agenda_items.create!(number: 'Ö 2', title: 'Aktuelle Bürgerfragestunde')
+    meeting.agenda_items.create!(number: 'Ö 3', title: 'Bänke', document: documents(:document_7))
+    district.meetings.create!(committee:, title: 'Sitzung', date: 10.days.from_now)
+
+    get quarter_path(district:, quarter: 'barmbek-nord')
+
+    assert_response :success
+    assert_select '.upcoming-meeting', 2
+    assert_select '.upcoming-meeting', text: /18:00 Uhr.*Regionalausschuss Barmbek/m
+    assert_select '.upcoming-meeting li', text: /#{Regexp.escape(documents(:document_7).number)}/
+    assert_select '.upcoming-meeting', text: /Öffentliche Fragestunde \(TOP Ö 2\)/
+    assert_select '.upcoming-meeting', text: /Tagesordnung ist noch nicht veröffentlicht/
+  end
+
+  test 'GET show says when nothing is coming up' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'ohlsdorf')
+
+    assert_response :success
+    assert_select '.upcoming', text: /In den nächsten zwei Wochen steht zu Ohlsdorf nichts auf einer Tagesordnung/
+  end
+
   # document_227 carries the lower number, so ordering by number would put it
   # last. Ordering by created_at has to put it first.
   test 'GET show orders the documents by created_at, latest first' do

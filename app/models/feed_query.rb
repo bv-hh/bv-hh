@@ -90,14 +90,21 @@ class FeedQuery
   end
 
   def relation(limit: MAX_ITEMS, order: :created_at)
+    scope = matching
+    scope = order == :created_at ? scope.order(created_at: :desc) : scope.latest_first
+    limit ? scope.limit(limit) : scope
+  end
+
+  # Every matching document, unordered and unlimited: for use as a subquery,
+  # such as the agenda items of upcoming meetings (UpcomingQuery).
+  def matching
     return Document.none if empty?
 
     scope = documents
     scope = scope.where(district: district) if district.present?
     scope = scope.where(*match_condition) if places?
     scope = scope.with_topics(topics) if topics.any?
-    scope = order == :created_at ? scope.order(created_at: :desc) : scope.latest_first
-    limit ? scope.limit(limit) : scope
+    scope
   end
 
   # Order-independent, and built from the sanitised terms rather than the raw

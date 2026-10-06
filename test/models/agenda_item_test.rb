@@ -55,4 +55,17 @@ class AgendaItemTest < ActiveSupport::TestCase
 
     assert_equal 0, item.word_count
   end
+
+  test 'recognises the public question time by its many names' do
+    ['Öffentliche Fragestunde', 'Aktuelle Bürgerfragestunde', 'Begrüßung und öffentliche Fragestunde',
+     'Anliegen der Bürgerinnen und Bürger und Öffentliche Fragestunde 1. Teil',
+     'Eröffnung der Sitzung /Anliegen der Bürgerinnen und Bürger'].each do |title|
+      assert_predicate AgendaItem.new(title:), :question_time?, title
+    end
+
+    ['Anfragen / Auskunftsersuchen', 'Mündliche Anfragen', 'Tagesordnungspunkte mit Referierenden- und Bürgerbeteiligung',
+     nil].each do |title|
+      assert_not_predicate AgendaItem.new(title:), :question_time?, title.inspect
+    end
+  end
 end
