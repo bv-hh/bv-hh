@@ -612,6 +612,12 @@ wirtschaft:
     - (start <-> up)
     - landwirtschaft:*
     - neustartfond:*
+    # Bank branches and the high street, not the Bezirksamt's service. Not
+    # "Filialschließung": that is as often the Post, which is Bürgerservice.
+    - haspa:*
+    - sparkass:*
+    - bankfilial:*
+    - kundenfrequenz:*
   title_terms:
     - unternehm:*
     - innovation:*
@@ -689,6 +695,10 @@ sauberkeit:
     - aed
     - hydrant:*
     - katastrophenschutz:*
+    - betrug:*
+    - betrugsanruf:*
+    - enkeltrick:*
+    - schockanruf:*
   committees:
     - inneres
   poi_categories: []
