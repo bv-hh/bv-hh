@@ -210,6 +210,23 @@ class TopicClassifierTest < ActiveSupport::TestCase
     assert_not_includes classifier.topics, 'bildung'
   end
 
+  test 'seniors on a crossing are traffic, a barrier-free crossing is also Soziales' do
+    seniors = TopicClassifier.new(document(title: 'Sichere Querung für Seniorinnen und Senioren über die Wendlohstraße'))
+    barrier_free = TopicClassifier.new(document(title: 'Fußgängerinsel Fasanenweg barrierefrei gestalten und Querung sichern'))
+
+    assert_includes seniors.topics, 'strassenverkehr'
+    assert_not_includes seniors.topics, 'soziales'
+    assert_includes barrier_free.topics, 'strassenverkehr'
+    assert_includes barrier_free.topics, 'soziales'
+  end
+
+  test 'barrier-free only in the text is not Soziales, every new pavement is' do
+    pavement = document(title: 'Gehweg in der Osterstraße sanieren', full_text: 'Der Gehweg wird barrierefrei hergestellt.')
+    on_agenda_of(pavement, 'Ausschuss für Soziales, Integration und Gleichstellung')
+
+    assert_not_includes TopicClassifier.new(pavement).topics, 'soziales'
+  end
+
   test 'a Kreiselternrat is not a roundabout' do
     classifier = TopicClassifier.new(document(title: 'Schulentwicklung in Harburg - Kreiselternrat'))
 

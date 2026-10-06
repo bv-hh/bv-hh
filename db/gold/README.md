@@ -66,8 +66,10 @@ boundary cases. Change them only together with the labels they affect.
 - **Sondermittel & Haushalt** is money the district decides on or reports:
   Sondermittel, Quartiersfonds, Zuwendungen, Rahmenzuweisungen, Haushalt. A
   request to a state authority to find funding for something is not.
-- **Soziales & Gesundheit** includes Barrierefreiheit wherever it is part of the
-  request, also for bus stops, pavements and toilets.
+- **Soziales & Gesundheit** includes Barrierefreiheit where it is the point
+  of the request (a barrier-free Bürgerhaus, a ramp). Barrierefreiheit as one
+  requirement of a road, pavement, crossing or bus stop project is not
+  Soziales: the project's own topic is (human review, 2026-10-06).
 - **Kultur & Erinnerung** includes Straßen(um)benennungen, Denkmalschutz and
   Gedenken; **Schule & Bildung** includes libraries only where learning is the
   point (a women's library: both).

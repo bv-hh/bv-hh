@@ -12,6 +12,7 @@
 # poi_categories - Poi#category values of places linked to the document.
 # yields_to      - topics that take precedence: when one of them has a term
 #                  in the title, this topic is not assigned.
+# yields_unless  - title terms that keep the topic despite yields_to.
 # description    - what the topic covers, in words: the codebook for labelling
 #                  the gold set (db/gold). It decides nothing here, so changing
 #                  it needs no bump of Topic::VERSION.
@@ -358,7 +359,6 @@ soziales:
     - wohnungslos:*
     - armut:*
     - inklusion:*
-    - barrierefrei:*
     # Care, not "Pflege" of a Grünanlage, a Deich or a Lärmschutzwall.
     - pflegeheim:*
     - pflegedien:*
@@ -381,6 +381,7 @@ soziales:
   # "Sozial" is in every Rahmenzuweisung, Quartiersfonds and Stadtteilkultur
   # text; a soziale Erhaltungsverordnung is about housing.
   title_terms:
+    - barrierefrei:*
     - (sozial & !erhaltungsverordn:*)
     - (sozialraum:* & !rahmenzuweis:*)
   committees:
@@ -391,6 +392,13 @@ soziales:
   poi_categories:
     - amenity=social_facility
     - amenity=hospital
+  # Seniors on a crossing, Tempo 30 for health: the traffic measure is the
+  # point. Barrierefreiheit in the title is the point itself; in the text it is
+  # mostly a requirement every new road meets anyway (human review).
+  yields_to:
+    - strassenverkehr
+  yields_unless:
+    - barrierefrei:*
 
 kinder_jugend:
   label: Kinder & Jugend
