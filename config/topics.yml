@@ -895,13 +895,17 @@ gremien:
     - losverfahr:*
     - beiratsbesetz:*
     - neuwahl:*
-    - sitzung:*
-    - unterausschuss:*
+    # Not a Beschlussempfehlung the Unterausschuss sends: its subject decides.
+    - (unterausschuss:* & !beschlussempfehl:* & !beschlussvorlag:*)
     - konstituier:*
     - amtsperiod:*
     - deputation:*
     - gremi:*
     - mitglied:*
+    - sitzungsfolg:*
+    - sitzungssaal:*
+    # Not bare Sitzung: "für die Sitzung am 11.09." dates any document.
+    - (sitzung:* & (verleg:* | vorverleg:* | digital:* | durchfuhr:*))
   committees:
     - ältestenrat
     - geschäftsordnung
