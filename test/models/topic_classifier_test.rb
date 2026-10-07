@@ -55,13 +55,20 @@ class TopicClassifierTest < ActiveSupport::TestCase
   end
 
   test 'a term in the body together with a linked POI of the topic is a topic' do
-    doc = document(full_text: 'Die Spielgeräte sind defekt.')
-    linked_to(doc, pois(:spielplatz))
+    doc = document(full_text: 'Die Grünanlage wird neu bepflanzt.')
+    linked_to(doc, pois(:hamburger_testpark))
 
     classifier = TopicClassifier.new(doc)
 
-    assert classifier.signals['spielplaetze'][:poi]
-    assert_includes classifier.topics, 'spielplaetze'
+    assert classifier.signals['gruen'][:poi]
+    assert_includes classifier.topics, 'gruen'
+  end
+
+  test 'a playground as a linked place is no signal: mostly a landmark' do
+    doc = document(full_text: 'Die Spielgeräte sind defekt.')
+    linked_to(doc, pois(:spielplatz))
+
+    assert_not TopicClassifier.new(doc).signals['spielplaetze'][:poi]
   end
 
   # Even one whose name happens to contain a topical word.
