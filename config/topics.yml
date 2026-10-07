@@ -13,6 +13,9 @@
 # yields_to      - topics that take precedence: when one of them has a term
 #                  in the title, this topic is not assigned.
 # yields_unless  - title terms that keep the topic despite yields_to.
+# title_patterns - Ruby regular expressions (case-sensitive) against the title
+#                  that name a place of the topic, a weak signal like a POI
+#                  ("Park" the noun, which stemming merges with "parken").
 # description    - what the topic covers, in words: the codebook for labelling
 #                  the gold set (db/gold). It decides nothing here, so changing
 #                  it needs no bump of Topic::VERSION.
@@ -248,6 +251,19 @@ gruen:
     - moor
     - feldmark:*
     - bewasser:*
+    - baumschnitt:*
+    - baumneupflanz:*
+    - begrun:*
+    - blumenbeet:*
+    - grunpat:*
+    - gans
+    - igel
+    - parzell:*
+  # A named park in the title: Schanzenpark, Horner Park, Modelli-Park. Not a
+  # Gewerbepark, not Park & Ride. Weak: a toilet in the Bornpark is not Grün.
+  title_patterns:
+    - '\b(?!(?:Gewerbe|Technologie|Business|Industrie|Solar|Wind|Fuhr|Wohn|Ferien|Innovations|Wissenschafts|Medien|Logistik|Chemie)park)\p{Lu}\p{L}*park\b'
+    - '\bPark\b(?!\s*(?:&|\+|and|und)\s*Ride)'
   committees:
     - grün
     - umwelt
@@ -430,29 +446,47 @@ kinder_jugend:
 
 bildung:
   label: Schule & Bildung
-  description: "Schulen (Bau, Ausstattung, Plätze), Hochschulen, Bücherhallen, Volkshochschule und Musikschule, Bildungsangebote."
+  description: "Schulen (Bau, Ausstattung, Plätze), Hochschulen, Volkshochschule und Musikschule, Bildungsangebote. Bücherhallen nur, wo Lernen der Zweck ist (Sprachkurse, Lernhilfe); sonst Kultur & Erinnerung."
+  # What schools and learning are about, not that a school is there: a
+  # Schule or Gymnasium named in the title is a weak signal (title_patterns),
+  # like a place. "Basketball-Court beim Luisen-Gymnasium" is Sport.
   terms:
-    - (schul:* & !schuld:* & !schulweg:*)
-    - grundschul:*
-    - gymnasi:*
-    - stadtteilschul:*
-    - musikschul:*
+    - schulbau:*
+    - schulneubau:*
+    - schulerweiter:*
+    - schulentwickl:*
+    - schulstandort:*
+    - schulplatz:*
+    - schulpflicht:*
+    - schulinspektion:*
+    - schulbehord:*
+    - schulsanier:*
+    - schulkapazit:*
+    - schulgeb:*
+    - schulhof:*
+    - schulbibliothek:*
+    - unterricht:*
+    - schwimmunterricht:*
+    - lerngrupp:*
+    - ganztag:*
+    - vorschul:*
+    - berufsbild:*
+    - (beruflich <-> bildung)
+    - bildungsangebot:*
     - hochschul:*
     - universitat:*
-    - campus:*
-    - bildung:*
-    - bucherhall:*
-    - bibliothek:*
     - volkshochschul:*
+    - musikschul:*
     - umweltbild:*
     - familienbild:*
+    - pisa
+  title_patterns:
+    - '\p{L}*(?:[Ss]chule|[Ss]chulen|[Gg]ymnasium|[Cc]ampus)\b'
   committees:
     - schule
-    - bildung
-  poi_categories:
-    - amenity=library
-    - amenity=college
-    - amenity=university
+  # No poi_categories: a university or school as a place is mostly a landmark
+  # ("U-Bahn Universität").
+  poi_categories: []
   # Safety on the way to a school or Kita is Straßenverkehr (db/gold/README.md).
   yields_to:
     - strassenverkehr
@@ -491,8 +525,12 @@ sport:
 # compounds are what the documents are about.
 kultur:
   label: Kultur & Erinnerung
-  description: "Stadtteilkultur und Kultureinrichtungen, Kunst, Musik, Theater, Feste, Geschichtswerkstätten, Denkmäler, Gedenken und Stolpersteine, Straßenbenennungen."
+  description: "Stadtteilkultur und Kultureinrichtungen, Bücherhallen, Kunst, Musik, Theater, Feste, Geschichtswerkstätten, Denkmäler, Gedenken und Stolpersteine, Straßenbenennungen."
   terms:
+    # A Bücherhalle is Kultur; Bildung only where learning is the point
+    # (human decision, 2026-10-07).
+    - bucherhall:*
+    - bibliothek:*
     - kulturell
     - stadtteilkultur:*
     - interkulturell:*

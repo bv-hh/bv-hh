@@ -8,12 +8,12 @@ class Topic
   # TopicClassifier change what a document would be tagged with, then run
   # `rake topics:reassign_later` (or `rake topics:reassign`, which enqueues
   # from the rake process and waits).
-  VERSION = 6
+  VERSION = 7
 
   CONFIG = Rails.root.join('config/topics.yml')
 
   attr_reader :key, :label, :description, :terms, :title_terms, :committees, :poi_categories, :yields_to,
-              :yields_unless
+              :yields_unless, :title_patterns
 
   class << self
     include Enumerable
@@ -57,7 +57,7 @@ class Topic
   end
 
   def initialize(key, label:, description: nil, terms: [], title_terms: [], committees: [], poi_categories: [],
-    yields_to: [], yields_unless: [])
+    yields_to: [], yields_unless: [], title_patterns: [])
     @key = key.to_s
     @label = label
     @description = description
@@ -67,6 +67,7 @@ class Topic
     @poi_categories = poi_categories
     @yields_to = yields_to
     @yields_unless = yields_unless
+    @title_patterns = title_patterns.map { |pattern| Regexp.new(pattern) }
   end
 
   def slug
@@ -91,6 +92,14 @@ class Topic
   # would yield to another, or nil.
   def yields_unless_tsquery
     yields_unless.join(' | ').presence
+  end
+
+  # Whether one of the title_patterns matches the title: a place of the topic
+  # named there, a weak signal like a linked POI. Case-sensitive, unlike the
+  # terms: the stemmer makes "Park" and "parken" one word, a pattern can tell
+  # the noun from the verb.
+  def title_pattern?(title)
+    title_patterns.any? { |pattern| pattern.match?(title) }
   end
 
   def committee?(name)

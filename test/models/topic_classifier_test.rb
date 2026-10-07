@@ -146,8 +146,14 @@ class TopicClassifierTest < ActiveSupport::TestCase
   test 'a procedural title speaks only for Gremien' do
     classifier = TopicClassifier.new(document(title: 'Benennung für den Ausschuss Bildung und Sport'))
 
-    assert classifier.signals['bildung'][:title], 'precondition: the committee name is in the title'
+    assert classifier.signals['sport'][:title], 'precondition: the committee name is in the title'
     assert_equal ['gremien'], classifier.topics
+  end
+
+  test 'school policy is Bildung, a school named as the place is not' do
+    assert_includes TopicClassifier.new(document(title: 'Dialog zur Schulentwicklung im Bezirk Wandsbek')).topics, 'bildung'
+    assert_not_includes TopicClassifier.new(document(title: 'Ist der Basketball-Court beim Luisen-Gymnasium fertig?')).topics,
+                        'bildung'
   end
 
   test 'a Schulweg is traffic, not school' do
@@ -225,6 +231,17 @@ class TopicClassifierTest < ActiveSupport::TestCase
     on_agenda_of(pavement, 'Ausschuss für Soziales, Integration und Gleichstellung')
 
     assert_not_includes TopicClassifier.new(pavement).topics, 'soziales'
+  end
+
+  test 'a named park in the title is a weak signal for Grün, parking and a Gewerbepark are none' do
+    lawn = 'Die Rasenflächen und Bäume werden erneuert.'
+
+    assert_includes TopicClassifier.new(document(title: 'Mehr Aufenthaltsqualität im Schanzenpark', full_text: lawn)).topics,
+                    'gruen'
+    assert_includes TopicClassifier.new(document(title: 'Wege im Horner Park', full_text: lawn)).topics, 'gruen'
+    assert_not_includes TopicClassifier.new(document(title: 'Toilettenanlage für den Bornpark')).topics, 'gruen'
+    assert_not_includes TopicClassifier.new(document(title: 'Parken in der Osterstraße', full_text: lawn)).topics, 'gruen'
+    assert_not_includes TopicClassifier.new(document(title: 'Mieter im Gewerbepark Harburg', full_text: lawn)).topics, 'gruen'
   end
 
   test 'a Kreiselternrat is not a roundabout' do
