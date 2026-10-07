@@ -640,15 +640,13 @@ wirtschaft:
   terms:
     - wirtschaft:*
     - wochenmarkt:*
-    - gewerb:*
+    - (gewerb:* & !gewerblich:*)
     - einzelhandel:*
     - gastronom:*
     - aussengastronom:*
     - tourism:*
-    - digitalis:*
     - startup:*
     - (start <-> up)
-    - landwirtschaft:*
     - neustartfond:*
     # Bank branches and the high street, not the Bezirksamt's service. Not
     # "Filialschließung": that is as often the Post, which is Bürgerservice.
@@ -656,13 +654,32 @@ wirtschaft:
     - sparkass:*
     - bankfilial:*
     - kundenfrequenz:*
+    - kaufhaus:*
+    - karstadt:*
+    - galeria
+    - spielhall:*
+    - geldspiel:*
+    - glasfas:*
+    - breitband:*
+    - handwerk:*
+    - marktbeschick:*
+    - markthandl:*
+    - supermarkt:*
+    - nahversorg:*
+    - ladenleerstand:*
+    - (business <-> improvement)
+    - heizpilz:*
+    - kiosk:*
+    - arbeitsplatz:*
+    - ausbildungsplatz:*
   title_terms:
     - unternehm:*
     - innovation:*
+  # Only where Wirtschaft leads the name: "Mobilität und Wirtschaft" or "Grün,
+  # Umwelt, Wirtschaft" mostly see the other topic.
   committees:
-    - wirtschaft
+    - '(?:für|^)\s*Wirtschaft'
     - wochenmärkte
-    - tourismus
   poi_categories:
     - amenity=marketplace
 
