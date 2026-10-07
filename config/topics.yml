@@ -867,7 +867,8 @@ gremien:
   description: "Die Bezirksversammlung und ihre Gremien organisieren sich: Besetzung von Ausschüssen und Beiräten, Wahlen und Nachwahlen, Geschäftsordnung, Sitzungen und ihre Öffentlichkeit, Jurys. Nicht die inhaltliche Arbeit der Ausschüsse, und nicht das Bezirksamt als Verwaltung (Bürgerservice & Verwaltung)."
   terms: []
   title_terms:
-    - besetz:*
+    # A Stelle to fill is staff: Bürgerservice & Verwaltung (human labels).
+    - (besetz:* & !stell)
     - umbesetz:*
     - nachbesetz:*
     - ausschussbesetz:*
@@ -932,6 +933,22 @@ buergerservice:
     - postbank:*
     - einwohnerwes:*
     - personalausweis:*
+    - personalbestand:*
+    - personalsituation:*
+    - personalmangel:*
+    - personalaufstock:*
+    - stellenbesetz:*
+    - stellenentwickl:*
+    - stellenabbau:*
+    - stellenplan:*
+    - uberlastungsanzeig:*
+    - bearbeitungszeit:*
+    - bearbeitungsdau:*
+    - fachkraftemangel:*
+  title_terms:
+    - (stell:* & besetz:*)
+    - personal
+    - mitarbeit:*
   committees: []
   poi_categories: []
 
