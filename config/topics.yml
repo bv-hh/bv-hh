@@ -859,12 +859,28 @@ demokratie_vielfalt:
     - pride
     - csd
     - regenbog:*
-    - (gegen <-> rechts)
+    # Not "gegen rechts": "gegen" is a stopword, the phrase would be "Recht".
+    - rechtsradikal:*
+    - rechtspopul:*
+    - neonazi:*
+    - faschis:*
+    - antifasch:*
+    - extremism:*
+    - antiziganism:*
+    - (christoph <-> street)
+    - geschlechtsneutral:*
+    - geschlechtergerecht:*
+    - entgeltgerecht:*
+    - transgend:*
+    - transsexuell:*
+    - frauentaxi:*
+    - (judisch <-> leb:*)
     - frauenschutz:*
     - frauenhaus:*
     - periodenarm:*
     - sexism:*
+  # "Demokratische" stems to demokrat.
   title_terms:
-    - demokrati:*
+    - demokrat:*
   committees: []
   poi_categories: []

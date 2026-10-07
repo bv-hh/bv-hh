@@ -156,6 +156,12 @@ class TopicClassifierTest < ActiveSupport::TestCase
                         'bildung'
   end
 
+  test 'a right is not the fight against the far right' do
+    assert_not_includes TopicClassifier.new(document(title: 'Elterngeld ist kein Geschenk, sondern Recht')).topics,
+                        'demokratie_vielfalt'
+    assert_includes TopicClassifier.new(document(title: 'Kein Platz für Extremismus in Harburg')).topics, 'demokratie_vielfalt'
+  end
+
   test 'a Schulweg is traffic, not school' do
     classifier = TopicClassifier.new(document(title: 'Schulwegsicherung in der Stadtbahnstraße'))
 
