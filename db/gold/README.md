@@ -71,8 +71,9 @@ boundary cases. Change them only together with the labels they affect.
   requirement of a road, pavement, crossing or bus stop project is not
   Soziales: the project's own topic is (human review, 2026-10-06).
 - **Kultur & Erinnerung** includes Straßen(um)benennungen, Denkmalschutz and
-  Gedenken; **Schule & Bildung** includes libraries only where learning is the
-  point (a women's library: both).
+  Gedenken, and Bücherhallen; **Schule & Bildung** includes libraries only
+  where learning is the point (a women's library: both; human decision,
+  2026-10-07).
 - A **Spielplatz** includes Bolzplätze and play areas in parks.
 - Appointments to a Beirat or committee are **Gremien**, plus the Beirat's
   subject when the document discusses it. The Bezirksamt as an administration

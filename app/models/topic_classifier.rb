@@ -7,7 +7,7 @@
 # - body:      a term of the topic in the full text
 # - committee: the document was on the agenda of a committee for the topic
 # - poi:       a place linked to the document belongs to one of the topic's
-#              POI categories
+#              POI categories, or the title names one (title_patterns: a park)
 #
 # A title hit is enough on its own. The others are weak: a long Mitteilung
 # mentions many things in passing, a Mobilitätsausschuss also handles bus
@@ -59,7 +59,7 @@ class TopicClassifier
         title: term_hits["title_#{topic.key}"] == true,
         body: term_hits["body_#{topic.key}"] == true,
         committee: committee_names.any? { |name| topic.committee?(name) },
-        poi: topic.poi_categories.intersect?(poi_categories),
+        poi: topic.poi_categories.intersect?(poi_categories) || topic.title_pattern?(cased_title),
       }]
     end
   end
@@ -118,7 +118,13 @@ class TopicClassifier
   # stations ("Toiletten am S-Bahnhof Neuwiedenthal"): all name a topic the
   # document is not about.
   def matchable_title
-    TransitGazetteer.remove(StreetGazetteer.remove(document.title.to_s.gsub(self.class.committee_pattern, ' ')))
+    TransitGazetteer.remove(StreetGazetteer.remove(cased_title))
+  end
+
+  # The title without committee names, in its own case for title_patterns:
+  # the gazetteers fold it.
+  def cased_title
+    @cased_title ||= document.title.to_s.gsub(self.class.committee_pattern, ' ')
   end
 
   # The full text without committee names, for the same reason: "der Ausschuss
