@@ -80,6 +80,7 @@ class QuartersController < ApplicationController
     # sequence within one district, so there is nothing to compare across them.
     # Same order as the feed.
     @documents = page_documents.preload(:district, meetings: :committee)
+    @upcoming = UpcomingQuery.new(@query)
     @topic_counts = cached_topic_counts(:quarter, @quarter.name) { FeedQuery.new(quarters: [@quarter.name]).relation(limit: nil) }
   end
 end

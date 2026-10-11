@@ -1,0 +1,43 @@
+/ The meetings of the next two weeks that concern a selection (UpcomingQuery):
+/ where people can still take part. area_name names the area in the empty
+/ state ("zu Ohlsdorf").
+.card.upcoming.mb-4
+  .card-header Demnächst
+  .card-body
+    - if upcoming.any?
+      - upcoming.each do |entry|
+        - meeting = entry.meeting
+        .upcoming-meeting.mb-3
+          div
+            strong= l(meeting.date, format: '%a %-d.%-m.')
+            - if meeting.start_time.present?
+              = ", #{l meeting.start_time} Uhr"
+            '  —
+            = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: meeting.district)
+          - if meeting.room.present? || meeting.location.present?
+            .small.text-secondary= [meeting.room, meeting.location].compact_blank.join(', ')
+
+          - if entry.items.any?
+            ul.mb-1.mt-1
+              - entry.items.each do |item|
+                li
+                  = link_to item.document.title.presence || item.title, document_path(item.document, district: item.document.district)
+                  span.text-secondary.small<= "(#{item.document.number})" if item.document.number.present?
+          - elsif !entry.agenda?
+            .small.text-secondary Die Tagesordnung ist noch nicht veröffentlicht.
+          - else
+            .small
+              ' Der Ausschuss ist für das Gebiet zuständig;
+              = link_to "#{entry.meeting.agenda_items.size} Tagesordnungspunkte", meeting_path(meeting, district: meeting.district)
+
+          - if entry.question_time
+            .small.mt-1
+              = icon('fas', 'comments')
+              '
+              ' Öffentliche Fragestunde (TOP #{entry.question_time.number}): Sie können hier Fragen stellen.
+              = link_to 'Wie?', participation_path(district: nil, anchor: 'oeffentliche-sitzungen')
+    - else
+      p.small.text-secondary.mb-0
+        = "In den nächsten zwei Wochen steht #{area_name ? "zu #{area_name} " : ''}nichts auf einer Tagesordnung."
+        '
+        | Tagesordnungen erscheinen etwa eine Woche vor der Sitzung.
