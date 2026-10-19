@@ -98,7 +98,7 @@ gem 'redcarpet', '~> 3.6'
 
 gem 'importmap-rails', '~> 2.2'
 
-gem 'good_job', '~> 4.19'
+gem 'good_job', '~> 4.22'
 
 gem 'pghero'
 
