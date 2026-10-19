@@ -92,7 +92,7 @@ gem 'httpclient'
 # json 3 drops the create_additions keyword execjs passed before 2.10.2 and
 # rejects the positional options hash ActiveSupport passed before 8.1.4, which
 # broke asset compilation and JSON columns. Keep those versions as the floor.
-gem 'json', '~> 3.0'
+gem 'json', '~> 3.1'
 
 gem 'redcarpet', '~> 3.6'
 
