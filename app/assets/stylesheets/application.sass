@@ -89,6 +89,20 @@ span.twitter-typeahead
     .tt-menu, .tt-hint, .tt-input
       width: 100%
 
+    // The typeahead wraps the input in this span, so Bootstrap's input-group
+    // rules that square off the corners towards the button miss the input.
+    &:not(:last-child) .tt-input
+      border-top-right-radius: 0
+      border-bottom-right-radius: 0
+
+    // The menu is as wide as the field here, not as wide as its content, so
+    // suggestions wrap instead of running past it and widening the page.
+    .tt-suggestion
+      white-space: normal
+
+    .title
+      max-width: none
+
   .title
     max-width: 70vw
     text-overflow: ellipsis

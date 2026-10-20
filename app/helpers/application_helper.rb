@@ -7,6 +7,15 @@ module ApplicationHelper
     end
   end
 
+  # Endpoints the typeahead in application.js reads from an input.search-input.
+  def search_input_data
+    {
+      suggest_documents: suggest_documents_path(q: 'QUERY'),
+      suggest_minutes: suggest_agenda_items_path(q: 'QUERY'),
+      search: search_path(q: 'QUERY'),
+    }
+  end
+
   def allris_icon
     icon(:fas, 'external-link-alt')
   end

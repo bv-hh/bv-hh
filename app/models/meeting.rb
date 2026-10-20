@@ -49,6 +49,7 @@ class Meeting < ApplicationRecord
   scope :with_minutes, -> { where(id: AgendaItem.with_minutes.select(:meeting_id)) }
   scope :in_month, ->(date) { where(date: date.all_month) }
   scope :in_future, -> { where(date: Time.zone.today..) }
+  scope :of_assembly, -> { joins(:committee).merge(Committee.assembly) }
   scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))
