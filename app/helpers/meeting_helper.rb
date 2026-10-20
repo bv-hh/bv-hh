@@ -34,6 +34,15 @@ module MeetingHelper
     end
   end
 
+  # "heute", "morgen" or "in 12 Tagen".
+  def days_until(date)
+    case (days = (date - Time.zone.today).to_i)
+    when 0 then 'heute'
+    when 1 then 'morgen'
+    else "in #{days} Tagen"
+    end
+  end
+
   def meeting_minutes_link(meeting)
     link_to minutes_meeting_path(meeting), title: "Protokoll vom #{l meeting.date}", data: { bs_toggle: :tooltip, placement: :bottom } do
       icon(:far, 'file-powerpoint')

@@ -46,6 +46,9 @@ class Committee < ApplicationRecord
   scope :open, -> { where(public: true) }
   scope :active, -> { where(inactive: false) }
   scope :by_order, -> { order(:order) }
+  # The district assembly itself ("Bezirksversammlung", in some districts with
+  # the district name appended), as opposed to its committees.
+  scope :assembly, -> { where('committees.name ILIKE ?', 'Bezirksversammlung%') }
 
   def update_average_duration!
     total_duration = 0
