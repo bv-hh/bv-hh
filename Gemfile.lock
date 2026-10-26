@@ -275,7 +275,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.7.0-x86_64-linux)
-    pghero (4.0.1)
+    pghero (4.1.0)
       activerecord (>= 7.2)
     popper_js (2.11.8)
     pp (0.6.4)
@@ -461,7 +461,7 @@ GEM
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
-    uri (1.1.1)
+    uri (1.1.2)
     useragent (0.16.11)
     web-console (4.3.0)
       actionview (>= 8.0.0)
