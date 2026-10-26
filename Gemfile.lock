@@ -266,7 +266,7 @@ GEM
     nio4r (2.7.5)
     nokogiri (1.19.4-x86_64-linux-gnu)
       racc (~> 1.4)
-    numo-narray-alt (0.11.2)
+    numo-narray-alt (0.12.0)
     onnxruntime (0.11.7-x86_64-linux)
       ffi
     ostruct (0.6.3)
