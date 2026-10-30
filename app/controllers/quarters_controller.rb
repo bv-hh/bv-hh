@@ -79,7 +79,11 @@ class QuartersController < ApplicationController
     # Same order as the feed.
     @documents = page_documents.preload(:district, meetings: :committee)
     @places = places_by_document
-    @location_count = quarter_locations.distinct.count(:location_id)
+    # Follows the topic filter, like the list and the map. Cached like the topic
+    # counts: the subquery takes a few hundred milliseconds on a busy Stadtteil.
+    @location_count = Rails.cache.fetch(['quarter_location_count', @quarter.name, @topic&.key], expires_in: 1.hour) do
+      quarter_locations.where(document_id: @query.matching.select(:id)).distinct.count(:location_id)
+    end
     @upcoming = UpcomingQuery.new(@query)
     @topic_counts = cached_topic_counts(:quarter, @quarter.name) { FeedQuery.new(quarters: [@quarter.name]).relation(limit: nil) }
     @neighbours = @quarter.neighbours.select(&:district).sort_by(&:name)

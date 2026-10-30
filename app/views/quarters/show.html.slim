@@ -23,7 +23,17 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
           li.breadcrumb-item= link_to 'Hamburg', root_path(district: nil)
           li.breadcrumb-item= link_to @quarter.district.name, root_with_district_path(district: @quarter.district)
       h1.display-6.fw-bold.mb-2= @quarter.name
-      p.text-secondary Jeder Punkt auf der Karte ist ein Ort, um den es in einer der Drucksachen unten geht.
+      / A topic narrows the list, the map, the counts and the feed alike, so
+      / the card says so where all of them are summed up.
+      - if @topic
+        .d-flex.flex-wrap.align-items-center.gap-2.mb-2
+          span.badge.text-bg-secondary.fs-6.fw-normal= "Thema: #{@topic.label}"
+          = link_to 'Filter aufheben', quarter_page.call, class: 'small'
+      p.text-secondary
+        - if @topic
+          = "Jeder Punkt auf der Karte ist ein Ort, um den es in einer der Drucksachen zum Thema #{@topic.label} unten geht."
+        - else
+          | Jeder Punkt auf der Karte ist ein Ort, um den es in einer der Drucksachen unten geht.
       p.small.text-secondary.d-none data-quarter-map-target='empty'
         | Zu den Drucksachen auf dieser Seite ist kein Ort mit Koordinaten hinterlegt.
       .d-flex.gap-4.mb-3
@@ -34,7 +44,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
           .fs-4.fw-bold.lh-1= number_with_delimiter(@location_count)
           .small.text-secondary Orte
       = link_to quarter_feed_url, class: 'btn btn-primary w-100', rel: 'alternate', type: 'application/rss+xml' do
-        = icon('fas', 'rss', "Neues aus #{@quarter.name} abonnieren")
+        = icon('fas', 'rss', @topic ? "#{@topic.label} in #{@quarter.name} abonnieren" : "Neues aus #{@quarter.name} abonnieren")
       p.small.mb-0.mt-2
         = link_to 'Mehrere Stadtteile oder Straßen beobachten', feed_path(district: nil, quarters: [@quarter.name], topics: topic_slugs)
 

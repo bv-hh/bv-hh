@@ -43,6 +43,19 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
     assert_select '.list-group-item', text: /#{Regexp.escape(I18n.l(documents(:document_7).created_at.to_date))}/, count: 0
   end
 
+  test 'GET show names the topic filter in the title card and counts only its documents' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_227).update_columns(topics: %w[kultur]) # rubocop:disable Rails/SkipsModelValidations
+    district = districts(:hamburg_nord)
+
+    get quarter_path(district:, quarter: 'barmbek-nord', topic: 'kultur')
+
+    assert_select '.quarter-hero-card .badge', text: 'Thema: Kultur & Erinnerung'
+    assert_select ".quarter-hero-card a[href='#{quarter_path(district:, quarter: 'barmbek-nord')}']", text: 'Filter aufheben'
+    assert_select '.quarter-hero-card .btn-primary', text: /Kultur & Erinnerung in Barmbek-Nord abonnieren/
+    assert_select '.quarter-hero-card .fs-4', text: '1', minimum: 1
+  end
+
   test 'GET show leads the topic chips with a way back to all topics' do
     documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
 
