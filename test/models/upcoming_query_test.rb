@@ -77,6 +77,15 @@ class UpcomingQueryTest < ActiveSupport::TestCase
     assert_equal ['Radweg'], entry.items.map(&:title)
   end
 
+  test 'leaves out meetings the public cannot attend' do
+    closed = @district.committees.create!(name: 'Unterausschuss für Bauangelegenheiten', public: true)
+    meeting(closed, items: [['Bauvorhaben in Ohlsdorf', @about_ohlsdorf]])
+    flagged = @district.committees.create!(name: 'Jugendhilfeausschuss', public: false)
+    meeting(flagged, items: [['Jugendhaus Ohlsdorf', @about_ohlsdorf]])
+
+    assert_empty upcoming(quarters: ['Ohlsdorf']).entries
+  end
+
   test 'nothing for an empty selection' do
     meeting(committees(:bv), items: [['Bänke', @about_ohlsdorf]])
 

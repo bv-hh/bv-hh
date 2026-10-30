@@ -40,10 +40,8 @@ class QuartersController < ApplicationController
   end
 
   def markers
-    document_locations = DocumentLocation.joins(:location)
-                                         .where(document_id: page_documents.map(&:id))
-                                         .where('locations.quarters @> ARRAY[?]::varchar[]', @quarter.name)
-                                         .includes(:location, document: :district)
+    document_locations = quarter_locations.where(document_id: page_documents.map(&:id))
+                                          .includes(:location, document: :district)
 
     document_locations.group_by(&:location).map do |location, entries|
       {
@@ -80,7 +78,26 @@ class QuartersController < ApplicationController
     # sequence within one district, so there is nothing to compare across them.
     # Same order as the feed.
     @documents = page_documents.preload(:district, meetings: :committee)
+    @places = places_by_document
+    # Follows the topic filter, like the list and the map. Cached like the topic
+    # counts: the subquery takes a few hundred milliseconds on a busy Stadtteil.
+    @location_count = Rails.cache.fetch(['quarter_location_count', @quarter.name, @topic&.key], expires_in: 1.hour) do
+      quarter_locations.where(document_id: @query.matching.select(:id)).distinct.count(:location_id)
+    end
     @upcoming = UpcomingQuery.new(@query)
     @topic_counts = cached_topic_counts(:quarter, @quarter.name) { FeedQuery.new(quarters: [@quarter.name]).relation(limit: nil) }
+    @neighbours = @quarter.neighbours.select(&:district).sort_by(&:name)
+  end
+
+  # The links between Drucksachen and the places in this Quarter they mention.
+  def quarter_locations
+    DocumentLocation.joins(:location).where('locations.quarters @> ARRAY[?]::varchar[]', @quarter.name)
+  end
+
+  # Document id => the Locations in this Quarter it mentions, for the place
+  # links under each Drucksache. The same places the map pins.
+  def places_by_document
+    quarter_locations.where(document_id: page_documents.map(&:id)).includes(:location)
+                     .group_by(&:document_id).transform_values { |links| links.map(&:location).uniq.sort_by(&:name) }
   end
 end

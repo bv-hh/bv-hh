@@ -82,6 +82,18 @@ class Quarter < ApplicationRecord
       Array(names).filter_map { |name| index[name.to_s.downcase.strip]&.name }.uniq
     end
 
+    # The Quarters sharing a stretch of boundary with +quarter+, district lines
+    # notwithstanding. ALKIS draws adjacent Quarters from the same vertices, so
+    # it is enough to look for points two rings have in common; a single shared
+    # point is only corners touching.
+    def touching(quarter)
+      own = quarter.boundary_points
+
+      all_cached.select do |other|
+        other != quarter && other.boxes_touch?(quarter) && (other.boundary_points & own).size > 1
+      end
+    end
+
     # Drops the memoized polygons; call after (re)importing.
     def reset!
       @all_cached = nil
@@ -115,6 +127,24 @@ class Quarter < ApplicationRecord
     return false unless within_bounds?(latitude, longitude)
 
     polygons.any? { |rings| point_in_polygon?(rings, latitude, longitude) }
+  end
+
+  def neighbours
+    self.class.touching(self)
+  end
+
+  # Every vertex of every ring, rounded so that the same point read twice
+  # compares equal. Memoized on the cached instances, like the polygons.
+  def boundary_points
+    @boundary_points ||= polygons.flatten(2).to_set { |lng, lat| [lng.round(6), lat.round(6)] }
+  end
+
+  # A cheap test before comparing vertices: whether the bounding boxes overlap
+  # or meet. Without a box there is nothing to rule out.
+  def boxes_touch?(other)
+    return true if [min_lat, other.min_lat].any?(&:blank?)
+
+    min_lat <= other.max_lat && other.min_lat <= max_lat && min_lng <= other.max_lng && other.min_lng <= max_lng
   end
 
   private

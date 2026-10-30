@@ -49,7 +49,8 @@ class UpcomingQuery
   private
 
   def meetings
-    Meeting.complete.where(date: @dates).includes(:district, :committee, :agenda_items).order(:date, :start_time)
+    Meeting.complete.open_to_public.where(date: @dates).includes(:district, :committee, :agenda_items)
+           .order(:date, :start_time)
   end
 
   def matching_items

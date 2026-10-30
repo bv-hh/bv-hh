@@ -1,43 +1,54 @@
-/ The meetings of the next two weeks that concern a selection (UpcomingQuery):
-/ where people can still take part. area_name names the area in the empty
-/ state ("zu Ohlsdorf").
-.card.upcoming.mb-4
-  .card-header Demnächst
-  .card-body
-    - if upcoming.any?
+/ The public meetings of the next two weeks that concern a selection
+/ (UpcomingQuery): where people can still take part. area_name names the area
+/ ("11 Punkte zu Winterhude", "nichts zu Ohlsdorf").
+- shown_items = 2
+section.upcoming.mb-5 aria-labelledby='upcoming-heading'
+  .d-flex.flex-wrap.align-items-baseline.column-gap-3.mb-3
+    h2#upcoming-heading.mb-0 Demnächst auf der Tagesordnung
+    span.small.text-secondary Öffentliche Sitzungen der nächsten zwei Wochen
+  - if upcoming.any?
+    .row.row-cols-1.row-cols-md-2.row-cols-xl-3.g-3
       - upcoming.each do |entry|
         - meeting = entry.meeting
-        .upcoming-meeting.mb-3
-          div
-            strong= l(meeting.date, format: '%a %-d.%-m.')
-            - if meeting.start_time.present?
-              = ", #{l meeting.start_time} Uhr"
-            '  —
-            = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: meeting.district)
-          - if meeting.room.present? || meeting.location.present?
-            .small.text-secondary= [meeting.room, meeting.location].compact_blank.join(', ')
-
-          - if entry.items.any?
-            ul.mb-1.mt-1
-              - entry.items.each do |item|
-                li
-                  = link_to item.document.title.presence || item.title, document_path(item.document, district: item.document.district)
-                  span.text-secondary.small<= "(#{item.document.number})" if item.document.number.present?
-          - elsif !entry.agenda?
-            .small.text-secondary Die Tagesordnung ist noch nicht veröffentlicht.
-          - else
-            .small
-              ' Der Ausschuss ist für das Gebiet zuständig;
-              = link_to "#{entry.meeting.agenda_items.size} Tagesordnungspunkte", meeting_path(meeting, district: meeting.district)
-
-          - if entry.question_time
-            .small.mt-1
-              = icon('fas', 'comments')
-              '
-              ' Öffentliche Fragestunde (TOP #{entry.question_time.number}): Sie können hier Fragen stellen.
-              = link_to 'Wie?', participation_path(district: nil, anchor: 'oeffentliche-sitzungen')
-    - else
-      p.small.text-secondary.mb-0
-        = "In den nächsten zwei Wochen steht #{area_name ? "zu #{area_name} " : ''}nichts auf einer Tagesordnung."
-        '
-        | Tagesordnungen erscheinen etwa eine Woche vor der Sitzung.
+        - meeting_url = meeting_path(meeting, district: meeting.district)
+        .col
+          .card.h-100.upcoming-meeting
+            .card-header.bg-body-tertiary.d-flex.align-items-center.gap-3
+              .text-bg-brand.rounded.text-center.lh-sm.px-2.py-1.flex-shrink-0
+                .small.text-uppercase.opacity-75= l(meeting.date, format: '%a')
+                .fs-4.fw-bold= meeting.date.day
+                .small.opacity-75= l(meeting.date, format: '%b')
+              div
+                = link_to meeting.committee&.name || meeting.title, meeting_url, class: 'fw-semibold'
+                .small.text-secondary
+                  = [("#{l meeting.start_time} Uhr" if meeting.start_time.present?), meeting.room].compact_blank.join(' · ')
+                - if meeting.location.present?
+                  .small.text-secondary= meeting.location
+            .card-body
+              - if entry.items.any?
+                p.small.fw-semibold.mb-1
+                  = "#{entry.items.size} #{entry.items.size == 1 ? 'Punkt' : 'Punkte'} zu #{area_name}"
+                ul.small.mb-1.ps-3
+                  - entry.items.first(shown_items).each do |item|
+                    li
+                      = link_to item.document.title.presence || item.title, document_path(item.document, district: item.document.district)
+                      span.text-secondary<= "(#{item.document.number})" if item.document.number.present?
+                - if entry.items.size > shown_items
+                  = link_to "und #{entry.items.size - shown_items} weitere", meeting_url, class: 'small'
+              - elsif !entry.agenda?
+                p.small.text-secondary.mb-0 Die Tagesordnung ist noch nicht veröffentlicht.
+              - else
+                p.small.mb-0
+                  ' Der Ausschuss ist für das Gebiet zuständig;
+                  = link_to "#{meeting.agenda_items.size} Tagesordnungspunkte", meeting_url
+            .card-footer.bg-body-tertiary.small.text-secondary
+              - if entry.question_time
+                ' Öffentliche Fragestunde (TOP #{entry.question_time.number}): Ihre Frage direkt an den Ausschuss.
+              - else
+                ' Öffentliche Sitzung: Zuhören kann jede und jeder, ohne Anmeldung.
+              = link_to (entry.question_time ? 'Wie?' : 'Mehr dazu'), participation_path(district: nil, anchor: 'oeffentliche-sitzungen')
+  - else
+    p.text-secondary
+      = "In den nächsten zwei Wochen steht #{area_name ? "zu #{area_name} " : ''}nichts auf einer Tagesordnung."
+      '
+      | Tagesordnungen erscheinen etwa eine Woche vor der Sitzung.

@@ -17,7 +17,8 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
   test 'GET show lists the meetings of the next two weeks about the Quarter' do
     district = districts(:hamburg_nord)
     committee = district.committees.create!(name: 'Regionalausschuss Barmbek-Uhlenhorst-Hohenfelde-Dulsberg')
-    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now, start_time: '18:00', room: 'Saal 1')
+    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now, start_time: '18:00', room: 'Saal 1',
+                                        location: 'Robert-Koch-Straße 17')
     meeting.agenda_items.create!(number: 'Ö 2', title: 'Aktuelle Bürgerfragestunde')
     meeting.agenda_items.create!(number: 'Ö 3', title: 'Bänke', document: documents(:document_7))
     district.meetings.create!(committee:, title: 'Sitzung', date: 10.days.from_now)
@@ -26,10 +27,75 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select '.upcoming-meeting', 2
-    assert_select '.upcoming-meeting', text: /18:00 Uhr.*Regionalausschuss Barmbek/m
+    assert_select '.upcoming-meeting', text: /Regionalausschuss Barmbek.*18:00 Uhr · Saal 1.*Robert-Koch-Straße 17/m
     assert_select '.upcoming-meeting li', text: /#{Regexp.escape(documents(:document_7).number)}/
     assert_select '.upcoming-meeting', text: /Öffentliche Fragestunde \(TOP Ö 2\)/
     assert_select '.upcoming-meeting', text: /Tagesordnung ist noch nicht veröffentlicht/
+  end
+
+  test 'GET show dates each Drucksache by its last meeting, not by when it was imported' do
+    meeting = agenda_items(:agenda_item_26).meeting
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select ".list-group-item a[href='#{meeting_path(meeting, district: districts(:hamburg_nord))}']"
+    assert_select '.list-group-item', text: /#{Regexp.escape(I18n.l(meeting.date))}/
+    assert_select '.list-group-item', text: /#{Regexp.escape(I18n.l(documents(:document_7).created_at.to_date))}/, count: 0
+  end
+
+  test 'GET show names the topic filter in the title card and counts only its documents' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+    documents(:document_227).update_columns(topics: %w[kultur]) # rubocop:disable Rails/SkipsModelValidations
+    district = districts(:hamburg_nord)
+
+    get quarter_path(district:, quarter: 'barmbek-nord', topic: 'kultur')
+
+    assert_select '.quarter-hero-card .badge', text: 'Thema: Kultur & Erinnerung'
+    assert_select ".quarter-hero-card a[href='#{quarter_path(district:, quarter: 'barmbek-nord')}']", text: 'Filter aufheben'
+    assert_select '.quarter-hero-card .btn-primary', text: /Kultur & Erinnerung in Barmbek-Nord abonnieren/
+    assert_select '.quarter-hero-card .fs-4', text: '1', minimum: 1
+  end
+
+  test 'GET show leads the topic chips with a way back to all topics' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', topic: 'strassenverkehr')
+
+    assert_select "nav[aria-label='Themen'] a:first-child[href='#{quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')}']",
+                  text: 'Alle Themen'
+  end
+
+  test 'GET show tells that a meeting without a Fragestunde can still be attended' do
+    district = districts(:hamburg_nord)
+    committee = district.committees.create!(name: 'Haushaltsausschuss')
+    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now)
+    meeting.agenda_items.create!(number: 'Ö 3', title: 'Sportfonds', document: documents(:document_7))
+
+    get quarter_path(district:, quarter: 'barmbek-nord')
+
+    assert_select '.upcoming-meeting', text: /Öffentliche Sitzung: Zuhören kann jede und jeder/
+  end
+
+  test 'GET show links the places each Drucksache mentions in the Quarter' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'gross-borstel')
+
+    location = locations(:julius_vosseler)
+    assert_select "a.btn[href='#{location_path(location, district: location.district)}']", text: location.name
+  end
+
+  test 'GET show links the neighbouring Quarters' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select '#neighbours-heading', count: 0
+    Quarter.reset!
+    Quarter.find_by(slug: 'gross-borstel').update!(geometry: [[[[9.96, 53.62], [10.00, 53.62], [10.00, 53.65], [9.96, 53.65], [9.96, 53.62]]]])
+    Quarter.find_by(slug: 'barmbek-nord').update!(geometry: [[[[9.95, 53.55], [10.05, 53.55], [10.05, 53.62], [10.00, 53.62], [9.96, 53.62],
+                                                               [9.95, 53.62], [9.95, 53.55]]]])
+    Quarter.reset!
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select "a[href='#{quarter_path(district: districts(:hamburg_nord), quarter: 'gross-borstel')}']", text: 'Groß Borstel'
   end
 
   test 'GET show says when nothing is coming up' do

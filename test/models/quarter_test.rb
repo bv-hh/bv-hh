@@ -111,4 +111,26 @@ class QuarterTest < ActiveSupport::TestCase
   test 'district is nil when no District exists for the Bezirk number' do
     assert_nil quarters(:lokstedt).district
   end
+  def square(name, west, south, size: 0.01)
+    east = west + size
+    north = south + size
+    Quarter.create!(name:, slug: name.parameterize, key: name.parameterize, district_number: 4,
+                    min_lng: west, max_lng: east, min_lat: south, max_lat: north,
+                    geometry: [[[[west, south], [east, south], [east, north], [west, north], [west, south]]]])
+  end
+
+  test 'neighbours are the Quarters sharing a stretch of boundary, not just a corner' do
+    middle = square('Mitte-Test', 11.00, 54.00)
+    east = square('Ost-Test', 11.01, 54.00)
+    corner = square('Ecke-Test', 11.01, 54.01)
+    apart = square('Weit-Test', 11.05, 54.00)
+    Quarter.reset!
+
+    neighbours = Quarter.lookup('mitte-test').neighbours.map(&:name)
+
+    assert_equal [east.name], neighbours
+    assert_not_includes neighbours, corner.name
+    assert_not_includes neighbours, apart.name
+    assert_not_includes neighbours, middle.name
+  end
 end
