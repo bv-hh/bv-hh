@@ -29,6 +29,12 @@ $accordion-icon-active-color: $accordion-button-active-color
 .navbar
   background-color: $blue
 
+// The navy of the navbar for highlights in the content, made like Bootstrap's
+// own text-bg-* helpers ($primary is the red, so there is none for it).
+.text-bg-brand
+  color: $white !important
+  background-color: $blue !important
+
 // Stored ALLRIS content is Word output with its formatting stripped (see
 // Parsing.clean), so its tables arrive bare. Nearly all of them are data tables
 // that had borders in Word. A wide one scrolls sideways instead of widening the
