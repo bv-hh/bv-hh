@@ -75,6 +75,24 @@ class MeetingTest < ActiveSupport::TestCase
     assert_not_includes Meeting.with_minutes, without
   end
 
+  test 'open_to_public leaves out closed committees and meetings that are closed by their title' do
+    regional = meetings(:rega_ewi_oct)
+    building = @district.meetings.create!(allris_id: 9_103, date: Date.new(2025, 1, 3),
+                                          title: 'Sitzung des Unterausschusses für Bauangelegenheiten')
+    award = @district.meetings.create!(allris_id: 9_104, date: Date.new(2025, 1, 3), title: 'Sitzung des Vergabeausschusses')
+    marked = @district.meetings.create!(allris_id: 9_105, date: Date.new(2025, 1, 3),
+                                        title: 'Sitzung des Unterausschusses (nichtöffentlich)')
+    without_committee = @district.meetings.create!(allris_id: 9_106, date: Date.new(2025, 1, 3), title: 'Sondersitzung')
+
+    open = Meeting.open_to_public
+    assert_includes open, regional
+    assert_includes open, without_committee
+    [building, award, marked].each { |meeting| assert_not_includes open, meeting }
+
+    committees(:rega_ewi).update!(public: false)
+    assert_not_includes Meeting.open_to_public, regional
+  end
+
   test 'ends_at uses the recorded end time when present' do
     meeting = meetings(:rega_ewi_oct)
 

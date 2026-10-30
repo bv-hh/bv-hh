@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 class PagesController < ApplicationController
-  # Searches offered below the search field on the home page. Evergreen terms
-  # that find something in every district, not current affairs that go stale.
-  SEARCH_EXAMPLES = ['Tempo 30', 'Spielplatz', 'Radweg', 'Baumfällung', 'Sondermittel'].freeze
-
   # Topics shown as bars on the home page; the rest follow as plain links.
   TOP_TOPICS = 8
 

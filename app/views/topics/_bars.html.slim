@@ -1,0 +1,16 @@
+/ The +top+ most frequent topics as bars, the rest as chips. items is a list of
+/ [Topic, count] pairs, most frequent first; url a proc giving each topic's link.
+- top_topics = items.first(top)
+- other_topics = items.drop(top)
+- max_count = top_topics.first.last
+.vstack.gap-2
+  - top_topics.each do |topic, count|
+    = link_to url.call(topic), class: 'row g-2 align-items-center text-decoration-none' do
+      span.col-sm-4.fw-semibold.text-decoration-underline= topic.label
+      span.col
+        span.progress role='progressbar' aria-label=topic.label aria-valuenow=count aria-valuemin=0 aria-valuemax=max_count
+          span.progress-bar.bg-secondary style="width: #{(100.0 * count / max_count).round}%"
+      span.col-2.text-end.small.text-secondary= number_with_delimiter(count)
+- if other_topics.any?
+  h3.h6.mt-4 Weitere Themen
+  = render 'topics/chips', items: other_topics, url:

@@ -4,94 +4,103 @@
   = auto_discovery_link_tag :rss, district_feed_url, title: "Drucksachen aus #{@district.name}"
 
 .district
-  / position-relative so the feed icon can sit in the hero's own top right
-  / corner rather than being pushed into the heading's line box.
-  .p-5.bg-light.rounded-3.position-relative.card
-    = link_to district_feed_url, class: 'btn btn-outline-secondary position-absolute top-0 end-0 m-3',
-        rel: 'alternate', type: 'application/rss+xml',
-        title: "RSS-Feed aller Drucksachen aus #{@district.name}" do
-      = icon('fas', 'rss')
-      span.visually-hidden
-        = "RSS-Feed aller Drucksachen aus #{@district.name} abonnieren"
+  nav aria-label='Brotkrumen'
+    ol.breadcrumb
+      li.breadcrumb-item= link_to 'Hamburg', root_path(district: nil)
+      li.breadcrumb-item.active aria-current='page'= @district.name
 
-    h1 Moin!
-    p.lead
-      | BV-HH.de bietet einen übersichtlichen und schnellen Zugang zu allen öffentlichen Dokumenten der Hamburger Bezirksversammlungen.
-        Aktuell sehen Sie Drucksachen, Sitzungen und mehr aus <b>#{@district.name}</b>.
-    p
-      | Um in einen anderen Bezirk zu wechseln, nutzen Sie
-        das Menü oben rechts. Unter "#{link_to 'Drucksachen', documents_path}" finden Sie alle Drucksachen aus allen Gremien chronologisch
-        sortiert. Über "#{link_to 'Sitzungen', meetings_path}" gelangen Sie zu allen Sitzungsterminen und den zugehörigen Tagesordnungen.
-        Über "#{link_to 'Gremien', committees_path}" können Sie eine Übersicht der jeweils nächsten Sitzungstermine einsehen.
-    hr.my-4
-    p
-      strong
-        ' Wichtig!
-      ' Dies ist keine offizielle Seite der Stadt Hamburg, sondern nur eine Kopie der Informationen aus dem offiziellen
-        Ratsinformationssystem unter
-      - allris_url = "#{@district.allris_base_url}/bi/allris.net.asp"
-      = link_to allris_url, allris_url, target: '_blank'
-      ' . Über das Symbol
-      => allris_icon
-      ' gelangen Sie zur jeweiligen Quelle. Nur dort sind verbindliche Informationen und Dokumente zu finden!
-      ' Aber
-      = link_to 'wozu soll das gut sein?', about_path
+  .card.p-4.p-lg-5.mb-5.bg-body-tertiary.rounded-3
+    .row.g-5
+      .col-lg-7
+        p.text-uppercase.fw-bold.small.text-secondary.mb-2 Bezirk
+        h1.display-5.fw-bold.mb-3= @district.name
+        p.lead.mb-4 Bezirksversammlung, Ausschüsse und Drucksachen aus #{@quarters.size} Stadtteilen.
+
+        = render 'search/hero', label: "In #{@district.name} suchen"
+
+        .d-flex.flex-wrap.gap-4.mt-4
+          - [[@document_count, 'Drucksachen'], [@meeting_count, 'Sitzungen'], [@quarters.size, 'Stadtteile']].each do |value, label|
+            div
+              .fs-3.fw-bold.lh-1= number_with_delimiter(value)
+              .small.text-secondary= label
+
+      .col-lg-5
+        .card
+          - if @next_assembly
+            .card-header.text-bg-brand.position-relative.p-3
+              .small.text-uppercase.fw-bold.opacity-75 Nächste Bezirksversammlung
+              .fs-3.fw-bold= l(@next_assembly.date, format: '%-d. %B')
+              .opacity-75
+                => l(@next_assembly.date, format: '%A')
+                ' ·
+                = days_until(@next_assembly.date)
+              = link_to 'Tagesordnung ansehen', meeting_path(@next_assembly), class: 'stretched-link link-light'
+          .card-body.pb-2
+            h2.h5.card-title Öffentliche Sitzungen
+          - if @next_meetings.any?
+            .list-group.list-group-flush
+              - @next_meetings.each do |meeting|
+                .list-group-item.list-group-item-action.position-relative.d-flex.align-items-baseline
+                  = link_to l(meeting.date, format: '%a %d.%m.'), meeting_path(meeting),
+                      class: 'stretched-link fw-bold text-nowrap col-3'
+                  span.flex-grow-1
+                    = meeting.committee&.name || meeting.title
+                    - if meeting.start_time
+                      small.d-block.text-secondary #{l(meeting.start_time)} Uhr
+          - else
+            p.card-body.pt-0.text-secondary Derzeit sind keine Sitzungen angekündigt.
+          .card-body.pt-2
+            = link_to "Alle Termine in #{@district.name}", meetings_path
+
+  .row.g-5.mb-5
+    section.col-lg-7
+      .d-flex.flex-wrap.justify-content-between.align-items-baseline.column-gap-3.mb-2
+        h2.mb-0 Neue Drucksachen
+        div
+          => link_to 'Alle Drucksachen', documents_path
+          = link_to district_feed_url, class: 'ms-2', rel: 'alternate', type: 'application/rss+xml',
+              title: "RSS-Feed aller Drucksachen aus #{@district.name}" do
+            = icon('fas', 'rss', 'RSS')
+      .list-group.list-group-flush
+        - @documents.each do |document|
+          .list-group-item.list-group-item-action.position-relative.px-0
+            .small.mb-1
+              = link_to document.number, document_path(document), class: 'stretched-link fw-bold me-2'
+              span.text-secondary= document.kind
+            = document.title.html_safe
+
+    - if @topic_counts.present?
+      section.col-lg-5
+        h2.mb-1 Themen
+        p.small.text-secondary Drucksachen nach Thema, automatisch zugeordnet.
+        = render 'topics/bars', items: @topic_counts, top: DistrictsController::TOP_TOPICS,
+                 url: ->(topic) { topic_path(topic:) }
 
   - if @quarters.present?
-    .quarters.mt-4
-      .card
-        .card-header Stadtteile in #{@district.name}
-        .card-body
-          p.card-text.text-secondary.small
-            | Drucksachen, die einen Ort im jeweiligen Stadtteil erwähnen — jeweils auch als RSS-Feed.
-          .d-flex.flex-wrap.gap-2
-            - @quarters.each do |quarter|
-              = link_to quarter.name, quarter_path(district: @district, quarter: quarter.slug),
-                  class: 'btn btn-sm btn-outline-secondary'
+    section.mb-5
+      h2.mb-1 Stadtteile
+      p.small.text-secondary Drucksachen, die einen Ort im jeweiligen Stadtteil erwähnen – jeweils auch als RSS-Feed.
+      .d-flex.flex-wrap.gap-2
+        - @quarters.each do |quarter|
+          = link_to quarter.name, quarter_path(quarter: quarter.slug), class: 'btn btn-sm btn-outline-secondary'
 
-  - if @topic_counts.present?
-    .topics.mt-4
-      .card
-        .card-header Themen in #{@district.name}
-        .card-body
-          p.card-text.text-secondary.small
-            | Drucksachen nach Thema, automatisch zugeordnet (Beta).
-          = render 'topics/chips', items: @topic_counts, url: ->(topic) { topic_path(topic:) }
+  = render 'pages/participation', heading: "Mitmachen in #{@district.name}"
 
-  .row.mt-4
-    .meetings.col-sm.mb-3
-      .card
-        .card-header Aktuelle Sitzungen
-        .card-body
-          table.table
-            tbody
-              - @meetings.each do |meeting|
-                tr class="#{meeting.date == Time.zone.now.to_date ? 'table-warning' : nil}"
-                  td.text-nowrap
-                    = link_to meeting_path(meeting) do
-                      strong= l meeting.date
-                    br
-                    = l meeting.start_time
-                  td.text-break
-                    = link_to meeting_path(meeting) do
-                      = meeting.title.html_safe
+  section.mb-5
+    h2.h5 Anderer Bezirk
+    nav.d-flex.flex-wrap.gap-2 aria-label='Bezirke'
+      - District.by_order.each do |district|
+        - if district == @district
+          span.btn.btn-dark aria-current='page'= district.name
+        - else
+          = link_to district.name, root_with_district_path(district:), class: 'btn btn-outline-secondary'
 
-          = link_to 'Alle Sitzungen', meetings_path
-
-    .documents.col-sm.mb-3
-      .card
-        .card-header Aktuelle Drucksachen
-        .card-body
-          table.table
-            tbody
-              - @documents.each do |document|
-                tr
-                  td.text-nowrap
-                    = link_to document_path(document) do
-                      strong= document.number
-                  td.text-break
-                    = link_to document_path(document) do
-                      = document.title.html_safe
-
-          = link_to 'Alle Drucksachen', documents_path
-
+  .alert.alert-warning.mb-0
+    strong> Keine offizielle Seite der Stadt Hamburg.
+    ' Kopie aus dem Ratsinformationssystem unter
+    - allris_url = "#{@district.allris_base_url}/bi/allris.net.asp"
+    => link_to allris_url, allris_url, target: '_blank', rel: 'noopener', class: 'alert-link'
+    ' – nur dort sind verbindliche Informationen zu finden. Über das Symbol
+    => allris_icon
+    ' gelangen Sie zur jeweiligen Quelle.
+    = link_to 'Wozu dann das hier?', about_path(district: nil), class: 'alert-link'

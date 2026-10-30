@@ -1,0 +1,24 @@
+/ Ways to take part. The calendar follows the current district, if any; the
+/ pages and the feed builder exist only once for all districts.
+section.mb-5
+  h2= heading
+  p.text-secondary
+    ' Politik endet nicht am Wahltag. Mehr dazu unter
+    => link_to 'Bezirkspolitik', district_politics_path(district: nil)
+    ' und
+    = link_to 'Beteiligung', participation_path(district: nil)
+    | .
+  .row.row-cols-1.row-cols-md-3.g-3
+    - [[calendar_path, 'calendar-alt', 'Sitzung besuchen',
+        'Ausschüsse tagen meist öffentlich, oft mit Fragestunde für Bürgerinnen und Bürger.'],
+       [participation_path(district: nil), 'pen', 'Eingabe schreiben',
+        'Anliegen direkt an die Bezirksversammlung richten – sie muss sich damit befassen.'],
+       [feed_path(district: nil), 'rss', 'Feed für Ihre Straße',
+        'Neue Drucksachen zu Ihren Straßen und Stadtteilen automatisch per RSS.']].each do |path, symbol, title, text|
+      .col
+        .card.h-100.bg-body-tertiary
+          .card-body
+            = icon('fas', symbol, class: 'fa-2x text-secondary mb-3')
+            h3.h5.card-title
+              = link_to title, path, class: 'stretched-link text-decoration-none'
+            p.card-text.text-secondary= text

@@ -78,7 +78,7 @@ html lang='de'
                 li
                   hr.dropdown-divider
                 li
-                  = link_to 'Übersicht', root_path, class: 'dropdown-item'
+                  = link_to 'Übersicht', root_path(district: nil), class: 'dropdown-item'
 
     .container.py-4.mt-5
       = yield
