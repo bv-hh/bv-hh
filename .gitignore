@@ -48,3 +48,6 @@ sitemap.xml.gz
 !/data/.keep
 
 *.bak
+
+# Local Claude Code settings
+/.claude/
