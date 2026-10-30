@@ -39,8 +39,10 @@
               .small.text-uppercase.fw-bold.opacity-75 Nächste Bezirksversammlung
               .fs-3.fw-bold= l(@next_assembly.date, format: '%-d. %B')
               .opacity-75
-                => l(@next_assembly.date, format: '%A')
-                ' ·
+                = l(@next_assembly.date, format: '%A')
+                - if @next_assembly.start_time
+                  | , #{l(@next_assembly.start_time)} Uhr
+                '  ·
                 = days_until(@next_assembly.date)
               = link_to 'Tagesordnung ansehen', meeting_path(@next_assembly), class: 'stretched-link link-light'
           .card-body.pb-2

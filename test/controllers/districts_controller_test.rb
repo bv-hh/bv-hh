@@ -24,7 +24,7 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
 
     get root_with_district_path(district:)
 
-    assert_select '.card-header', text: /Nächste Bezirksversammlung.*in 5 Tagen/m
+    assert_select '.card-header', text: /Nächste Bezirksversammlung.*, 18:00 Uhr · in 5 Tagen/m
     assert_select ".card-header a[href='#{meeting_path(assembly, district:)}']", text: 'Tagesordnung ansehen'
     assert_select '.list-group-item', text: /Regionalausschuss Eppendorf-Winterhude/, count: 1
     assert_select ".list-group-item a[href='#{meeting_path(assembly, district:)}']", count: 0
