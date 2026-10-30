@@ -35,6 +35,8 @@ class Meeting < ApplicationRecord
   OBJECT_MOVED = 'Object moved'
   AUTH_REDIRECT = 'noauth.asp'
 
+  NON_PUBLIC_TITLES = ['%nichtöffentlich%', '%Unterausschuss%Bau%', '%Vergabe%'].freeze
+
   belongs_to :district
   belongs_to :committee, optional: true
 
@@ -50,6 +52,13 @@ class Meeting < ApplicationRecord
   scope :in_month, ->(date) { where(date: date.all_month) }
   scope :in_future, -> { where(date: Time.zone.today..) }
   scope :of_assembly, -> { joins(:committee).merge(Committee.assembly) }
+  # Meetings the public can attend. ALLRIS flags some committees as closed, but
+  # not reliably: building subcommittees and award committees meet behind
+  # closed doors while flagged public, so their titles are excluded as well.
+  scope :open_to_public, lambda {
+    left_joins(:committee).where(committees: { public: [true, nil] })
+                          .where.not('meetings.title ILIKE ANY (ARRAY[?])', NON_PUBLIC_TITLES)
+  }
   scope :recent, -> { where(date: (7.days.ago..7.days.from_now)) }
 
   def retrieve_from_allris!(source = Net::HTTP.get(URI(allris_url)))

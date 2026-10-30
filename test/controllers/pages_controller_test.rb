@@ -42,7 +42,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_select 'input.search-input', count: 1
-    assert_select "input#home-search.search-input[data-suggest-documents='#{suggest_documents_path(q: 'QUERY')}']"
+    assert_select "input#hero-search.search-input[data-suggest-documents='#{suggest_documents_path(q: 'QUERY')}']"
   end
 
   test 'sub pages keep the search field in the navbar' do

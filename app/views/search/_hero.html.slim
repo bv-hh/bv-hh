@@ -1,0 +1,12 @@
+/ The large search field of a page's hero, with the navbar typeahead and a few
+/ example searches. The page sets @hero_search so the navbar leaves its own out.
+= form_tag search_path, method: :get do
+  label.form-label.fw-semibold for='hero-search'= label
+  .input-group.input-group-lg
+    = search_field_tag :q, nil, id: 'hero-search', class: 'form-control form-control-lg search-input',
+        placeholder: 'Straße, Stadtteil, Thema oder Drucksachen-Nr.', data: search_input_data, autocomplete: 'off'
+    button.btn.btn-primary type='submit' Suchen
+.d-flex.flex-wrap.align-items-center.gap-2.mt-3.small.text-secondary
+  span Zum Beispiel:
+  - SearchController::EXAMPLES.each do |term|
+    = link_to term, search_path(q: term), class: 'btn btn-sm btn-light border rounded-pill'

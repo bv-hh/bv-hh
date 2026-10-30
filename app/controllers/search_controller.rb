@@ -3,6 +3,10 @@
 class SearchController < ApplicationController
   LIMIT = 25
 
+  # Searches offered below a hero search field. Evergreen terms that find
+  # something in every district, not current affairs that go stale.
+  EXAMPLES = ['Tempo 30', 'Spielplatz', 'Radweg', 'Baumfällung', 'Sondermittel'].freeze
+
   def show
     @term = (params[:q] || '').strip
 

@@ -10,16 +10,7 @@
           | Alle öffentlichen Drucksachen, Sitzungen und Protokolle der sieben Hamburger Bezirksversammlungen –
             durchsuchbar nach Straße, Stadtteil und Thema.
 
-        = form_tag search_path, method: :get do
-          label.form-label.fw-semibold for='home-search' Suche in allen Bezirken
-          .input-group.input-group-lg
-            = search_field_tag :q, nil, id: 'home-search', class: 'form-control form-control-lg search-input',
-                placeholder: 'Straße, Stadtteil, Thema oder Drucksachen-Nr.', data: search_input_data, autocomplete: 'off'
-            button.btn.btn-primary type='submit' Suchen
-        .d-flex.flex-wrap.align-items-center.gap-2.mt-3.small.text-secondary
-          span Zum Beispiel:
-          - PagesController::SEARCH_EXAMPLES.each do |term|
-            = link_to term, search_path(q: term), class: 'btn btn-sm btn-light border rounded-pill'
+        = render 'search/hero', label: 'Suche in allen Bezirken'
 
         .d-flex.flex-wrap.gap-4.mt-4
           - [[@document_counts.values.sum, 'Drucksachen'], [@meeting_count, 'Sitzungen'],
@@ -71,9 +62,6 @@
             p.card-text.small.text-secondary Auf der Karte sehen, welche Drucksachen Orte in Ihrer Nähe betreffen.
 
   - if @topic_counts.present?
-    - top_topics = @topic_counts.first(PagesController::TOP_TOPICS)
-    - other_topics = @topic_counts.drop(PagesController::TOP_TOPICS)
-    - max_count = top_topics.first.last
     section.mb-5
       .row.g-4
         .col-lg-4
@@ -82,40 +70,10 @@
             | Jede Drucksache ist automatisch einem von #{Topic.count} Themen zugeordnet. Die häufigsten in allen
               Bezirken:
         .col-lg-8
-          .vstack.gap-2
-            - top_topics.each do |topic, count|
-              = link_to topic_path(topic:, district: nil), class: 'row g-2 align-items-center text-decoration-none' do
-                span.col-sm-4.fw-semibold.text-decoration-underline= topic.label
-                span.col
-                  span.progress role='progressbar' aria-label=topic.label aria-valuenow=count aria-valuemin=0 aria-valuemax=max_count
-                    span.progress-bar.bg-secondary style="width: #{(100.0 * count / max_count).round}%"
-                span.col-2.text-end.small.text-secondary= number_with_delimiter(count)
-          - if other_topics.any?
-            h3.h6.mt-4 Weitere Themen
-            = render 'topics/chips', items: other_topics, url: ->(topic) { topic_path(topic:, district: nil) }
+          = render 'topics/bars', items: @topic_counts, top: PagesController::TOP_TOPICS,
+                   url: ->(topic) { topic_path(topic:, district: nil) }
 
-  section.mb-5
-    h2 Mitmachen
-    p.text-secondary
-      ' Politik endet nicht am Wahltag. Mehr dazu unter
-      => link_to 'Bezirkspolitik', district_politics_path
-      ' und
-      = link_to 'Beteiligung', participation_path
-      | .
-    .row.row-cols-1.row-cols-md-3.g-3
-      - [[calendar_path, 'calendar-alt', 'Sitzung besuchen',
-          'Ausschüsse tagen meist öffentlich, oft mit Fragestunde für Bürgerinnen und Bürger.'],
-         [participation_path, 'pen', 'Eingabe schreiben',
-          'Anliegen direkt an die Bezirksversammlung richten – sie muss sich damit befassen.'],
-         [feed_path, 'rss', 'Feed für Ihre Straße',
-          'Neue Drucksachen zu Ihren Straßen und Stadtteilen automatisch per RSS.']].each do |path, symbol, title, text|
-        .col
-          .card.h-100.bg-body-tertiary
-            .card-body
-              = icon('fas', symbol, class: 'fa-2x text-secondary mb-3')
-              h3.h5.card-title
-                = link_to title, path, class: 'stretched-link text-decoration-none'
-              p.card-text.text-secondary= text
+  = render 'pages/participation', heading: 'Mitmachen'
 
   .alert.alert-warning.mb-0
     strong> Keine offizielle Seite der Stadt Hamburg.
