@@ -3,14 +3,15 @@ import { Controller } from "@hotwired/stimulus"
 import "leaflet"
 import "leaflet.markercluster"
 
-// The map beside a Quarter's document listing. Draws the Quarter boundary
-// and pins the locations of the documents on the current page, so the map and
-// the list always agree.
+// The map leading a Quarter's page. Draws the Quarter boundary and pins the
+// locations of the documents on the current page, so the map and the list
+// always agree. Where the title card floats on the map, the map keeps the
+// area under it free.
 //
 // Separate from map_controller because that one is built around the whole-city
 // view: a month toolbar, a fixed centre and zoom, and no boundary.
 export default class extends Controller {
-  static targets = ["container", "empty"]
+  static targets = ["container", "empty", "card"]
   static values = { url: String }
 
   connect() {
@@ -23,7 +24,9 @@ export default class extends Controller {
   }
 
   createMap() {
-    this.map = L.map(this.containerTarget, { scrollWheelZoom: false })
+    // Zoom buttons on the right: the title card covers the top left.
+    this.map = L.map(this.containerTarget, { scrollWheelZoom: false, zoomControl: false })
+    L.control.zoom({ position: "topright" }).addTo(this.map)
     this.markers = L.markerClusterGroup()
     this.map.addLayer(this.markers)
 
@@ -67,10 +70,19 @@ export default class extends Controller {
     const bounds = this.markers.getBounds()
 
     if (bounds.isValid()) {
-      this.map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 })
+      this.map.fitBounds(bounds, { ...this.padding(30), maxZoom: 15 })
     } else {
-      this.map.fitBounds(data.bounds, { padding: [10, 10] })
+      this.map.fitBounds(data.bounds, this.padding(10))
     }
+  }
+
+  // Extra room on the left while the card floats on the map (from md up).
+  padding(base) {
+    const card = this.hasCardTarget ? this.cardTarget : null
+    const floating = card && getComputedStyle(card).position === "absolute"
+    const left = floating ? card.offsetLeft + card.offsetWidth + base : base
+
+    return { paddingTopLeft: [left, base], paddingBottomRight: [base, base] }
   }
 
   popupContent(marker) {

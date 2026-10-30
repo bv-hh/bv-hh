@@ -29,6 +29,25 @@ $accordion-icon-active-color: $accordion-button-active-color
 .navbar
   background-color: $blue
 
+// The Stadtteil page leads with its map. From md up the title card floats on
+// it, above Leaflet's panes and controls (z-index 400 to 1000); below md the
+// card simply follows the map.
+.quarter-hero
+  .quarter-hero-map
+    height: 20rem
+
+  +media-breakpoint-up(md)
+    .quarter-hero-map
+      height: 30rem
+
+    .quarter-hero-card
+      position: absolute
+      top: 1.5rem
+      left: 1.5rem
+      width: 24rem
+      z-index: 1000
+      box-shadow: $box-shadow
+
 // The navy of the navbar for highlights in the content, made like Bootstrap's
 // own text-bg-* helpers ($primary is the red, so there is none for it).
 .text-bg-brand

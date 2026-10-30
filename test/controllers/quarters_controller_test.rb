@@ -26,10 +26,43 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select '.upcoming-meeting', 2
-    assert_select '.upcoming-meeting', text: /18:00 Uhr.*Regionalausschuss Barmbek/m
+    assert_select '.upcoming-meeting', text: /Regionalausschuss Barmbek.*18:00 Uhr · Saal 1/m
     assert_select '.upcoming-meeting li', text: /#{Regexp.escape(documents(:document_7).number)}/
     assert_select '.upcoming-meeting', text: /Öffentliche Fragestunde \(TOP Ö 2\)/
     assert_select '.upcoming-meeting', text: /Tagesordnung ist noch nicht veröffentlicht/
+  end
+
+  test 'GET show tells that a meeting without a Fragestunde can still be attended' do
+    district = districts(:hamburg_nord)
+    committee = district.committees.create!(name: 'Haushaltsausschuss')
+    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now)
+    meeting.agenda_items.create!(number: 'Ö 3', title: 'Sportfonds', document: documents(:document_7))
+
+    get quarter_path(district:, quarter: 'barmbek-nord')
+
+    assert_select '.upcoming-meeting', text: /Öffentliche Sitzung: Zuhören kann jede und jeder/
+  end
+
+  test 'GET show links the places each Drucksache mentions in the Quarter' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'gross-borstel')
+
+    location = locations(:julius_vosseler)
+    assert_select "a.btn[href='#{location_path(location, district: location.district)}']", text: location.name
+  end
+
+  test 'GET show links the neighbouring Quarters' do
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select '#neighbours-heading', count: 0
+    Quarter.reset!
+    Quarter.find_by(slug: 'gross-borstel').update!(geometry: [[[[9.96, 53.62], [10.00, 53.62], [10.00, 53.65], [9.96, 53.65], [9.96, 53.62]]]])
+    Quarter.find_by(slug: 'barmbek-nord').update!(geometry: [[[[9.95, 53.55], [10.05, 53.55], [10.05, 53.62], [10.00, 53.62], [9.96, 53.62],
+                                                               [9.95, 53.62], [9.95, 53.55]]]])
+    Quarter.reset!
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select "a[href='#{quarter_path(district: districts(:hamburg_nord), quarter: 'gross-borstel')}']", text: 'Groß Borstel'
   end
 
   test 'GET show says when nothing is coming up' do
