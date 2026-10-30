@@ -76,7 +76,7 @@ export default class extends Controller {
     }
   }
 
-  // Extra room on the left while the card floats on the map (from md up).
+  // Extra room on the left while the card floats on the map (from lg up).
   padding(base) {
     const card = this.hasCardTarget ? this.cardTarget : null
     const floating = card && getComputedStyle(card).position === "absolute"

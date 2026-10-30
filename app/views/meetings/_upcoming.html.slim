@@ -22,6 +22,8 @@ section.upcoming.mb-5 aria-labelledby='upcoming-heading'
                 = link_to meeting.committee&.name || meeting.title, meeting_url, class: 'fw-semibold'
                 .small.text-secondary
                   = [("#{l meeting.start_time} Uhr" if meeting.start_time.present?), meeting.room].compact_blank.join(' · ')
+                - if meeting.location.present?
+                  .small.text-secondary= meeting.location
             .card-body
               - if entry.items.any?
                 p.small.fw-semibold.mb-1

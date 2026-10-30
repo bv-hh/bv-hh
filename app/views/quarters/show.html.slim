@@ -11,12 +11,12 @@
 - content_for :head do
   = auto_discovery_link_tag :rss, quarter_feed_url, title: "Drucksachen zu #{@quarter.name}"
 
-/ The map leads. From md up the title card floats on it (quarter-hero in
-/ application.sass) and the map keeps its left side free; below md the card
+/ The map leads. From lg up the title card floats on it (quarter-hero in
+/ application.sass) and the map keeps its left side free; below lg the card
 / follows the map.
 section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-quarter-map-url-value=markers_url
   .quarter-hero-map.rounded.border data-quarter-map-target='container'
-  .card.quarter-hero-card.mt-3.mt-md-0 data-quarter-map-target='card'
+  .card.quarter-hero-card.mt-3.mt-lg-0 data-quarter-map-target='card'
     .card-body.p-4
       nav aria-label='Brotkrumen'
         ol.breadcrumb.small.mb-2
@@ -67,12 +67,16 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
     / Below lg the topics are one row to swipe through instead of a sidebar.
     - if @topic_counts.present?
       nav.d-flex.d-lg-none.flex-nowrap.overflow-x-auto.gap-2.pb-2.mb-3 aria-label='Themen'
+        = link_to 'Alle Themen', quarter_page.call, class: ['btn btn-sm text-nowrap', @topic ? 'btn-outline-secondary' : 'btn-secondary'],
+            'aria-current': (@topic ? nil : 'true')
         - @topic_counts.each do |topic, count|
           - selected = topic == @topic
           = link_to topic_url.call(topic), class: ['btn btn-sm text-nowrap', selected ? 'btn-secondary' : 'btn-outline-secondary'],
               'aria-current': (selected ? 'true' : nil) do
             = topic.label
             span.ms-1.opacity-75= number_with_delimiter(count)
+      - if @topic
+        = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil), class: 'd-inline-block d-lg-none small mb-3'
 
     - if @documents.any?
       / A street crossing a Bezirk boundary puts documents from a neighbouring
@@ -80,23 +84,29 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
       .list-group.list-group-flush
         - @documents.each do |document|
           - places = @places.fetch(document.id, [])
-          .list-group-item.px-0.d-flex.gap-3
-            .small.text-secondary.text-nowrap.flex-shrink-0= l(document.created_at.to_date)
-            div
-              = link_to document.title.html_safe, document_path(document, district: document.district)
-              .small.text-secondary
-                => document.number
-                ' ·
-                = document.kind
-                - if document.district != @quarter.district
-                  span.badge.bg-light.text-secondary.border.ms-1= document.district.name
-              - if places.any?
-                .d-flex.flex-wrap.gap-1.mt-1
-                  - places.first(max_places).each do |location|
-                    = link_to location.name, location_path(location, district: location.district),
-                        class: 'btn btn-sm btn-outline-secondary py-0'
-                  - if places.size > max_places
-                    span.small.text-secondary.align-self-center= "+ #{places.size - max_places} weitere"
+          / The last meeting dates a Drucksache; created_at would not, as it is
+          / when BV-HH imported it (thousands of old ones on the same day).
+          - meeting = document.meetings.max_by(&:date)
+          .list-group-item.px-0
+            = link_to document.title.html_safe, document_path(document, district: document.district)
+            .small.text-secondary
+              => document.number
+              ' ·
+              = document.kind
+              - if document.district != @quarter.district
+                span.badge.bg-light.text-secondary.border.ms-1= document.district.name
+            - if meeting
+              .small
+                = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: document.district),
+                    class: 'text-secondary'
+                span.text-secondary= " · #{l meeting.date}"
+            - if places.any?
+              .d-flex.flex-wrap.gap-1.mt-1
+                - places.first(max_places).each do |location|
+                  = link_to location.name, location_path(location, district: location.district),
+                      class: 'btn btn-sm btn-outline-secondary py-0'
+                - if places.size > max_places
+                  span.small.text-secondary.align-self-center= "+ #{places.size - max_places} weitere"
 
       .mt-4
         = paginate @documents, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'

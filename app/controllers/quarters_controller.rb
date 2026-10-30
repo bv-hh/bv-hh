@@ -77,7 +77,7 @@ class QuartersController < ApplicationController
     # every district that mentions a place in it, and numbers only run in
     # sequence within one district, so there is nothing to compare across them.
     # Same order as the feed.
-    @documents = page_documents.preload(:district)
+    @documents = page_documents.preload(:district, meetings: :committee)
     @places = places_by_document
     @location_count = quarter_locations.distinct.count(:location_id)
     @upcoming = UpcomingQuery.new(@query)

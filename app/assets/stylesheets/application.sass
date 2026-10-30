@@ -29,14 +29,18 @@ $accordion-icon-active-color: $accordion-button-active-color
 .navbar
   background-color: $blue
 
-// The Stadtteil page leads with its map. From md up the title card floats on
-// it, above Leaflet's panes and controls (z-index 400 to 1000); below md the
-// card simply follows the map.
+// The Stadtteil page leads with its map. From lg up the title card floats on
+// it, above Leaflet's panes and controls (z-index 400 to 1000); below lg the
+// card simply follows the map, which would otherwise be half covered.
 .quarter-hero
   .quarter-hero-map
     height: 20rem
 
   +media-breakpoint-up(md)
+    .quarter-hero-map
+      height: 26rem
+
+  +media-breakpoint-up(lg)
     .quarter-hero-map
       height: 30rem
 

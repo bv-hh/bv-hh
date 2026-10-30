@@ -17,7 +17,8 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
   test 'GET show lists the meetings of the next two weeks about the Quarter' do
     district = districts(:hamburg_nord)
     committee = district.committees.create!(name: 'Regionalausschuss Barmbek-Uhlenhorst-Hohenfelde-Dulsberg')
-    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now, start_time: '18:00', room: 'Saal 1')
+    meeting = district.meetings.create!(committee:, title: 'Sitzung', date: 3.days.from_now, start_time: '18:00', room: 'Saal 1',
+                                        location: 'Robert-Koch-Straße 17')
     meeting.agenda_items.create!(number: 'Ö 2', title: 'Aktuelle Bürgerfragestunde')
     meeting.agenda_items.create!(number: 'Ö 3', title: 'Bänke', document: documents(:document_7))
     district.meetings.create!(committee:, title: 'Sitzung', date: 10.days.from_now)
@@ -26,10 +27,29 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select '.upcoming-meeting', 2
-    assert_select '.upcoming-meeting', text: /Regionalausschuss Barmbek.*18:00 Uhr · Saal 1/m
+    assert_select '.upcoming-meeting', text: /Regionalausschuss Barmbek.*18:00 Uhr · Saal 1.*Robert-Koch-Straße 17/m
     assert_select '.upcoming-meeting li', text: /#{Regexp.escape(documents(:document_7).number)}/
     assert_select '.upcoming-meeting', text: /Öffentliche Fragestunde \(TOP Ö 2\)/
     assert_select '.upcoming-meeting', text: /Tagesordnung ist noch nicht veröffentlicht/
+  end
+
+  test 'GET show dates each Drucksache by its last meeting, not by when it was imported' do
+    meeting = agenda_items(:agenda_item_26).meeting
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')
+
+    assert_select ".list-group-item a[href='#{meeting_path(meeting, district: districts(:hamburg_nord))}']"
+    assert_select '.list-group-item', text: /#{Regexp.escape(I18n.l(meeting.date))}/
+    assert_select '.list-group-item', text: /#{Regexp.escape(I18n.l(documents(:document_7).created_at.to_date))}/, count: 0
+  end
+
+  test 'GET show leads the topic chips with a way back to all topics' do
+    documents(:document_7).update_columns(topics: %w[strassenverkehr]) # rubocop:disable Rails/SkipsModelValidations
+
+    get quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord', topic: 'strassenverkehr')
+
+    assert_select "nav[aria-label='Themen'] a:first-child[href='#{quarter_path(district: districts(:hamburg_nord), quarter: 'barmbek-nord')}']",
+                  text: 'Alle Themen'
   end
 
   test 'GET show tells that a meeting without a Fragestunde can still be attended' do
