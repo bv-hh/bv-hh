@@ -24,6 +24,14 @@
               .fs-3.fw-bold.lh-1= number_with_delimiter(value)
               .small.text-secondary= label
 
+        - if @quarters.present?
+          section.mt-4
+            h2.h6.mb-1 Ihr Stadtteil
+            p.small.text-secondary.mb-2 Drucksachen, die einen Ort im Stadtteil erwähnen – jeweils auch als RSS-Feed.
+            .d-flex.flex-wrap.gap-2
+              - @quarters.each do |quarter|
+                = link_to quarter.name, quarter_path(quarter: quarter.slug), class: 'btn btn-sm btn-outline-secondary'
+
       .col-lg-5
         .card
           - if @next_assembly
@@ -75,14 +83,6 @@
         p.small.text-secondary Drucksachen nach Thema, automatisch zugeordnet.
         = render 'topics/bars', items: @topic_counts, top: DistrictsController::TOP_TOPICS,
                  url: ->(topic) { topic_path(topic:) }
-
-  - if @quarters.present?
-    section.mb-5
-      h2.mb-1 Stadtteile
-      p.small.text-secondary Drucksachen, die einen Ort im jeweiligen Stadtteil erwähnen – jeweils auch als RSS-Feed.
-      .d-flex.flex-wrap.gap-2
-        - @quarters.each do |quarter|
-          = link_to quarter.name, quarter_path(quarter: quarter.slug), class: 'btn btn-sm btn-outline-secondary'
 
   = render 'pages/participation', heading: "Mitmachen in #{@district.name}"
 

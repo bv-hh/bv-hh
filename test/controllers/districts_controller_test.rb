@@ -30,6 +30,15 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".list-group-item a[href='#{meeting_path(assembly, district:)}']", count: 0
   end
 
+  test 'GET show links the Stadtteile of the district in the hero' do
+    district = districts(:hamburg_nord)
+
+    get root_with_district_path(district:)
+
+    assert_select ".card a[href='#{quarter_path(district:, quarter: 'barmbek-nord')}']", text: 'Barmbek-Nord'
+    assert_select "a[href='#{quarter_path(district:, quarter: 'lokstedt')}']", count: 0
+  end
+
   test 'GET show leaves closed meetings out of the public meetings' do
     district = districts(:hamburg_nord)
     meetings(:rega_ewi_oct).update!(date: 2.days.from_now.to_date)
