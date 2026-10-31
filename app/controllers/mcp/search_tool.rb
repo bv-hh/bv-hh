@@ -86,7 +86,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
     end
 
     documents = Document.search(term, root: documents_root).limit(LIMIT)
-    minutes = AgendaItem.minutes_prefix_search(term, agenda_items_root).limit(LIMIT)
+    minutes = AgendaItem.minutes_search(term, agenda_items_root).limit(LIMIT)
 
     documents_result = documents.map(&:as_json)
     minutes_result = minutes.map(&:as_json)

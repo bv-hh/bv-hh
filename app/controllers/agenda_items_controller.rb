@@ -17,7 +17,7 @@ class AgendaItemsController < ApplicationController
   def suggest
     root = @district&.agenda_items || AgendaItem.all
     root = root.includes(:district, { meeting: :committee })
-    agenda_items = AgendaItem.minutes_prefix_search(params[:q], root).limit(MAX_SUGGESTIONS).load
+    agenda_items = AgendaItem.minutes_search(params[:q], root, prefix: true).limit(MAX_SUGGESTIONS).load
     agenda_items = agenda_items.map do |agenda_item|
       {
         id: agenda_item.id,

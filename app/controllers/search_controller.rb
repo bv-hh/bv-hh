@@ -75,26 +75,21 @@ class SearchController < ApplicationController
     # Minutes carry no topics, so a topic filter leaves none of them.
     root = root.none if @topic
 
-    @agenda_items = AgendaItem.minutes_prefix_search(@term, root)
+    @agenda_items = AgendaItem.minutes_search(@term, root)
     @agenda_item_count = @agenda_items.count
   end
 
   # { documents:, minutes: } with district id => results there each, for the
   # Bezirk links. The same filters as the list, so the link to the current
-  # Bezirk shows the count below it. Cached briefly: the minutes are matched by
-  # ILIKE in every Bezirk, which takes most of a second for a common word, and
-  # the example searches recur.
+  # Bezirk shows the count below it.
   def count_districts
-    key = ['search_district_counts', @term.downcase, @kind, @topic&.key, @attachments]
-    @district_counts = Rails.cache.fetch(key, expires_in: 10.minutes) do
-      documents = documents_matching(Document.all)
-      documents = documents.with_topics(@topic.key) if @topic
-      {
-        documents: Document.where(id: ids_of(documents)).group(:district_id).count,
-        # Minutes carry no topics.
-        minutes: @topic ? {} : AgendaItem.minutes_prefix_search(@term).unscope(:order).group('meetings.district_id').count,
-      }
-    end
+    documents = documents_matching(Document.all)
+    documents = documents.with_topics(@topic.key) if @topic
+    @district_counts = {
+      documents: Document.where(id: ids_of(documents)).group(:district_id).count,
+      # Minutes carry no topics.
+      minutes: @topic ? {} : AgendaItem.minutes_search(@term).unscope(:order).group('meetings.district_id').count,
+    }
   end
 
   def documents_matching(root)

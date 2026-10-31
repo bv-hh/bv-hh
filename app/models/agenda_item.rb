@@ -20,10 +20,6 @@
 # Indexes
 #
 #  agenda_items_expr_idx               (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::"char")))) USING gin
-#  agenda_items_minutes_gin_trgm_idx   (minutes) USING gin
-#  agenda_items_minutes_gist_trgm_idx  (minutes) USING gist
-#  agenda_items_title_gin_trgm_idx     (title) USING gin
-#  agenda_items_title_gist_trgm_idx    (title) USING gist
 #  index_agenda_items_on_document_id   (document_id)
 #  index_agenda_items_on_meeting_id    (meeting_id)
 #
@@ -38,6 +34,11 @@ class AgendaItem < ApplicationRecord
   # four in five agendas; most specialist committees in Harburg and Bergedorf
   # have none.
   QUESTION_TIME = /fragestunde|anliegen der bürger/i
+
+  # Exactly the expression of agenda_items_expr_idx, or every item is analysed
+  # again.
+  SEARCH_VECTOR = "(setweight(to_tsvector('german', agenda_items.title), 'A') || " \
+                  "setweight(to_tsvector('german', agenda_items.minutes), 'B'))"
 
   belongs_to :meeting
   belongs_to :document, optional: true
@@ -124,13 +125,17 @@ class AgendaItem < ApplicationRecord
     slice(:id, :meeting_id, :document_id, :title, :number, :decision).merge(minutes: strip_tags(minutes))
   end
 
-  def self.minutes_prefix_search(term, root = nil)
-    term = '' if term.nil?
+  # Items whose title or minutes contain all words of +term+, in any of their
+  # forms ("Spielplatz" finds "Spielplätze"), newest first. prefix: true takes
+  # the last word as the beginning of one, for a field being typed into.
+  def self.minutes_search(term, root = nil, prefix: false)
+    words = term.to_s.gsub(/[^[:alnum:]]+/, ' ').split
+    query = (root || AgendaItem.all).with_minutes.joins(:meeting).order('meetings.date DESC')
+    return query.none if words.empty?
 
-    query = (root || AgendaItem.all).with_minutes.joins(:meeting)
-    query = query.where('agenda_items.minutes ILIKE :term', term: "%#{term.downcase}%")
-
-    query.order('meetings.date DESC')
+    tsquery = words.join(' & ')
+    tsquery += ':*' if prefix
+    query.where("#{SEARCH_VECTOR} @@ to_tsquery('german', ?)", tsquery)
   end
 
   private
