@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_224347) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_31_180200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -61,10 +61,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_224347) do
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::\"char\")))", name: "agenda_items_expr_idx", using: :gin
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
-    t.index ["minutes"], name: "agenda_items_minutes_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
-    t.index ["minutes"], name: "agenda_items_minutes_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
-    t.index ["title"], name: "agenda_items_title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
-    t.index ["title"], name: "agenda_items_title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
   end
 
   create_table "ahoy_events", force: :cascade do |t|
@@ -283,17 +279,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_224347) do
     t.string "topics", default: [], null: false, array: true
     t.integer "topics_version"
     t.string "classified_topics", default: [], null: false, array: true
-    t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
+    t.virtual "search_vector", type: :tsvector, as: "(setweight(to_tsvector('german'::regconfig, (COALESCE(title, ''::character varying))::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, COALESCE(full_text, ''::text)), 'B'::\"char\"))", stored: true
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
     t.index ["district_id", "parser_version", "updated_at"], name: "idx_on_district_id_parser_version_updated_at_4aac032a73"
     t.index ["district_id"], name: "index_documents_on_district_id"
-    t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
-    t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["number"], name: "index_documents_on_number"
     t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
+    t.index ["search_vector"], name: "index_documents_on_search_vector", using: :gin
     t.index ["stations"], name: "index_documents_on_stations", using: :gin
-    t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
     t.index ["topics"], name: "index_documents_on_topics", using: :gin
   end
