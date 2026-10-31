@@ -4,9 +4,4 @@
 - active = local_assigns[:active]
 .d-flex.flex-wrap.gap-2 class=local_assigns[:css]
   - items.each do |topic, count|
-    - selected = topic.key == active
-    = link_to url.call(topic), class: ['btn', 'btn-sm', selected ? 'btn-secondary' : 'btn-outline-secondary'],
-        'aria-current': (selected ? 'true' : nil) do
-      = topic.label
-      - if count
-        span.ms-1.opacity-75= number_with_delimiter(count)
+    = filter_chip(topic.label, url.call(topic), selected: topic.key == active, count:, pill: true)

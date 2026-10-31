@@ -29,14 +29,11 @@
 - districts = District.by_order.select { |district| @district_counts[district.id].to_i.positive? }
 - if districts.size > 1
   .d-flex.flex-wrap.gap-2.mb-4
-    = link_to topic_path(topic: @topic, district: nil), class: ['btn', 'btn-sm', @district ? 'btn-outline-secondary' : 'btn-secondary'] do
-      | Alle Bezirke
-      span.ms-1.opacity-75= number_with_delimiter(@district_counts.values.sum)
+    = filter_chip('Alle Bezirke', topic_path(topic: @topic, district: nil), selected: @district.nil?,
+        count: @district_counts.values.sum, current: 'page')
     - districts.each do |district|
-      = link_to topic_path(topic: @topic, district: district.to_param),
-          class: ['btn', 'btn-sm', district == @district ? 'btn-secondary' : 'btn-outline-secondary'] do
-        = district.name
-        span.ms-1.opacity-75= number_with_delimiter(@district_counts[district.id])
+      = filter_chip(district.name, topic_path(topic: @topic, district: district.to_param), selected: district == @district,
+          count: @district_counts[district.id], current: 'page')
 
 - if @documents.any?
   p.text-secondary

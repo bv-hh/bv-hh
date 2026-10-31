@@ -30,7 +30,7 @@
             p.small.text-secondary.mb-2 Drucksachen, die einen Ort im Stadtteil erwähnen – jeweils auch als RSS-Feed.
             .d-flex.flex-wrap.gap-2
               - @quarters.each do |quarter|
-                = link_to quarter.name, quarter_path(quarter: quarter.slug), class: 'btn btn-sm btn-outline-secondary'
+                = quarter_chip(quarter)
 
       .col-lg-5
         .card
@@ -92,10 +92,7 @@
     h2.h5 Anderer Bezirk
     nav.d-flex.flex-wrap.gap-2 aria-label='Bezirke'
       - District.by_order.each do |district|
-        - if district == @district
-          span.btn.btn-dark aria-current='page'= district.name
-        - else
-          = link_to district.name, root_with_district_path(district:), class: 'btn btn-outline-secondary'
+        = filter_chip(district.name, root_with_district_path(district:), selected: district == @district, current: 'page')
 
   .alert.alert-warning.mb-0
     strong> Keine offizielle Seite der Stadt Hamburg.

@@ -9,14 +9,13 @@
       = document.title.html_safe
     br
     span.text-secondary.small= document.kind
-    - if show_district
-      = ' '
-      span.badge.bg-light.text-secondary.border= document.district.name
     - if (meeting = document.meetings.max_by(&:date))
       br
       = link_to meeting.committee.name, meeting_path(meeting, district: document.district), class: 'text-secondary small'
       span.text-secondary.small
         = ' · '
         = l meeting.date
+    - if show_district
+      .mt-1= district_chip(document.district)
   .col-1.text-end
     = allris_link(document.allris_url)

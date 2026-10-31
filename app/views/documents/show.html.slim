@@ -87,22 +87,19 @@ h3.text-muted
 
       .card-body
         - if @document.locations.present?
-          - @document.locations.each do |location|
-            => link_to location_path(location) do
-              span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
-                = location.name
+          .d-flex.flex-wrap.gap-1
+            - @document.locations.each do |location|
+              = place_chip(location)
 
-          / The Stadtteile those places fall into, in the outline style the
-          / district page uses for its Quarter links, so they read as a
-          / coarser second layer rather than more places.
+          / The Stadtteile those places fall into, a coarser second layer below
+          / the places.
           - quarters = @document.locations.flat_map(&:quarters).uniq.sort.filter_map { |name| Quarter.lookup(name) }.select(&:district)
           - if quarters.present?
             .mt-3
               .small.text-secondary.mb-1 Stadtteile
               .d-flex.flex-wrap.gap-1
                 - quarters.each do |quarter|
-                  = link_to quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug),
-                      class: 'btn btn-sm btn-outline-secondary'
+                  = quarter_chip(quarter)
         - else
           p
             | Keine Orte erkannt.
@@ -120,8 +117,7 @@ h3.text-muted
         - if @document.topic_records.present?
           .d-flex.flex-wrap.gap-1
             - @document.topic_records.each do |topic|
-              = link_to topic.label, topic_path(topic: topic, district: @document.district),
-                  class: 'badge text-bg-secondary text-decoration-none'
+              = topic_chip(topic, topic_path(topic:, district: @document.district))
         - else
           p
             | Keine Themen erkannt.
