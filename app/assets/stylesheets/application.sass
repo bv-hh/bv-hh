@@ -58,6 +58,15 @@ $accordion-icon-active-color: $accordion-button-active-color
   color: $white !important
   background-color: $blue !important
 
+// Example searches below a search field (ChipHelper#example_chip): the one
+// chip with colour, in the link blue, as it is neither a thing nor a filter.
+$example-bg: tint-color($light-blue, 90%)
+$example-border: tint-color($light-blue, 70%)
+$example-hover-bg: tint-color($light-blue, 80%)
+
+.btn-example
+  +button-variant($example-bg, $example-border, $light-blue, $example-hover-bg, $example-border, shade-color($light-blue, 20%))
+
 // Stored ALLRIS content is Word output with its formatting stripped (see
 // Parsing.clean), so its tables arrive bare. Nearly all of them are data tables
 // that had borders in Word. A wide one scrolls sideways instead of widening the
