@@ -68,4 +68,25 @@ class AgendaItemTest < ActiveSupport::TestCase
       assert_not_predicate AgendaItem.new(title:), :question_time?, title.inspect
     end
   end
+
+  test 'minutes_search finds every form of a word, in the minutes or the title' do
+    meeting = @meeting.district.meetings.create!(title: 'Sitzung', date: Date.new(2024, 3, 1))
+    by_minutes = meeting.agenda_items.create!(number: 'Ö 4', title: 'Verschiedenes', minutes: '<p>Zwei Spielplätze werden saniert.</p>')
+    by_title = meeting.agenda_items.create!(number: 'Ö 5', title: 'Spielplatz Quokkaweg', minutes: '<p>Kenntnis genommen.</p>')
+    meeting.agenda_items.create!(number: 'Ö 6', title: 'Spielplatz ohne Protokoll')
+
+    assert_equal [by_minutes, by_title].sort_by(&:id), AgendaItem.minutes_search('Spielplatz').sort_by(&:id)
+  end
+
+  test 'minutes_search with prefix takes the last word as the beginning of one' do
+    meeting = @meeting.district.meetings.create!(title: 'Sitzung', date: Date.new(2024, 3, 1))
+    item = meeting.agenda_items.create!(number: 'Ö 4', title: 'Verschiedenes', minutes: 'Der Quokkaweg wird saniert.')
+
+    assert_empty AgendaItem.minutes_search('Quokka')
+    assert_equal [item], AgendaItem.minutes_search('Quokka', nil, prefix: true).to_a
+  end
+
+  test 'minutes_search finds nothing for a term without words' do
+    assert_empty AgendaItem.minutes_search(' &!: ')
+  end
 end

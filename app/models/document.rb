@@ -10,6 +10,7 @@
 #  content                :text
 #  extracted_locations    :string           default([]), is an Array
 #  full_text              :text
+#  search_vector          :virtual(tsvector) stored
 #  kind                   :string
 #  locations_extracted_at :datetime
 #  non_public             :boolean          default(FALSE)
@@ -23,13 +24,10 @@
 #
 # Indexes
 #
-#  documents_expr_idx              (((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::"char") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::"char")))) USING gin
-#  full_text_gin_trgm_idx          (full_text) USING gin
-#  full_text_gist_trgm_idx         (full_text) USING gist
+#  index_documents_on_search_vector  (search_vector) USING gin
 #  index_documents_on_allris_id    (allris_id)
 #  index_documents_on_district_id  (district_id)
 #  index_documents_on_number       (number)
-#  title_gin_trgm_idx              (title) USING gin
 #  title_gist_trgm_idx             (title) USING gist
 #
 require 'net/http'
@@ -55,10 +53,12 @@ class Document < ApplicationRecord
     attached: %r{\AAnlagen?(/n)?:},
   }.freeze
 
-  # The expression behind documents_expr_idx, for a full-text query that has to
-  # be answered by that index.
-  SEARCH_VECTOR = "(setweight(to_tsvector('german', documents.title), 'A') || " \
-                  "setweight(to_tsvector('german', documents.full_text), 'B'))"
+  # Title and full text as one tsvector, a stored generated column with a GIN
+  # index, for full-text queries and their ranking.
+  SEARCH_VECTOR = 'documents.search_vector'
+
+  # Only ever read inside SQL. Large, and of no use to a loaded record.
+  self.ignored_columns += ['search_vector']
 
   belongs_to :district
 
@@ -107,12 +107,8 @@ class Document < ApplicationRecord
     terms = term.gsub(/[^a-z0-9öäüß]+/i, ' ').split
     exact_term = terms.join(' & ')
 
-    # Both expressions are exactly those of documents_expr_idx and
-    # attachments_expr_idx; anything else is a scan of every document.
-    search = <<~SQL.squish
-      (setweight(to_tsvector('german', documents.title),'A') ||
-      setweight(to_tsvector('german', documents.full_text), 'B'))
-    SQL
+    # Exactly the expression of attachments_expr_idx, or every attachment is
+    # analysed again.
     attachment_search = <<~SQL.squish
       (setweight(to_tsvector('german', attachments.name), 'A') ||
       setweight(to_tsvector('german', attachments.content), 'B'))
@@ -128,25 +124,26 @@ class Document < ApplicationRecord
     match = if attachments
       sanitize_sql_array([<<~SQL.squish, exact_term, exact_term])
         documents.id IN (
-          SELECT documents.id FROM documents WHERE #{search} @@ to_tsquery('german', ?)
+          SELECT documents.id FROM documents WHERE #{SEARCH_VECTOR} @@ to_tsquery('german', ?)
           UNION
           SELECT attachments.attachable_id FROM attachments
           WHERE attachments.attachable_type = 'Document' AND #{attachment_search} @@ to_tsquery('german', ?)
         )
       SQL
     else
-      sanitize_sql_array(["#{search} @@ to_tsquery('german', ?)", exact_term])
+      sanitize_sql_array(["#{SEARCH_VECTOR} @@ to_tsquery('german', ?)", exact_term])
     end
 
     if order == :relevance
-      order = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?))"), exact_term]
+      order = sanitize_sql_for_order [Arel.sql("ts_rank(#{SEARCH_VECTOR}, to_tsquery('german', ?))"), exact_term]
     elsif order == :date
       order = 'documents.number'
     else
       raise "Invalid order #{order}"
     end
 
-    query = query.select("#{order} AS ranking, documents.*")
+    # The columns by name: documents.* would fetch the ignored search_vector.
+    query = query.select(*column_names.map { |name| arel_table[name] }, Arel.sql("#{order} AS ranking"))
     query = query.where(match)
 
     query.order(ranking: :desc)

@@ -36,6 +36,13 @@ class DocumentTest < ActiveSupport::TestCase
     assert_includes Document.search('Max-Brauer-Allee').to_a, document
   end
 
+  test 'search does not load the search vector into records' do
+    document = Document.search('Eingabe').first
+
+    assert_not document.has_attribute?(:search_vector)
+    assert document.has_attribute?(:ranking)
+  end
+
   test 'search with attachments also finds documents by their attachments alone' do
     document = documents(:document_7)
     Attachment.create!(district: @district, attachable: document, name: 'Anlage', content: 'Der Quokkaweg wird saniert.')
