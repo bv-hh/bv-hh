@@ -1,0 +1,19 @@
+/ An empty tab, with the ways out of it. what names the kind of result,
+/ search_page and scope_name are the search page's own.
+- elsewhere = @district_counts.values.sum
+.py-3
+  p.mb-2= "Keine #{what} zu „#{@term}“ in #{scope_name}."
+  ul.small.mb-4
+    - if @topic
+      li= link_to "Ohne das Thema #{@topic.label} suchen", search_page.call(topic: nil)
+    - if @kind
+      li= link_to 'Alle Drucksachenarten durchsuchen', search_page.call(kind: nil)
+    - if @district && elsewhere.positive?
+      li= link_to "In allen Bezirken suchen (#{number_with_delimiter elsewhere} Treffer)", search_page.call(district: nil)
+    - unless @attachments
+      li= link_to 'Auch in Anhängen suchen', search_page.call(attachments: 'true')
+    li Einzelne Wörter finden mehr als ganze Sätze.
+  .d-flex.flex-wrap.align-items-center.gap-2.small.text-secondary
+    span Zum Beispiel:
+    - SearchController::EXAMPLES.each do |term|
+      = link_to term, search_path(q: term), class: 'btn btn-sm btn-light border rounded-pill'

@@ -5,7 +5,7 @@
 - quarter_feed_url = feed_url(format: :rss, district: nil, quarters: [@quarter.name], topics: topic_slugs)
 - quarter_page = ->(**options) { quarter_path(district: @quarter.district, quarter: @quarter.slug, **options) }
 - markers_url = quarter_page.call(format: :json, page: params[:page], topic: @topic&.slug)
-- topic_url = ->(topic) { quarter_page.call(topic: topic == @topic ? nil : topic&.slug) }
+- topic_url = ->(topic) { quarter_page.call(topic: topic&.slug) }
 - max_places = 3
 
 - content_for :head do
@@ -54,16 +54,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
   - if @topic_counts.present?
     aside.col-lg-3.d-none.d-lg-block aria-labelledby='topics-heading'
       h2#topics-heading.h5 Nach Thema filtern
-      .list-group
-        = link_to quarter_page.call, class: ['list-group-item list-group-item-action d-flex justify-content-between', ('active' unless @topic)],
-            'aria-current': (@topic ? nil : 'true') do
-          span Alle Themen
-        - @topic_counts.each do |topic, count|
-          - selected = topic == @topic
-          = link_to topic_url.call(topic), class: ['list-group-item list-group-item-action d-flex justify-content-between', ('active' if selected)],
-              'aria-current': (selected ? 'true' : nil) do
-            span= topic.label
-            span.opacity-75= number_with_delimiter(count)
+      = render 'topics/filter', items: @topic_counts, active: @topic, url: topic_url
       - if @topic
         = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil), class: 'd-inline-block small mt-2'
 
@@ -76,15 +67,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
 
     / Below lg the topics are one row to swipe through instead of a sidebar.
     - if @topic_counts.present?
-      nav.d-flex.d-lg-none.flex-nowrap.overflow-x-auto.gap-2.pb-2.mb-3 aria-label='Themen'
-        = link_to 'Alle Themen', quarter_page.call, class: ['btn btn-sm text-nowrap', @topic ? 'btn-outline-secondary' : 'btn-secondary'],
-            'aria-current': (@topic ? nil : 'true')
-        - @topic_counts.each do |topic, count|
-          - selected = topic == @topic
-          = link_to topic_url.call(topic), class: ['btn btn-sm text-nowrap', selected ? 'btn-secondary' : 'btn-outline-secondary'],
-              'aria-current': (selected ? 'true' : nil) do
-            = topic.label
-            span.ms-1.opacity-75= number_with_delimiter(count)
+      = render 'topics/filter_row', items: @topic_counts, active: @topic, url: topic_url
       - if @topic
         = link_to "#{@topic.label} in allen Bezirken", topic_path(topic: @topic, district: nil), class: 'd-inline-block d-lg-none small mb-3'
 
