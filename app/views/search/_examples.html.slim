@@ -2,4 +2,4 @@
 .d-flex.flex-wrap.align-items-center.gap-2.small.text-secondary class=local_assigns[:css]
   span Zum Beispiel:
   - SearchController::EXAMPLES.each do |term|
-    = link_to term, search_path(q: term), class: 'btn btn-sm btn-light border rounded-pill'
+    = example_chip(term)

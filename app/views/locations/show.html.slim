@@ -4,12 +4,11 @@ h3.text-muted
   small= "Drucksachen zu #{@location.formatted_address}"
 
 - if @location.quarters.present?
-  p.mb-3
+  .d-flex.flex-wrap.gap-1.mb-3
     - @location.quarters.each do |name|
       - quarter = Quarter.lookup(name)
       - next if quarter.blank? || quarter.district.blank?
-      = link_to quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug),
-          class: 'badge bg-light text-secondary border text-decoration-none me-1'
+      = quarter_chip(quarter, dense: true)
 
 .beta.mb-3
   span.badge.text-bg-warning> Beta
@@ -31,11 +30,9 @@ h3.text-muted
         = document.title.html_safe
       br
       span.text-secondary= document.kind
-      .locations
+      .d-flex.flex-wrap.gap-1.mt-1
         - document.locations.each do |location|
-          => link_to location_path(location) do
-            span.badge.text-bg-secondary data-bs-toggle='tooltip' data-bs-title=location.formatted_address
-              = location.name
+          = place_chip(location, dense: true)
 
     .col-1.order-lg-last.text-end
       = allris_link(document.allris_url)

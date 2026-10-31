@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get '/mcp' => 'pages#mcp', as: :mcp
   get '/district-politics' => 'pages#district_politics', as: :district_politics
   get '/participation' => 'pages#participation', as: :participation
+  get '/kitchensink' => 'kitchensink#show', as: :kitchensink unless Rails.env.production?
 
   # Must stay ABOVE `scope '(:district)'`: that scope's :district segment is
   # greedy, so a /feed declared below it would route to districts#show with

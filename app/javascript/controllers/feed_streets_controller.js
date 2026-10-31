@@ -102,7 +102,7 @@ export default class extends Controller {
 
   buildChip(name) {
     const chip = document.createElement("span")
-    chip.className = "badge bg-secondary d-inline-flex align-items-center gap-2"
+    chip.className = "badge text-bg-secondary fs-6 fw-normal d-inline-flex align-items-center gap-2"
     chip.dataset.streetName = name
 
     const label = document.createElement("span")

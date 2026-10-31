@@ -50,8 +50,9 @@ class QuartersControllerTest < ActionDispatch::IntegrationTest
 
     get quarter_path(district:, quarter: 'barmbek-nord', topic: 'kultur')
 
-    assert_select '.quarter-hero-card .badge', text: 'Thema: Kultur & Erinnerung'
-    assert_select ".quarter-hero-card a[href='#{quarter_path(district:, quarter: 'barmbek-nord')}']", text: 'Filter aufheben'
+    assert_select '.quarter-hero-card .badge', text: /\AThema: Kultur & Erinnerung/
+    assert_select ".quarter-hero-card .badge a[href='#{quarter_path(district:, quarter: 'barmbek-nord')}']",
+                  text: /Thema: Kultur & Erinnerung aufheben/
     assert_select '.quarter-hero-card .btn-primary', text: /Kultur & Erinnerung in Barmbek-Nord abonnieren/
     assert_select '.quarter-hero-card .fs-4', text: '1', minimum: 1
   end

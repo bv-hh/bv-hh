@@ -25,11 +25,7 @@
       - if active_filters.any?
         .d-flex.flex-wrap.align-items-center.gap-2.mt-3
           - active_filters.each do |label, change|
-            span.badge.text-bg-secondary.fs-6.fw-normal.d-inline-flex.align-items-center.gap-2
-              = label
-              = link_to search_page.call(**change), class: 'link-light text-decoration-none', title: "#{label} aufheben" do
-                span aria-hidden='true' ×
-                span.visually-hidden= "#{label} aufheben"
+            = filter_token(label, search_page.call(**change))
 
       / The Bezirk links keep the minutes tab when it was chosen: switching
       / Bezirk is still the same question. Opened only because the Drucksachen
@@ -39,17 +35,12 @@
       section.mt-4
         h2.h6.mb-2 Treffer nach Bezirk
         nav.d-flex.flex-wrap.gap-2 aria-label='Bezirke'
-          = link_to search_page.call(district: nil, tab:), class: ['btn btn-sm', @district ? 'btn-outline-secondary' : 'btn-secondary'],
-              'aria-current': (@district ? nil : 'page') do
-            | Alle Bezirke
-            span.ms-1.opacity-75= number_with_delimiter(totals.values.sum)
+          = filter_chip('Alle Bezirke', search_page.call(district: nil, tab:), selected: @district.nil?,
+              count: totals.values.sum, current: 'page')
           - District.by_order.each do |district|
             - count = totals[district.id].to_i
             - next if count.zero? && district != @district
-            = link_to search_page.call(district:, tab:), class: ['btn btn-sm', district == @district ? 'btn-secondary' : 'btn-outline-secondary'],
-                'aria-current': (district == @district ? 'page' : nil) do
-              = district.name
-              span.ms-1.opacity-75= number_with_delimiter(count)
+            = filter_chip(district.name, search_page.call(district:, tab:), selected: district == @district, count:, current: 'page')
 
   - if @term.present?
     - if @matches.any?
@@ -74,8 +65,7 @@
                     p.card-text.small.text-secondary.mb-1 Verläuft durch
                     .d-flex.flex-wrap.gap-1.mb-2
                       - street.quarters.each do |quarter|
-                        = link_to quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug),
-                            class: 'btn btn-sm btn-outline-secondary py-0'
+                        = quarter_chip(quarter, dense: true)
                   = link_to feed_path(district: nil, streets: [street.name]), class: 'small' do
                     = icon('fas', 'rss', 'Straße beobachten')
           - if (topic = @matches.topic)
@@ -149,13 +139,13 @@
           - if @document_count.positive?
             = render 'search/results', results: @documents, count: @document_count do |document|
               = render 'search/document', document:, places: @places.fetch(document.id, []),
-                  topic_url: ->(topic) { search_page.call(topic: topic.slug) }
+                  topic_url: ->(topic) { search_page.call(topic: topic.slug) }, district_url: ->(district) { search_page.call(district:) }
           - else
             = render 'search/none', what: 'Drucksachen', counts: @district_counts[:documents], search_page:, scope_name:
 
         - elsif @agenda_item_count.positive?
           = render 'search/results', results: @agenda_items, count: @agenda_item_count do |agenda_item|
-            = render 'search/agenda_item', agenda_item:
+            = render 'search/agenda_item', agenda_item:, district_url: ->(district) { search_page.call(district:, tab: 'protokolle') }
         - else
           = render 'search/none', what: 'Protokollstellen', counts: @district_counts[:minutes], tab: 'protokolle', search_page:, scope_name:
 

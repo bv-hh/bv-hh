@@ -55,7 +55,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     panel = @response.body[/<div class="accordion-item">(?:(?!accordion-item).)*hamburg-nord.*?(?=<div class="accordion-item">|\z)/m]
 
     assert_includes panel, 'collapse show'
-    assert_includes panel, 'badge bg-primary'
+    assert_includes panel, 'badge text-bg-secondary'
   end
 
   test 'GET show shows the generated feed URL once something is selected' do

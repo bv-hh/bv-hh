@@ -26,9 +26,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
       / A topic narrows the list, the map, the counts and the feed alike, so
       / the card says so where all of them are summed up.
       - if @topic
-        .d-flex.flex-wrap.align-items-center.gap-2.mb-2
-          span.badge.text-bg-secondary.fs-6.fw-normal= "Thema: #{@topic.label}"
-          = link_to 'Filter aufheben', quarter_page.call, class: 'small'
+        .mb-2= filter_token("Thema: #{@topic.label}", quarter_page.call)
       p.text-secondary
         - if @topic
           = "Jeder Punkt auf der Karte ist ein Ort, um den es in einer der Drucksachen zum Thema #{@topic.label} unten geht."
@@ -86,18 +84,18 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
               => document.number
               ' ·
               = document.kind
-              - if document.district != @quarter.district
-                span.badge.bg-light.text-secondary.border.ms-1= document.district.name
             - if meeting
               .small
                 = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: document.district),
                     class: 'text-secondary'
                 span.text-secondary= " · #{l meeting.date}"
-            - if places.any?
+            - other_district = document.district != @quarter.district
+            - if other_district || places.any?
               .d-flex.flex-wrap.gap-1.mt-1
+                - if other_district
+                  = district_chip(document.district)
                 - places.first(max_places).each do |location|
-                  = link_to location.name, location_path(location, district: location.district),
-                      class: 'btn btn-sm btn-outline-secondary py-0'
+                  = place_chip(location, dense: true)
                 - if places.size > max_places
                   span.small.text-secondary.align-self-center= "+ #{places.size - max_places} weitere"
 
@@ -111,8 +109,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
     h2#neighbours-heading.h5 Nachbarstadtteile
     .d-flex.flex-wrap.gap-2
       - @neighbours.each do |neighbour|
-        = link_to neighbour.name, quarter_path(district: neighbour.district, quarter: neighbour.slug),
-            class: 'btn btn-sm btn-outline-secondary'
+        = quarter_chip(neighbour)
 
 .alert.alert-warning.mb-0
   strong> Keine offizielle Seite der Stadt Hamburg.

@@ -36,7 +36,7 @@ p.text-secondary
               button.accordion-button class=(selected.zero? ? 'collapsed' : nil) type='button' data-bs-toggle='collapse' data-bs-target="##{panel_id}" aria-expanded=selected.positive?.to_s aria-controls=panel_id
                 span= bezirk_name
                 - if selected.positive?
-                  span.badge.bg-primary.ms-2= selected
+                  span.badge.text-bg-secondary.ms-2= selected
             div id=panel_id class=['accordion-collapse', 'collapse', ('show' if selected.positive?)] aria-labelledby=heading_id
               .accordion-body.py-2
                 .row
@@ -61,7 +61,7 @@ p.text-secondary
 
       .d-flex.flex-wrap.gap-2.mt-2 data-feed-streets-target="chips"
         - @query.street_display_names.each do |name|
-          span.badge.bg-secondary.d-inline-flex.align-items-center.gap-2 data-street-name=name
+          span.badge.text-bg-secondary.fs-6.fw-normal.d-inline-flex.align-items-center.gap-2 data-street-name=name
             span= name
             = hidden_field_tag 'streets[]', name, id: nil
             button.btn-close.btn-close-white type="button" aria-label="Entfernen" data-action="feed-streets#remove"

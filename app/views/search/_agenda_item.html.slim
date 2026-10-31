@@ -1,4 +1,5 @@
-/ One passage of minutes among the search results.
+/ One passage of minutes among the search results. district_url narrows the
+/ search to a Bezirk.
 - meeting = agenda_item.meeting
 .list-group-item.px-0.py-3.d-flex.gap-3
   .flex-grow-1.text-break
@@ -9,7 +10,7 @@
       ' ·
       = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: meeting.district), class: 'link-secondary'
       = " · #{l meeting.date}"
-      - if meeting.district != @district
-        span.badge.bg-light.text-secondary.border.ms-1= meeting.district.name
     p.small.mb-0.mt-1= highlight_multi_excerpt(strip_tags(agenda_item.minutes), @term)
+    - if meeting.district != @district
+      .mt-2= district_chip(meeting.district, district_url.call(meeting.district))
   .flex-shrink-0= allris_link(meeting.allris_url)

@@ -1,0 +1,160 @@
+/ Reference for ChipHelper: every chip with real records, the call that makes
+/ it and where it belongs. Not routed in production.
+- location = @locations.first
+- quarter = @quarters.first
+- topic = @topics.first
+- district = @districts.first
+
+.kitchensink
+  .card.p-4.p-lg-5.mb-5.bg-body-tertiary.rounded-3
+    p.text-uppercase.fw-bold.small.text-secondary.mb-2 Kitchensink
+    h1.display-6.fw-bold.mb-3 Chips and badges
+    .row.g-4
+      .col-lg-6
+        h2.h6 The shape says what a chip is
+        p.small.mb-0
+          | A pill is a topic. A rounded rectangle is a place, a Stadtteil or a Bezirk; a place carries a pin, a
+            Bezirk its town hall, a Stadtteil nothing.
+      .col-lg-6
+        h2.h6 The fill says what it does
+        p.small.mb-0
+          | Outline links somewhere or is an option not chosen. Filled gray is the chosen option. Filled with × is
+            a filter in effect, × removes it. Every chip for a thing leads to it. Only the example searches below a
+            search field have colour: they are neither a thing nor a filter.
+    p.small.text-secondary.mt-3.mb-0
+      | Build them with ChipHelper, not with classes by hand. dense: true takes the vertical padding off, for chips
+        inside a list row or a card.
+
+  section.mb-5
+    h2.h4 Chips
+    .table-responsive
+      table.table.align-middle
+        thead
+          tr
+            th scope='col' Chip
+            th scope='col' Looks like
+            th scope='col' Call
+            th scope='col' Use for
+        tbody
+          - if location
+            tr
+              th scope='row' Ort
+              td
+                .d-flex.flex-wrap.gap-1
+                  - @locations.each do |place|
+                    = place_chip(place, dense: true)
+              td: code place_chip(location, dense: true)
+              td.small Places a Drucksache mentions: search results, Stadtteil page, Drucksache, location page.
+                At most three in a list row, then "+ n weitere".
+          - if quarter
+            tr
+              th scope='row' Stadtteil
+              td
+                .d-flex.flex-wrap.gap-2
+                  - @quarters.each do |entry|
+                    = quarter_chip(entry)
+              td: code quarter_chip(quarter)
+              td.small "Ihr Stadtteil" on the district page, Nachbarstadtteile, a Drucksache's Stadtteile.
+            tr
+              th scope='row' Stadtteil, dense
+              td
+                .d-flex.flex-wrap.gap-1
+                  - @quarters.each do |entry|
+                    = quarter_chip(entry, dense: true)
+              td: code quarter_chip(quarter, dense: true)
+              td.small Inside a card or a row, such as the streets a search finds.
+          - if topic
+            tr
+              th scope='row' Thema
+              td
+                .d-flex.flex-wrap.gap-1
+                  - @topics.each do |entry|
+                    = topic_chip(entry, topic_path(topic: entry, district: nil), dense: true)
+              td: code topic_chip(topic, url, dense: true)
+              td.small A Drucksache's topics, in search results and on the Drucksache. url is the topic page or the
+                current list narrowed to the topic.
+            tr
+              th scope='row' Thema filter
+              td
+                .d-flex.flex-wrap.gap-2
+                  = filter_chip('Alle Themen', '#', selected: true, pill: true)
+                  - @topics.each_with_index do |entry, index|
+                    = filter_chip(entry.label, '#', selected: false, count: 1200 / (index + 1), pill: true)
+              td: code filter_chip(topic.label, url, selected:, count:, pill: true)
+              td.small Narrowing a list by topic where no sidebar fits; the list of further topics on topic pages.
+          - if district
+            tr
+              th scope='row' Bezirk filter
+              td
+                .d-flex.flex-wrap.gap-2
+                  = filter_chip('Alle Bezirke', '#', selected: false, count: 4321)
+                  - @districts.each_with_index do |entry, index|
+                    = filter_chip(entry.name, '#', selected: index.zero?, count: 900 / (index + 1))
+              td: code filter_chip(district.name, url, selected:, count:)
+              td.small Results by Bezirk on search and topic pages, the Bezirk switch on the district page. The count
+                is optional.
+            tr
+              th scope='row' Bezirk
+              td= district_chip(district)
+              td: code district_chip(district, url = Bezirk page)
+              td.small First among the topics and places of a result from another Bezirk than the one being browsed.
+                On the search page url is the search narrowed to the Bezirk. Dense unless dense: false.
+          tr
+            th scope='row' Filter in effect
+            td
+              .d-flex.flex-wrap.gap-2
+                = filter_token("Thema: #{topic&.label || 'Verkehr'}", '#')
+                = filter_token('Auch in Anhängen', '#')
+            td: code filter_token(label, remove_url)
+            td.small Above a filtered list, one per filter, named with its kind. × removes it.
+          tr
+            th scope='row' Example search
+            td
+              .d-flex.flex-wrap.gap-2
+                - SearchController::EXAMPLES.first(3).each do |term|
+                  = example_chip(term)
+            td: code example_chip(term)
+            td.small Searches to start from, below a search field and nowhere else.
+
+  - if location || topic
+    section.mb-5
+      h2.h4 Together
+      p.small.text-secondary A search result from another Bezirk, with its Bezirk, topics and places.
+      .list-group.list-group-flush.border-top.border-bottom
+        .list-group-item.px-0.py-3
+          a.fw-semibold href='#' Title of a Drucksache
+          .small.text-secondary
+            ' 21-1234 · Antrag ·
+            = link_to 'Ausschuss für Mobilität', '#', class: 'link-secondary'
+            = " · #{l Time.zone.today}"
+          p.small.mb-0.mt-1 An excerpt of its text with the search words marked.
+          .d-flex.flex-wrap.align-items-center.gap-1.mt-2
+            - if district
+              = district_chip(district)
+            - @topics.first(2).each do |entry|
+              = topic_chip(entry, topic_path(topic: entry, district: nil), dense: true)
+            - @locations.each do |place|
+              = place_chip(place, dense: true)
+            span.small.text-secondary + 2 weitere
+
+  section.mb-5
+    h2.h4 Status badges
+    p.small.text-secondary Plain Bootstrap badges; no helper.
+    .table-responsive
+      table.table.align-middle
+        tbody
+          tr
+            th scope='row' Beta
+            td: span.badge.text-bg-warning Beta
+            td: code span.badge.text-bg-warning
+            td.small Features built on automatic recognition: places, topics, the map.
+          tr
+            th scope='row' Inaktiv
+            td: span.badge.text-bg-secondary Inaktiv
+            td: code span.badge.text-bg-secondary
+            td.small Committees and parties no longer active.
+          tr
+            th scope='row' Count
+            td: span.badge.text-bg-secondary 3
+            td: code span.badge.text-bg-secondary
+            td.small How many are selected inside a closed panel. Not bg-primary: the brand red reads as a warning.
