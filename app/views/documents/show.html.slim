@@ -8,7 +8,7 @@ h3.text-muted
 
 - attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
-- related_documents = @document.related_documents.order(:number)
+- related_documents = @document.related_documents.order(:number).for_list
 
 - if item = agenda_items.first
   p
@@ -73,12 +73,10 @@ h3.text-muted
     - if related_documents.present?
       .card.mt-3
         .card-header.fw-bold Verwandte Drucksachen
-        .card-body
-          - related_documents.each do |related_document|
-            .mt-3
-              = link_to document_path(related_document) do
-                strong>= related_document.number
-                = related_document.title.html_safe
+        .card-body.py-0
+          .list-group.list-group-flush
+            - related_documents.each do |related_document|
+              = render 'documents/item', document: related_document, compact: true
 
     .card.mt-3
       .card-header.fw-bold

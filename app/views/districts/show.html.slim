@@ -73,11 +73,7 @@
             = icon('fas', 'rss', 'RSS')
       .list-group.list-group-flush
         - @documents.each do |document|
-          .list-group-item.list-group-item-action.position-relative.px-0
-            .small.mb-1
-              = link_to document.number, document_path(document), class: 'stretched-link fw-bold me-2'
-              span.text-secondary= document.kind
-            = document.title.html_safe
+          = render 'documents/item', document:, compact: true
 
     - if @topic_counts.present?
       section.col-lg-5

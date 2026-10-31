@@ -39,6 +39,22 @@ class Document < ApplicationRecord
   include WithAttachments
   include WithAllrisPage
 
+  # What a row of documents/_item reads: its Bezirk and its latest meeting with
+  # the committee and decision. Places come separately (with_places).
+  LIST_ASSOCIATIONS = [:district, { agenda_items: { meeting: :committee } }].freeze
+
+  # Orders by date, newest first. The numbers are zero-padded and lead with
+  # the legislative period, so as text they sort by date within a Bezirk, all
+  # but Harburg's from the 19th period, "XIX-2157", which would come before
+  # "22-0001". Read as "19-2157" instead. Across Bezirke it is rough: Mitte
+  # counts one period higher than the others. Dating by the latest meeting
+  # would be exact but takes seconds per search. index_documents_on_number_by_date
+  # holds this expression, so a search can stop at the page it shows; change
+  # both together.
+  NUMBER_BY_DATE = <<~SQL.squish.freeze
+    CASE WHEN documents.number LIKE 'XIX-%' THEN '19' || substring(documents.number from 4) ELSE documents.number END
+  SQL
+
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
   STATE_INQUIRY_TYPES = ['Anfrage nach § 27 BezVG', 'Anfrage gem. § 27 BezVG', 'Auskunftsersuchen', 'Anfrage gem. § 27 BezVG']
@@ -83,7 +99,9 @@ class Document < ApplicationRecord
   scope :state_inquiries, -> { where(kind: STATE_INQUIRY_TYPES) }
   scope :authored_by, ->(name) { where('documents.title ILIKE :name OR documents.author ILIKE :name', name: "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
-  scope :include_meetings, -> { includes(:meetings).left_joins(:meetings) }
+  scope :for_list, -> { preload(LIST_ASSOCIATIONS) }
+  # For rows whose places come from DocumentsHelper#document_places.
+  scope :with_places, -> { preload(locations: :district) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :in_last_days, ->(days) { in_date_range(days.days.ago.beginning_of_day..Time.zone.now) }
@@ -141,7 +159,7 @@ class Document < ApplicationRecord
     if order == :relevance
       order = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?))"), exact_term]
     elsif order == :date
-      order = 'documents.number'
+      order = NUMBER_BY_DATE
     else
       raise "Invalid order #{order}"
     end
@@ -292,6 +310,16 @@ class Document < ApplicationRecord
 
   def complete?
     title.present?
+  end
+
+  # The agenda item of the latest meeting that discussed this Drucksache. It
+  # dates the Drucksache in lists; created_at would not, as it is when BV-HH
+  # imported it. Of several on one day the one with a decision, then the last
+  # imported, so the choice does not depend on load order. Load agenda_items
+  # with their meetings first.
+  def latest_agenda_item
+    agenda_items.select { |item| item.meeting&.date }
+                .max_by { |item| [item.meeting.date, item.decision.present? ? 1 : 0, item.id] }
   end
 
   def needs_update?

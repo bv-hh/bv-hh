@@ -106,15 +106,7 @@ p.text-secondary
 
     - if @documents.any?
       h2.h5.mt-4 Aktuell im Feed
-      .list-group.mt-2
-        - @documents.first(10).each do |document|
-          / The link wraps only the number and title, so they get the default
-          / link colour rather than list-group-item-action's muted text.
-          .list-group-item
-            / target _top: a Drucksache is a whole new page, not a frame update.
-            = link_to document_path(document, district: document.district), target: '_top' do
-              strong= document.number
-              '
-              = document.title
-            br
-            span.text-secondary.small= document.kind
+      .list-group.list-group-flush
+        - @preview.each do |document|
+          / target _top: a Drucksache is a whole new page, not a frame update.
+          = render 'documents/item', document:, compact: true, target: '_top'

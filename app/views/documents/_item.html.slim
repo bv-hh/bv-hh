@@ -1,0 +1,62 @@
+/ One Drucksache in a list.list-group-flush, loaded with Document.for_list.
+/ compact: true leaves it at title, number, kind and date, for lists beside the
+/ main content; otherwise what became of it and where follow, then its Bezirk,
+/ topics and places as chips.
+/
+/ Optional locals of the full row:
+/ - district: the Bezirk of the page (default @district). A Drucksache from
+/   another one shows its Bezirk, leading to district_url.call(district) or,
+/   without one, to the Bezirk's page.
+/ - topics: those to show (default all of its own), leading to
+/   topic_url.call(topic) or, without one, to the topic page; topic_title
+/   gives a chip's tooltip.
+/ - places: the Locations to show (document_places); the first three are.
+/ - words: search words to mark in title and number; excerpt and
+/   attachments_excerpt: the marked text.
+/ target: '_top' takes the title link out of a turbo frame.
+- compact = local_assigns.fetch(:compact, false)
+- words = local_assigns[:words]
+- title = document_title(document)
+- agenda_item = document.latest_agenda_item
+- meeting = agenda_item&.meeting
+- max_places = 3
+.list-group-item.px-0.text-break class=(compact ? 'py-2' : 'py-3')
+  = link_to (words ? highlight_text(title, words) : title), document_path(document, district: document.district),
+      class: ('fw-semibold' unless compact), target: local_assigns[:target]
+  .small.text-secondary
+    span.fw-semibold.text-body>= words ? highlight_text(document.number, words) : document.number
+    ' ·
+    = document.kind
+    - if compact
+      = " · #{l meeting.date}" if meeting
+    - elsif meeting
+      - if (decision = decision_label(agenda_item))
+        '  ·
+        = decision
+      '  ·
+      = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: document.district),
+          class: 'link-secondary'
+      = " · #{l meeting.date}"
+  - unless compact
+    - if local_assigns[:excerpt].present?
+      p.small.mb-0.mt-1= local_assigns[:excerpt]
+    - if local_assigns[:attachments_excerpt].present?
+      p.small.text-secondary.mb-0.mt-1
+        span.fw-semibold> Anhänge:
+        = local_assigns[:attachments_excerpt]
+    - other_district = document.district != local_assigns.fetch(:district, @district)
+    - district_url = local_assigns[:district_url]
+    - topics = local_assigns.fetch(:topics) { document.topic_records }
+    - topic_url = local_assigns.fetch(:topic_url) { ->(topic) { topic_path(topic:, district: document.district) } }
+    - topic_title = local_assigns[:topic_title]
+    - places = local_assigns.fetch(:places, [])
+    - if other_district || topics.any? || places.any?
+      .d-flex.flex-wrap.align-items-center.gap-1.mt-2
+        - if other_district
+          = district_url ? district_chip(document.district, district_url.call(document.district)) : district_chip(document.district)
+        - topics.each do |topic|
+          = topic_chip(topic, topic_url.call(topic), dense: true, title: topic_title&.call(topic))
+        - places.first(max_places).each do |location|
+          = place_chip(location, dense: true)
+        - if places.size > max_places
+          span.small.text-secondary= "+ #{places.size - max_places} weitere"

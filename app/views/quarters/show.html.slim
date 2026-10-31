@@ -6,7 +6,6 @@
 - quarter_page = ->(**options) { quarter_path(district: @quarter.district, quarter: @quarter.slug, **options) }
 - markers_url = quarter_page.call(format: :json, page: params[:page], topic: @topic&.slug)
 - topic_url = ->(topic) { quarter_page.call(topic: topic&.slug) }
-- max_places = 3
 
 - content_for :head do
   = auto_discovery_link_tag :rss, quarter_feed_url, title: "Drucksachen zu #{@quarter.name}"
@@ -74,30 +73,8 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
       / Bezirk on this page. That is intended, but it has to be visible.
       .list-group.list-group-flush
         - @documents.each do |document|
-          - places = @places.fetch(document.id, [])
-          / The last meeting dates a Drucksache; created_at would not, as it is
-          / when BV-HH imported it (thousands of old ones on the same day).
-          - meeting = document.meetings.max_by(&:date)
-          .list-group-item.px-0
-            = link_to document.title.html_safe, document_path(document, district: document.district)
-            .small.text-secondary
-              => document.number
-              ' ·
-              = document.kind
-            - if meeting
-              .small
-                = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: document.district),
-                    class: 'text-secondary'
-                span.text-secondary= " · #{l meeting.date}"
-            - other_district = document.district != @quarter.district
-            - if other_district || places.any?
-              .d-flex.flex-wrap.gap-1.mt-1
-                - if other_district
-                  = district_chip(document.district)
-                - places.first(max_places).each do |location|
-                  = place_chip(location, dense: true)
-                - if places.size > max_places
-                  span.small.text-secondary.align-self-center= "+ #{places.size - max_places} weitere"
+          = render 'documents/item', document:, district: @quarter.district, places: @places.fetch(document.id, []),
+              topics: document.topic_records - [@topic], topic_url:
 
       .mt-4
         = paginate @documents, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'

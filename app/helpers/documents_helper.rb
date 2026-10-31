@@ -4,6 +4,24 @@ module DocumentsHelper
   DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4}(\.\d{1,2})+)/
   IMAGE_LINK_PATTERN = /img src="([^"]*)"/
 
+  # The title as text. Titles carry no markup but some entities (&amp;).
+  def document_title(document)
+    CGI.unescapeHTML(strip_tags(document.title.to_s))
+  end
+
+  # The places a Drucksache mentions for its row in a list, one per name,
+  # without the name of except (the place whose page lists it). Load them with
+  # Document.with_places.
+  def document_places(document, except: nil)
+    document.locations.reject { |location| location.name == except&.name }.uniq(&:name).sort_by(&:name)
+  end
+
+  # Text with the search words marked, escaped first: highlight's own sanitizing
+  # would read a decoded "&lt;Elbufer&gt;" as a tag and drop it.
+  def highlight_text(text, words)
+    highlight(ERB::Util.html_escape(text), words, sanitize: false)
+  end
+
   def link_documents(content, district)
     numbers = content.scan(DOCUMENT_NUMBER_PATTERN).flatten
     documents = district.documents.where(number: numbers).index_by(&:number)
