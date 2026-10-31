@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_224347) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -290,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_224347) do
     t.index ["district_id"], name: "index_documents_on_district_id"
     t.index ["full_text"], name: "full_text_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["full_text"], name: "full_text_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
+    t.index "(\nCASE\n    WHEN ((number)::text ~~ 'XIX-%'::text) THEN (('19'::text || SUBSTRING(number FROM 4)))::character varying\n    ELSE number\nEND)", name: "index_documents_on_number_by_date"
     t.index ["number"], name: "index_documents_on_number"
     t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
     t.index ["stations"], name: "index_documents_on_stations", using: :gin

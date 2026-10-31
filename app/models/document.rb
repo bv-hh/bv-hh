@@ -43,6 +43,18 @@ class Document < ApplicationRecord
   # the committee and decision. Places come separately (with_places).
   LIST_ASSOCIATIONS = [:district, { agenda_items: { meeting: :committee } }].freeze
 
+  # Orders by date, newest first. The numbers are zero-padded and lead with
+  # the legislative period, so as text they sort by date within a Bezirk, all
+  # but Harburg's from the 19th period, "XIX-2157", which would come before
+  # "22-0001". Read as "19-2157" instead. Across Bezirke it is rough: Mitte
+  # counts one period higher than the others. Dating by the latest meeting
+  # would be exact but takes seconds per search. index_documents_on_number_by_date
+  # holds this expression, so a search can stop at the page it shows; change
+  # both together.
+  NUMBER_BY_DATE = <<~SQL.squish.freeze
+    CASE WHEN documents.number LIKE 'XIX-%' THEN '19' || substring(documents.number from 4) ELSE documents.number END
+  SQL
+
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
   STATE_INQUIRY_TYPES = ['Anfrage nach § 27 BezVG', 'Anfrage gem. § 27 BezVG', 'Auskunftsersuchen', 'Anfrage gem. § 27 BezVG']
@@ -147,7 +159,7 @@ class Document < ApplicationRecord
     if order == :relevance
       order = sanitize_sql_for_order [Arel.sql("ts_rank(#{search}, to_tsquery('german', ?))"), exact_term]
     elsif order == :date
-      order = 'documents.number'
+      order = NUMBER_BY_DATE
     else
       raise "Invalid order #{order}"
     end

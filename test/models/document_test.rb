@@ -29,6 +29,14 @@ class DocumentTest < ActiveSupport::TestCase
     assert_includes numbers, '21-4776' # title: "Eingabe: Heilwigstraße ..."
   end
 
+  test 'search ordered by date puts the 19th period of Harburg after the later ones' do
+    documents(:document_7).update_columns(number: 'XIX-9999') # rubocop:disable Rails/SkipsModelValidations
+
+    numbers = Document.search('Eingabe', order: :date).map(&:number)
+
+    assert_equal 'XIX-9999', numbers.last
+  end
+
   test 'search reads a hyphenated name as its words' do
     document = documents(:document_7)
     document.update_columns(title: 'Radweg in der Max-Brauer-Allee') # rubocop:disable Rails/SkipsModelValidations
