@@ -1,0 +1,10 @@
+/ Ranked bars, longest first. items is a list of [label, count, path] triples.
+- max_count = [items.map(&:second).max.to_i, 1].max
+.vstack.gap-2
+  - items.each do |label, count, path|
+    = link_to path, class: 'row g-2 align-items-center text-decoration-none' do
+      span.col-sm-4.fw-semibold.text-decoration-underline= label
+      span.col
+        span.progress role='progressbar' aria-label=label aria-valuenow=count aria-valuemin=0 aria-valuemax=max_count
+          span.progress-bar.bg-secondary style="width: #{(100.0 * count / max_count).round}%"
+      span.col-2.text-end.small.text-secondary= number_with_delimiter(count)

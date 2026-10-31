@@ -1,0 +1,9 @@
+/ One bar split into what came of a set of Anträge. outcomes is
+/ { outcome => count } as from DistrictStatistics; label names the set.
+- total = outcomes.values.sum
+.progress-stacked.outcome-bar class=local_assigns[:css]
+  - outcomes.each do |outcome, count|
+    - next if count.zero?
+    - text = "#{DistrictStatistics::OUTCOMES[outcome]}: #{number_with_delimiter(count)} (#{number_to_percentage(100.0 * count / total, precision: 0)})"
+    .progress role='progressbar' style="width: #{100.0 * count / total}%" title=text aria-label="#{label} – #{text}" aria-valuenow=count aria-valuemin=0 aria-valuemax=total
+      .progress-bar class="outcome-#{outcome}"

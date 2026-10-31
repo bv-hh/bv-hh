@@ -1,30 +1,121 @@
-h1.h2
-  ' Statistiken
-  br
-  small.text-muted Alle Zahlen bezogen auf die aktuelle Wahlperiode
+/ Cached for an hour: the figures change only with the hourly sync, and the
+/ page runs some twenty queries.
+- cache ['statistics', @district, Topic::VERSION], expires_in: 1.hour do
+  - outcomes = @statistics.proposal_outcomes
+  - rate = @statistics.adoption_rate
 
-h3.mt-5 Anzahl Drucksachen
+  h1.h2.mb-1 Statistiken
+  p.text-secondary
+    = @district.name
+    - if @statistics.start_date
+      =< "· Wahlperiode seit #{l(@statistics.start_date, format: '%B %Y')}"
+    =< "· Stand #{l(Date.current, format: :long)}"
 
-p.h1
-  strong= number_with_delimiter @total_documents
+  .row.row-cols-2.row-cols-lg-4.g-3.mb-3
+    - [[@statistics.document_count, 'Drucksachen', documents_path],
+       [@statistics.meeting_count, 'Sitzungen', meetings_path],
+       [@statistics.proposal_count, 'Anträge', '#entscheidungen'],
+       [@statistics.inquiry_count, 'Anfragen an das Bezirksamt', nil]].each do |count, label, path|
+      .col
+        .card.h-100.bg-body-tertiary
+          .card-body
+            p.h2.fw-bold.mb-0= number_with_delimiter(count)
+            - if path
+              = link_to label, path, class: 'stretched-link'
+            - else
+              = label
 
-h3.mt-5 Drucksachen im zeitlichen Verlauf
+  nav.nav.mb-5 aria-label='Abschnitte'
+    - [%w[themen Themen], %w[entscheidungen Entscheidungen], %w[orte Orte], %w[verlauf Verlauf],
+       %w[fraktionen Fraktionen]].each do |id, label|
+      = link_to label, "##{id}", class: 'nav-link ps-0 py-1'
 
-= column_chart @documents_timeline
+  - if @statistics.topic_counts.any?
+    section#themen.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Worüber beraten wird
+          p.text-secondary
+            ' Jede Drucksache ist automatisch einem oder mehreren Themen zugeordnet. Manche gehören zu keinem.
+        .col-lg-8
+          = render 'topics/bars', items: @statistics.topic_counts, top: 10,
+                   url: ->(topic) { topic_path(topic:, district: @district.to_param) }
 
-h3.mt-5 Anzahl Anträge
+          - timeline = @statistics.topic_timeline
+          - if timeline.any?
+            h3.h5.mt-5 Die häufigsten Themen im Verlauf
+            p.small.text-secondary
+              ' Drucksachen je Quartal, gezählt in der ersten Sitzung, die sie beraten hat. Das laufende Quartal fehlt
+                noch.
+            = line_chart timeline, colors: StatisticsController::SERIES_COLORS, curve: false, legend: 'bottom',
+                         library: { elements: { line: { borderWidth: 2 }, point: { radius: 3 } } }
 
-= column_chart @proposals
+  - if outcomes.values.sum.positive?
+    section#entscheidungen.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Was aus Anträgen wird
+          - if rate
+            p.display-5.fw-bold.mb-0= number_to_percentage(100 * rate, precision: 0)
+            p.text-secondary
+              ' der Anträge, über die schon entschieden ist, wurden beschlossen – unverändert oder geändert.
+          p.small.text-secondary
+            ' „Noch offen“ heißt: Es ist kein Beschluss erfasst, etwa weil der Antrag vertagt oder an einen Ausschuss
+              überwiesen wurde.
+        .col-lg-8
+          = render 'outcome_bar', outcomes:, label: 'Alle Anträge', css: 'outcome-bar-lg'
+          ul.list-inline.small.mt-2
+            - outcomes.each do |outcome, count|
+              li.list-inline-item.me-3
+                span.outcome-swatch class="outcome-#{outcome}"
+                => DistrictStatistics::OUTCOMES[outcome]
+                span.text-secondary= number_with_delimiter(count)
 
-h3.mt-5 Anträge im zeitlichen Verlauf
+          - by_topic = @statistics.outcomes_by_topic
+          - if by_topic.any?
+            h3.h5.mt-5 Nach Thema
+            .vstack.gap-2
+              - by_topic.each do |topic, topic_outcomes|
+                .row.g-2.align-items-center
+                  .col-sm-4
+                    = link_to topic.label, topic_path(topic:, district: @district.to_param), class: 'fw-semibold'
+                  .col
+                    = render 'outcome_bar', outcomes: topic_outcomes, label: topic.label
+                  .col-2.text-end.small.text-secondary= number_with_delimiter(topic_outcomes.values.sum)
 
-= column_chart @proposals_timeline
+  - quarters = @statistics.quarter_counts
+  - if quarters.any?
+    section#orte.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Wo es um Orte geht
+          p.text-secondary
+            ' Drucksachen, die einen Ort in diesem Stadtteil nennen. Eine Drucksache kann mehrere Stadtteile
+              betreffen.
+          = link_to 'Alle Orte auf der Karte', map_path
+        .col-lg-8
+          = render 'ranking',
+                   items: quarters.map { |quarter, count| [quarter.name, count, quarter_path(district: @district, quarter: quarter.slug)] }
 
-h3.mt-5 Kleine Anfragen nach § 24 BezVG
+  - monthly = @statistics.monthly_timeline
+  - if monthly.any?
+    section#verlauf.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Wie viel beraten wird
+          p.text-secondary
+            ' Drucksachen je Monat, gezählt in der ersten Sitzung, die sie beraten hat. Im Sommer ruhen die
+              Sitzungen. Der laufende Monat fehlt noch.
+        .col-lg-8
+          = line_chart monthly, colors: StatisticsController::SERIES_COLORS, curve: false, legend: 'bottom',
+                       library: { elements: { line: { borderWidth: 2 }, point: { radius: 3 } } }
 
-= column_chart @small_inquiries
-
-h3.mt-5 Große Anfragen nach § 24 BezVG
-
-= column_chart @large_inquiries
-
+  section#fraktionen.mb-5
+    .row.g-4
+      .col-lg-4
+        h2 Anträge und Anfragen der Fraktionen
+        p.text-secondary
+          ' Gezählt nach dem Titel oder den Verfassenden einer Drucksache, daher ungefähr. Gemeinsame Anträge zählen
+            für jede beteiligte Fraktion.
+      .col-lg-8
+        = column_chart @statistics.party_series, legend: 'bottom'

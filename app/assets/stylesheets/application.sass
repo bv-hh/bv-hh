@@ -171,3 +171,31 @@ turbo-frame[aria-busy="true"]
   opacity: .5
   transition: opacity .15s ease-in
 
+
+// What came of an Antrag (DistrictStatistics::OUTCOMES), on the statistics
+// page. Blue and red, which stay apart for colour-blind readers where green and
+// red would not; the undecided in greys. The legend and the tooltips name
+// them, so colour never carries the meaning alone.
+$outcome-colors: (adopted: #2a78d6, rejected: #d03b3b, withdrawn: #8a8986, open: #d3d2ce)
+
+@each $outcome, $color in $outcome-colors
+  .outcome-#{$outcome}
+    background-color: $color
+
+.outcome-bar
+  // A thin gap of page background between segments.
+  .progress + .progress
+    border-left: 2px solid var(--bs-body-bg)
+
+// Each segment is a .progress of its own and sets the height again.
+.outcome-bar-lg
+  &, .progress
+    --bs-progress-height: 2rem
+
+.outcome-swatch
+  display: inline-block
+  width: .75rem
+  height: .75rem
+  margin-right: .25rem
+  border-radius: 2px
+  vertical-align: -1px
