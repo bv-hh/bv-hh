@@ -18,7 +18,7 @@ class KitchensinkController < ApplicationController
   private
 
   def listed_documents
-    Document.complete.order(id: :desc).for_list
+    Document.complete.order(id: :desc).for_list.with_places
   end
 
   # One Drucksache decided on, with topics and places, one turned down, one
@@ -27,7 +27,7 @@ class KitchensinkController < ApplicationController
   def sample_documents
     with_chips = listed_documents.where(id: DocumentLocation.select(:document_id)).where('cardinality(documents.topics) > 0')
     [
-      with_chips.merge(discussed_in(items.where.not(decision: nil))).first,
+      with_chips.where(id: items.where.not(decision: nil).select(:document_id)).first,
       discussed_in(items.where(decision: 'abgelehnt')).first,
       discussed_in(items.joins(:meeting).where(meetings: { date: Time.zone.today.. })).first,
       listed_documents.where.not(id: items.select(:document_id)).first,

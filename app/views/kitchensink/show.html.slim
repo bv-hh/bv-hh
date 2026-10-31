@@ -147,7 +147,8 @@
       h2.h4 Drucksachen lists
       p.small.text-secondary
         | One row partial, in a .list-group.list-group-flush, title first. No ALLRIS link: the Drucksache's own page has
-          it. Load agenda_items with their meetings and committees, and the places with their Bezirk.
+          it. Load the Drucksachen with Document.for_list, and with_places for rows whose places come from
+          document_places.
 
       h3.h5.mt-4 Full
       p.small.mb-2
@@ -160,7 +161,7 @@
           about, three places at most.
       .list-group.list-group-flush.border-top.border-bottom
         - @documents.each do |document|
-          = render 'documents/item', document:, district: page_district, places: document.locations.uniq(&:name).sort_by(&:name)
+          = render 'documents/item', document:, district: page_district, places: document_places(document)
 
       h3.h5.mt-4 Full, as a search result
       p.small.mb-2
@@ -170,7 +171,7 @@
           leaving it.
       .list-group.list-group-flush.border-top.border-bottom
         = render 'documents/item', document: sample, district: page_district, words: [word],
-            excerpt: highlight_multi_excerpt(sample.full_text.to_s, word), places: sample.locations.uniq(&:name).sort_by(&:name)
+            excerpt: highlight_multi_excerpt(sample.full_text.to_s, word), places: document_places(sample)
 
       h3.h5.mt-4 Compact
       p.small.mb-2

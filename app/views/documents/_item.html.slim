@@ -21,10 +21,10 @@
 - meeting = agenda_item&.meeting
 - max_places = 3
 .list-group-item.px-0.text-break class=(compact ? 'py-2' : 'py-3')
-  = link_to (words ? highlight(title, words) : title), document_path(document, district: document.district),
+  = link_to (words ? highlight_text(title, words) : title), document_path(document, district: document.district),
       class: ('fw-semibold' unless compact), target: local_assigns[:target]
   .small.text-secondary
-    span.fw-semibold.text-body>= words ? highlight(document.number, words) : document.number
+    span.fw-semibold.text-body>= words ? highlight_text(document.number, words) : document.number
     ' ·
     = document.kind
     - if compact

@@ -22,9 +22,13 @@ class MeetingHelperTest < ActionView::TestCase
   end
 
   test 'decision_label says a coming meeting has it on its agenda' do
-    item = AgendaItem.new(meeting: Meeting.new(date: Time.zone.today))
+    item = AgendaItem.new(meeting: Meeting.new(date: Time.zone.tomorrow))
 
     assert_includes decision_label(item), 'auf der Tagesordnung'
+  end
+
+  test 'decision_label no longer calls a meeting held today coming' do
+    assert_nil decision_label(AgendaItem.new(meeting: Meeting.new(date: Time.zone.today)))
   end
 
   test 'decision_label leaves out a past meeting without a known decision' do

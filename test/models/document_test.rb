@@ -45,7 +45,7 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'search returns each document once even when the root joins' do
-    numbers = Document.search('Eingabe', root: Document.include_meetings).map(&:number)
+    numbers = Document.search('Eingabe', root: Document.includes(:meetings).left_joins(:meetings)).map(&:number)
 
     assert_equal numbers.uniq, numbers
   end
@@ -186,5 +186,15 @@ class DocumentTest < ActiveSupport::TestCase
     documents(:document_4).update_columns(topics: %w[kultur unbekannt]) # rubocop:disable Rails/SkipsModelValidations
 
     assert_equal({ 'kultur' => 2, 'radverkehr' => 1, 'unbekannt' => 1 }, Document.complete.latest_first.topic_counts)
+  end
+
+  test 'latest_agenda_item prefers the decided item of the latest day' do
+    document = Document.new
+    day = Meeting.new(date: Date.new(2026, 3, 12))
+    document.agenda_items.build(id: 3, meeting: day)
+    decided = document.agenda_items.build(id: 2, meeting: day, decision: 'beschlossen')
+    document.agenda_items.build(id: 9, meeting: Meeting.new(date: Date.new(2026, 1, 5)), decision: 'vertagt')
+
+    assert_equal decided, document.latest_agenda_item
   end
 end

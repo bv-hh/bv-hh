@@ -6,7 +6,6 @@
 - quarter_page = ->(**options) { quarter_path(district: @quarter.district, quarter: @quarter.slug, **options) }
 - markers_url = quarter_page.call(format: :json, page: params[:page], topic: @topic&.slug)
 - topic_url = ->(topic) { quarter_page.call(topic: topic&.slug) }
-- max_places = 3
 
 - content_for :head do
   = auto_discovery_link_tag :rss, quarter_feed_url, title: "Drucksachen zu #{@quarter.name}"

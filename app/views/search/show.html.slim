@@ -142,7 +142,7 @@
               = render 'documents/item', document:, places: @places.fetch(document.id, []), words: @term.split,
                   excerpt: highlight_multi_excerpt(document.full_text, @term),
                   attachments_excerpt: (highlight_multi_excerpt(document.attachments_content, @term) if @attachments),
-                  topic_url: ->(topic) { search_page.call(topic: topic.slug) },
+                  topics: document.topic_records - [@topic], topic_url: ->(topic) { search_page.call(topic: topic.slug) },
                   topic_title: ->(topic) { "Suche auf das Thema #{topic.label} eingrenzen" },
                   district_url: ->(district) { search_page.call(district:) }
           - else

@@ -52,7 +52,7 @@ module MeetingHelper
   # for a list: the decision, or that the meeting is still to come. The darker
   # -emphasis colours, as the plain ones are too light for text.
   def decision_label(agenda_item)
-    coming = agenda_item.decision.nil? && !agenda_item.meeting.date.past?
+    coming = agenda_item.decision.nil? && agenda_item.meeting.date.future?
     return tag.span(icon(:far, 'calendar', 'auf der Tagesordnung'), class: 'text-body') if coming
 
     decision = DECISIONS[agenda_item.decision]

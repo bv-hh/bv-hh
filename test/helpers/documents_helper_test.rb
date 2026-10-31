@@ -19,4 +19,16 @@ class DocumentsHelperTest < ActionView::TestCase
   test 'document_title is the title as text' do
     assert_equal 'Spiel & Sport', document_title(Document.new(title: 'Spiel &amp; Sport'))
   end
+
+  test 'document_places leaves out every place named like except' do
+    document = Document.new
+    heilwig = Location.new(id: 1, name: 'Heilwigstraße')
+    document.locations = [Location.new(id: 2, name: 'Heilwigstraße'), Location.new(id: 3, name: 'Alsterdorfer Straße'), heilwig]
+
+    assert_equal ['Alsterdorfer Straße'], document_places(document, except: heilwig).map(&:name)
+  end
+
+  test 'highlight_text keeps decoded angle brackets as text' do
+    assert_equal 'Planung &lt;<mark>Elbufer</mark>&gt;', highlight_text('Planung <Elbufer>', ['Elbufer'])
+  end
 end

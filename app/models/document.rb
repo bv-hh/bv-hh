@@ -39,9 +39,9 @@ class Document < ApplicationRecord
   include WithAttachments
   include WithAllrisPage
 
-  # What a row of documents/_item reads: its Bezirk, its latest meeting with the
-  # committee and decision, and the places it mentions.
-  LIST_ASSOCIATIONS = [:district, { locations: :district, agenda_items: { meeting: :committee } }].freeze
+  # What a row of documents/_item reads: its Bezirk and its latest meeting with
+  # the committee and decision. Places come separately (with_places).
+  LIST_ASSOCIATIONS = [:district, { agenda_items: { meeting: :committee } }].freeze
 
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
@@ -87,8 +87,9 @@ class Document < ApplicationRecord
   scope :state_inquiries, -> { where(kind: STATE_INQUIRY_TYPES) }
   scope :authored_by, ->(name) { where('documents.title ILIKE :name OR documents.author ILIKE :name', name: "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
-  scope :include_meetings, -> { includes(:meetings).left_joins(:meetings) }
   scope :for_list, -> { preload(LIST_ASSOCIATIONS) }
+  # For rows whose places come from DocumentsHelper#document_places.
+  scope :with_places, -> { preload(locations: :district) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :in_last_days, ->(days) { in_date_range(days.days.ago.beginning_of_day..Time.zone.now) }
@@ -301,9 +302,12 @@ class Document < ApplicationRecord
 
   # The agenda item of the latest meeting that discussed this Drucksache. It
   # dates the Drucksache in lists; created_at would not, as it is when BV-HH
-  # imported it. Load agenda_items with their meetings first.
+  # imported it. Of several on one day the one with a decision, then the last
+  # imported, so the choice does not depend on load order. Load agenda_items
+  # with their meetings first.
   def latest_agenda_item
-    agenda_items.select { |item| item.meeting&.date }.max_by { |item| item.meeting.date }
+    agenda_items.select { |item| item.meeting&.date }
+                .max_by { |item| [item.meeting.date, item.decision.present? ? 1 : 0, item.id] }
   end
 
   def needs_update?
