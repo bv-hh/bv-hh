@@ -39,6 +39,10 @@ class Document < ApplicationRecord
   include WithAttachments
   include WithAllrisPage
 
+  # What a row of documents/_item reads: its Bezirk, its latest meeting with the
+  # committee and decision, and the places it mentions.
+  LIST_ASSOCIATIONS = [:district, { locations: :district, agenda_items: { meeting: :committee } }].freeze
+
   SMALL_INQUIRY_TYPES = ['Kleine Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Kleine Anfrage)', 'Kleine Anfrage öffentlich', 'Kleine Anfrage gem. § 24 BezVG']
   LARGE_INQUIRY_TYPES = ['Große Anfrage nach § 24 BezVG', 'Anfrage gem. § 24 BezVG (Große Anfrage)', 'Große Anfrage öffentlich', 'Große Anfrage gem. § 24 BezVG']
   STATE_INQUIRY_TYPES = ['Anfrage nach § 27 BezVG', 'Anfrage gem. § 27 BezVG', 'Auskunftsersuchen', 'Anfrage gem. § 27 BezVG']
@@ -84,6 +88,7 @@ class Document < ApplicationRecord
   scope :authored_by, ->(name) { where('documents.title ILIKE :name OR documents.author ILIKE :name', name: "%#{name}%") }
   scope :complete, -> { where.not(title: nil) }
   scope :include_meetings, -> { includes(:meetings).left_joins(:meetings) }
+  scope :for_list, -> { preload(LIST_ASSOCIATIONS) }
   scope :in_date_range, ->(range) { joins(agenda_items: :meeting).where('meetings.date' => range) }
   scope :in_last_months, ->(months) { in_date_range((months + 1).months.ago.beginning_of_month..1.month.ago.end_of_month) }
   scope :in_last_days, ->(days) { in_date_range(days.days.ago.beginning_of_day..Time.zone.now) }
@@ -292,6 +297,13 @@ class Document < ApplicationRecord
 
   def complete?
     title.present?
+  end
+
+  # The agenda item of the latest meeting that discussed this Drucksache. It
+  # dates the Drucksache in lists; created_at would not, as it is when BV-HH
+  # imported it. Load agenda_items with their meetings first.
+  def latest_agenda_item
+    agenda_items.select { |item| item.meeting&.date }.max_by { |item| item.meeting.date }
   end
 
   def needs_update?

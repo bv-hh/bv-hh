@@ -15,4 +15,8 @@ class DocumentsHelperTest < ActionView::TestCase
 
     assert_equal document.content, document_format(document, :content)
   end
+
+  test 'document_title is the title as text' do
+    assert_equal 'Spiel & Sport', document_title(Document.new(title: 'Spiel &amp; Sport'))
+  end
 end

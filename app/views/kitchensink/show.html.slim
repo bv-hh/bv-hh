@@ -1,5 +1,6 @@
-/ Reference for ChipHelper: every chip with real records, the call that makes
-/ it and where it belongs. Not routed in production.
+/ Reference for ChipHelper and documents/_item: every chip and both rows of a
+/ Drucksachen list with real records, the call that makes them and where they
+/ belong. Not routed in production.
 - location = @locations.first
 - quarter = @quarters.first
 - topic = @topics.first
@@ -8,7 +9,7 @@
 .kitchensink
   .card.p-4.p-lg-5.mb-5.bg-body-tertiary.rounded-3
     p.text-uppercase.fw-bold.small.text-secondary.mb-2 Kitchensink
-    h1.display-6.fw-bold.mb-3 Chips and badges
+    h1.display-6.fw-bold.mb-3 Chips, badges and lists
     .row.g-4
       .col-lg-6
         h2.h6 The shape says what a chip is
@@ -116,27 +117,6 @@
             td: code example_chip(term)
             td.small Searches to start from, below a search field and nowhere else.
 
-  - if location || topic
-    section.mb-5
-      h2.h4 Together
-      p.small.text-secondary A search result from another Bezirk, with its Bezirk, topics and places.
-      .list-group.list-group-flush.border-top.border-bottom
-        .list-group-item.px-0.py-3
-          a.fw-semibold href='#' Title of a Drucksache
-          .small.text-secondary
-            ' 21-1234 · Antrag ·
-            = link_to 'Ausschuss für Mobilität', '#', class: 'link-secondary'
-            = " · #{l Time.zone.today}"
-          p.small.mb-0.mt-1 An excerpt of its text with the search words marked.
-          .d-flex.flex-wrap.align-items-center.gap-1.mt-2
-            - if district
-              = district_chip(district)
-            - @topics.first(2).each do |entry|
-              = topic_chip(entry, topic_path(topic: entry, district: nil), dense: true)
-            - @locations.each do |place|
-              = place_chip(place, dense: true)
-            span.small.text-secondary + 2 weitere
-
   section.mb-5
     h2.h4 Status badges
     p.small.text-secondary Plain Bootstrap badges; no helper.
@@ -158,3 +138,47 @@
             td: span.badge.text-bg-secondary 3
             td: code span.badge.text-bg-secondary
             td.small How many are selected inside a closed panel. Not bg-primary: the brand red reads as a warning.
+
+  - if @documents.any?
+    - page_district = @documents.first.district
+    - sample = @documents.first
+    - word = document_title(sample).split.find { |entry| entry.size > 5 } || sample.number
+    section.mb-5
+      h2.h4 Drucksachen lists
+      p.small.text-secondary
+        | One row partial, in a .list-group.list-group-flush, title first. No ALLRIS link: the Drucksache's own page has
+          it. Load agenda_items with their meetings and committees, and the places with their Bezirk.
+
+      h3.h5.mt-4 Full
+      p.small.mb-2
+        code render 'documents/item', document:, places:
+        span.text-secondary< – here as on a page of #{page_district.name}.
+      p.small.text-secondary
+        | Lists that are the page's content: search, Stadtteil, topic, location and all Drucksachen. After number and
+          kind what became of it at its latest meeting (decided, or still on an agenda), then that meeting. The chips
+          name only what the list does not already: the Bezirk when it is not the page's, no topic a topic page is
+          about, three places at most.
+      .list-group.list-group-flush.border-top.border-bottom
+        - @documents.each do |document|
+          = render 'documents/item', document:, district: page_district, places: document.locations.uniq(&:name).sort_by(&:name)
+
+      h3.h5.mt-4 Full, as a search result
+      p.small.mb-2
+        code render 'documents/item', document:, places:, words:, excerpt:, topic_url:, district_url:
+      p.small.text-secondary
+        | The search words marked in title, number and an excerpt; topic and Bezirk narrow the search instead of
+          leaving it.
+      .list-group.list-group-flush.border-top.border-bottom
+        = render 'documents/item', document: sample, district: page_district, words: [word],
+            excerpt: highlight_multi_excerpt(sample.full_text.to_s, word), places: sample.locations.uniq(&:name).sort_by(&:name)
+
+      h3.h5.mt-4 Compact
+      p.small.mb-2
+        code render 'documents/item', document:, compact: true
+      p.small.text-secondary
+        | Lists beside the main content: new Drucksachen on the district page, related ones on a Drucksache, the feed
+          preview. Title, number, kind and the date of its latest meeting.
+      .col-lg-5
+        .list-group.list-group-flush.border-top.border-bottom
+          - @compact_documents.each do |document|
+            = render 'documents/item', document:, compact: true

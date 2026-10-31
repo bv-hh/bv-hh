@@ -4,6 +4,17 @@ module DocumentsHelper
   DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4}(\.\d{1,2})+)/
   IMAGE_LINK_PATTERN = /img src="([^"]*)"/
 
+  # The title as text. Titles carry no markup but some entities (&amp;).
+  def document_title(document)
+    CGI.unescapeHTML(strip_tags(document.title.to_s))
+  end
+
+  # The places a Drucksache mentions for its row in a list, one per name,
+  # without except (the place whose page lists it). Load them with for_list.
+  def document_places(document, except: nil)
+    document.locations.reject { |location| location == except }.uniq(&:name).sort_by(&:name)
+  end
+
   def link_documents(content, district)
     numbers = content.scan(DOCUMENT_NUMBER_PATTERN).flatten
     documents = district.documents.where(number: numbers).index_by(&:number)
