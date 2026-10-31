@@ -9,7 +9,7 @@ class DocumentsController < ApplicationController
   MAX_SUGGESTIONS = 5
 
   def index
-    @documents = @district.documents.complete.include_meetings.latest_first.page(params[:page])
+    @documents = @district.documents.complete.latest_first.for_list.page(params[:page])
     @title = "Drucksachen der Bezirksversammlung #{@district.name} und ihrer Gremien"
   end
 

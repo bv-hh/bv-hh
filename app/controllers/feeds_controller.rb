@@ -8,6 +8,8 @@
 class FeedsController < ApplicationController
   # Bump when the RSS template changes shape, so cached copies are refetched.
   FEED_VERSION = 1
+  # Drucksachen the config page shows of the feed it builds.
+  PREVIEW = 10
 
   # Everything but the feed itself. The config page is Hamburg-wide and has no
   # district control, so a stray ?district= is stripped there as on every other
@@ -40,6 +42,8 @@ class FeedsController < ApplicationController
     # The URL space is combinatorial — it must never be crawled.
     @noindex = true
     @quarters = quarters_by_district
+    @preview = @documents.first(PREVIEW)
+    ActiveRecord::Associations::Preloader.new(records: @preview, associations: Document::LIST_ASSOCIATIONS).call
   end
 
   # [label, quarters] pairs, grouped by district and ordered by District#order

@@ -77,7 +77,7 @@ class QuartersController < ApplicationController
     # every district that mentions a place in it, and numbers only run in
     # sequence within one district, so there is nothing to compare across them.
     # Same order as the feed.
-    @documents = page_documents.preload(:district, meetings: :committee)
+    @documents = page_documents.for_list
     @places = places_by_document
     # Follows the topic filter, like the list and the map. Cached like the topic
     # counts: the subquery takes a few hundred milliseconds on a busy Stadtteil.
@@ -97,7 +97,7 @@ class QuartersController < ApplicationController
   # Document id => the Locations in this Quarter it mentions, for the place
   # links under each Drucksache. The same places the map pins.
   def places_by_document
-    quarter_locations.where(document_id: page_documents.map(&:id)).includes(:location)
+    quarter_locations.where(document_id: page_documents.map(&:id)).includes(location: :district)
                      .group_by(&:document_id).transform_values { |links| links.map(&:location).uniq.sort_by(&:name) }
   end
 end

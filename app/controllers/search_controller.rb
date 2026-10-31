@@ -65,7 +65,7 @@ class SearchController < ApplicationController
     @topic_counts = Topic.ranked(Document.where(id: ids_of(matching)).topic_counts)
     matching = matching.with_topics(@topic.key) if @topic
 
-    @documents = matching.preload(:district, meetings: :committee)
+    @documents = matching.for_list
     @documents = @documents.preload(:attachments) if @attachments
     @document_count = @documents.count(:all)
   end

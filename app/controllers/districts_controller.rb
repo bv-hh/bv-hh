@@ -12,7 +12,7 @@ class DistrictsController < ApplicationController
     @hero_search = true
 
     @quarters = Quarter.in_district(@district.number).by_name
-    @documents = @district.documents.complete.latest_first.limit(DOCUMENTS)
+    @documents = @district.documents.complete.latest_first.limit(DOCUMENTS).for_list
     @document_count = @district.documents.complete.count
     @meeting_count = @district.meetings.complete.count
 

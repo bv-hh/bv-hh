@@ -18,7 +18,7 @@ class TopicsController < ApplicationController
     # order is created_at, as on the Quarter page and in the feed.
     @documents = @query.relation(limit: nil, order: @district ? :number : :created_at)
                        .page(params[:page]).per(PER_PAGE)
-                       .preload(:district, meetings: :committee)
+                       .for_list
     set_counts
     set_meta
   end

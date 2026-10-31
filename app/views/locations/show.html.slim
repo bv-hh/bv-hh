@@ -14,34 +14,9 @@ h3.text-muted
   span.badge.text-bg-warning> Beta
   span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
 
-.row.mt-4.border-bottom.font-weight-bold
-  .col-2.col-lg-1.py-2 Drs.
-  .col.col-lg-7.py-2 Titel / Art
-  .col-10.col-lg.offset-2.offset-lg-0.py-2 Letzte Befassung
-  .col-1
-
-- @documents.each do |document|
-  .row.pt-3.pb-2.border-top
-    .col-2.col-lg-1.text-nowrap
-      = link_to document_path(document) do
-        strong= document.number
-    .col.col-lg-7
-      = link_to document_path(document) do
-        = document.title.html_safe
-      br
-      span.text-secondary= document.kind
-      .d-flex.flex-wrap.gap-1.mt-1
-        - document.locations.each do |location|
-          = place_chip(location, dense: true)
-
-    .col-1.order-lg-last.text-end
-      = allris_link(document.allris_url)
-    .w-100.d-block.d-lg-none
-    .col.offset-2.offset-lg-0.pt-2.pt-lg-0
-      - if (meeting = document.meetings.latest_first.first)
-        = link_to meeting.committee.name, meeting_path(meeting), class: 'text-secondary'
-        br
-        = l meeting.date
+.list-group.list-group-flush.mt-4
+  - @documents.each do |document|
+    = render 'documents/item', document:, district: @location.district, places: document_places(document, except: @location)
 
 .mt-5
   = paginate @documents, theme: 'bootstrap-5', nav_class: "nav justify-content-center"

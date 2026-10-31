@@ -138,8 +138,13 @@
 
           - if @document_count.positive?
             = render 'search/results', results: @documents, count: @document_count do |document|
-              = render 'search/document', document:, places: @places.fetch(document.id, []),
-                  topic_url: ->(topic) { search_page.call(topic: topic.slug) }, district_url: ->(district) { search_page.call(district:) }
+              / places are those named in the search first.
+              = render 'documents/item', document:, places: @places.fetch(document.id, []), words: @term.split,
+                  excerpt: highlight_multi_excerpt(document.full_text, @term),
+                  attachments_excerpt: (highlight_multi_excerpt(document.attachments_content, @term) if @attachments),
+                  topic_url: ->(topic) { search_page.call(topic: topic.slug) },
+                  topic_title: ->(topic) { "Suche auf das Thema #{topic.label} eingrenzen" },
+                  district_url: ->(district) { search_page.call(district:) }
           - else
             = render 'search/none', what: 'Drucksachen', counts: @district_counts[:documents], search_page:, scope_name:
 
