@@ -98,6 +98,9 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
+  # Documents matching all words of +term+. A +root+ must not join rows that
+  # repeat a document: DISTINCT would cost a sort of every match with its full
+  # text, so there is none.
   def self.search(term, root: nil, attachments: false, order: :relevance)
     # Anything else separates words: "Max-Brauer-Allee" is three, as
     # to_tsvector reads it, not one "MaxBrauerAllee" that is nowhere.
@@ -143,10 +146,6 @@ class Document < ApplicationRecord
       raise "Invalid order #{order}"
     end
 
-    # Only a root that joins (the MCP tool joins meetings) repeats a document.
-    # DISTINCT costs a sort of every match with its full text, and turns a
-    # count into a count over that sort.
-    query = query.distinct if query.joins_values.any? || query.left_outer_joins_values.any?
     query = query.select("#{order} AS ranking, documents.*")
     query = query.where(match)
 

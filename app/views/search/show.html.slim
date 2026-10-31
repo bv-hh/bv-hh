@@ -1,5 +1,7 @@
 / search_page changes one part of the current search and keeps the rest.
-- search_page = ->(**changes) { search_path(**@filters.merge(changes).compact) }
+/ nil drops a part; district: nil is the search in all Bezirke, which
+/ default_url_options would otherwise fill in with the current one.
+- search_page = ->(**changes) { search_path(**@filters, **changes) }
 - scope_name = @district&.name || 'allen Bezirken'
 
 .search
@@ -29,18 +31,20 @@
                 span aria-hidden='true' ×
                 span.visually-hidden= "#{label} aufheben"
 
-      / The Bezirk links keep the open tab: switching Bezirk is still the same
-      / question.
-      - tab = ('protokolle' if @tab == :minutes)
+      / The Bezirk links keep the minutes tab when it was chosen: switching
+      / Bezirk is still the same question. Opened only because the Drucksachen
+      / had nothing, it is no choice to keep.
+      - tab = ('protokolle' if @tab == :minutes && params[:tab] == 'protokolle')
+      - totals = @district_counts[:documents].merge(@district_counts[:minutes]) { |_id, documents, minutes| documents + minutes }
       section.mt-4
         h2.h6.mb-2 Treffer nach Bezirk
         nav.d-flex.flex-wrap.gap-2 aria-label='Bezirke'
           = link_to search_page.call(district: nil, tab:), class: ['btn btn-sm', @district ? 'btn-outline-secondary' : 'btn-secondary'],
               'aria-current': (@district ? nil : 'page') do
             | Alle Bezirke
-            span.ms-1.opacity-75= number_with_delimiter(@district_counts.values.sum)
+            span.ms-1.opacity-75= number_with_delimiter(totals.values.sum)
           - District.by_order.each do |district|
-            - count = @district_counts[district.id].to_i
+            - count = totals[district.id].to_i
             - next if count.zero? && district != @district
             = link_to search_page.call(district:, tab:), class: ['btn btn-sm', district == @district ? 'btn-secondary' : 'btn-outline-secondary'],
                 'aria-current': (district == @district ? 'page' : nil) do
@@ -113,7 +117,7 @@
               = link_to search_page.call(tab: 'drucksachen'), class: ['nav-link', ('active' if @tab == :documents)],
                   'aria-current': (@tab == :documents ? 'page' : nil) do
                 | Drucksachen
-                span.ms-1.opacity-75= number_with_delimiter(@documents.total_count)
+                span.ms-1.opacity-75= number_with_delimiter(@document_count)
             li.nav-item
               - if @topic
                 span.nav-link.disabled title='Protokolle haben keine Themen'
@@ -123,8 +127,8 @@
                 = link_to search_page.call(tab: 'protokolle'), class: ['nav-link', ('active' if @tab == :minutes)],
                     'aria-current': (@tab == :minutes ? 'page' : nil) do
                   | Protokolle
-                  span.ms-1.opacity-75= number_with_delimiter(@agenda_items.total_count)
-          - if @tab == :documents && @documents.total_count > 1
+                  span.ms-1.opacity-75= number_with_delimiter(@agenda_item_count)
+          - if @tab == :documents && @document_count > 1
             nav.small aria-label='Sortierung'
               span.text-secondary.me-1 Sortiert nach
               - [[:date, 'Datum', nil], [:relevance, 'Relevanz', 'relevance']].each_with_index do |(order, label, value), index|
@@ -142,24 +146,18 @@
             p.small.text-secondary
               | Die Themen werden automatisch zugeordnet. Protokolle haben keine Themen und fehlen deshalb.
 
-          - if @documents.any?
-            .list-group.list-group-flush
-              - @documents.each do |document|
-                = render 'search/document', document:, places: @places.fetch(document.id, []),
-                    topic_url: ->(topic) { search_page.call(topic: topic.slug) }
-            .mt-4
-              = paginate @documents, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'
+          - if @document_count.positive?
+            = render 'search/results', results: @documents, count: @document_count do |document|
+              = render 'search/document', document:, places: @places.fetch(document.id, []),
+                  topic_url: ->(topic) { search_page.call(topic: topic.slug) }
           - else
-            = render 'search/none', what: 'Drucksachen', search_page:, scope_name:
+            = render 'search/none', what: 'Drucksachen', counts: @district_counts[:documents], search_page:, scope_name:
 
-        - elsif @agenda_items.any?
-          .list-group.list-group-flush
-            - @agenda_items.each do |agenda_item|
-              = render 'search/agenda_item', agenda_item:
-          .mt-4
-            = paginate @agenda_items, theme: 'bootstrap-5', nav_class: 'nav justify-content-center'
+        - elsif @agenda_item_count.positive?
+          = render 'search/results', results: @agenda_items, count: @agenda_item_count do |agenda_item|
+            = render 'search/agenda_item', agenda_item:
         - else
-          = render 'search/none', what: 'Protokollstellen', search_page:, scope_name:
+          = render 'search/none', what: 'Protokollstellen', counts: @district_counts[:minutes], tab: 'protokolle', search_page:, scope_name:
 
   .alert.alert-warning.mb-0
     strong> Keine offizielle Seite der Stadt Hamburg.

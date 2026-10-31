@@ -7,6 +7,8 @@ class SearchController < ApplicationController
   # something in every district, not current affairs that go stale.
   EXAMPLES = ['Tempo 30', 'Spielplatz', 'Radweg', 'Baumfällung', 'Sondermittel'].freeze
 
+  SEARCH_PARAMS = %w[q kind topic attachments order tab page].freeze
+
   before_action :redirect_document_number, :redirect_all_districts, only: :show
 
   def show
@@ -20,6 +22,7 @@ class SearchController < ApplicationController
     search_documents
     search_agenda_items
     count_districts
+    @tab = open_tab
     page_open_tab
   end
 
@@ -35,7 +38,7 @@ class SearchController < ApplicationController
   def redirect_all_districts
     return unless @district.present? && params[:all_districts] == 'true'
 
-    redirect_to search_path(district: nil, **request.query_parameters.except('all_districts').symbolize_keys)
+    redirect_to search_path(district: nil, params: request.query_parameters.slice(*SEARCH_PARAMS))
   end
 
   def set_search_options
@@ -62,8 +65,9 @@ class SearchController < ApplicationController
     @topic_counts = Topic.ranked(Document.where(id: ids_of(matching)).topic_counts)
     matching = matching.with_topics(@topic.key) if @topic
 
-    @documents = matching.preload(:district, meetings: :committee).page(1).per(PER_PAGE)
+    @documents = matching.preload(:district, meetings: :committee)
     @documents = @documents.preload(:attachments) if @attachments
+    @document_count = @documents.count(:all)
   end
 
   def search_agenda_items
@@ -71,24 +75,25 @@ class SearchController < ApplicationController
     # Minutes carry no topics, so a topic filter leaves none of them.
     root = root.none if @topic
 
-    @agenda_items = AgendaItem.minutes_prefix_search(@term, root).page(1).per(PER_PAGE)
+    @agenda_items = AgendaItem.minutes_prefix_search(@term, root)
+    @agenda_item_count = @agenda_items.count
   end
 
-  # District id => results there, for the Bezirk links. The same filters as the
-  # list, so the link to the current Bezirk shows the count below it. Cached
-  # briefly: the minutes are matched by ILIKE in every Bezirk, which takes most
-  # of a second for a common word, and the example searches recur.
+  # { documents:, minutes: } with district id => results there each, for the
+  # Bezirk links. The same filters as the list, so the link to the current
+  # Bezirk shows the count below it. Cached briefly: the minutes are matched by
+  # ILIKE in every Bezirk, which takes most of a second for a common word, and
+  # the example searches recur.
   def count_districts
     key = ['search_district_counts', @term.downcase, @kind, @topic&.key, @attachments]
     @district_counts = Rails.cache.fetch(key, expires_in: 10.minutes) do
       documents = documents_matching(Document.all)
       documents = documents.with_topics(@topic.key) if @topic
-      counts = Document.where(id: ids_of(documents)).group(:district_id).count
-      unless @topic
-        minutes = AgendaItem.minutes_prefix_search(@term).unscope(:order).group('meetings.district_id').count
-        counts.merge!(minutes) { |_district, documents, agenda_items| documents + agenda_items }
-      end
-      counts
+      {
+        documents: Document.where(id: ids_of(documents)).group(:district_id).count,
+        # Minutes carry no topics.
+        minutes: @topic ? {} : AgendaItem.minutes_prefix_search(@term).unscope(:order).group('meetings.district_id').count,
+      }
     end
   end
 
@@ -103,10 +108,8 @@ class SearchController < ApplicationController
     documents.except(:select, :order).select('documents.id')
   end
 
-  # The page asked for belongs to the tab that is open, which is only known
-  # once both are counted.
+  # Only the open tab is listed, and the page asked for is a page of it.
   def page_open_tab
-    @tab = open_tab
     if @tab == :documents
       @documents = @documents.page(params[:page]).per(PER_PAGE)
       @places = places_by_document
@@ -116,17 +119,21 @@ class SearchController < ApplicationController
   end
 
   # Drucksachen unless asked otherwise, or when only the minutes have something.
+  # Under a topic there are no minutes to show.
   def open_tab
-    return :minutes if params[:tab] == 'protokolle'
-    return :documents if params[:tab].present?
+    return :documents if @topic
 
-    @documents.total_count.zero? && @agenda_items.total_count.positive? ? :minutes : :documents
+    case params[:tab]
+    when 'protokolle' then :minutes
+    when 'drucksachen' then :documents
+    else @document_count.zero? && @agenda_item_count.positive? ? :minutes : :documents
+    end
   end
 
   # Document id => the places it mentions, those named in the term first.
   def places_by_document
     words = @term.downcase.split
-    DocumentLocation.where(document_id: @documents.map(&:id)).includes(:location).group_by(&:document_id)
+    DocumentLocation.where(document_id: @documents.map(&:id)).includes(location: :district).group_by(&:document_id)
                     .transform_values do |links|
                       links.map(&:location).uniq(&:name).sort_by do |location|
                         [words.any? { |word| location.name.downcase.include?(word) } ? 0 : 1, location.name]

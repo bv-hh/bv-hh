@@ -8,7 +8,4 @@
         placeholder: 'Straße, Stadtteil, Thema oder Drucksachen-Nr.', data: search_input_data, autocomplete: 'off'
     button.btn.btn-primary type='submit' Suchen
 - if local_assigns.fetch(:examples, true)
-  .d-flex.flex-wrap.align-items-center.gap-2.mt-3.small.text-secondary
-    span Zum Beispiel:
-    - SearchController::EXAMPLES.each do |term|
-      = link_to term, search_path(q: term), class: 'btn btn-sm btn-light border rounded-pill'
+  = render 'search/examples', css: 'mt-3'

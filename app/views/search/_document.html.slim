@@ -5,7 +5,7 @@
 - words = @term.split
 - max_places = 3
 / The last meeting dates a Drucksache, as on the Stadtteil page.
-- meeting = document.meetings.max_by(&:date)
+- meeting = document.meetings.select(&:date).max_by(&:date)
 .list-group-item.px-0.py-3.d-flex.gap-3
   .flex-grow-1.text-break
     = link_to highlight(strip_tags(document.title), words), document_path(document, district: document.district),

@@ -1,0 +1,14 @@
+/ The open tab's page of results, each rendered by the block, and the
+/ pagination. count is the tab's total as the controller counted it, so the
+/ pagination does not count again.
+- if results.empty?
+  p.py-3
+    ' Diese Seite gibt es nicht.
+    = link_to 'Zur ersten Seite', url_for(params.permit(*SearchController::SEARCH_PARAMS).merge(page: nil))
+- else
+  .list-group.list-group-flush
+    - results.each do |result|
+      = yield result
+.mt-4
+  = paginate results, total_pages: (count.to_f / SearchController::PER_PAGE).ceil, theme: 'bootstrap-5',
+      nav_class: 'nav justify-content-center'

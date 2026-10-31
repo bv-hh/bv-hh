@@ -74,7 +74,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
   def self.call(query:, district: nil, topic: nil)
     term = (query || '').strip
     district = District.lookup(district || '')
-    documents_root = (district ? district.documents : Document.all).complete.include_meetings
+    documents_root = (district ? district.documents : Document.all).complete
     agenda_items_root = (district ? district.agenda_items : AgendaItem.all).includes(:meeting)
 
     if topic.present?

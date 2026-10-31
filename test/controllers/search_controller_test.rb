@@ -41,13 +41,33 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get search_path(district: districts(:hamburg_nord), q: 'Eingabe')
 
     assert_select 'nav[aria-label=Bezirke] a[aria-current=page]', text: /Hamburg-Nord/
-    assert_select 'nav[aria-label=Bezirke] a', text: /Alle Bezirke/
+    assert_select 'nav[aria-label=Bezirke] a[href=?]', search_path(district: nil, q: 'Eingabe'), text: /Alle Bezirke/
   end
 
   test 'GET show sends the old all_districts checkbox to the search without a district' do
     get search_path(district: districts(:hamburg_nord), q: 'Eingabe', all_districts: 'true', order: 'relevance')
 
     assert_redirected_to search_path(district: nil, q: 'Eingabe', order: 'relevance')
+  end
+
+  test 'GET show passes only search parameters on to the search in all Bezirke' do
+    get "#{search_path(district: districts(:hamburg_nord), q: 'Eingabe', all_districts: 'true')}&script_name=//evil.example&action=x"
+
+    assert_redirected_to search_path(district: nil, q: 'Eingabe')
+  end
+
+  test 'GET show past the last page says so instead of finding nothing' do
+    get search_path(district: districts(:hamburg_nord), q: 'Eingabe', page: 99)
+
+    assert_response :success
+    assert_includes @response.body, 'Diese Seite gibt es nicht.'
+    assert_not_includes @response.body, 'Keine Drucksachen'
+  end
+
+  test 'GET show with a topic keeps to the Drucksachen even when the minutes tab is asked for' do
+    get search_path(district: districts(:hamburg_nord), q: 'Eingabe', topic: 'radverkehr', tab: 'protokolle')
+
+    assert_select '.nav-link.active', text: /Drucksachen/
   end
 
   test 'GET show offers the Stadtteil, street or topic the term names' do
@@ -77,6 +97,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get search_path(district: districts(:hamburg_nord), q: 'Quokkaweg')
 
     assert_select '.nav-link.active', text: /Protokolle/
+    # Opened only for want of Drucksachen, the tab is not carried to another Bezirk.
+    assert_select 'nav[aria-label=Bezirke] a[href*=tab]', 0
   end
 
   test 'GET show with a topic offers it to clear and leaves out the minutes tab' do
