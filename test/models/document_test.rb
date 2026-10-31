@@ -29,6 +29,27 @@ class DocumentTest < ActiveSupport::TestCase
     assert_includes numbers, '21-4776' # title: "Eingabe: Heilwigstraße ..."
   end
 
+  test 'search reads a hyphenated name as its words' do
+    document = documents(:document_7)
+    document.update_columns(title: 'Radweg in der Max-Brauer-Allee') # rubocop:disable Rails/SkipsModelValidations
+
+    assert_includes Document.search('Max-Brauer-Allee').to_a, document
+  end
+
+  test 'search with attachments also finds documents by their attachments alone' do
+    document = documents(:document_7)
+    Attachment.create!(district: @district, attachable: document, name: 'Anlage', content: 'Der Quokkaweg wird saniert.')
+
+    assert_empty Document.search('Quokkaweg')
+    assert_equal [document], Document.search('Quokkaweg', attachments: true).to_a
+  end
+
+  test 'search returns each document once even when the root joins' do
+    numbers = Document.search('Eingabe', root: Document.include_meetings).map(&:number)
+
+    assert_equal numbers.uniq, numbers
+  end
+
   test 'proposals scope only returns Antrag documents' do
     proposals = @district.documents.proposals
 

@@ -1,0 +1,15 @@
+/ The topic filter beside a list of Drucksachen (Stadtteil page, search):
+/ "Alle Themen" and every topic with its count. items is a list of [Topic,
+/ count] pairs, active the selected Topic or nil, url a proc giving the link
+/ for a Topic, or for nil to clear the filter. The selected topic clears it too.
+.list-group
+  = link_to url.call(nil), class: ['list-group-item list-group-item-action d-flex justify-content-between', ('active' unless active)],
+      'aria-current': (active ? nil : 'true') do
+    span Alle Themen
+  - items.each do |topic, count|
+    - selected = topic == active
+    = link_to url.call(selected ? nil : topic),
+        class: ['list-group-item list-group-item-action d-flex justify-content-between', ('active' if selected)],
+        'aria-current': (selected ? 'true' : nil) do
+      span= topic.label
+      span.opacity-75= number_with_delimiter(count)

@@ -1,0 +1,15 @@
+/ One passage of minutes among the search results.
+- meeting = agenda_item.meeting
+.list-group-item.px-0.py-3.d-flex.gap-3
+  .flex-grow-1.text-break
+    = link_to highlight(strip_tags(agenda_item.title), @term.split),
+        minutes_meeting_path(meeting, anchor: agenda_item.id, district: meeting.district), class: 'fw-semibold'
+    .small.text-secondary
+      => ['Protokoll', ("TOP #{agenda_item.number}" if agenda_item.number.present?)].compact.join(', ')
+      ' ·
+      = link_to meeting.committee&.name || meeting.title, meeting_path(meeting, district: meeting.district), class: 'link-secondary'
+      = " · #{l meeting.date}"
+      - if meeting.district != @district
+        span.badge.bg-light.text-secondary.border.ms-1= meeting.district.name
+    p.small.mb-0.mt-1= highlight_multi_excerpt(strip_tags(agenda_item.minutes), @term)
+  .flex-shrink-0= allris_link(meeting.allris_url)

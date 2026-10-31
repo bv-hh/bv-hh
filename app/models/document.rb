@@ -98,22 +98,44 @@ class Document < ApplicationRecord
 
   default_scope -> { where(non_public: false) }
 
+  # Documents matching all words of +term+. A +root+ must not join rows that
+  # repeat a document: DISTINCT would cost a sort of every match with its full
+  # text, so there is none.
   def self.search(term, root: nil, attachments: false, order: :relevance)
-    terms = term.squish.gsub(/[^a-z0-9öäüß ]/i, '').split
+    # Anything else separates words: "Max-Brauer-Allee" is three, as
+    # to_tsvector reads it, not one "MaxBrauerAllee" that is nowhere.
+    terms = term.gsub(/[^a-z0-9öäüß]+/i, ' ').split
     exact_term = terms.join(' & ')
 
+    # Both expressions are exactly those of documents_expr_idx and
+    # attachments_expr_idx; anything else is a scan of every document.
     search = <<~SQL.squish
       (setweight(to_tsvector('german', documents.title),'A') ||
-      setweight(to_tsvector('german', documents.full_text), 'B')
+      setweight(to_tsvector('german', documents.full_text), 'B'))
+    SQL
+    attachment_search = <<~SQL.squish
+      (setweight(to_tsvector('german', attachments.name), 'A') ||
+      setweight(to_tsvector('german', attachments.content), 'B'))
     SQL
 
     query = root || Document.all
 
-    if attachments
-      query = query.left_outer_joins(:attachments)
-      search += " || setweight(to_tsvector('german', coalesce(attachments.content, '')), 'C'))"
+    # A document matches by its own text or by one of its attachments, the two
+    # looked up separately so that each can use its index. One vector over the
+    # document joined with its attachments took seconds per search. A term
+    # split between the document and an attachment no longer matches, and
+    # documents found by an attachment alone rank last.
+    match = if attachments
+      sanitize_sql_array([<<~SQL.squish, exact_term, exact_term])
+        documents.id IN (
+          SELECT documents.id FROM documents WHERE #{search} @@ to_tsquery('german', ?)
+          UNION
+          SELECT attachments.attachable_id FROM attachments
+          WHERE attachments.attachable_type = 'Document' AND #{attachment_search} @@ to_tsquery('german', ?)
+        )
+      SQL
     else
-      search += ')'
+      sanitize_sql_array(["#{search} @@ to_tsquery('german', ?)", exact_term])
     end
 
     if order == :relevance
@@ -124,8 +146,8 @@ class Document < ApplicationRecord
       raise "Invalid order #{order}"
     end
 
-    query = query.distinct('documents.id').select("#{order} AS ranking, documents.*")
-    query = query.where("#{search} @@ to_tsquery('german', ?)", exact_term)
+    query = query.select("#{order} AS ranking, documents.*")
+    query = query.where(match)
 
     query.order(ranking: :desc)
   end

@@ -1,0 +1,11 @@
+/ topics/_filter as one row to swipe through, for where a sidebar does not fit.
+/ Same locals.
+nav.d-flex.d-lg-none.flex-nowrap.overflow-x-auto.gap-2.pb-2.mb-3 aria-label='Themen'
+  = link_to 'Alle Themen', url.call(nil), class: ['btn btn-sm text-nowrap', active ? 'btn-outline-secondary' : 'btn-secondary'],
+      'aria-current': (active ? nil : 'true')
+  - items.each do |topic, count|
+    - selected = topic == active
+    = link_to url.call(selected ? nil : topic), class: ['btn btn-sm text-nowrap', selected ? 'btn-secondary' : 'btn-outline-secondary'],
+        'aria-current': (selected ? 'true' : nil) do
+      = topic.label
+      span.ms-1.opacity-75= number_with_delimiter(count)
