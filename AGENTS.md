@@ -117,6 +117,36 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
   enqueues exactly the documents it took a link from.
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
 
+## Bürgerschaft proceedings
+
+`Proceeding` holds matters before the Hamburgische Bürgerschaft, imported from
+its Parlamentsdatenbank (ParlDok): a Vorgang with its Drucksachen
+(`ProceedingPaper`), or a single Drucksache that opens none, such as a
+Schriftliche Kleine Anfrage. They are kept for what they say about places in
+the districts ("Verwandte Vorgänge in der Bürgerschaft"), not as a mirror of
+ParlDok, and separately from `Document`, whose district, ALLRIS and meeting
+assumptions they do not share. Authors are not stored.
+
+```bash
+rake proceedings:import         # current and previous period, resumable
+rake "proceedings:import[22]"   # one of them
+```
+
+- Only `ProceedingImporter::PERIODS` are imported: the current Wahlperiode and
+  the one before. The previous one is closed, so it needs the rake task once.
+- `CheckForProceedingUpdatesJob` (nightly 06:00 UTC, at most
+  `CheckForProceedingUpdatesJob::WINDOW`) runs the same import for the current
+  period, and asks again for open Vorgänge not checked for
+  `ProceedingImporter::REFRESH_AFTER`: a decision in the plenary brings no new
+  Drucksache. Without the rake task its first nights work through the current
+  period's backfill.
+- ParlDok has no published API. `ParldokClient` uses the JSON endpoints of its
+  own front end, which can change without notice.
+- **Keep requests slow.** ParlDok stops answering an address altogether after a
+  few dozen quick requests; the client waits `ParldokClient::DELAY` between
+  two. A first run over a period takes hours, and can simply be started again.
+- There is no explicit licence for the data yet.
+
 ## Initial Setup
 
 1. Create at least one district via `seeds.rb`

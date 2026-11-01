@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -519,6 +519,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
     t.index ["transit"], name: "index_pois_on_transit"
   end
 
+  create_table "proceeding_papers", force: :cascade do |t|
+    t.bigint "proceeding_id", null: false
+    t.integer "parldok_id", null: false
+    t.integer "period", null: false
+    t.integer "number", null: false
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.date "date"
+    t.text "full_text"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parldok_id"], name: "index_proceeding_papers_on_parldok_id", unique: true
+    t.index ["period", "number"], name: "index_proceeding_papers_on_period_and_number", unique: true
+    t.index ["proceeding_id"], name: "index_proceeding_papers_on_proceeding_id"
+  end
+
+  create_table "proceedings", force: :cascade do |t|
+    t.integer "parldok_process_id"
+    t.integer "period", null: false
+    t.integer "number", null: false
+    t.string "title", null: false
+    t.text "abstract"
+    t.string "state"
+    t.jsonb "steps", default: [], null: false
+    t.date "date"
+    t.text "full_text"
+    t.datetime "checked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_proceedings_on_date"
+    t.index ["parldok_process_id"], name: "index_proceedings_on_parldok_process_id", unique: true
+  end
+
   create_table "quarters", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -591,4 +624,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
   add_foreign_key "memberships", "committees"
   add_foreign_key "memberships", "members"
   add_foreign_key "parties", "districts"
+  add_foreign_key "proceeding_papers", "proceedings"
 end

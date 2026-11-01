@@ -57,6 +57,12 @@ Rails.application.configure do
       class: 'EmbedDocumentsJob',
       cron: '0 7 4 * * *',
     },
+    # ParlDok is not ALLRIS, so the windows above do not concern it. Runs for
+    # up to CheckForProceedingUpdatesJob::WINDOW.
+    check_for_proceeding_updates: {
+      class: 'CheckForProceedingUpdatesJob',
+      cron: '0 0 6 * * *',
+    },
     update_committee_averages: {
       class: 'UpdateCommitteeAveragesJob',
       cron: '0 23 1 1 * *',
