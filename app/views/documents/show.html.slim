@@ -1,10 +1,6 @@
-h2.h1 title="Drucksache #{@document.number}"
-  strong= @document.number
-  .float-end= allris_link(@document.allris_url)
-h1.h2.text-break
-  = simple_format(@document.title)
-h3.text-muted
-  small= @document.kind
+= page_header simple_format(@document.title, {}, wrapper_tag: :span), kind: "Drucksache #{@document.number}",
+    crumbs: [['Drucksachen', documents_path], @document.number], actions: allris_link(@document.allris_url) do
+  = @document.kind
 
 - attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
@@ -81,7 +77,7 @@ h3.text-muted
     .card.mt-3
       .card-header.fw-bold
         ' Lokalisation
-        span.badge.text-bg-warning.float-end Beta
+        span.badge.bg-info-subtle.text-info-emphasis.float-end Beta
 
       .card-body
         - if @document.locations.present?
@@ -109,7 +105,7 @@ h3.text-muted
     .card.mt-3
       .card-header.fw-bold
         ' Themen
-        span.badge.text-bg-warning.float-end Beta
+        span.badge.bg-info-subtle.text-info-emphasis.float-end Beta
 
       .card-body
         - if @document.topic_records.present?

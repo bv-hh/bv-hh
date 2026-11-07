@@ -3,10 +3,7 @@
 / list in place and keeps the map where it is.
 - area = @district&.name || 'Hamburg'
 
-h1.mb-1
-  ' Karte
-  small.text-secondary.fs-4= area
-p.text-secondary.mb-4
+= page_header "Karte für #{area}", crumbs: ['Karte'] do
   ' Welche Drucksachen betreffen Orte in Ihrer Nähe? Suchen Sie Ihre Straße oder Ihren Stadtteil, oder zoomen Sie
     hinein: Erst zählt die Karte Drucksachen je
   = @district ? 'Stadtteil' : 'Bezirk und Stadtteil'

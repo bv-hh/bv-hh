@@ -1,0 +1,15 @@
+/ See PageHeaderHelper. A crumb without a path is the page itself. Long
+/ labels (committee names) are cut short so the trail stays on one line; the
+/ full name is in the title.
+- district = local_assigns.fetch(:district, @district)
+- trail = [['Hamburg', root_path(district: nil)]]
+- trail << [district.name, root_with_district_path(district:)] if district
+nav aria-label='Brotkrumen'
+  ol.breadcrumb class=local_assigns[:css_class]
+    - (trail + crumbs.map { |crumb| Array(crumb) }).each do |label, path|
+      - short = label.truncate(40, separator: ' ')
+      - full = label unless short == label
+      - if path
+        li.breadcrumb-item= link_to short, path, title: full
+      - else
+        li.breadcrumb-item.active aria-current='page' title=full = short

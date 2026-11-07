@@ -1,9 +1,7 @@
-h1.h2
-  ' Alle Sitzungen
+= page_header 'Sitzungen', crumbs: ['Sitzungen'] do
+  = "#{number_with_delimiter @meetings.total_count} Sitzungen der Bezirksversammlung und ihrer Ausschüsse"
 
-  small.text-muted= number_with_delimiter @meetings.total_count
-
-.row.mt-4.border-bottom.font-weight-bold
+.row.border-bottom.font-weight-bold
   .col-3.col-lg-2.py-2 Datum
   .col.col-lg-6.py-2 Titel
   .col-10.col-lg.offset-3.offset-lg-0.py-2 Gremium

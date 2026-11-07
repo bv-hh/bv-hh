@@ -214,7 +214,8 @@ before a full run.
   (`#005ca9`).
 - Page heroes are `.card.p-4.p-lg-5.bg-body-tertiary`. A page with its own
   search field in the hero sets `@hero_search`, and the layout then leaves out
-  the navbar search.
+  the navbar search. Every other page starts with `page_header`
+  (`PageHeaderHelper`, breadcrumbs included); hero pages use its `breadcrumbs`.
 - Chips for places, Stadtteile, topics and Bezirke come from `ChipHelper`.
   Lists of Drucksachen render `documents/_item` (full or compact) and load
   their rows with `Document.for_list`. `/kitchensink` shows all of them with

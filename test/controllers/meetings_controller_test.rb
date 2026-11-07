@@ -16,6 +16,20 @@ class MeetingsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, meeting.title
   end
 
+  test 'GET show and minutes sit under the committee of the meeting' do
+    meeting = meetings(:rega_ewi_oct)
+    committee_link = "nav[aria-label=Brotkrumen] a[href='#{committee_path(meeting.committee, district: meeting.district)}']"
+
+    get meeting_path(meeting, district: meeting.district)
+    assert_select committee_link, text: meeting.committee.name
+    assert_select 'nav[aria-label=Brotkrumen] li[aria-current=page]', text: I18n.l(meeting.date)
+
+    get minutes_meeting_path(meeting, district: meeting.district)
+    assert_select committee_link
+    assert_select 'nav[aria-label=Brotkrumen] a[href=?]', meeting_path(meeting, district: meeting.district)
+    assert_select 'nav[aria-label=Brotkrumen] li[aria-current=page]', text: 'Protokoll'
+  end
+
   test 'GET minutes' do
     meeting = meetings(:rega_ewi_oct)
     get minutes_meeting_path(meeting, district: districts.first)

@@ -33,7 +33,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     get statistics_path
 
     assert_response :success
-    assert_select 'p', /\AHamburg ·/
+    assert_select 'h1', 'Statistik für Hamburg'
     assert_select 'h2', 'Die Bezirke im Vergleich'
     assert_select 'a[href=?]', root_with_district_path(district: districts(:hamburg_nord))
     assert_select '#fraktionen', count: 0

@@ -4,10 +4,7 @@
   = auto_discovery_link_tag :rss, district_feed_url, title: "Drucksachen aus #{@district.name}"
 
 .district
-  nav aria-label='Brotkrumen'
-    ol.breadcrumb
-      li.breadcrumb-item= link_to 'Hamburg', root_path(district: nil)
-      li.breadcrumb-item.active aria-current='page'= @district.name
+  = breadcrumbs @district.name, district: nil
 
   .card.p-4.p-lg-5.mb-5.bg-body-tertiary.rounded-3
     .row.g-5

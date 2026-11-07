@@ -5,12 +5,10 @@
   - outcomes = @statistics.proposal_outcomes
   - rate = @statistics.adoption_rate
 
-  h1.mb-1 Statistiken
-  p.text-secondary
-    = @district&.name || 'Hamburg'
+  = page_header "Statistik für #{@district&.name || 'Hamburg'}", crumbs: ['Statistik'] do
     - if @statistics.start_date
-      =< "· Wahlperiode seit #{l(@statistics.start_date, format: '%B %Y')}"
-    =< "· Stand #{l(Date.current, format: :long)}"
+      => "Wahlperiode seit #{l(@statistics.start_date, format: '%B %Y')} ·"
+    = "Stand #{l(Date.current, format: :long)}"
 
   .row.row-cols-2.row-cols-lg-4.g-3.mb-3
     - [[@statistics.document_count, 'Drucksachen', (documents_path if @district)],

@@ -1,7 +1,5 @@
-h2.h1
-  strong>= @committee.name
-- if @committee.inactive?
-  h3
+= page_header @committee.name, kind: 'Gremium', crumbs: [['Gremien', committees_path], @committee.name] do
+  - if @committee.inactive?
     span.badge.text-bg-secondary Ausschuss ist inaktiv
 
 - unless @committee.inactive?
