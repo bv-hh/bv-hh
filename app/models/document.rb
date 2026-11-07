@@ -101,7 +101,7 @@ class Document < ApplicationRecord
   validates :allris_id, presence: true
 
   # The own family depends on the number, so a new number counts as well.
-  before_save :extract_references, if: -> { will_save_change_to_full_text? || will_save_change_to_number? }
+  before_save :extract_references, if: -> { will_save_change_to_full_text? || will_save_change_to_title? || will_save_change_to_number? }
 
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, -> { where('documents.kind ILIKE ?', '%Antrag%') }
@@ -475,7 +475,13 @@ class Document < ApplicationRecord
   end
 
   def extract_references
-    self.referenced_numbers = Document.references_in(full_text, number)
+    self.referenced_numbers = Document.references_in(reference_text, number)
+  end
+
+  # Where references are looked for. Titles name one often, and some only
+  # there: "Beschluss der Bezirksversammlung vom 10.09.2020 (Drs. 21-1890.1)".
+  def reference_text
+    [title, full_text].compact.join("\n")
   end
 
   # The Drucksachen of its Bezirk it names, by number exactly: a reference to

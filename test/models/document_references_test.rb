@@ -35,6 +35,16 @@ class DocumentReferencesTest < ActiveSupport::TestCase
     assert_empty @document.referenced_numbers
   end
 
+  test 'finds references in the title too, and extracts again when it changes' do
+    @document.update!(title: 'Beschluss der Bezirksversammlung vom 10.09.2020 (Drs. 21-4512)')
+
+    assert_equal %w[21-4512], @document.referenced_numbers
+
+    @document.update!(title: 'Ohne Bezug')
+
+    assert_empty @document.referenced_numbers
+  end
+
   test 'links both ways within the Bezirk, by the exact number' do
     referenced = documents(:document_227) # 21-4512
     @document.update!(full_text: 'Siehe Drs. 21-4512, Drs. 21-4512.1 und Drs. 21-9999')
