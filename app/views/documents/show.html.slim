@@ -98,7 +98,7 @@
         ' Lokalisation
         span.badge.bg-info-subtle.text-info-emphasis.float-end Beta
 
-      .card-body
+      .card-body.pt-2.pb-0
         - if @document.locations.present?
           .d-flex.flex-wrap.gap-1
             - @document.locations.each do |location|
@@ -114,10 +114,10 @@
                 - quarters.each do |quarter|
                   = quarter_chip(quarter)
         - else
-          p
+          p.mb-0
             | Keine Orte erkannt.
 
-        p.small.text-secondary.mt-3
+        p.small.text-secondary.border-top.py-2.mt-2.mb-0
           | Die Erkennung von Orten anhand des Textes der Drucksache kann ungenau sein. Es ist daher möglich, das Orte
             gar nicht oder falsch erkannt werden.
 
@@ -126,16 +126,16 @@
         ' Themen
         span.badge.bg-info-subtle.text-info-emphasis.float-end Beta
 
-      .card-body
+      .card-body.pt-2.pb-0
         - if @document.topic_records.present?
           .d-flex.flex-wrap.gap-1
             - @document.topic_records.each do |topic|
               = topic_chip(topic, topic_path(topic:, district: @document.district))
         - else
-          p
+          p.mb-0
             | Keine Themen erkannt.
 
-        p.small.text-secondary.mt-3
+        p.small.text-secondary.border-top.py-2.mt-2.mb-0
           | Die Themen werden automatisch anhand von Stichworten, Ausschüssen und Orten zugeordnet und können daher
             unvollständig oder falsch sein.
 
