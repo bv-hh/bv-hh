@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module DocumentsHelper
-  DOCUMENT_NUMBER_PATTERN = /(\d{2}-\d{4}(\.\d{1,2})+)/
   IMAGE_LINK_PATTERN = /img src="([^"]*)"/
 
   # The title as text. Titles carry no markup but some entities (&amp;).
@@ -22,12 +21,14 @@ module DocumentsHelper
     highlight(ERB::Util.html_escape(text), words, sanitize: false)
   end
 
+  # Links the Drucksache numbers in the text that are known in the Bezirk, by
+  # Document::REFERENCE, the rule behind the Verwandte Drucksachen.
   def link_documents(content, district)
-    numbers = content.scan(DOCUMENT_NUMBER_PATTERN).flatten
+    numbers = content.scan(Document::REFERENCE).flatten.map { |number| number.tr('–', '-') }
     documents = district.documents.where(number: numbers).index_by(&:number)
 
-    content.gsub DOCUMENT_NUMBER_PATTERN do |number|
-      document = documents[number]
+    content.gsub Document::REFERENCE do |number|
+      document = documents[number.tr('–', '-')]
       if document
         link_to number, document_path(document), title: strip_tags(document.title), data: { toggle: :tooltip, placement: :bottom }
       else

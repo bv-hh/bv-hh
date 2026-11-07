@@ -71,6 +71,14 @@ class Document < ApplicationRecord
     attached: %r{\AAnlagen?(/n)?:},
   }.freeze
 
+  # A Drucksache number in running text: the period (Harburg's 19th as XIX),
+  # a hyphen or en dash, four digits and any suffixes, 22-1234.1. Numbers of the
+  # Bürgerschaft take a slash (22/1234) and don't match. Other forms (22-123)
+  # are rare and match dates and amounts as often. Also links the numbers in a
+  # text (DocumentsHelper#link_documents). After a change, run
+  # `rake documents:references`.
+  REFERENCE = /\b((?:XIX|[12]\d)[-–]\d{4}(?:\.\d+)*)\b/
+
   # The expression behind documents_expr_idx, for a full-text query that has to
   # be answered by that index.
   SEARCH_VECTOR = "(setweight(to_tsvector('german', documents.title), 'A') || " \
@@ -91,6 +99,9 @@ class Document < ApplicationRecord
   has_many_attached :images
 
   validates :allris_id, presence: true
+
+  # The own family depends on the number, so a new number counts as well.
+  before_save :extract_references, if: -> { will_save_change_to_full_text? || will_save_change_to_number? }
 
   scope :latest_first, -> { order(number: :desc) }
   scope :proposals, -> { where('documents.kind ILIKE ?', '%Antrag%') }
@@ -454,8 +465,49 @@ class Document < ApplicationRecord
     end
   end
 
-  # Close in meaning, from any Bezirk, without the Verwandte Drucksachen; see
-  # SimilarDocuments.
+  # The Drucksache numbers its text names, in their first order, without its
+  # own family (its number with or without a suffix). Kept even where no such
+  # Drucksache is known, so one imported later is linked without a rerun.
+  def self.references_in(text, own_number)
+    own_family = own_number.to_s.split('.').first
+    text.to_s.scan(REFERENCE).flatten.map { |number| number.tr('–', '-') }.uniq
+        .reject { |number| number.split('.').first == own_family }
+  end
+
+  def extract_references
+    self.referenced_numbers = Document.references_in(full_text, number)
+  end
+
+  # The Drucksachen of its Bezirk it names, by number exactly: a reference to
+  # 22-0159.01 where only 22-0159.1 exists links nothing, so that this and
+  # citing_documents always agree. A number is read as one of its own Bezirk,
+  # even where the text names another ("Drs. 21-1234 der BV Altona"); that is
+  # rare.
+  def referenced_documents
+    district.documents.complete.where(number: referenced_numbers).where.not(id:)
+  end
+
+  # The Drucksachen of its Bezirk that name it.
+  def citing_documents
+    return Document.none if number.blank?
+
+    district.documents.complete.where('documents.referenced_numbers @> ARRAY[?]::varchar[]', number).where.not(id:)
+  end
+
+  # The Drucksachen linked to it by number, as the page and the MCP tool list
+  # them: its family and what it names by date, what names it newest first, as
+  # that is where a matter went on. Relations, so a caller chooses what to load.
+  def links
+    by_date = Arel.sql(NUMBER_BY_DATE)
+    {
+      same: related_documents.order(by_date),
+      referenced: referenced_documents.order(by_date),
+      citing: citing_documents.order(Arel.sql("#{NUMBER_BY_DATE} DESC")),
+    }
+  end
+
+  # Close in meaning, from any Bezirk, without its family; exclude takes the
+  # ids of the other links, so none is listed twice. See SimilarDocuments.
   def similar_documents(exclude: [])
     SimilarDocuments.new(self, exclude:).to_a
   end

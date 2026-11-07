@@ -22,4 +22,22 @@ namespace :documents do
 
     puts "Reparsed #{total - failed} of #{total} documents, #{failed} failed."
   end
+
+  # Fills Document#referenced_numbers from the stored text, after the column was
+  # added or REFERENCE changed. Needs no request to ALLRIS; writes only the rows
+  # whose references differ.
+  desc 'Extract the Drucksache numbers each document names from its stored text'
+  task references: :environment do
+    changed = 0
+    Document.unscoped.where.not(full_text: nil).select(:id, :number, :full_text, :referenced_numbers)
+            .find_each.with_index(1) do |document, index|
+      numbers = Document.references_in(document.full_text, document.number)
+      if numbers != document.referenced_numbers
+        document.update_column(:referenced_numbers, numbers) # rubocop:disable Rails/SkipsModelValidations
+        changed += 1
+      end
+      puts "#{index} checked, #{changed} changed" if (index % 10_000).zero?
+    end
+    puts "#{changed} documents changed."
+  end
 end
