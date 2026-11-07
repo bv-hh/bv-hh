@@ -8,9 +8,7 @@
       - next if quarter.blank? || quarter.district.blank?
       = quarter_chip(quarter, dense: true)
 
-.beta.mb-3
-  span.badge.text-bg-warning> Beta
-  span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
+p.small.text-secondary.mb-3 Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass hier nicht alle Drucksachen korrekt angezeigt werden.
 
 .list-group.list-group-flush.mt-4
   - @documents.each do |document|

@@ -18,11 +18,9 @@
   - else
     | Thema in allen Hamburger Bezirken
 
-.beta.mb-3
-  span.badge.text-bg-warning> Beta
-  span.small.text-secondary
-    | Die Themen werden automatisch anhand von Stichworten, Ausschüssen und Orten zugeordnet. Es ist daher möglich,
-      dass hier Drucksachen fehlen oder nicht zum Thema passen.
+p.small.text-secondary.mb-3
+  | Die Themen werden automatisch anhand von Stichworten, Ausschüssen und Orten zugeordnet. Es ist daher möglich,
+    dass hier Drucksachen fehlen oder nicht zum Thema passen.
 
 - districts = District.by_order.select { |district| @district_counts[district.id].to_i.positive? }
 - if districts.size > 1
