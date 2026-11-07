@@ -118,8 +118,7 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
 - Residents per Stadtteil, for the maps shading Stadtteile by Drucksachen per
   resident, are hard-coded in `QuarterPopulation` from the Statistikamt Nord's
-  Stadtteil-Profile (source URL in the file). Update them by hand once a year;
-  don't commit the source file itself. The attribution is on `/imprint`.
+  Stadtteil-Profile (source URL in the file). The attribution is on `/imprint`.
 
 ## Initial Setup
 

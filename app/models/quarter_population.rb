@@ -6,8 +6,7 @@
 # Statistikamt Nord, "Hamburger Stadtteil-Profile", Berichtsjahr 2025,
 # population on 31 December 2025:
 # https://www.statistik-nord.de/fileadmin/Dokumente/Stadtteilprofile2026.xlsx
-# (listed on https://www.statistik-nord.de/stadtteilprofile). Copied by hand;
-# update it from the next edition when it appears.
+# (listed on https://www.statistik-nord.de/stadtteilprofile).
 #
 # Four pairs of thinly populated Stadtteile are counted together there and
 # share one figure here (AREAS). Neuwerk has none.
