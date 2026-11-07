@@ -100,6 +100,26 @@ tests and the asset build. Setting up a local copy is described in
   prefix: "Map each district's Stadtteile by Drucksachen per resident".
 - The maintainer merges. Merging does not deploy (see Production).
 
+### Keeping this file current
+
+Update AGENTS.md in the same PR as the change that makes it necessary, but
+only for knowledge that applies across the codebase and that the next agent
+would otherwise get wrong:
+
+- **Add** a rule, pitfall or convention when ignoring it leads to wrong data,
+  a broken page or prod, or a rebuild of something that already exists, and
+  when it can't be seen from the code at the place where it matters.
+- **Prefer a code comment** when the knowledge belongs to one class, task or
+  file. AGENTS.md is for what spans files or has no single place in the code.
+- **Fix or delete** an entry the change makes wrong. A stale rule is worse
+  than none.
+- **Don't add** feature descriptions, changelogs, PR history, figures that
+  go out of date (counts, timings) unless their order of magnitude decides
+  how to work, or anything already in a comment, `config/topics.yml` or a
+  README. Explain in the PR description instead.
+- Keep entries to a sentence or two. When the file grows past about 300
+  lines, shorten or remove something before adding.
+
 ## Architecture
 
 Rails 8.1, PostgreSQL with `pgvector`, Slim views, Bootstrap 5.3 with Sass,
