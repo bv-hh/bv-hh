@@ -1,7 +1,5 @@
-h2.h1
-  strong= @party.name
-- if @party.inactive?
-  h3
+= page_header @party.name, kind: 'Fraktion oder Gruppe', crumbs: [['Fraktionen und Gruppen', parties_path], @party.name] do
+  - if @party.inactive?
     span.badge.text-bg-secondary Inaktiv
 
 .table-responsive

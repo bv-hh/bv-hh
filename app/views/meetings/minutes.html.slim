@@ -1,12 +1,9 @@
-h1.h1
-  strong Protokoll
-  br
-  span.h2
-    = link_to meeting_path(@meeting), class: 'text-secondary' do
-      => @meeting.title
-      ' vom
-      = l @meeting.date
+- committee = @meeting.committee
+- parent_crumbs = committee ? [['Gremien', committees_path], [committee.name, committee_path(committee)]] : [['Sitzungen', meetings_path]]
 
+= page_header @meeting.title, kind: 'Protokoll',
+    crumbs: [*parent_crumbs, [l(@meeting.date), meeting_path(@meeting)], 'Protokoll'] do
+  = link_to "Sitzung am #{l @meeting.date, format: '%A, %-d. %B %Y'}", meeting_path(@meeting), class: 'link-secondary'
 
 - @agenda_items.each do |item|
   .row.mt-4 class=(item.logged? ? nil : 'border-bottom pb-3')

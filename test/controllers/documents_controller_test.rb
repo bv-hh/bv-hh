@@ -18,6 +18,19 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'GET show leads from Hamburg through the Bezirk and its Drucksachen to the document' do
+    document = documents(:document_7)
+    district = document.district
+
+    get document_path(document, district:)
+
+    assert_select 'nav[aria-label=Brotkrumen] li', 4
+    assert_select 'nav[aria-label=Brotkrumen] a[href=?]', root_with_district_path(district:), text: district.name
+    assert_select 'nav[aria-label=Brotkrumen] a[href=?]', documents_path(district:), text: 'Drucksachen'
+    assert_select 'nav[aria-label=Brotkrumen] li[aria-current=page]', text: document.number
+    assert_select 'h1', count: 1
+  end
+
   test 'GET show lists the topics of the document' do
     document = documents(:document_7)
     document.update_columns(topics: %w[spielplaetze unbekannt]) # rubocop:disable Rails/SkipsModelValidations

@@ -17,10 +17,7 @@ section.quarter-hero.position-relative.mb-5 data-controller='quarter-map' data-q
   .quarter-hero-map.rounded.border data-quarter-map-target='container'
   .card.quarter-hero-card.mt-3.mt-lg-0 data-quarter-map-target='card'
     .card-body.p-4
-      nav aria-label='Brotkrumen'
-        ol.breadcrumb.small.mb-2
-          li.breadcrumb-item= link_to 'Hamburg', root_path(district: nil)
-          li.breadcrumb-item= link_to @quarter.district.name, root_with_district_path(district: @quarter.district)
+      = breadcrumbs @quarter.name, district: @quarter.district, css_class: 'small mb-2'
       h1.display-6.fw-bold.mb-2= @quarter.name
       / A topic narrows the list, the map, the counts and the feed alike, so
       / the card says so where all of them are summed up.

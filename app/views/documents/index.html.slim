@@ -1,9 +1,7 @@
-h1.h2
-  ' Alle Drucksachen
+= page_header 'Drucksachen', crumbs: ['Drucksachen'] do
+  = "#{number_with_delimiter @documents.total_count} Anträge, Anfragen und Vorlagen, die neuesten zuerst"
 
-  small.text-muted= number_with_delimiter @documents.total_count
-
-.list-group.list-group-flush.mt-4
+.list-group.list-group-flush
   - @documents.each do |document|
     = render 'documents/item', document:, places: document_places(document)
 

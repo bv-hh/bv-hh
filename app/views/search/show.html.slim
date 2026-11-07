@@ -5,12 +5,7 @@
 - scope_name = @district&.name || 'allen Bezirken'
 
 .search
-  nav aria-label='Brotkrumen'
-    ol.breadcrumb
-      li.breadcrumb-item= link_to 'Hamburg', root_path(district: nil)
-      - if @district
-        li.breadcrumb-item= link_to @district.name, root_with_district_path(district: @district)
-      li.breadcrumb-item.active aria-current='page' Suche
+  = breadcrumbs 'Suche'
 
   .card.p-4.p-lg-5.mb-4.bg-body-tertiary.rounded-3
     p.text-uppercase.fw-bold.small.text-secondary.mb-2 Suche

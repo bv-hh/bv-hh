@@ -1,7 +1,7 @@
 - content_for :head do
   = auto_discovery_link_tag :rss, feed_url(format: :rss, **feed_link_params(@query)), title: feed_title(@query)
 
-h1.my-3 Individueller RSS-Feed
+= page_header 'Eigener RSS-Feed'
 
 p
   ' Wählen Sie Stadtteile, Straßen und/oder Themen aus. Daraus entsteht eine individueller RSS-Feed, den Sie

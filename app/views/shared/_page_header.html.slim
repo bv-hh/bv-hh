@@ -1,0 +1,13 @@
+/ See PageHeaderHelper#page_header.
+header.mb-4
+  - if crumbs
+    = render 'shared/breadcrumbs', crumbs:
+  .d-flex.align-items-start.justify-content-between.gap-3
+    .page-header-text
+      - if kind
+        p.text-uppercase.fw-bold.small.text-secondary.mb-1= kind
+      h1.h2.fw-bold.mb-1.text-break= title
+      - if subtitle.present?
+        .text-secondary= subtitle
+    - if actions.present?
+      .d-flex.flex-shrink-0.gap-2.fs-5= actions

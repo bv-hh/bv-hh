@@ -35,7 +35,7 @@ class PartiesTest < ActionDispatch::IntegrationTest
     get "/#{@district.to_param}/parties/#{party.to_param}"
 
     assert_response :success
-    assert_select 'h2', text: 'Fraktion Bündnis 90/DIE GRÜNEN'
+    assert_select 'h1', text: 'Fraktion Bündnis 90/DIE GRÜNEN'
     assert_select 'table tbody tr td', text: member.name
     assert_select 'td a', text: 'Regionalausschuss BUHD'
   end

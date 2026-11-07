@@ -1,7 +1,5 @@
-h1.h2
-  = @location.name
-h3.text-muted
-  small= "Drucksachen zu #{@location.formatted_address}"
+= page_header @location.name, kind: 'Ort', crumbs: [@location.name] do
+  = "Drucksachen zu #{@location.formatted_address}"
 
 - if @location.quarters.present?
   .d-flex.flex-wrap.gap-1.mb-3
