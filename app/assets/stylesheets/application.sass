@@ -29,6 +29,11 @@ $accordion-icon-active-color: $accordion-button-active-color
 .navbar
   background-color: $blue
 
+// Turbo's own default is blue. Its style element goes first in the head, so
+// this rule wins at the same specificity.
+.turbo-progress-bar
+  background-color: $primary
+
 // Lets a long title (a Drucksache's runs to several lines) wrap beside the
 // actions of the page header instead of pushing them off the page.
 .page-header-text
