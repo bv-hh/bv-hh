@@ -1,7 +1,7 @@
 / A district's statistics, or all of Hamburg's without one (CityStatistics).
-/ Cached for an hour: the figures change only with the hourly sync, and the
-/ page runs some twenty queries.
-- cache ['statistics', @district || 'hamburg', Topic::VERSION], expires_in: 1.hour do
+/ Cached for a day: a day's Drucksachen barely move the figures, and the page
+/ runs some twenty queries, for all of Hamburg for several seconds.
+- cache ['statistics', @district || 'hamburg', Topic::VERSION], expires_in: 24.hours do
   - outcomes = @statistics.proposal_outcomes
   - rate = @statistics.adoption_rate
 
