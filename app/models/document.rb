@@ -107,7 +107,8 @@ class Document < ApplicationRecord
   scope :in_last_days, ->(days) { in_date_range(days.days.ago.beginning_of_day..Time.zone.now) }
   scope :committee, ->(committee) { joins(agenda_items: :meeting).where('meetings.committee_id' => committee) }
   # By NUMBER_BY_DATE, so Harburg's "XIX-…" do not count as later than "22-0001".
-  scope :since_number, ->(number) { where("#{NUMBER_BY_DATE} >= ?", number) }
+  # Without a number, everything.
+  scope :since_number, ->(number) { number.blank? ? all : where("#{NUMBER_BY_DATE} >= ?", number) }
   scope :locations_not_extracted, -> { where(locations_extracted_at: nil) }
   scope :with_topics, ->(keys) { where('documents.topics && ARRAY[?]::varchar[]', Array(keys)) }
   scope :topics_outdated, -> { where(topics_version: nil).or(where.not(topics_version: Topic::VERSION)) }

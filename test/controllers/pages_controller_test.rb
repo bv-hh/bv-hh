@@ -8,6 +8,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'GET root compares the Bezirke on a map leading to their pages' do
+    get root_path
+
+    map = css_select('[data-controller=choropleth]').first
+    paths = JSON.parse(map['data-choropleth-features-value']).pluck('path')
+
+    assert_includes paths, root_with_district_path(district: districts(:hamburg_nord))
+    assert_select 'a[href=?]', statistics_path(district: nil, anchor: 'orte')
+  end
+
   test 'GET root lists the topics of all districts with counts' do
     Document.update_all(topics: [])
     documents(:document_7).update_columns(topics: %w[radverkehr]) # rubocop:disable Rails/SkipsModelValidations

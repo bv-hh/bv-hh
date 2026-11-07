@@ -1,6 +1,8 @@
 / Places shaded by Drucksachen per resident, with the legend. choropleth is a
 / Choropleth, url gives a shape's page, bounds the box to show and unit what
-/ the shapes are ("Stadtteil", "Bezirk").
+/ the shapes are ("Stadtteil", "Bezirk"). A box with a missing corner (seeds
+/ set none) would fit the map to 0°, 0°, so the map fits its shapes instead.
+- bounds = [] if bounds.flatten.any?(&:nil?)
 div data-controller='choropleth' data-choropleth-features-value=choropleth.features(url).to_json data-choropleth-bounds-value=bounds.to_json
   .choropleth.rounded.border data-choropleth-target='container'
 .small.text-secondary.mt-2

@@ -84,6 +84,8 @@ export default class extends Controller {
     this.labels.clearLayers()
 
     for (const { feature } of this.polygons) {
+      if (!feature.label) continue
+
       const [lng, lat, radius] = feature.label
       const centre = this.map.latLngToContainerPoint([lat, lng])
       const edge = this.map.latLngToContainerPoint([lat + radius, lng])

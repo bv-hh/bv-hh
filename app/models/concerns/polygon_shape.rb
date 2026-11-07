@@ -25,19 +25,26 @@ module PolygonShape
   # largest polygon farthest from its edges, and that distance in degrees of
   # latitude. A centroid can fall on a neighbour, or outside a crescent.
   # A grid search, then a finer one around the best cell, is close enough
-  # for a label.
+  # for a label. nil without a shape, or for one too thin for any grid point
+  # to fall inside it, which is too thin to carry a label anyway.
   def label_point
-    @label_point ||= begin
-      rings = simplified_geometry.max_by { |polygon| ring_box_area(polygon.first) }
-      scale = Math.cos(rings.first.first.last * Math::PI / 180)
-      best = farthest_inside(rings, label_candidates(rings.first), scale) || rings.first.first
-      best = farthest_inside(rings, label_candidates(cell_around(best, rings.first)) + [best], scale)
+    return @label_point if defined?(@label_point)
 
-      [best[0].round(5), best[1].round(5), edge_distance(rings, best, scale).round(5)]
-    end
+    @label_point = (find_label_point if simplified_geometry.any?)
   end
 
   private
+
+  def find_label_point
+    rings = simplified_geometry.max_by { |polygon| ring_box_area(polygon.first) }
+    scale = Math.cos(rings.first.first.last * Math::PI / 180)
+    coarse = farthest_inside(rings, label_candidates(rings.first), scale)
+    return nil if coarse.nil?
+
+    # coarse is inside, so the finer search always has a candidate.
+    best = farthest_inside(rings, label_candidates(cell_around(coarse, rings.first)) + [coarse], scale)
+    [best[0].round(5), best[1].round(5), edge_distance(rings, best, scale).round(5)]
+  end
 
   # Douglas–Peucker: keep the point farthest from the line between the ends
   # if it strays more than the tolerance, and recurse on both halves.
@@ -77,8 +84,8 @@ module PolygonShape
 
   # The corners of one grid cell either side of +point+.
   def cell_around((lng, lat), ring)
-    step = ring.map(&:first).minmax.reduce(:-).abs / LABEL_GRID
-    [[lng - step, lat - step], [lng + step, lat + step]]
+    lng_step, lat_step = ring.transpose.map { |values| values.minmax.reduce(:-).abs / LABEL_GRID }
+    [[lng - lng_step, lat - lat_step], [lng + lng_step, lat + lat_step]]
   end
 
   def ring_box_area(ring)

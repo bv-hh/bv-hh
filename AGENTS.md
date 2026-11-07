@@ -95,8 +95,8 @@ rake streets:import    # 9535 official street names, AdressService  (~40s)
 rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 ```
 
-- **Restart web and workers afterwards.** `Quarter` and the gazetteers
-  memoize per process; a process that touched one before the
+- **Restart web and workers afterwards.** `Quarter`, the Bezirk outlines and
+  the gazetteers memoize per process; a process that touched one before the
   import keeps an empty memo.
 - **Import during a quiet window.** Each task does `delete_all` then re-inserts.
 - `pois:import` reads Overpass (one request per tag value, rotating endpoints on

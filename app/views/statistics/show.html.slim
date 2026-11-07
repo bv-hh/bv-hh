@@ -98,7 +98,7 @@
             ' Die Farben teilen die sieben Bezirke in bis zu fünf Gruppen.
             = render 'choropleths/population_source'
         .col-lg-8
-          - url = ->(district) { statistics_path(district:) }
+          - url = ->(district) { root_with_district_path(district:) }
           = render 'choropleths/map', choropleth:, url:, bounds: District.city_bounds, unit: 'Bezirk'
           .mt-4
             = render 'choropleths/table', choropleth:, url:, unit: 'Bezirk'

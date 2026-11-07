@@ -99,6 +99,27 @@ class DistrictTest < ActiveSupport::TestCase
     assert_operator district.label_point.last, :>, 0
   end
 
+  test 'no label point without an outline, nor for one too thin to hold one' do
+    district = districts(:hamburg_nord)
+    district.define_singleton_method(:outline) { [] }
+
+    assert_nil district.label_point
+
+    sliver = District.new(name: 'Sliver')
+    sliver.define_singleton_method(:outline) do
+      [[[[9.0, 53.0], [10.0, 54.0], [10.0, 54.0001], [9.0, 53.0]]]]
+    end
+
+    assert_nil sliver.label_point
+  end
+
+  test 'an import drops the shapes kept with the districts' do
+    kept = District.by_number(4)
+    Quarter.reset!
+
+    assert_not_same kept, District.by_number(4)
+  end
+
   test 'city bounds take in the box of every district' do
     bounds = District.city_bounds
 

@@ -10,7 +10,7 @@ class CityStatistics < DistrictStatistics
   end
 
   def documents
-    District.all.map { |district| Document.current_legislation(district) }.reduce(:or)
+    @documents ||= District.all.map { |district| Document.current_legislation(district) }.reduce(:or)
   end
 
   def meeting_count

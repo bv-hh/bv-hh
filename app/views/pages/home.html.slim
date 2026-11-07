@@ -73,6 +73,21 @@
           = render 'topics/bars', items: @topic_counts, top: PagesController::TOP_TOPICS,
                    url: ->(topic) { topic_path(topic:, district: nil) }
 
+  / Cached for a day, like the statistics page it summarises.
+  - cache ['district_choropleth'], expires_in: 24.hours do
+    section.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Die Bezirke im Vergleich
+          p.text-secondary
+            ' Wie viele Drucksachen die Bezirksversammlungen in der laufenden Wahlperiode beraten haben, gemessen an
+              den Menschen, die im Bezirk wohnen.
+          p.small.text-secondary= render 'choropleths/population_source'
+          = link_to 'Alle Zahlen für Hamburg', statistics_path(anchor: 'orte')
+        .col-lg-8
+          = render 'choropleths/map', choropleth: Choropleth.new(CityStatistics.new.district_areas), unit: 'Bezirk',
+                   bounds: District.city_bounds, url: ->(district) { root_with_district_path(district:) }
+
   = render 'pages/participation', heading: 'Mitmachen'
 
   .alert.alert-warning.mb-0

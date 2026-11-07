@@ -107,6 +107,7 @@ class Quarter < ApplicationRecord
       @all_cached = nil
       @by_slug = nil
       DistrictOutline.reset!
+      District.reset_shapes!
     end
 
     private

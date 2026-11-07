@@ -29,6 +29,35 @@ class ChoroplethTest < ActiveSupport::TestCase
     assert_equal Choropleth::RAMP, choropleth.shades.map(&:color)
   end
 
+  test 'rounds breaks down, so the area a break comes from keeps its shade' do
+    rates = [31, 40, 47, 52, 58, 75, 76]
+    choropleth = Choropleth.new(rates.map { |rate| area(rate) })
+    shades = choropleth.areas.map { |each| choropleth.color(each) }
+
+    assert_equal [40, 50, 70], choropleth.breaks
+    assert_equal choropleth.shades.map(&:color), shades.uniq, 'every shade in the legend is used'
+    assert_equal Choropleth::RAMP.last, shades.last, 'the highest rates get the darkest shade'
+  end
+
+  test 'one shade spans the rates when they all round into it' do
+    choropleth = Choropleth.new([area(101), area(104)])
+
+    assert_equal ['101–104'], choropleth.shades.map(&:label)
+  end
+
+  test 'no shades without rates' do
+    choropleth = Choropleth.new([ChoroplethArea.new(shapes: [quarters(:ohlsdorf)], count: 5, residents: nil)])
+
+    assert_empty choropleth.shades
+  end
+
+  test 'leaves a shape without geometry to the table' do
+    district = districts(:hamburg_nord)
+    district.define_singleton_method(:outline) { [] }
+
+    assert_empty Choropleth.new([ChoroplethArea.new(shapes: [district], count: 5, residents: 10_000)]).features(->(_) { '/' })
+  end
+
   test 'spreads fewer shades over the whole ramp' do
     choropleth = Choropleth.new([area(100), area(100), area(300)])
 

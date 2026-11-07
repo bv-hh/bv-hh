@@ -71,11 +71,18 @@ class District < ApplicationRecord
 
   # The district for an official Hamburg district number, memoized like .lookup.
   # Quarters carry that number rather than a district_id, because the district
-  # boundaries come from the geo register and not from Allris.
+  # boundaries come from the geo register and not from Allris. The instances
+  # keep their simplified outline and label point (PolygonShape).
   def self.by_number(number)
     @by_number ||= District.all.index_by(&:number)
 
     @by_number[number]
+  end
+
+  # Drops the instances by_number keeps, with their shapes; Quarter.reset!
+  # calls it after an import.
+  def self.reset_shapes!
+    @by_number = nil
   end
 
   # A rectangle around the district. Kept only as the fallback for

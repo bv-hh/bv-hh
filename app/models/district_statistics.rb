@@ -205,7 +205,7 @@ class DistrictStatistics
   # counts, so a later "vertagt" in another committee does not reopen it.
   def outcomes
     @outcomes ||= begin
-      decisions = AgendaItem.joins(:meeting).where(document_id: proposals.keys).where.not(decision: nil)
+      decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id)).where.not(decision: nil)
                             .order('meetings.date DESC, agenda_items.id DESC').pluck(:document_id, :decision)
 
       decisions.group_by(&:first).transform_values do |rows|
