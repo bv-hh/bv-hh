@@ -39,6 +39,32 @@ class AgendaItem < ApplicationRecord
   # have none.
   QUESTION_TIME = /fragestunde|anliegen der bürger/i
 
+  # A decision as ALLRIS words it => what it means. Each Bezirk uses its own
+  # handful of these and nothing else, so an unknown wording means no
+  # decision rather than a guess; the result text is no help either, it rarely
+  # states the decision. Harburg's "beschlossen / überwiesen" is a decision
+  # with a copy sent elsewhere.
+  OUTCOMES = {
+    'zur Kenntnis genommen' => :noted,
+    'ungeändert beschlossen' => :adopted,
+    'beschlossen' => :adopted,
+    'ungeändert beschlossen / überwiesen' => :adopted,
+    'geändert beschlossen' => :amended,
+    'geändert beschlossen / überwiesen' => :amended,
+    'überwiesen' => :referred,
+    'an Ausschuss überwiesen' => :referred,
+    'an Fachausschuss verwiesen' => :referred,
+    'vertagt' => :postponed,
+    'vertagt / verbleibt' => :postponed,
+    'zurückgestellt' => :deferred,
+    'abgelehnt' => :rejected,
+    'zurückgezogen' => :withdrawn,
+    'zurückgezogen / erledigt' => :withdrawn,
+  }.freeze
+  # Outcomes that close the matter for the committee; the others pass it on
+  # or put it off.
+  SETTLING = %i[noted adopted amended rejected withdrawn].freeze
+
   belongs_to :meeting
   belongs_to :document, optional: true
   has_one :district, through: :meeting
@@ -118,6 +144,14 @@ class AgendaItem < ApplicationRecord
   def extract_result(html)
     clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisAE']]")) ||
       clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]"))
+  end
+
+  def outcome
+    OUTCOMES[decision]
+  end
+
+  def settling?
+    SETTLING.include?(outcome)
   end
 
   def as_json

@@ -12,23 +12,16 @@ module MeetingHelper
   REJECTED = Decision.new('abgelehnt', 'times-circle', 'danger')
   WITHDRAWN = Decision.new('zurückgezogen', 'arrow-alt-circle-down', 'secondary')
 
-  # A decision as ALLRIS words it => how lists name it.
-  DECISIONS = {
-    'zur Kenntnis genommen' => NOTED,
-    'ungeändert beschlossen' => ADOPTED,
-    'beschlossen' => ADOPTED,
-    'ungeändert beschlossen / überwiesen' => ADOPTED,
-    'geändert beschlossen' => AMENDED,
-    'geändert beschlossen / überwiesen' => AMENDED,
-    'überwiesen' => REFERRED,
-    'an Ausschuss überwiesen' => REFERRED,
-    'an Fachausschuss verwiesen' => REFERRED,
-    'vertagt' => POSTPONED,
-    'vertagt / verbleibt' => POSTPONED,
-    'zurückgestellt' => DEFERRED,
-    'abgelehnt' => REJECTED,
-    'zurückgezogen' => WITHDRAWN,
-    'zurückgezogen / erledigt' => WITHDRAWN,
+  # AgendaItem::OUTCOMES => how lists name them.
+  OUTCOME_LABELS = {
+    noted: NOTED,
+    adopted: ADOPTED,
+    amended: AMENDED,
+    referred: REFERRED,
+    postponed: POSTPONED,
+    deferred: DEFERRED,
+    rejected: REJECTED,
+    withdrawn: WITHDRAWN,
   }.freeze
 
   def meeting_format(content, meeting)
@@ -40,7 +33,7 @@ module MeetingHelper
   end
 
   def meeting_result_badge(agenda_item)
-    decision = DECISIONS[agenda_item.decision]
+    decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
 
     link_to minutes_meeting_path(agenda_item.meeting, anchor: agenda_item.id), class: "text-#{decision.color}", title: agenda_item.decision, data: { bs_toggle: :tooltip } do
@@ -48,17 +41,29 @@ module MeetingHelper
     end
   end
 
-  # What became of a Drucksache at the meeting that last discussed it, in words
-  # for a list: the decision, or that the meeting is still to come. The darker
+  # What became of a Drucksache at a meeting, in words for a list: the
+  # decision, or that the meeting is still to come. The darker
   # -emphasis colours, as the plain ones are too light for text.
   def decision_label(agenda_item)
-    coming = agenda_item.decision.nil? && agenda_item.meeting.date.future?
+    coming = agenda_item.decision.blank? && agenda_item.meeting.date.future?
     return tag.span(icon(:far, 'calendar', 'auf der Tagesordnung'), class: 'text-body') if coming
 
-    decision = DECISIONS[agenda_item.decision]
+    decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
 
     tag.span(icon(:fas, decision.icon, decision.label), class: "text-#{decision.color}-emphasis")
+  end
+
+  # The agenda item a list row of a Drucksache shows, decision, committee and
+  # date together: a coming meeting that has it on its agenda, or else the one
+  # that decided (Document#deciding_agenda_item), so a later meeting that
+  # recorded nothing neither hides the decision nor takes credit for it, or
+  # else the latest. Load agenda_items with their meetings first.
+  def listed_agenda_item(document)
+    latest = document.latest_agenda_item
+    return latest if latest.nil? || (latest.decision.blank? && latest.meeting.date.future?)
+
+    document.deciding_agenda_item || latest
   end
 
   # "heute", "morgen" or "in 12 Tagen".

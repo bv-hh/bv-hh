@@ -174,7 +174,8 @@ before a full run.
   Thousands were imported in a few batches. Ordering by it ("newest seen
   first", as the feeds and the Stadtteil and topic lists do) is fine; showing
   it as the date of a Drucksache is not. Date a Drucksache by its latest
-  meeting (`Document#latest_agenda_item`) and show no date when it has none.
+  meeting (`Document#latest_agenda_item`), in a list row by the meeting whose
+  decision it shows (`listed_agenda_item`), and show no date when it has none.
 - **Drucksache numbers sort as dates within a district.** They are
   zero-padded, so text order is numeric order. Harburg numbered its 19th
   period `XIX-…`; `Document::NUMBER_BY_DATE` reads those as `19-…`. Across
@@ -190,7 +191,10 @@ before a full run.
   `committees.public` flag alone lets closed building and award committees
   through.
 - **`agenda_items.decision` is empty** for many agenda items, especially in a
-  stale local database.
+  stale local database, often because ALLRIS itself shows "(offen)". Read it
+  through `AgendaItem#outcome`, and say where a Drucksache stands by
+  `Document#deciding_agenda_item`, the rule the statistics count by; the
+  result text rarely states the decision.
 - **Attachments are matched by name only.** When ALLRIS renames a file, the
   old attachment is deleted and its blob purged. Scanned PDFs have no text
   layer and get no text (there is no OCR).

@@ -21,6 +21,20 @@
     - else
       = item.number
 
+/ The meeting that decided can lie before the latest, which may have recorded
+/ nothing or only put it off (Document#deciding_agenda_item). When it is the
+/ latest, the badge above says it already.
+- deciding = @document.deciding_agenda_item(agenda_items.to_a)
+- if deciding && deciding != item
+  p
+    ' Stand:
+    => meeting_result_badge(deciding)
+    => MeetingHelper::OUTCOME_LABELS[deciding.outcome].label
+    ' ·
+    => link_to deciding.meeting.committee&.name || deciding.meeting.title, meeting_path(deciding.meeting)
+    ' ·
+    = l deciding.meeting.date
+
 .row
   .col-md-8
     .card.mt-3

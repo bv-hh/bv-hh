@@ -15,7 +15,7 @@ strong= location.name
 
 ul.map-popup-documents
   - documents.each do |document|
-    - agenda_item = document.latest_agenda_item
+    - agenda_item = listed_agenda_item(document)
     li
       = link_to document_title(document), document_path(document, district: document.district)
       .text-secondary

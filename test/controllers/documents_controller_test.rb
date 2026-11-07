@@ -78,6 +78,19 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'button[data-bs-target="#related-citing"]', text: '2 weitere'
   end
 
+  test 'GET show says where it stands by the meeting that decided, not a later one that recorded nothing' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    [[10.weeks.ago, 'ungeändert beschlossen'], [2.weeks.ago, nil]].each do |time, decision|
+      meeting = Meeting.create!(committee:, district: committee.district, date: time.to_date, title: 'Sitzung', allris_id: rand(1_000_000))
+      AgendaItem.create!(meeting:, document:, decision:, title: document.title)
+    end
+
+    get document_path(document, district: document.district)
+
+    assert_select 'p', text: /Stand:\s+beschlossen\s+·\s+#{Regexp.escape(committee.name)}\s+·\s+#{I18n.l(10.weeks.ago.to_date)}/
+  end
+
   test 'GET allris redirects to the document' do
     document = documents(:document_7)
     get allris_documents_path(district: districts.first, allris_id: document.allris_id)

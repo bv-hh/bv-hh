@@ -33,6 +33,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
             attached: { type: 'string', description: 'Information of attached files if any' },
             district: { type: 'string', description: 'The name of the district the document belongs to' },
             topics: TOPICS_OUTPUT,
+            outcome: OUTCOME_OUTPUT,
             meetings: { type: 'array', description: 'An array of meetings having this document on their agenda',
                         items: {
                           type: 'object',
@@ -85,7 +86,7 @@ class Mcp::SearchTool < Mcp::ApplicationTool
       agenda_items_root = agenda_items_root.none
     end
 
-    documents = Document.search(term, root: documents_root).limit(LIMIT)
+    documents = Document.search(term, root: documents_root).limit(LIMIT).preload(:district, agenda_items: :meeting)
     minutes = AgendaItem.minutes_prefix_search(term, agenda_items_root).limit(LIMIT)
 
     documents_result = documents.map(&:as_json)
