@@ -95,8 +95,8 @@ rake streets:import    # 9535 official street names, AdressService  (~40s)
 rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
 ```
 
-- **Restart web and workers afterwards.** `Quarter` and the gazetteers
-  memoize per process; a process that touched one before the
+- **Restart web and workers afterwards.** `Quarter`, the Bezirk outlines and
+  the gazetteers memoize per process; a process that touched one before the
   import keeps an empty memo.
 - **Import during a quiet window.** Each task does `delete_all` then re-inserts.
 - `pois:import` reads Overpass (one request per tag value, rotating endpoints on
@@ -116,8 +116,8 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
   import that should find new names. `locations:sweep` needs neither — it
   enqueues exactly the documents it took a link from.
 - OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
-- Residents per Stadtteil, for the maps shading Stadtteile by Drucksachen per
-  resident, are hard-coded in `QuarterPopulation` from the Statistikamt Nord's
+- Residents per Stadtteil and Bezirk, for the maps shading them by Drucksachen per
+  resident, are hard-coded in `Population` from the Statistikamt Nord's
   Stadtteil-Profile (source URL in the file). The attribution is on `/imprint`.
 
 ## Initial Setup

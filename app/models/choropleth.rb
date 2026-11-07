@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-# A district's Stadtteile shaded by Drucksachen per resident, for the map on
-# the district and statistics pages (quarter_choropleth_controller.js).
+# ChoroplethAreas shaded by Drucksachen per resident: a district's Stadtteile
+# on the district and statistics pages, the Bezirke on the statistics page for
+# all of Hamburg (choropleth_controller.js).
 #
-# The shades split the district's own rates into quantiles, so each map uses
-# its whole ramp; they are not comparable from one district to the next.
-class QuarterChoropleth
+# The shades split the map's own rates into quantiles, so each map uses its
+# whole ramp; they are not comparable from one map to the next.
+class Choropleth
   # One sequential hue, light to dark. Areas without a rate get NO_RATE.
   RAMP = %w[#cde2fb #86b6ef #3987e5 #1c5cab #0d366b].freeze
   NO_RATE = '#d3d2ce'
@@ -22,20 +23,23 @@ class QuarterChoropleth
 
   delegate :any?, to: :areas
 
-  # Where each shade but the first begins, ascending: quantiles of the rates,
-  # rounded to tens for a legend that reads easily. Fewer than RAMP.size - 1
-  # when they coincide.
+  # Where each shade but the first begins, ascending: quantiles of the
+  # rounded rates (as the table shows them), rounded down to tens for a legend
+  # that reads easily. Down, so the area a break comes from stays in its shade
+  # and no shade is left empty. Fewer than RAMP.size - 1 when they coincide.
   def breaks
     @breaks ||= begin
-      rates = areas.filter_map(&:rate).sort
-      (1...RAMP.size).filter_map { |step| rates[step * rates.size / RAMP.size] }
-                     .map { |rate| rate.round(-1) }.uniq
-        .select { |lower| lower > rates.first.round }
+      quantiles = (1...RAMP.size).filter_map { |step| rates[step * rates.size / RAMP.size] }
+      quantiles.map { |rate| rate.floor(-1) }.uniq.select { |lower| lower > rates.first }
     end
   end
 
-  # One entry per shade in use, for the legend: "unter 120", "120–159", "ab 200".
+  # One entry per shade in use, for the legend: "unter 120", "120–159", "ab 200";
+  # a single shade spans the rates. None without rates.
   def shades
+    return [] if rates.empty?
+    return [Shade.new(label: [rates.first, rates.last].uniq.join('–'), color: colors.first)] if breaks.empty?
+
     bounds = [nil, *breaks, nil]
     colors.each_with_index.map do |color, index|
       Shade.new(label: range_label(bounds[index], bounds[index + 1]), color:)
@@ -51,21 +55,23 @@ class QuarterChoropleth
     areas.sort_by { |area| [area.rate ? 0 : 1, -(area.rate || area.count), area.name] }
   end
 
-  # One feature per Stadtteil for the map. url gives a Quarter's page.
+  # One feature per shape for the map. url gives a shape's page. A shape
+  # without geometry (before the geo registers are imported) is left to the
+  # table.
   def features(url)
     areas.flat_map do |area|
       color = color(area)
-      area.quarters.map do |quarter|
+      area.shapes.select { |shape| shape.simplified_geometry.any? }.map do |shape|
         {
-          name: quarter.name,
+          name: shape.name,
           area: area.name,
-          path: url.call(quarter),
+          path: url.call(shape),
           count: area.count,
           rate: area.rate&.round,
           color:,
           light_text: RAMP.index(color).to_i >= LIGHT_TEXT_FROM,
-          polygons: quarter.simplified_geometry,
-          label: quarter.label_point,
+          polygons: shape.simplified_geometry,
+          label: shape.label_point,
         }
       end
     end
@@ -76,6 +82,11 @@ class QuarterChoropleth
   end
 
   private
+
+  # Rounded, ascending.
+  def rates
+    @rates ||= areas.filter_map { |area| area.rate&.round }.sort
+  end
 
   def range_label(lower, upper)
     return "unter #{upper}" if lower.nil?

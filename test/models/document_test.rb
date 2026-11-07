@@ -73,6 +73,17 @@ class DocumentTest < ActiveSupport::TestCase
     assert(documents.all? { |doc| doc.district == @district })
   end
 
+  test 'current_legislation leaves out Harburg-style numbers from the 19th period' do
+    old = @district.documents.create!(allris_id: 9_301, number: 'XIX-2157', title: 'Aus der 19. Wahlperiode')
+
+    assert_not_includes Document.current_legislation(@district), old
+    assert_includes Document.since_number('19-0001'), old
+  end
+
+  test 'since_number without a number is everything' do
+    assert_equal Document.count, Document.since_number(nil).count
+  end
+
   test 'related_documents links a document to its parent and sibling revisions' do
     parent = @district.documents.create!(allris_id: 9_201, number: '21-5000', title: 'Stamm')
     child = @district.documents.create!(allris_id: 9_202, number: '21-5000.1', title: 'Neufassung')

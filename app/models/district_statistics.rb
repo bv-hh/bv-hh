@@ -150,13 +150,13 @@ class DistrictStatistics
          .map { |topic, _count| [topic, tally(by_topic[topic.key])] }
   end
 
-  # The district's Stadtteile as QuarterAreas: one each, except where the
+  # The district's Stadtteile as ChoroplethAreas: one each, except where the
   # population figures count two together.
   def quarter_areas
-    @quarter_areas ||= quarters.group_by { |quarter| QuarterPopulation.area(quarter.name) || [[quarter.name], nil] }
+    @quarter_areas ||= quarters.group_by { |quarter| Population.area(quarter.name) || [[quarter.name], nil] }
                                .map do |(_names, residents), members|
       count = members.map { |quarter| quarter_documents[quarter.name] }.reduce(:|).size
-      QuarterArea.new(quarters: members, count:, residents:)
+      ChoroplethArea.new(shapes: members, count:, residents:)
     end
   end
 
@@ -205,7 +205,7 @@ class DistrictStatistics
   # counts, so a later "vertagt" in another committee does not reopen it.
   def outcomes
     @outcomes ||= begin
-      decisions = AgendaItem.joins(:meeting).where(document_id: proposals.keys).where.not(decision: nil)
+      decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id)).where.not(decision: nil)
                             .order('meetings.date DESC, agenda_items.id DESC').pluck(:document_id, :decision)
 
       decisions.group_by(&:first).transform_values do |rows|

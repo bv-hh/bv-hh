@@ -21,6 +21,8 @@
 require 'net/http'
 
 class District < ApplicationRecord
+  include PolygonShape
+
   ORDER = %w[Hamburg-Mitte Altona Eimsbüttel Hamburg-Nord Wandsbek Bergedorf Harburg]
 
   # Official Hamburg district numbers, as encoded in the street register's
@@ -69,11 +71,18 @@ class District < ApplicationRecord
 
   # The district for an official Hamburg district number, memoized like .lookup.
   # Quarters carry that number rather than a district_id, because the district
-  # boundaries come from the geo register and not from Allris.
+  # boundaries come from the geo register and not from Allris. The instances
+  # keep their simplified outline and label point (PolygonShape).
   def self.by_number(number)
     @by_number ||= District.all.index_by(&:number)
 
     @by_number[number]
+  end
+
+  # Drops the instances by_number keeps, with their shapes; Quarter.reset!
+  # calls it after an import.
+  def self.reset_shapes!
+    @by_number = nil
   end
 
   # A rectangle around the district. Kept only as the fallback for
@@ -99,6 +108,18 @@ class District < ApplicationRecord
   # on a map. Empty until the Stadtteile have been imported.
   def outline
     DistrictOutline.for(number)
+  end
+
+  # The box around every district's own box: Hamburg without Neuwerk, which
+  # sits 100 km out in the North Sea and would shrink a map of the city to a
+  # speck.
+  # Empty while no district has a box.
+  def self.city_bounds
+    boxes = all.map(&:bounds).reject { |box| box.flatten.any?(&:nil?) }
+    return [] if boxes.empty?
+
+    [[boxes.map { |box| box[0][0] }.max, boxes.map { |box| box[0][1] }.max],
+     [boxes.map { |box| box[1][0] }.min, boxes.map { |box| box[1][1] }.min]]
   end
 
   def check_for_document_updates(source = Net::HTTP.get(URI(allris_base_url + ALLRIS_DOCUMENT_UPDATES_URL)))
@@ -204,5 +225,14 @@ class District < ApplicationRecord
 
   def center
     { lat: sw_lat + ((ne_lat - sw_lat) / 2.0), lng: sw_lng + ((ne_lng - sw_lng) / 2.0) }
+  end
+
+  private
+
+  # For PolygonShape: the outline without its holes. Where the Stadtteile of a
+  # district do not quite meet, the outline keeps dozens of holes, the largest
+  # a few hectares; drawn, they speckle the map. No Bezirk has an enclave.
+  def polygons
+    outline.map { |rings| rings.first(1) }
   end
 end

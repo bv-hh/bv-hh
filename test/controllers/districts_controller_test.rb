@@ -13,7 +13,7 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'h1', text: 'Hamburg-Nord'
     assert_select 'input#hero-search.search-input', count: 1
-    assert_select '[data-controller=quarter-choropleth]'
+    assert_select '[data-controller=choropleth]'
     assert_select 'h2', 'Wo beraten wird'
   end
 

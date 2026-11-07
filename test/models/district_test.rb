@@ -87,4 +87,48 @@ class DistrictTest < ActiveSupport::TestCase
     Nokogiri::HTML.parse(source.dup.force_encoding('ISO-8859-1'))
                   .css('tr.zl12 a').first['href'][/VOLFDNR=(\d+)/, 1].to_i
   end
+
+  test 'draws its outline without holes' do
+    district = districts(:hamburg_nord)
+    outline = [[[[9.0, 53.0], [10.0, 53.0], [10.0, 54.0], [9.0, 54.0], [9.0, 53.0]],
+                [[9.4, 53.4], [9.6, 53.4], [9.6, 53.6], [9.4, 53.4]]]]
+
+    district.define_singleton_method(:outline) { outline }
+
+    assert_equal [[outline.first.first]], district.send(:polygons)
+    assert_operator district.label_point.last, :>, 0
+  end
+
+  test 'no label point without an outline, nor for one too thin to hold one' do
+    district = districts(:hamburg_nord)
+    district.define_singleton_method(:outline) { [] }
+
+    assert_nil district.label_point
+
+    sliver = District.new(name: 'Sliver')
+    sliver.define_singleton_method(:outline) do
+      [[[[9.0, 53.0], [10.0, 54.0], [10.0, 54.0001], [9.0, 53.0]]]]
+    end
+
+    assert_nil sliver.label_point
+  end
+
+  test 'an import drops the shapes kept with the districts' do
+    kept = District.by_number(4)
+    Quarter.reset!
+
+    assert_not_same kept, District.by_number(4)
+  end
+
+  test 'city bounds take in the box of every district' do
+    bounds = District.city_bounds
+
+    District.all.reject { |district| district.bounds.flatten.any?(&:nil?) }.each do |district|
+      (ne_lat, ne_lng), (sw_lat, sw_lng) = district.bounds
+      assert_operator bounds[0][0], :>=, ne_lat
+      assert_operator bounds[0][1], :>=, ne_lng
+      assert_operator bounds[1][0], :<=, sw_lat
+      assert_operator bounds[1][1], :<=, sw_lng
+    end
+  end
 end

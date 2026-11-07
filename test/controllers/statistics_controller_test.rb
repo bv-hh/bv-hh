@@ -18,7 +18,25 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'h2', 'Wo es um Orte geht'
     assert_select 'a[href=?]', topic_path(topic: Topic.find('radverkehr'), district: districts(:hamburg_nord).to_param)
     assert_select 'a[href=?]', quarter_path(district: districts(:hamburg_nord), quarter: 'ohlsdorf')
-    assert_select '[data-controller=quarter-choropleth]'
-    assert_select 'a[href=?]', 'https://www.statistik-nord.de/stadtteilprofile'
+    assert_select '[data-controller=choropleth]'
+  end
+
+  test 'no page for a district that does not exist' do
+    get '/atlantis/statistics'
+
+    assert_response :not_found
+  end
+
+  test 'shows all of Hamburg without a district, comparing the Bezirke and leaving out the Fraktionen' do
+    documents(:document_227).update!(topics: ['radverkehr'])
+
+    get statistics_path
+
+    assert_response :success
+    assert_select 'p', /\AHamburg ·/
+    assert_select 'h2', 'Die Bezirke im Vergleich'
+    assert_select 'a[href=?]', root_with_district_path(district: districts(:hamburg_nord))
+    assert_select '#fraktionen', count: 0
+    assert_select 'a[href=?]', topic_path(topic: Topic.find('radverkehr'), district: nil)
   end
 end

@@ -82,9 +82,10 @@
         = render 'topics/bars', items: @topic_counts, top: DistrictsController::TOP_TOPICS,
                  url: ->(topic) { topic_path(topic:) }
 
-  / The figures change only with the hourly sync.
-  - cache ['quarter_choropleth', @district], expires_in: 1.hour do
-    - choropleth = QuarterChoropleth.new(DistrictStatistics.new(@district).quarter_areas)
+  / Cached for a day, like the statistics page: a day's Drucksachen barely move
+  / the shades.
+  - cache ['quarter_choropleth', @district], expires_in: 24.hours do
+    - choropleth = Choropleth.new(DistrictStatistics.new(@district).quarter_areas)
     - if choropleth.any?
       section.mb-5
         .row.g-4
@@ -93,10 +94,10 @@
             p.text-secondary
               ' Wie viele Drucksachen der laufenden Wahlperiode einen Stadtteil oder einen Ort darin nennen,
                 gemessen an den Menschen, die dort wohnen.
-            p.small.text-secondary= render 'quarters/population_source'
             = link_to 'Alle Zahlen zu den Stadtteilen', statistics_path(anchor: 'orte')
           .col-lg-8
-            = render 'quarters/choropleth', choropleth:, district: @district
+            = render 'choropleths/map', choropleth:, unit: 'Stadtteil', bounds: @district.bounds,
+                     url: ->(quarter) { quarter_path(district: quarter.district, quarter: quarter.slug) }
 
   = render 'pages/participation', heading: "Mitmachen in #{@district.name}"
 

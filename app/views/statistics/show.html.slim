@@ -1,19 +1,20 @@
-/ Cached for an hour: the figures change only with the hourly sync, and the
-/ page runs some twenty queries.
-- cache ['statistics', @district, Topic::VERSION], expires_in: 1.hour do
+/ A district's statistics, or all of Hamburg's without one (CityStatistics).
+/ Cached for a day: a day's Drucksachen barely move the figures, and the page
+/ runs some twenty queries, for all of Hamburg for several seconds.
+- cache ['statistics', @district || 'hamburg', Topic::VERSION], expires_in: 24.hours do
   - outcomes = @statistics.proposal_outcomes
   - rate = @statistics.adoption_rate
 
   h1.mb-1 Statistiken
   p.text-secondary
-    = @district.name
+    = @district&.name || 'Hamburg'
     - if @statistics.start_date
       =< "· Wahlperiode seit #{l(@statistics.start_date, format: '%B %Y')}"
     =< "· Stand #{l(Date.current, format: :long)}"
 
   .row.row-cols-2.row-cols-lg-4.g-3.mb-3
-    - [[@statistics.document_count, 'Drucksachen', documents_path],
-       [@statistics.meeting_count, 'Sitzungen', meetings_path],
+    - [[@statistics.document_count, 'Drucksachen', (documents_path if @district)],
+       [@statistics.meeting_count, 'Sitzungen', (meetings_path if @district)],
        [@statistics.proposal_count, 'Anträge', '#entscheidungen'],
        [@statistics.inquiry_count, 'Anfragen an das Bezirksamt', nil]].each do |count, label, path|
       .col
@@ -26,8 +27,9 @@
               = label
 
   nav.nav.mb-5 aria-label='Abschnitte'
-    - [%w[themen Themen], %w[entscheidungen Entscheidungen], %w[orte Orte], %w[verlauf Verlauf],
-       %w[fraktionen Fraktionen]].each do |id, label|
+    - sections = [%w[themen Themen], %w[entscheidungen Entscheidungen], %w[orte Orte], %w[verlauf Verlauf]]
+    - sections << %w[fraktionen Fraktionen] if @district
+    - sections.each do |id, label|
       = link_to label, "##{id}", class: 'nav-link ps-0 py-1'
 
   - if @statistics.topic_counts.any?
@@ -39,7 +41,7 @@
             ' Jede Drucksache ist automatisch einem oder mehreren Themen zugeordnet. Manche gehören zu keinem.
         .col-lg-8
           = render 'topics/bars', items: @statistics.topic_counts, top: 10,
-                   url: ->(topic) { topic_path(topic:, district: @district.to_param) }
+                   url: ->(topic) { topic_path(topic:, district: @district&.to_param) }
 
           - timeline = @statistics.topic_timeline
           - if timeline.any?
@@ -78,13 +80,29 @@
               - by_topic.each do |topic, topic_outcomes|
                 .row.g-2.align-items-center
                   .col-sm-4
-                    = link_to topic.label, topic_path(topic:, district: @district.to_param), class: 'fw-semibold'
+                    = link_to topic.label, topic_path(topic:, district: @district&.to_param), class: 'fw-semibold'
                   .col
                     = render 'outcome_bar', outcomes: topic_outcomes, label: topic.label
                   .col-2.text-end.small.text-secondary= number_with_delimiter(topic_outcomes.values.sum)
 
-  - choropleth = QuarterChoropleth.new(@statistics.quarter_areas)
-  - if choropleth.any?
+  - if @district.nil?
+    - choropleth = Choropleth.new(@statistics.district_areas)
+    section#orte.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Die Bezirke im Vergleich
+          p.text-secondary
+            ' Drucksachen der laufenden Wahlperiode, gemessen an den Menschen, die im Bezirk wohnen. Hier zählen alle
+              Drucksachen: Was eine Bezirksversammlung berät, betrifft ihren Bezirk.
+          p.small.text-secondary
+            ' Die Farben teilen die sieben Bezirke in bis zu fünf Gruppen.
+        .col-lg-8
+          - url = ->(district) { root_with_district_path(district:) }
+          = render 'choropleths/map', choropleth:, url:, bounds: District.city_bounds, unit: 'Bezirk'
+          .mt-4
+            = render 'choropleths/table', choropleth:, url:, unit: 'Bezirk'
+
+  - elsif (choropleth = Choropleth.new(@statistics.quarter_areas)).any?
     section#orte.mb-5
       .row.g-4
         .col-lg-4
@@ -95,12 +113,12 @@
               betreffen.
           p.small.text-secondary
             ' Die Farben teilen die Stadtteile des Bezirks in fünf etwa gleich große Gruppen.
-            = render 'quarters/population_source'
           = link_to 'Alle Orte auf der Karte', map_path
         .col-lg-8
-          = render 'quarters/choropleth', choropleth:, district: @district
+          - url = ->(quarter) { quarter_path(district: quarter.district, quarter: quarter.slug) }
+          = render 'choropleths/map', choropleth:, url:, bounds: @district.bounds, unit: 'Stadtteil'
           .mt-4
-            = render 'quarters/choropleth_table', choropleth:
+            = render 'choropleths/table', choropleth:, url:, unit: 'Stadtteil'
 
   - monthly = @statistics.monthly_timeline
   - if monthly.any?
@@ -115,12 +133,13 @@
           = line_chart monthly, colors: StatisticsController::SERIES_COLORS, curve: false, legend: 'bottom',
                        library: { elements: { line: { borderWidth: 2 }, point: { radius: 3 } } }
 
-  section#fraktionen.mb-5
-    .row.g-4
-      .col-lg-4
-        h2 Anträge und Anfragen der Fraktionen
-        p.text-secondary
-          ' Gezählt nach dem Titel oder den Verfassenden einer Drucksache, daher ungefähr. Gemeinsame Anträge zählen
-            für jede beteiligte Fraktion.
-      .col-lg-8
-        = column_chart @statistics.party_series, legend: 'bottom'
+  - if @district
+    section#fraktionen.mb-5
+      .row.g-4
+        .col-lg-4
+          h2 Anträge und Anfragen der Fraktionen
+          p.text-secondary
+            ' Gezählt nach dem Titel oder den Verfassenden einer Drucksache, daher ungefähr. Gemeinsame Anträge
+              zählen für jede beteiligte Fraktion.
+        .col-lg-8
+          = column_chart @statistics.party_series, legend: 'bottom'
