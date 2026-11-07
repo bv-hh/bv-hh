@@ -1,9 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-import "leaflet"
-
-// Leaflet sets tooltip content as HTML.
-const escape = (text) => text.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char])
+import { escape, tileLayer, latLngs } from "lib/map_support"
 
 // Stadtteile or Bezirke shaded by Drucksachen per resident (Choropleth gives
 // the features, colours included). Hovering names a place and its figures,
@@ -30,11 +27,7 @@ export default class extends Controller {
     this.map = L.map(this.containerTarget, { scrollWheelZoom: false, zoomSnap: 0.25 })
 
     // Faint, so the shades carry the map and the streets only orient.
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      opacity: 0.35,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(this.map)
+    tileLayer({ opacity: 0.35 }).addTo(this.map)
 
     this.shapes = L.featureGroup().addTo(this.map)
     this.labels = L.layerGroup().addTo(this.map)
@@ -54,7 +47,7 @@ export default class extends Controller {
 
   drawFeature(feature) {
     const style = { color: "#fff", weight: 1.5, fillColor: feature.color, fillOpacity: 0.85 }
-    const polygon = L.polygon(this.latLngs(feature.polygons), style).addTo(this.shapes)
+    const polygon = L.polygon(latLngs(feature.polygons), style).addTo(this.shapes)
 
     polygon.bindTooltip(this.tooltip(feature), { sticky: true })
     polygon.on("mouseover", () => polygon.setStyle({ color: "#212529", weight: 3 }).bringToFront())
@@ -62,11 +55,6 @@ export default class extends Controller {
     polygon.on("click", () => Turbo.visit(feature.path))
 
     return { feature, polygon }
-  }
-
-  // GeoJSON is [polygon][ring][point][lng, lat]; Leaflet wants [lat, lng].
-  latLngs(polygons) {
-    return polygons.map((polygon) => polygon.map((ring) => ring.map(([lng, lat]) => [lat, lng])))
   }
 
   tooltip(feature) {

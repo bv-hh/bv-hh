@@ -59,6 +59,35 @@ namespace :locations do
     end
   end
 
+  # The Google era's points, moved onto the registers (LocationRebase). Lists
+  # the moves over FAR metres, which are worth a look: a point that far off was
+  # either wrong before or is matched to the wrong entry now.
+  desc 'Show (or apply) moving the locations Google placed onto the registers'
+  task :rebase, [:apply] => :environment do |_task, args|
+    far = 250
+    rebase = LocationRebase.new
+    moves = rebase.moves
+    documents = DocumentLocation.where(location_id: moves.map { |move| move.location.id }).group(:location_id).count
+
+    moves.select { |move| move.metres.nil? || move.metres > far }.sort_by { |move| -(move.metres || Float::INFINITY) }.each do |move|
+      location = move.location
+      puts format('%<metres>7s m  %<docs>4d docs  %<name>-40s %<district>-16s %<from>s -> %<to>s',
+                  metres: move.metres || '?', docs: documents.fetch(location.id, 0), name: location.name.to_s.truncate(40),
+                  district: location.district.name, from: location.formatted_address.to_s.truncate(40),
+                  to: move.formatted_address.to_s.truncate(40))
+    end
+
+    metres = moves.filter_map(&:metres).sort
+    puts "#{moves.size} locations move (median #{metres[metres.size / 2] || 0} m, " \
+         "#{metres.count { |value| value > far }} over #{far} m), #{rebase.unmatched} no register knows stay."
+
+    if args[:apply] == 'apply'
+      puts "Moved #{rebase.apply!} locations. The map's cached pins catch up within the hour."
+    else
+      puts 'Re-run as locations:rebase[apply].'
+    end
+  end
+
   # Assignment only, without re-running extraction.
   #
   # streets:reanalyze re-reads every document's text and attachments through the

@@ -19,5 +19,6 @@ pin 'process' # @2.1.0
 pin 'leaflet' # @1.9.4
 
 pin_all_from 'app/javascript/controllers', under: 'controllers'
+pin_all_from 'app/javascript/lib', under: 'lib'
 
 pin 'leaflet.markercluster' # @1.5.3

@@ -1,15 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 
-import "leaflet"
-import "leaflet.markercluster"
+import { tileLayer, latLngs, OUTLINE, POPUP, pinIcon, clusterGroup } from "lib/map_support"
 
 // The map leading a Quarter's page. Draws the Quarter boundary and pins the
 // locations of the documents on the current page, so the map and the list
 // always agree. Where the title card floats on the map, the map keeps the
 // area under it free.
 //
-// Separate from map_controller because that one is built around the whole-city
-// view: a month toolbar, a fixed centre and zoom, and no boundary.
+// Separate from map_controller, which counts and pins a whole range of
+// Drucksachen with a list following the view. The pins and popups look the
+// same (lib/map_support); the popups come rendered from the server, the same
+// partial as there.
 export default class extends Controller {
   static targets = ["container", "empty", "card"]
   static values = { url: String }
@@ -27,13 +28,10 @@ export default class extends Controller {
     // Zoom buttons on the right: the title card covers the top left.
     this.map = L.map(this.containerTarget, { scrollWheelZoom: false, zoomControl: false })
     L.control.zoom({ position: "topright" }).addTo(this.map)
-    this.markers = L.markerClusterGroup()
-    this.map.addLayer(this.markers)
+    tileLayer({ opacity: 0.7 }).addTo(this.map)
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(this.map)
+    this.markers = clusterGroup()
+    this.map.addLayer(this.markers)
   }
 
   async load() {
@@ -47,18 +45,17 @@ export default class extends Controller {
     this.fit(data)
   }
 
-  // GeoJSON is [polygon][ring][point][lng, lat]; Leaflet wants [lat, lng].
   drawBoundary(polygons) {
     if (!polygons) return
 
-    const rings = polygons.map((polygon) => polygon.map((ring) => ring.map(([lng, lat]) => [lat, lng])))
-
-    L.polygon(rings, { color: "#0d6efd", weight: 2, fillOpacity: 0.06, interactive: false }).addTo(this.map)
+    L.polygon(latLngs(polygons), OUTLINE).addTo(this.map)
   }
 
   drawMarkers(markers) {
     for (const marker of markers) {
-      L.marker(marker.position).bindPopup(this.popupContent(marker)).addTo(this.markers)
+      L.marker(marker.position, { icon: pinIcon(marker.count), title: marker.name })
+        .bindPopup(marker.popup, POPUP)
+        .addTo(this.markers)
     }
 
     this.emptyTarget.classList.toggle("d-none", markers.length > 0)
@@ -83,18 +80,5 @@ export default class extends Controller {
     const left = floating ? card.offsetLeft + card.offsetWidth + base : base
 
     return { paddingTopLeft: [left, base], paddingBottomRight: [base, base] }
-  }
-
-  popupContent(marker) {
-    const documents = marker.documents
-      .map((doc) => `<li><a href="${doc.path}">${doc.number}</a> ${doc.title}</li>`)
-      .join("")
-
-    return `
-      <h6>${marker.name}</h6>
-      <p class="mb-1 small text-secondary">${marker.address ?? ""}</p>
-      <ul class="ps-3 mb-1">${documents}</ul>
-      <a href="${marker.path}">Alles an diesem Ort</a>
-    `
   }
 }

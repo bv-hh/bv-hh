@@ -20,6 +20,20 @@ class StreetsControllerTest < ActionDispatch::IntegrationTest
                  JSON.parse(@response.body).first['quarters'].sort
   end
 
+  test 'GET suggest gives the map the pin of a street Drucksachen name' do
+    get suggest_streets_path(q: 'heilwig')
+
+    assert_equal [[locations(:heilwigstrasse).latitude, locations(:heilwigstrasse).longitude]],
+                 JSON.parse(@response.body).first['positions']
+  end
+
+  test 'GET suggest gives the map the register point of any other street' do
+    get suggest_streets_path(q: 'testallee')
+
+    assert_equal [[streets(:testallee).latitude, streets(:testallee).longitude]],
+                 JSON.parse(@response.body).first['positions']
+  end
+
   test 'GET suggest normalizes punctuation before matching' do
     get suggest_streets_path(q: 'Julius-Vosseler')
 

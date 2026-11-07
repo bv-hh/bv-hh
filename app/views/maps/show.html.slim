@@ -1,26 +1,59 @@
-h1
+/ The map page (map_controller.js, MapsController). The filters are a GET form
+/ so they work without JavaScript; with it, a change reloads the pins and the
+/ list in place and keeps the map where it is.
+- area = @district&.name || 'Hamburg'
+
+h1.mb-1
   ' Karte
+  small.text-secondary.fs-4= area
+p.text-secondary.mb-4
+  ' Welche Drucksachen betreffen Orte in Ihrer Nähe? Suchen Sie Ihre Straße oder Ihren Stadtteil, oder zoomen Sie
+    hinein: Erst zählt die Karte Drucksachen je
+  = @district ? 'Stadtteil' : 'Bezirk und Stadtteil'
+  | , dann zeigt sie die einzelnen Orte.
 
-  small.text-muted
-    - if @district.present?
-      = @district.name
-    - else
-      ' Alle Bezirke
+div data-controller='map' data-map-bounds-value=@bounds.to_json data-map-city-value=@district.nil?.to_s data-map-areas-url-value=areas_map_path data-map-markers-url-value=markers_map_path data-map-documents-url-value=documents_map_path data-map-place-url-value=place_map_path(location_id: 'ID') data-map-feed-url-value=feed_path(district: nil) data-map-max-places-value=MapQuery::MAX_PLACES data-action='map-search:select->map#showPlace'
+  = form_tag map_path, method: :get, class: 'row g-3 align-items-end mb-3', data: { map_target: 'form', action: 'change->map#filter' } do
+    .col-lg-4.position-relative data-controller='map-search' data-map-search-suggest-url-value=suggest_streets_path(q: 'QUERY', district: nil) data-map-search-quarters-value=@quarters.to_json
+      label.form-label.small.fw-semibold for='map-search' Straße oder Stadtteil
+      input#map-search.form-control type='search' autocomplete='off' placeholder='z. B. Osterstraße' role='combobox' aria-expanded='false' aria-controls='map-search-results' aria-autocomplete='list' data-map-search-target='input' data-action='input->map-search#search keydown->map-search#keydown'
+      ul#map-search-results.list-group.position-absolute.shadow.d-none.map-search-results role='listbox' aria-label='Vorschläge' data-map-search-target='results'
 
-#map data-controller='map' data-map-lat=@center[:lat] data-map-lng=@center[:lng] data-map-zoom=@zoom data-map-markers=markers_map_path data-map-boundary=(map_path(format: :json) if @district.present?)
-  .float-end.mt-1
-    .beta.mb-3
-      span.badge.text-bg-warning> Beta
-      span.small.text-secondary Die Erkennung von Orten im Text einer Drucksache kann ungenau sein. Es ist daher möglich, dass Orte nicht korrekt angezeigt werden.
+    .col-sm-7.col-lg-5
+      .form-label.small.fw-semibold#map-range-label Zeitraum
+      .btn-group.w-100 role='group' aria-labelledby='map-range-label'
+        - MapQuery::RANGES.each do |value, label|
+          = radio_button_tag :zeitraum, value, @query.range == value, class: 'btn-check', id: "map-range-#{value}"
+          label.btn.btn-outline-secondary for="map-range-#{value}"= label
 
-  .btn-toolbar
-    .btn.btn-text.mr-3 Letzte
-    .years.btn-group
-      - [3, 6, 12].each do |months|
-        button.btn.btn-outline-secondary data-action='click->map#load' data-months=months data-map-target='month'
-          = months
-    .btn.btn-text.ml-3 Monate
+    .col-sm-5.col-lg-3
+      label.form-label.small.fw-semibold for='map-topic' Thema
+      = select_tag :thema, options_for_select(Topic.sort_by(&:label).map { |topic| [topic.label, topic.slug] }, @topic&.slug),
+          include_blank: 'Alle Themen', id: 'map-topic', class: 'form-select'
 
-  .row.mt-3
-    .col
-      div data-map-target='container' style='min-height: 80vh'
+    noscript
+      .col-12
+        button.btn.btn-sm.btn-primary type='submit' Anzeigen
+
+  .row.g-4.mb-5
+    .col-lg-8
+      .map-page-map.rounded.border data-map-target='container' role='region' aria-label="Karte von #{area}"
+      ul.list-inline.small.mt-2.mb-1
+        li.list-inline-item.me-3
+          span.map-legend-bubble
+          ' Drucksachen mit Ort im Gebiet
+        li.list-inline-item.me-3
+          span.map-legend-pin
+          ' Ort aus Drucksachen
+        li.list-inline-item
+          span.map-legend-pin.map-pin-upcoming
+          ' demnächst auf einer Tagesordnung
+      p.small.text-secondary.mb-0
+        span> data-map-target='coverage' aria-live='polite'
+        ' Orte werden automatisch im Text der Drucksachen erkannt. Dabei kann ein Ort fehlen oder falsch zugeordnet
+          sein. Eine Straße steht als ein Punkt auf der Karte, auch wenn sie lang ist.
+
+    .col-lg-4
+      / Fills once the map knows what is in view.
+      turbo-frame#map-documents.map-page-list target='_top' data-map-target='list' aria-live='polite'
+        p.text-secondary.small Drucksachen werden geladen …
