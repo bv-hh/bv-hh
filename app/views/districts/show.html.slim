@@ -94,7 +94,9 @@
             p.text-secondary
               ' Wie viele Drucksachen der laufenden Wahlperiode einen Stadtteil oder einen Ort darin nennen,
                 gemessen an den Menschen, die dort wohnen.
-            = link_to 'Alle Zahlen zu den Stadtteilen', statistics_path(anchor: 'orte')
+            ul.list-unstyled
+              li= link_to 'Alle Zahlen zu den Stadtteilen', statistics_path(anchor: 'orte')
+              li= link_to 'Was bei Ihnen in der Nähe beraten wird', map_path
           .col-lg-8
             = render 'choropleths/map', choropleth:, unit: 'Stadtteil', bounds: @district.bounds,
                      url: ->(quarter) { quarter_path(district: quarter.district, quarter: quarter.slug) }

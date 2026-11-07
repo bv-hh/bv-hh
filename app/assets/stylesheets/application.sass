@@ -222,3 +222,116 @@ $outcome-colors: (adopted: #2a78d6, rejected: #d03b3b, withdrawn: #8a8986, open:
   margin-right: .25rem
   border-radius: 2px
   vertical-align: -1px
+
+// Leaflet sets its own Helvetica and link colour; the maps take the page's, so
+// labels, tooltips and popups read like the rest of the site.
+.leaflet-container
+  font-family: $font-family-base
+
+  a
+    color: var(--bs-link-color)
+
+// Popups on the map page and the Stadtteil pages (maps/_popup), dressed like
+// the choropleth tooltips: Leaflet's tooltip corners, shadow and text size.
+// The padding and the tip stay Leaflet's popup defaults.
+.leaflet-popup.map-popup
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip
+    box-shadow: 0 1px 3px rgba($black, .4)
+
+  .leaflet-popup-content-wrapper
+    border-radius: 3px
+
+  .leaflet-popup-content
+    font-size: inherit
+    line-height: inherit
+
+.map-popup-documents
+  list-style: none
+  padding-left: 0
+  margin: .25rem 0
+
+  li + li
+    margin-top: .25rem
+
+// A place on a map: a dot, red while one of its Drucksachen is still to be
+// discussed (pinIcon in lib/map_support.js).
+.map-pin
+  border-radius: 50%
+  background-color: $light-blue
+  border: 2px solid $white
+  box-shadow: 0 0 0 1px rgba($black, .3)
+
+  &.map-pin-upcoming
+    background-color: $red
+
+// Drucksachen counted per Bezirk or Stadtteil, or pins close together
+// (bubbleIcon). The name, where there is one, hangs below the circle,
+// placed against the icon, which Leaflet positions absolutely — never
+// override that position, or the icons flow below one another.
+.map-bubble
+  display: flex
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  background-color: rgba($blue, .85)
+  border: 2px solid $white
+  box-shadow: 0 1px 3px rgba($black, .4)
+  color: $white
+  font-size: .75rem
+  font-weight: 600
+
+  &.map-bubble-upcoming
+    box-shadow: 0 0 0 3px $red
+
+.map-bubble-label
+  position: absolute
+  top: 100%
+  left: 50%
+  transform: translateX(-50%)
+  margin-top: 2px
+  white-space: nowrap
+  font-size: .75rem
+  font-weight: 600
+  text-shadow: 0 0 3px $white, 0 0 3px $white, 0 0 3px $white
+
+// The keys under the map page's map.
+.map-legend-pin, .map-legend-bubble
+  display: inline-block
+  margin-right: .25rem
+  border-radius: 50%
+  vertical-align: -1px
+
+.map-legend-pin
+  @extend .map-pin
+  width: .75rem
+  height: .75rem
+
+.map-legend-bubble
+  width: .875rem
+  height: .875rem
+  background-color: rgba($blue, .85)
+
+// The map page: the map, and beside it from lg up the list of what is in
+// view, scrolling on its own.
+.map-page-map
+  height: 65vh
+  min-height: 22rem
+
+  +media-breakpoint-up(lg)
+    height: 75vh
+
+.map-page-list
+  display: block
+
+  +media-breakpoint-up(lg)
+    max-height: 75vh
+    overflow-y: auto
+
+// Above Leaflet's panes and controls (z-index 400 to 1000).
+.map-search-results
+  top: 100%
+  left: calc(var(--bs-gutter-x) * .5)
+  right: calc(var(--bs-gutter-x) * .5)
+  z-index: 1100
+  max-height: 20rem
+  overflow-y: auto

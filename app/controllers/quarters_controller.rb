@@ -39,19 +39,22 @@ class QuartersController < ApplicationController
     }
   end
 
+  # The popup comes rendered, from the same partial as on the map page, so the
+  # names and titles in it are escaped there.
   def markers
     document_locations = quarter_locations.where(document_id: page_documents.map(&:id))
-                                          .includes(:location, document: :district)
+                                          .includes({ location: :district }, document: Document::LIST_ASSOCIATIONS)
 
     document_locations.group_by(&:location).map do |location, entries|
+      documents = entries.map(&:document).uniq
+
       {
         position: [location.latitude, location.longitude],
         name: location.name,
-        address: location.formatted_address,
-        path: location_path(location, district: location.district),
-        documents: entries.map(&:document).uniq.first(10).map do |document|
-          { number: document.number, title: document.title, path: document_path(document, district: document.district) }
-        end,
+        count: documents.size,
+        popup: render_to_string(partial: 'maps/popup', formats: [:html],
+                                locals: { location:, documents: documents.first(MapQuery::POPUP_DOCUMENTS),
+                                          total: documents.size }),
       }
     end
   end

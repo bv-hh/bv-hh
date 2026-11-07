@@ -1,0 +1,31 @@
+/ A place on a map, built like the choropleth tooltips: the name in bold, then
+/ what is known about it in small lines (.map-popup in application.sass). On
+/ the map page and on a Stadtteil page.
+/
+/ location is the Location, documents the Drucksachen to name (loaded with
+/ Document.for_list), total how many there are in all.
+- quarters = location.quarters.filter_map { |name| Quarter.lookup(name) }
+strong= location.name
+- if quarters.any?
+  .text-secondary
+    = safe_join(quarters.map { |quarter| quarter.district ? link_to(quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug)) : quarter.name }, ', ')
+    - districts = quarters.filter_map(&:district).uniq.map(&:name)
+    - if districts.any?
+      = " · #{districts.join(', ')}"
+
+ul.map-popup-documents
+  - documents.each do |document|
+    - agenda_item = document.latest_agenda_item
+    li
+      = link_to document_title(document), document_path(document, district: document.district)
+      .text-secondary
+        = document.number
+        - if agenda_item
+          - if (decision = decision_label(agenda_item))
+            = ' · '
+            = decision
+          = " · #{l agenda_item.meeting.date}"
+
+- if total > documents.size
+  .text-secondary.mb-1= "und #{number_with_delimiter(total - documents.size)} weitere"
+= link_to 'Alle Drucksachen zu diesem Ort', location_path(location, district: location.district)

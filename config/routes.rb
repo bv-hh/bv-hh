@@ -73,7 +73,12 @@ Rails.application.routes.draw do
 
     resource :map, only: :show do
       collection do
+        get :areas
         get :markers
+        # Not /map/documents: /:district/documents would take it, with "map"
+        # for the district.
+        get :documents, path: 'drucksachen'
+        get 'places/:location_id', action: :place, as: :place
       end
     end
 

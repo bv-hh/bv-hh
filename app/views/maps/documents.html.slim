@@ -1,0 +1,22 @@
+/ The list beside the map: the Drucksachen naming a place in view, below what
+/ the chosen time range covers. Its links leave the frame (target _top on the
+/ frame), except the paging, which stays.
+turbo-frame#map-documents
+  h2.h5.mb-1 Im Kartenausschnitt
+  p.small.text-secondary.mb-2
+    => MapQuery::RANGE_HINTS[@query.range]
+    - if @documents.total_count.zero?
+      | Keine Drucksache nennt hier einen Ort.
+    - else
+      = "#{number_with_delimiter(@documents.total_count)} #{@documents.total_count == 1 ? 'Drucksache nennt' : 'Drucksachen nennen'} hier einen Ort, die zuletzt beratenen zuerst."
+
+  - if @documents.any?
+    .list-group.list-group-flush
+      - @documents.each do |document|
+        = render 'documents/item', document:, compact: false
+
+    - if @documents.total_pages > 1
+      nav.d-flex.justify-content-between.align-items-center.mt-3 aria-label='Seiten'
+        = link_to_prev_page @documents, 'Neuere', class: 'btn btn-sm btn-outline-secondary', data: { turbo_frame: 'map-documents' }
+        span.small.text-secondary= "Seite #{@documents.current_page} von #{@documents.total_pages}"
+        = link_to_next_page @documents, 'Ältere', class: 'btn btn-sm btn-outline-secondary', data: { turbo_frame: 'map-documents' }
