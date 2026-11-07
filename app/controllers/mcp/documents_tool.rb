@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
 class Mcp::DocumentsTool < Mcp::ApplicationTool
+  LINKED_DOCUMENT = {
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'The unique identifier of the document' },
+      number: { type: 'string', description: 'The reference number of the document' },
+      title: { type: 'string', description: 'The title of the document' },
+    },
+  }.freeze
+
   description <<~MD
     Retrieves a document for a district council based on its unique identifier or reference number.
       The document includes metadata such as title, date, type, and associated meeting and/or
-      council information, and similar documents from any district, found by meaning rather than wording
+      council information, the documents of the same district it refers to by number and those referring
+      to it, and similar documents from any district, found by meaning rather than wording
       (useful to see whether a matter was raised elsewhere before). If the document cannot be found, an
       error message is returned.
       A district can be specified by name to narrow down the search when using a reference number, one of
@@ -39,6 +49,10 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
                       date: { type: 'string', description: 'The date of the meeting' },
                     },
                   } },
+      referenced_documents: { type: 'array', description: 'Documents of the same district this one names by number',
+                              items: LINKED_DOCUMENT },
+      citing_documents: { type: 'array', description: 'Documents of the same district that name this one by number',
+                          items: LINKED_DOCUMENT },
       similar_documents: { type: 'array', description: 'Documents close in meaning, from any district, closest first',
                            items: {
                              type: 'object',
@@ -73,15 +87,26 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
 
     return error_response('No document found with the provided identifier.') if document.blank?
 
-    result = document.as_json.merge(similar_documents: similar(document))
+    result = document.as_json.merge(linked(document))
     MCP::Tool::Response.new(
       [{ type: 'text', text: result.to_json }],
       structured_content: result
     )
   end
 
-  def self.similar(document)
-    document.similar_documents.map do |similar|
+  def self.linked(document)
+    links = document.links.slice(:referenced, :citing).transform_values do |documents|
+      documents.pluck(:id, :number, :title).map { |id, number, title| { id:, number:, title: } }
+    end
+    {
+      referenced_documents: links[:referenced],
+      citing_documents: links[:citing],
+      similar_documents: similar(document, exclude: links.values.flatten.pluck(:id)),
+    }
+  end
+
+  def self.similar(document, exclude:)
+    document.similar_documents(exclude:).map do |similar|
       { id: similar.id, number: similar.number, title: similar.title, district: similar.district.name }
     end
   end

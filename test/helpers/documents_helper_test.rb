@@ -31,4 +31,14 @@ class DocumentsHelperTest < ActionView::TestCase
   test 'highlight_text keeps decoded angle brackets as text' do
     assert_equal 'Planung &lt;<mark>Elbufer</mark>&gt;', highlight_text('Planung <Elbufer>', ['Elbufer'])
   end
+
+  test 'link_documents links known numbers by the rule of the references, with or without suffix and dash' do
+    referenced = documents(:document_227) # 21-4512
+    content = "<p>Siehe Drs. #{referenced.number}, Drs. 21–4512 und Drs. 21-9999, nicht 22/4512.</p>"
+
+    linked = Nokogiri::HTML.fragment(link_documents(content, referenced.district))
+
+    assert_equal ['21-4512', '21–4512'], linked.css('a').map(&:text)
+    assert(linked.css('a').all? { |a| a['href'] == document_path(referenced) })
+  end
 end
