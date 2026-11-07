@@ -98,7 +98,7 @@ tests and the asset build. Setting up a local copy is described in
   commit; never commit to `main` directly.
 - Commit subjects are full English sentences in the imperative, without a
   prefix: "Map each district's Stadtteile by Drucksachen per resident".
-- The maintainer merges. Merging does not deploy (see Production).
+- The maintainer merges. Merging deploys once CI is green (see Production).
 
 ### Keeping this file current
 
@@ -276,9 +276,11 @@ rake pois:import       # ~8000 named OpenStreetMap features         (~10min, res
 
 For maintainers; contributors have no access.
 
-- Deploys run with `bundle exec cap production deploy`; Capistrano runs the
-  migrations. Writes to prod, imports and deploys need the maintainer's
-  explicit go-ahead.
+- Every push to `main` deploys once CI is green (`.github/workflows/deploy.yml`,
+  Capistrano, migrations included). Hold a PR with a heavy migration until a
+  quiet hour. A manual `bundle exec cap production deploy` deploys the branch
+  checked out locally. Writes to prod, imports and deploys need the
+  maintainer's explicit go-ahead.
 - The `documents` table has about 240k rows on prod. A migration that rewrites
   it locks the table for minutes: build indexes with
   `algorithm: :concurrently`, set a short `lock_timeout`, and deploy in a quiet

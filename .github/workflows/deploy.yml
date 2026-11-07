@@ -1,0 +1,77 @@
+name: Deploy
+
+# Deploys to production once CI has passed on main. Only runs of CI for a push
+# to main count, and only successful ones, so a red build never deploys.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    # One deploy at a time. A running deploy is never cancelled (that could
+    # stop Capistrano in the middle of a migration). GitHub keeps at most one
+    # deploy waiting behind it and replaces that one with each newer one, so
+    # after the running deploy the latest green commit goes out and the ones in
+    # between are skipped. The group is on the job, not the workflow, so runs
+    # for a red or cancelled CI build are skipped by `if` before they can
+    # replace a waiting deploy.
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    timeout-minutes: 90
+    environment:
+      name: production
+      url: https://bv-hh.de
+
+    env:
+      # The commit CI tested, not whatever main points to by now: a newer
+      # commit may still be in CI or have failed it. A manual run deploys main.
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ env.DEPLOY_SHA }}
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+
+    - name: Set up SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        SSH_KNOWN_HOSTS: ${{ vars.DEPLOY_SSH_KNOWN_HOSTS }}
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        eval "$(ssh-agent -s)"
+        printf '%s\n' "$SSH_PRIVATE_KEY" | ssh-add -
+        echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+        echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+    # EmbedDocumentsJob starts at 04:07 UTC and runs `rake embeddings:update`
+    # as a child of the worker, which a deploy restarts. Wait it out.
+    - name: Wait for the nightly embedding run
+      run: |
+        while [ "$(date -u +%H%M)" -ge 0400 ] && [ "$(date -u +%H%M)" -lt 0445 ]; do
+          echo "Embedding run in progress, waiting until 04:45 UTC"
+          sleep 60
+        done
+
+    - name: Deploy
+      run: bundle exec cap production deploy
+      env:
+        branch: ${{ env.DEPLOY_SHA }}
+
+    - name: Stop SSH agent
+      if: always()
+      run: ssh-agent -k || true
