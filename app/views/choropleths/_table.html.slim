@@ -1,10 +1,11 @@
 / The figures behind the map, for reading them exactly and for anyone who
-/ cannot use the map. choropleth is a QuarterChoropleth.
+/ cannot use the map. choropleth is a Choropleth, url gives a shape's page and
+/ unit names the column ("Stadtteil", "Bezirk").
 .table-responsive
   table.table.table-sm.align-middle
     thead
       tr
-        th scope='col' Stadtteil
+        th scope='col'= unit
         th.text-end scope='col' Drucksachen
         th.text-end scope='col' je 10.000 Menschen
     tbody
@@ -12,7 +13,7 @@
         tr
           td
             span.legend-swatch style="background-color: #{choropleth.color(area)}"
-            = safe_join(area.quarters.map { |quarter| link_to(quarter.name, quarter_path(district: quarter.district, quarter: quarter.slug)) }, ' und ')
+            = safe_join(area.shapes.map { |shape| link_to(shape.name, url.call(shape)) }, ' und ')
           td.text-end= number_with_delimiter(area.count)
           td.text-end
             - if area.rate

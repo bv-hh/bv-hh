@@ -5,7 +5,7 @@ require 'test_helper'
 # Pages that only exist within a district, requested without one. Bots probe
 # these, and they used to end in a 500 via a SystemStackError in the error log.
 class DistrictRequiredTest < ActionDispatch::IntegrationTest
-  %w[/documents /meetings /committees /parties /statistics].each do |path|
+  %w[/documents /meetings /committees /parties].each do |path|
     test "GET #{path} without a district is a 404" do
       get path
 

@@ -5,18 +5,18 @@ import "leaflet"
 // Leaflet sets tooltip content as HTML.
 const escape = (text) => text.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char])
 
-// A district's Stadtteile shaded by Drucksachen per resident (QuarterChoropleth
-// gives the features, colours included). Hovering names a Stadtteil and its
-// figures, clicking opens its page. A Stadtteil wide enough on screen carries
-// its name as a label; the rest show it on hover only.
+// Stadtteile or Bezirke shaded by Drucksachen per resident (Choropleth gives
+// the features, colours included). Hovering names a place and its figures,
+// clicking opens its page. A place wide enough on screen carries its name as a
+// label; the rest show it on hover only.
 //
 // The table next to the map holds the same figures for keyboards and screen
 // readers, which cannot reach the shapes.
 export default class extends Controller {
   static targets = ["container"]
-  // bounds is the district's own box: Hamburg-Mitte includes Neuwerk, an
-  // island 100 km out in the North Sea, and fitting every shape would show
-  // the district as a speck. Neuwerk stays in the table.
+  // bounds is the district's or the city's own box: Hamburg-Mitte includes
+  // Neuwerk, an island 100 km out in the North Sea, and fitting every shape
+  // would show the rest as a speck. Neuwerk stays in the table.
   static values = { features: Array, bounds: Array }
 
   // Room a label needs, in pixels: roughly its text at 12px semibold. The
@@ -77,8 +77,8 @@ export default class extends Controller {
     return `<strong>${area}</strong><br>${feature.count.toLocaleString("de-DE")} Drucksachen<br>${rate}`
   }
 
-  // A label goes on the point farthest from the Stadtteil's edges (label is
-  // [lng, lat, radius] from Quarter#label_point), if the circle that fits
+  // A label goes on the point farthest from the place's edges (label is
+  // [lng, lat, radius] from PolygonShape#label_point), if the circle that fits
   // there is wide enough for most of the name.
   drawLabels() {
     this.labels.clearLayers()
@@ -91,7 +91,7 @@ export default class extends Controller {
       const width = (feature.name.length + 2) * this.constructor.CHAR_WIDTH
       if (diameter < width * this.constructor.LABEL_FIT || diameter < this.constructor.LABEL_HEIGHT) continue
 
-      const className = `quarter-choropleth-label${feature.light_text ? " text-white" : ""}`
+      const className = `choropleth-label${feature.light_text ? " text-white" : ""}`
       L.tooltip({ permanent: true, direction: "center", className, interactive: false })
         .setLatLng([lat, lng])
         .setContent(escape(feature.name))

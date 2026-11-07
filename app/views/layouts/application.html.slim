@@ -62,7 +62,7 @@ html lang='de'
             li.nav-item
               = link_to 'Fraktionen/Gruppen', parties_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
             li.nav-item
-              = link_to 'Statistik', statistics_path, class: "nav-link #{@district.present? ? nil : 'disabled'}"
+              = link_to 'Statistik', statistics_path, class: "nav-link"
 
           ul.navbar-nav
             li.nav-item.dropdown

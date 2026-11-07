@@ -69,7 +69,7 @@ class DistrictStatisticsTest < ActiveSupport::TestCase
     assert_equal 1, areas['Groß Borstel'].count, 'a place in it'
     assert_equal 2, areas['Barmbek-Nord'].count, 'document_7 both ways, document_227 by its place'
     assert_not areas.key?('Lokstedt'), 'Lokstedt is in Eimsbüttel'
-    assert_equal QuarterPopulation::RESIDENTS['Ohlsdorf'], areas['Ohlsdorf'].residents
+    assert_equal Population::RESIDENTS['Ohlsdorf'], areas['Ohlsdorf'].residents
   ensure
     Quarter.reset!
   end

@@ -1,0 +1,16 @@
+/ Places shaded by Drucksachen per resident, with the legend. choropleth is a
+/ Choropleth, url gives a shape's page, bounds the box to show and unit what
+/ the shapes are ("Stadtteil", "Bezirk").
+div data-controller='choropleth' data-choropleth-features-value=choropleth.features(url).to_json data-choropleth-bounds-value=bounds.to_json
+  .choropleth.rounded.border data-choropleth-target='container'
+.small.text-secondary.mt-2
+  ' Drucksachen je 10.000 Menschen, die im #{unit} wohnen:
+ul.list-inline.small.mb-0
+  - choropleth.shades.each do |shade|
+    li.list-inline-item.me-3
+      span.legend-swatch style="background-color: #{shade.color}"
+      = shade.label
+  - if choropleth.no_rate?
+    li.list-inline-item
+      span.legend-swatch style="background-color: #{Choropleth::NO_RATE}"
+      ' zu wenige Einwohner

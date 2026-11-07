@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-# A district's Stadtteile shaded by Drucksachen per resident, for the map on
-# the district and statistics pages (quarter_choropleth_controller.js).
+# ChoroplethAreas shaded by Drucksachen per resident: a district's Stadtteile
+# on the district and statistics pages, the Bezirke on the statistics page for
+# all of Hamburg (choropleth_controller.js).
 #
-# The shades split the district's own rates into quantiles, so each map uses
-# its whole ramp; they are not comparable from one district to the next.
-class QuarterChoropleth
+# The shades split the map's own rates into quantiles, so each map uses its
+# whole ramp; they are not comparable from one map to the next.
+class Choropleth
   # One sequential hue, light to dark. Areas without a rate get NO_RATE.
   RAMP = %w[#cde2fb #86b6ef #3987e5 #1c5cab #0d366b].freeze
   NO_RATE = '#d3d2ce'
@@ -51,21 +52,21 @@ class QuarterChoropleth
     areas.sort_by { |area| [area.rate ? 0 : 1, -(area.rate || area.count), area.name] }
   end
 
-  # One feature per Stadtteil for the map. url gives a Quarter's page.
+  # One feature per shape for the map. url gives a shape's page.
   def features(url)
     areas.flat_map do |area|
       color = color(area)
-      area.quarters.map do |quarter|
+      area.shapes.map do |shape|
         {
-          name: quarter.name,
+          name: shape.name,
           area: area.name,
-          path: url.call(quarter),
+          path: url.call(shape),
           count: area.count,
           rate: area.rate&.round,
           color:,
           light_text: RAMP.index(color).to_i >= LIGHT_TEXT_FROM,
-          polygons: quarter.simplified_geometry,
-          label: quarter.label_point,
+          polygons: shape.simplified_geometry,
+          label: shape.label_point,
         }
       end
     end

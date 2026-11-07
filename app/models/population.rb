@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# Residents per Stadtteil, so a map can shade Stadtteile by Drucksachen per
-# resident rather than by raw count, which mostly follows size.
+# Residents per Stadtteil and per Bezirk, so a map can shade them by
+# Drucksachen per resident rather than by raw count, which mostly follows size.
 #
 # Statistikamt Nord, "Hamburger Stadtteil-Profile", Berichtsjahr 2025,
 # population on 31 December 2025:
@@ -9,8 +9,9 @@
 # (listed on https://www.statistik-nord.de/stadtteilprofile).
 #
 # Four pairs of thinly populated Stadtteile are counted together there and
-# share one figure here (AREAS). Neuwerk has none.
-class QuarterPopulation
+# share one figure here (AREAS). Neuwerk has none. The Bezirke have figures of
+# their own there, which include residents no Stadtteil is given.
+class Population
   AS_OF = Date.new(2025, 12, 31)
 
   # In the source's order, by Bezirk.
@@ -116,7 +117,17 @@ class QuarterPopulation
     'Cranz' => 857,
   }.freeze
 
-  # The combined entries above, and the Stadtteile they stand for.
+  DISTRICT_RESIDENTS = {
+    'Hamburg-Mitte' => 315_320,
+    'Altona' => 283_232,
+    'Eimsbüttel' => 278_426,
+    'Hamburg-Nord' => 332_153,
+    'Wandsbek' => 457_027,
+    'Bergedorf' => 134_434,
+    'Harburg' => 179_693,
+  }.freeze
+
+  # The combined entries in RESIDENTS, and the Stadtteile they stand for.
   AREAS = {
     'Kleiner Grasbrook und Steinwerder' => ['Kleiner Grasbrook', 'Steinwerder'],
     'Waltershof und Finkenwerder' => %w[Waltershof Finkenwerder],

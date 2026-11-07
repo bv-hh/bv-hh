@@ -87,4 +87,27 @@ class DistrictTest < ActiveSupport::TestCase
     Nokogiri::HTML.parse(source.dup.force_encoding('ISO-8859-1'))
                   .css('tr.zl12 a').first['href'][/VOLFDNR=(\d+)/, 1].to_i
   end
+
+  test 'draws its outline without holes' do
+    district = districts(:hamburg_nord)
+    outline = [[[[9.0, 53.0], [10.0, 53.0], [10.0, 54.0], [9.0, 54.0], [9.0, 53.0]],
+                [[9.4, 53.4], [9.6, 53.4], [9.6, 53.6], [9.4, 53.4]]]]
+
+    district.define_singleton_method(:outline) { outline }
+
+    assert_equal [[outline.first.first]], district.send(:polygons)
+    assert_operator district.label_point.last, :>, 0
+  end
+
+  test 'city bounds take in the box of every district' do
+    bounds = District.city_bounds
+
+    District.all.reject { |district| district.bounds.flatten.any?(&:nil?) }.each do |district|
+      (ne_lat, ne_lng), (sw_lat, sw_lng) = district.bounds
+      assert_operator bounds[0][0], :>=, ne_lat
+      assert_operator bounds[0][1], :>=, ne_lng
+      assert_operator bounds[1][0], :<=, sw_lat
+      assert_operator bounds[1][1], :<=, sw_lng
+    end
+  end
 end

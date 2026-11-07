@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# A Stadtteil, or two that the population figures count together (see
-# QuarterPopulation), with the number of Drucksachen concerning it and its
-# residents.
-class QuarterArea < Data.define(:quarters, :count, :residents)
-  # Below this the rate says more about chance than about the Stadtteil: a
+# What a Choropleth shades: a Stadtteil, two Stadtteile the population
+# figures count together, or a Bezirk (shapes, each with a name and a
+# PolygonShape), with its Drucksachen and residents.
+class ChoroplethArea < Data.define(:shapes, :count, :residents)
+  # Below this the rate says more about chance than about the place: a
   # harbour area with a few hundred residents and a dozen Drucksachen would
   # top every district.
   MIN_RESIDENTS = 2_000
@@ -13,11 +13,11 @@ class QuarterArea < Data.define(:quarters, :count, :residents)
 
   # "Waltershof und Finkenwerder"
   def name
-    quarters.map(&:name).to_sentence
+    shapes.map(&:name).to_sentence
   end
 
   def combined?
-    quarters.size > 1
+    shapes.size > 1
   end
 
   # Drucksachen per PER_RESIDENTS residents, or nil where there are too few.
