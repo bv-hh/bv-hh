@@ -3,13 +3,15 @@
   = @document.kind
 
 - attachments = @document.attached.present? || @document.attachments.present?
-- agenda_items = @document.agenda_items.by_meeting
+- agenda_items = @document.agenda_items.by_meeting.to_a
 - links = @document.links.transform_values { |documents| documents.for_list.to_a }
 - related_documents, referenced_documents, citing_documents = links.values_at(:same, :referenced, :citing)
 - linked = links.values.flatten
 - similar_documents = @document.similar_documents(exclude: (referenced_documents + citing_documents).map(&:id))
 
-- if item = agenda_items.first
+/ The same pick as in lists, and with deciding_agenda_item below it agrees on
+/ ties, so both lines never name the same decision twice.
+- if item = @document.latest_agenda_item(agenda_items)
   p
     ' Letzte Beratung:
     => l item.meeting.date
@@ -20,6 +22,20 @@
       = meeting_result_badge(item)
     - else
       = item.number
+
+/ The meeting that decided can lie before the latest, which may have recorded
+/ nothing or only put it off (Document#deciding_agenda_item). When it is the
+/ latest, the badge above says it already.
+- deciding = @document.deciding_agenda_item(agenda_items)
+- if deciding && deciding != item
+  p
+    ' Stand:
+    => meeting_result_badge(deciding)
+    => MeetingHelper::OUTCOME_LABELS[deciding.outcome].label
+    ' ·
+    => link_to deciding.meeting.committee&.name || deciding.meeting.title, meeting_path(deciding.meeting)
+    ' ·
+    = l deciding.meeting.date
 
 .row
   .col-md-8

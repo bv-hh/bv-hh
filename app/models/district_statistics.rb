@@ -50,15 +50,14 @@ class DistrictStatistics
     @district = district
   end
 
+  # AgendaItem::OUTCOMES that settle an Antrag => how the statistics count it.
+  # The rest (vertagt, überwiesen, zurückgestellt) settle nothing.
+  SETTLED_AS = { adopted: :adopted, amended: :adopted, rejected: :rejected, noted: :withdrawn, withdrawn: :withdrawn }.freeze
+
   # The decision an agenda item records, as one of OUTCOMES, or nil when it
-  # settles nothing: vertagt, überwiesen, zurückgestellt. "ungeändert
-  # beschlossen / überwiesen" is a decision with a copy sent elsewhere.
+  # settles nothing.
   def self.outcome(decision)
-    case decision
-    when /abgelehnt/i then :rejected
-    when /beschlossen/i then :adopted
-    when /zurückgezogen|erledigt|zur Kenntnis/i then :withdrawn
-    end
+    SETTLED_AS[AgendaItem::OUTCOMES[decision]]
   end
 
   def documents
@@ -202,10 +201,12 @@ class DistrictStatistics
   end
 
   # { Antrag id => outcome }. The latest decision that settles the Antrag
-  # counts, so a later "vertagt" in another committee does not reopen it.
+  # counts, so a later "vertagt" in another committee does not reopen it: the
+  # rule of Document#deciding_agenda_item, here in one query for all.
   def outcomes
     @outcomes ||= begin
       decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id)).where.not(decision: nil)
+                            .where.not(meetings: { date: nil })
                             .order('meetings.date DESC, agenda_items.id DESC').pluck(:document_id, :decision)
 
       decisions.group_by(&:first).transform_values do |rows|

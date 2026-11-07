@@ -78,6 +78,45 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'button[data-bs-target="#related-citing"]', text: '2 weitere'
   end
 
+  test 'GET show says where it stands by the meeting that decided, not a later one that recorded nothing' do
+    travel_to Time.zone.local(2026, 6, 15, 12)
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    [[10.weeks.ago, 'ungeändert beschlossen'], [2.weeks.ago, nil]].each do |time, decision|
+      meeting = Meeting.create!(committee:, district: committee.district, date: time.to_date, title: 'Sitzung', allris_id: rand(1_000_000))
+      AgendaItem.create!(meeting:, document:, decision:, title: document.title)
+    end
+
+    get document_path(document, district: document.district)
+
+    assert_select 'p', text: /Stand:\s+beschlossen\s+·\s+#{Regexp.escape(committee.name)}\s+·\s+#{I18n.l(10.weeks.ago.to_date)}/
+  end
+
+  test 'GET show names a decision on the latest day once, whichever item comes first' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    meeting = Meeting.create!(committee:, district: committee.district, date: Date.new(2026, 5, 4), title: 'Sitzung', allris_id: 9_999_002)
+    2.times { AgendaItem.create!(meeting:, document:, decision: 'ungeändert beschlossen', title: document.title) }
+
+    get document_path(document, district: document.district)
+
+    assert_select 'p', text: /Stand:/, count: 0
+  end
+
+  test 'GET show dates a compact row by its latest meeting, as it shows no decision' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    citing = Document.create!(district: document.district, number: '21-9997', title: 'Nennt', allris_id: 9_997, full_text: 'Drs. 21-4776')
+    [[Date.new(2026, 3, 2), 'ungeändert beschlossen'], [Date.new(2026, 5, 4), nil]].each_with_index do |(date, decision), index|
+      meeting = Meeting.create!(committee:, district: committee.district, date:, title: 'Sitzung', allris_id: 9_999_010 + index)
+      AgendaItem.create!(meeting:, document: citing, decision:, title: citing.title)
+    end
+
+    get document_path(document, district: document.district)
+
+    assert_select '.list-group-item', text: /21-9997.*#{I18n.l(Date.new(2026, 5, 4))}/m
+  end
+
   test 'GET allris redirects to the document' do
     document = documents(:document_7)
     get allris_documents_path(district: districts.first, allris_id: document.allris_id)

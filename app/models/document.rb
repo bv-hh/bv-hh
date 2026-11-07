@@ -329,10 +329,24 @@ class Document < ApplicationRecord
   # dates the Drucksache in lists; created_at would not, as it is when BV-HH
   # imported it. Of several on one day the one with a decision, then the last
   # imported, so the choice does not depend on load order. Load agenda_items
-  # with their meetings first.
-  def latest_agenda_item
-    agenda_items.select { |item| item.meeting&.date }
-                .max_by { |item| [item.meeting.date, item.decision.present? ? 1 : 0, item.id] }
+  # with their meetings first, or pass them.
+  def latest_agenda_item(items = agenda_items)
+    items.select { |item| item.meeting&.date }
+         .max_by { |item| [item.meeting.date, item.decision.present? ? 1 : 0, item.id] }
+  end
+
+  # The agenda item whose decision says where the Drucksache stands: the latest
+  # that settles it, so a later "vertagt" in another committee does not reopen
+  # it, or else the latest with any decision. DistrictStatistics counts by the
+  # same rule. Load agenda_items with their meetings first, or pass them.
+  def deciding_agenda_item(items = agenda_items)
+    decided = items.select { |item| item.outcome && item.meeting&.date }.sort_by { |item| [item.meeting.date, item.id] }
+    decided.reverse.find(&:settling?) || decided.last
+  end
+
+  # One of AgendaItem::OUTCOMES' values, or nil without a known decision.
+  def outcome
+    deciding_agenda_item&.outcome
   end
 
   def needs_update?
@@ -532,7 +546,8 @@ class Document < ApplicationRecord
       updated_at: updated_at,
       district: district.name,
       topics: topics,
-      meetings: meetings.map do |meeting|
+      outcome: outcome&.to_s,
+      meetings: agenda_items.filter_map(&:meeting).uniq.map do |meeting|
         {
           id: meeting.id,
           title: meeting.title,

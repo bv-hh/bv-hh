@@ -18,7 +18,8 @@
 - compact = local_assigns.fetch(:compact, false)
 - words = local_assigns[:words]
 - title = document_title(document)
-- agenda_item = document.latest_agenda_item
+/ A compact row shows no decision, only the date of the latest meeting.
+- agenda_item = compact ? document.latest_agenda_item : listed_agenda_item(document)
 - meeting = agenda_item&.meeting
 - max_places = 3
 .list-group-item.px-0.text-break class=(compact ? 'py-2' : 'py-3')

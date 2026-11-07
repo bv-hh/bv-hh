@@ -41,6 +41,17 @@ class Mcp::DocumentsToolTest < ActiveSupport::TestCase
     assert_equal [{ id: citing.id, number: '21-9998', title: 'Nennt' }], result[:citing_documents]
   end
 
+  test 'call says where the document stands' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    meeting = Meeting.create!(committee:, district: committee.district, date: 3.weeks.ago.to_date, title: 'Sitzung', allris_id: 5)
+    AgendaItem.create!(meeting:, document:, decision: 'abgelehnt', title: document.title)
+
+    result = Mcp::DocumentsTool.call(identifier: document.id.to_s).structured_content
+
+    assert_equal 'rejected', result[:outcome]
+  end
+
   test 'call returns an error for an unknown district' do
     result = Mcp::DocumentsTool.call(identifier: '21-4776', district: 'atlantis').structured_content
 

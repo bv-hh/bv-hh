@@ -15,6 +15,7 @@ strong= location.name
 
 ul.map-popup-documents
   - documents.each do |document|
+    / Dated by the latest meeting, as MapQuery sorts and filters by it.
     - agenda_item = document.latest_agenda_item
     li
       = link_to document_title(document), document_path(document, district: document.district)

@@ -40,6 +40,7 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
       attached: { type: 'string', description: 'Information of attached files if any' },
       district: { type: 'string', description: 'The name of the district the document belongs to' },
       topics: TOPICS_OUTPUT,
+      outcome: OUTCOME_OUTPUT,
       meetings: { type: 'array', description: 'An array of meetings having this document on their agenda',
                   items: {
                     type: 'object',
@@ -79,10 +80,11 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
       return error_response('Invalid district provided.') if district.blank?
     end
 
+    documents = Document.complete.preload(:district, agenda_items: :meeting)
     document = if district.present?
-      district.documents.complete.find_by(number: identifier)
+      documents.find_by(district:, number: identifier)
     else
-      Document.complete.find_by(id: identifier)
+      documents.find_by(id: identifier)
     end
 
     return error_response('No document found with the provided identifier.') if document.blank?

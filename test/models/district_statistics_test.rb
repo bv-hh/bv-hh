@@ -30,6 +30,14 @@ class DistrictStatisticsTest < ActiveSupport::TestCase
     assert_nil outcomes[pending.id]
   end
 
+  test 'a meeting without a date does not count, as on the Drucksache page' do
+    undated = Meeting.create!(committee: committees(:rega_ewi), district: @district, title: 'Ohne Datum', allris_id: 9_999_001)
+    document = proposal('21-9001', 'ungeändert beschlossen' => meetings(:rega_ewi_oct), 'abgelehnt' => undated)
+
+    assert_equal :adopted, DistrictStatistics.new(@district).send(:outcomes)[document.id]
+    assert_equal :adopted, document.reload.outcome
+  end
+
   test 'counts every outcome and leaves undecided Anträge open' do
     before = @statistics.proposal_outcomes
     proposal('21-9001', 'abgelehnt' => meetings(:bv_oct))
