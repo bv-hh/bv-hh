@@ -4,7 +4,9 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
   description <<~MD
     Retrieves a document for a district council based on its unique identifier or reference number.
       The document includes metadata such as title, date, type, and associated meeting and/or
-      council information. If the document cannot be found, an error message is returned.
+      council information, and similar documents from any district, found by meaning rather than wording
+      (useful to see whether a matter was raised elsewhere before). If the document cannot be found, an
+      error message is returned.
       A district can be specified by name to narrow down the search when using a reference number, one of
       the following: Hamburg-Mitte, Altona, Eimsbüttel, Hamburg-Nord, Wandsbek, Bergedorf, Harburg.
   MD
@@ -37,6 +39,16 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
                       date: { type: 'string', description: 'The date of the meeting' },
                     },
                   } },
+      similar_documents: { type: 'array', description: 'Documents close in meaning, from any district, closest first',
+                           items: {
+                             type: 'object',
+                             properties: {
+                               id: { type: 'number', description: 'The unique identifier of the document' },
+                               number: { type: 'string', description: 'The reference number of the document' },
+                               title: { type: 'string', description: 'The title of the document' },
+                               district: { type: 'string', description: 'The district the document belongs to' },
+                             },
+                           } },
     }
   )
 
@@ -61,9 +73,16 @@ class Mcp::DocumentsTool < Mcp::ApplicationTool
 
     return error_response('No document found with the provided identifier.') if document.blank?
 
+    result = document.as_json.merge(similar_documents: similar(document))
     MCP::Tool::Response.new(
-      [{ type: 'text', text: document.to_json }],
-      structured_content: document.as_json
+      [{ type: 'text', text: result.to_json }],
+      structured_content: result
     )
+  end
+
+  def self.similar(document)
+    document.similar_documents.map do |similar|
+      { id: similar.id, number: similar.number, title: similar.title, district: similar.district.name }
+    end
   end
 end

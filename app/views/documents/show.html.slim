@@ -5,6 +5,7 @@
 - attachments = @document.attached.present? || @document.attachments.present?
 - agenda_items = @document.agenda_items.by_meeting
 - related_documents = @document.related_documents.order(:number).for_list
+- similar_documents = @document.similar_documents
 
 - if item = agenda_items.first
   p
@@ -73,6 +74,19 @@
           .list-group.list-group-flush
             - related_documents.each do |related_document|
               = render 'documents/item', document: related_document, compact: true
+
+    - if similar_documents.present?
+      .card.mt-3
+        .card-header.fw-bold
+          ' Ähnliche Drucksachen
+          span.badge.bg-info-subtle.text-info-emphasis.float-end Beta
+        .card-body.py-0
+          .list-group.list-group-flush
+            - similar_documents.each do |similar_document|
+              = render 'documents/item', document: similar_document, compact: true, district: @document.district
+          p.small.text-secondary.border-top.py-2.mb-0
+            | Aus allen Bezirken, automatisch nach inhaltlicher Nähe gefunden. Sie können dasselbe Anliegen betreffen
+              oder nur ein ähnliches Thema.
 
     .card.mt-3
       .card-header.fw-bold

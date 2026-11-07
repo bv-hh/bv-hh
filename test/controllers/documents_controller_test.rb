@@ -3,6 +3,9 @@
 require 'test_helper'
 
 class DocumentsControllerTest < ActionDispatch::IntegrationTest
+  # A test below adds a Bezirk, which District.lookup would keep after rollback.
+  teardown { District.instance_variable_set(:@districts, nil) }
+
   test 'GET index' do
     get documents_path(district: districts.first)
     assert_response :success
@@ -39,6 +42,20 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select '.card-header', text: /Themen/
     assert_select "a.rounded-pill[href='#{topic_path(topic: 'spielplaetze', district: document.district)}']", text: 'Spielplätze'
+  end
+
+  test 'GET show lists similar Drucksachen with the Bezirk of those from elsewhere' do
+    document = documents(:document_7)
+    altona = District.create!(name: 'Altona', allris_base_url: 'https://sitzungsdienst-altona.hamburg.de', order: 2)
+    similar = Document.create!(district: altona, number: '22-0100', title: 'Spielplatz am Elbufer', allris_id: 1)
+    vector = Array.new(768, 0.0).tap { |v| v[0] = 1.0 }
+    [document, similar].each { |d| DocumentEmbedding.create!(document: d, model: DocumentEmbedder::NAME, digest: 'x', embedding: vector) }
+
+    get document_path(document, district: document.district)
+
+    assert_select '.card-header', text: /Ähnliche Drucksachen/
+    assert_select '.list-group-item', text: /22-0100 · Altona/
+    assert_select "a[href='#{document_path(similar, district: altona)}']", text: similar.title
   end
 
   test 'GET allris redirects to the document' do

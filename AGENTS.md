@@ -148,6 +148,10 @@ All schedules are in `config/initializers/good_job.rb`.
   (`rake embeddings:update`, resumable) and is moved over with
   `rake embeddings:export` / `rake "embeddings:import[file]"`, keyed by
   district and ALLRIS id; the import skips rows whose text differs there.
+- **Querying embeddings:** an HNSW scan returns at most `hnsw.ef_search`
+  rows (default 40) and applies a `WHERE` only after the scan, so a filtered
+  nearest-neighbour query silently comes back short. Raise it with
+  `SET LOCAL` as `SimilarDocuments` does.
 
 Keep heavy work, migrations and deploys clear of the nightly jobs (23:15 and
 04:07 UTC).
