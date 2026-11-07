@@ -150,14 +150,13 @@ class DistrictStatistics
          .map { |topic, _count| [topic, tally(by_topic[topic.key])] }
   end
 
-  # [Quarter, count] for every Stadtteil of the district, most named first.
-  def quarter_counts
-    @quarter_counts ||= begin
-      tagged = documents.select('unnest(documents.quarters) AS quarter')
-      counts = Document.unscoped.from(tagged, :tagged).group('tagged.quarter').count
-
-      Quarter.in_district(district.number).by_name.map { |quarter| [quarter, counts.fetch(quarter.name, 0)] }
-             .sort_by { |quarter, count| [-count, quarter.name] }
+  # The district's Stadtteile as QuarterAreas: one each, except where the
+  # population figures count two together.
+  def quarter_areas
+    @quarter_areas ||= quarters.group_by { |quarter| QuarterPopulation.area(quarter.name) || [[quarter.name], nil] }
+                               .map do |(_names, residents), members|
+      count = members.map { |quarter| quarter_documents[quarter.name] }.reduce(:|).size
+      QuarterArea.new(quarters: members, count:, residents:)
     end
   end
 
@@ -178,6 +177,23 @@ class DistrictStatistics
   def first_meetings(scope, before:)
     scope.joins(agenda_items: :meeting).where(meetings: { date: ...before })
          .group('documents.id').select('documents.topics, MIN(meetings.date) AS first_date')
+  end
+
+  def quarters
+    @quarters ||= Quarter.cached_in_district(district.number)
+  end
+
+  # { Stadtteil name => ids of the Drucksachen concerning it }
+  def quarter_documents
+    @quarter_documents ||= begin
+      named = documents.pluck(Arel.sql('unnest(documents.quarters)'), :id)
+      placed = DocumentLocation.joins(:location).where(document_id: documents.select(:id))
+                               .pluck(Arel.sql('unnest(locations.quarters)'), :document_id)
+
+      (named + placed).each_with_object(Hash.new { |hash, name| hash[name] = Set.new }) do |(name, id), ids|
+        ids[name] << id
+      end
+    end
   end
 
   # { Antrag id => its topic keys }

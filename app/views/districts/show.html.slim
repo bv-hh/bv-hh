@@ -82,6 +82,22 @@
         = render 'topics/bars', items: @topic_counts, top: DistrictsController::TOP_TOPICS,
                  url: ->(topic) { topic_path(topic:) }
 
+  / The figures change only with the hourly sync.
+  - cache ['quarter_choropleth', @district], expires_in: 1.hour do
+    - choropleth = QuarterChoropleth.new(DistrictStatistics.new(@district).quarter_areas)
+    - if choropleth.any?
+      section.mb-5
+        .row.g-4
+          .col-lg-4
+            h2 Wo beraten wird
+            p.text-secondary
+              ' Wie viele Drucksachen der laufenden Wahlperiode einen Stadtteil oder einen Ort darin nennen,
+                gemessen an den Menschen, die dort wohnen.
+            p.small.text-secondary= render 'quarters/population_source'
+            = link_to 'Alle Zahlen zu den Stadtteilen', statistics_path(anchor: 'orte')
+          .col-lg-8
+            = render 'quarters/choropleth', choropleth:, district: @district
+
   = render 'pages/participation', heading: "Mitmachen in #{@district.name}"
 
   section.mb-5

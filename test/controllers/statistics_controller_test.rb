@@ -18,5 +18,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'h2', 'Wo es um Orte geht'
     assert_select 'a[href=?]', topic_path(topic: Topic.find('radverkehr'), district: districts(:hamburg_nord).to_param)
     assert_select 'a[href=?]', quarter_path(district: districts(:hamburg_nord), quarter: 'ohlsdorf')
+    assert_select '[data-controller=quarter-choropleth]'
+    assert_select 'a[href=?]', 'https://www.statistik-nord.de/stadtteilprofile'
   end
 end

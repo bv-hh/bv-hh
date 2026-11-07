@@ -55,16 +55,23 @@ class DistrictStatisticsTest < ActiveSupport::TestCase
     assert_nil @statistics.adoption_rate
   end
 
-  test 'lists every Stadtteil of the district, most named first' do
-    documents(:document_7).update!(quarters: %w[Ohlsdorf Lokstedt])
+  test 'a Drucksache concerns a Stadtteil it names or a place in it, counted once' do
+    Quarter.reset!
+    # document_7 has places in Barmbek-Nord and Groß Borstel, and now names
+    # Barmbek-Nord outright too, and Lokstedt, which is in Eimsbüttel.
+    # document_227 has a place in Barmbek-Nord.
+    documents(:document_7).update!(quarters: %w[Barmbek-Nord Lokstedt])
     documents(:document_4).update!(quarters: ['Ohlsdorf'])
 
-    counts = DistrictStatistics.new(@district).quarter_counts.to_h { |quarter, count| [quarter.name, count] }
+    areas = DistrictStatistics.new(@district).quarter_areas.index_by(&:name)
 
-    assert_equal 2, counts['Ohlsdorf']
-    assert_equal 0, counts['Barmbek-Nord']
-    assert_not counts.key?('Lokstedt'), 'Lokstedt is in Eimsbüttel'
-    assert_equal 'Ohlsdorf', counts.keys.first
+    assert_equal 1, areas['Ohlsdorf'].count, 'named'
+    assert_equal 1, areas['Groß Borstel'].count, 'a place in it'
+    assert_equal 2, areas['Barmbek-Nord'].count, 'document_7 both ways, document_227 by its place'
+    assert_not areas.key?('Lokstedt'), 'Lokstedt is in Eimsbüttel'
+    assert_equal QuarterPopulation::RESIDENTS['Ohlsdorf'], areas['Ohlsdorf'].residents
+  ensure
+    Quarter.reset!
   end
 
   test 'counts a Drucksache once, however many meetings discussed it' do
