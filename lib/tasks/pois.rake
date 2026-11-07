@@ -5,7 +5,10 @@ namespace :pois do
   # cached as they arrive, so a run that loses one to a 504 can be re-run and
   # will retry only what is missing. Nothing is written to the table until the
   # set is complete — a partial import would silently delete a whole category,
-  # since the import empties the table first.
+  # since the import empties the table first. The answers live in tmp/pois and
+  # expire after PoiImporter::CACHE_TTL; pois:clear_cache forces a full
+  # re-fetch. Endpoints rotate on failure. Instead of Overpass, a local osmium
+  # GeoJSON export can be read: rake "pois:import[pois.geojson]".
   desc 'Import named OpenStreetMap features in Hamburg into the POI gazetteer'
   task :import, [:path] => :environment do |_task, args|
     importer = PoiImporter.new(path: args[:path].presence)

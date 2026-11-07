@@ -38,6 +38,18 @@ Bürgerschaft and the Senat. Material from the Bürgerschaft belongs here only
 where it concerns a place in a district. `/district-politics` explains this
 for residents.
 
+**What follows for the design**
+- Centre pages on topics, places (Stadtteile, streets), decisions and their
+  outcomes, meetings people can attend, and ways to take part. Residents ask
+  "what is decided where I live?"; insiders want the newest Drucksache or the
+  next agenda in two taps.
+- Write for residents without prior knowledge: explain a term such as
+  Drucksache or Fragestunde where it first matters, and don't assume they know
+  which committee handles what.
+- Keep parties, Fraktionen and individual politicians out of highlights: no
+  seat bars, no party names in featured titles. The party charts at the end of
+  the district statistics page are the exception and stay there.
+
 **Limits**
 - Public data only. Closed sessions and documents for elected members stay in
   ALLRIS.
@@ -48,86 +60,67 @@ for residents.
   a name are usually granted and listed on `/transparency`. Don't build
   features that put individual people at the centre.
 
-## Essential Commands
+## Glossary
 
-### Development
-- `rails server` or `rails s` - Start the development server
-- `bundle install` - Install Ruby dependencies
-- `yarn install` - Install JavaScript dependencies
-- `bundle exec rails db:migrate` - Run database migrations
-- `bundle exec rails db:seed` - Seed the database with initial data
+The UI is German, the code English.
 
-### Testing
-- `bundle exec rails test` - Run unit tests
-- `bundle exec rails test:system` - Run system tests
+| UI | Code |
+|---|---|
+| Bezirk | `District` |
+| Stadtteil | `Quarter` |
+| Drucksache | `Document` |
+| Sitzung | `Meeting` |
+| Tagesordnungspunkt (TOP) | `AgendaItem` |
+| Ausschuss | `Committee` |
+| Bezirksversammlung (the plenary) | `Committee.assembly`, `Meeting.of_assembly` |
+| Ort | `Location`, resolved against `Street` / `Poi` (geo registers) |
+| Thema | `Topic` (20, defined in `config/topics.yml`) |
+| Wahlperiode | the five-year legislative period |
 
-### Code Quality
-- `bundle exec rubocop` - Run Ruby linter/formatter. Run it on the whole
-  project: naming files explicitly overrides the `db/**/*` exclude and reports
-  offenses in migrations and `schema.rb` that CI never checks.
-- `bundle exec rails assets:precompile` - Precompile assets
+## Commands
 
-### Database
-- `bundle exec rails db:create` - Create database
-- `bundle exec rails db:schema:load` - Load database schema
-- `bundle exec rails console` - Access Rails console
+```bash
+bin/rails test                                   # unit, controller, model tests
+bin/rails test test/models/document_test.rb:42   # one file or test
+bin/rails test:system                            # system tests (Chrome)
+bundle exec rubocop                              # lint
+```
 
-## Architecture Overview
+Run rubocop on the whole project: naming files explicitly overrides the
+`db/**/*` exclude and reports offenses in migrations and `schema.rb` that CI
+never checks. CI (`.github/workflows/main.yml`) runs lint, unit tests, system
+tests and the asset build. Setting up a local copy is described in
+`README.md`.
 
-This is a Ruby on Rails application for Hamburg's district assembly parliamentary database (BV-HH). It provides an alternative web interface for accessing meeting data, documents, and agendas from Hamburg's district assemblies.
+## Workflow
 
-### Product direction
-The goal is to make Hamburg's district politics accessible and transparent for
-both target groups (see Background):
-- Centre designs on topics, places (Stadtteile, streets), decisions and their
-  outcomes, meetings people can attend, and ways to take part. Residents ask
-  "what is decided where I live?"; insiders want the newest Drucksache or the
-  next agenda in two taps.
-- Write for residents without prior knowledge: explain a term such as
-  Drucksache or Fragestunde where it first matters, and don't assume they know
-  which committee handles what.
-- Keep parties, Fraktionen and individual politicians out of highlights: no
-  seat bars, no party names in featured titles. The party charts at the end of
-  the district statistics page are the exception and stay there.
-- The UI is German, the code English. Domain terms map as: Bezirk = `District`,
-  Stadtteil = `Quarter`, Drucksache = `Document`, Sitzung = `Meeting`,
-  Tagesordnungspunkt (TOP) = `AgendaItem`, Ausschuss = `Committee`. The
-  Bezirksversammlung is the district's plenary (`Committee.assembly`,
-  `Meeting.of_assembly`); a Wahlperiode is the five-year legislative period.
+- Branch off `main`, one PR per change. Check the current branch before every
+  commit; never commit to `main` directly.
+- Commit subjects are full English sentences in the imperative, without a
+  prefix: "Map each district's Stadtteile by Drucksachen per resident".
+- The maintainer merges. Merging does not deploy (see Production).
 
-### Core Models
-- **District** - Represents Hamburg districts with boundaries and meeting data
-- **Meeting** - Council meetings with agendas and protocols
-- **Document** - Parliamentary documents and attachments
-- **Committee** - District committees organizing meetings
-- **AgendaItem** - Individual agenda items within meetings
-- **Location** - A place a document names, resolved against the geo registers
-- **Quarter** - Stadtteil, with its ALKIS boundary
-- **Street**, **Poi** - The geo registers (see below)
-- **Topic** - The 20 topics a document can be tagged with (see below)
+## Architecture
 
-### Key Features
-- Document parsing and text extraction
-- Location extraction against local registers; maps with Leaflet and
-  OpenStreetMap tiles (not Google Maps)
-- Search functionality across documents and meetings
-- Background job processing with GoodJob
-- Multi-district support with URL routing
+Rails 8.1, PostgreSQL with `pgvector`, Slim views, Bootstrap 5.3 with Sass,
+Stimulus and importmap, GoodJob for background jobs, Capistrano for deploys.
+Maps use Leaflet with OpenStreetMap tiles; no Google service is used any more.
 
-### Job Processing
-Uses GoodJob for background processing:
-- Document synchronization from Allris
-- Text extraction and NLP processing
-- Location extraction and geocoding
-- Re-fetching documents parsed by an older parser (`RefetchDocumentsJob`,
+### Jobs
+
+All schedules are in `config/initializers/good_job.rb`.
+
+- **Sync from ALLRIS:** `CheckForDocumentUpdatesJob` (hourly) and
+  `CheckForMeetingUpdatesJob` find new Drucksachen and meetings; the
+  `Update*Job`s refresh recent documents and today's meetings. Per document,
+  further jobs extract attachment text, places and topics.
+- **Re-fetching documents parsed by an older parser** (`RefetchDocumentsJob`,
   nightly from 23:15 UTC for `RefetchDocumentsJob::WINDOW`, one request at a
-  time per district). Bump
-  `Parsing::VERSION` when a parser change alters what is stored for a document.
-  Fetched pages are kept in `allris_pages`, so after a bump
-  `rake documents:reparse` updates every document that has one without asking
-  ALLRIS; the nightly job fetches only the rest.
-
-- Embedding documents (`EmbedDocumentsJob`, nightly 04:07 UTC) with
+  time per district). Bump `Parsing::VERSION` when a parser change alters what
+  is stored for a document. Fetched pages are kept in `allris_pages`, so after
+  a bump `rake documents:reparse` updates every document that has one without
+  asking ALLRIS; the nightly job fetches only the rest.
+- **Embedding documents** (`EmbedDocumentsJob`, nightly 04:07 UTC) with
   `multilingual-e5-base` run locally via ONNX. The model takes ~0.8 GB, so the
   job starts `rake embeddings:update` as a separate process instead of loading
   it into the worker. The first run downloads the model (~280 MB) into
@@ -136,58 +129,20 @@ Uses GoodJob for background processing:
   `rake embeddings:export` / `rake "embeddings:import[file]"`, keyed by
   district and ALLRIS id; the import skips rows whose text differs there.
 
-All schedules are in `config/initializers/good_job.rb`. Documents sync hourly.
 Keep heavy work, migrations and deploys clear of the nightly jobs (23:15 and
 04:07 UTC).
 
-### External Dependencies
-- PostgreSQL database with the `pgvector` extension
-- ALLRIS of each district (scraped HTML) and OpenStreetMap tiles. No Google
-  service is used any more.
-- Outside services block clients that send bursts of requests. Keep requests
-  sequential and paced, and try a scraper on a few pages before a full run.
+### MCP server
 
-### Testing Setup
-Requires PostgreSQL and Redis services for full test suite. The CI pipeline in `.github/workflows/main.yml` shows complete test environment setup.
+`POST /api/mcp` (`Mcp::ServerController`, tools in `app/controllers/mcp/`) is a
+public interface without authentication, described on `/mcp`. A change to the
+queries behind search or documents changes what its tools return.
 
-### Development Notes
-- Uses Slim templating engine for views
-- Bootstrap 5 for styling with custom Sass
-- Stimulus for JavaScript controllers
-- Importmap for JavaScript module management
-- Capistrano for deployment
-- `annotate` (2.6.5) fails on Ruby 3.4 (`uninitialized constant Fixnum`).
-  Write the schema comment of a new model by hand.
-- The local development database is usually an older prod dump and may have
-  drifted from `db/schema.rb`. After `db:migrate`, commit only the schema
-  lines your migration added, not the whole dump.
-- Caching is off in development unless `tmp/caching-dev.txt` exists
-  (`rails dev:cache`), so cached paths need that switch to be seen locally.
-- A server on port 3000 may already be running with `tmp/pids/server.pid`.
-  Start a second one on another port with its own pid file
-  (`rails s -p 3111 -P tmp/pids/other.pid`) and stop it afterwards.
+### Outside services
 
-### UI conventions
-- Bootstrap 5.3 classes first; add custom Sass only where Bootstrap has
-  nothing. `$primary` is the brand red (`#e10019`), so `btn-primary`,
-  `bg-primary` and friends are red. The navy of the navbar (`$blue`,
-  `#003064`) is available as `.text-bg-brand`; links use `$light-blue`
-  (`#005ca9`).
-- Page heroes are `.card.p-4.p-lg-5.bg-body-tertiary`. A page with its own
-  search field in the hero sets `@hero_search`, and the layout then leaves out
-  the navbar search.
-- Chips for places, Stadtteile, topics and Bezirke come from `ChipHelper`.
-  Lists of Drucksachen render `documents/_item` (full or compact) and load
-  their rows with `Document.for_list`. `/kitchensink` shows all of them with
-  real records; the route does not exist in production.
-- Show only meetings the public can attend: `Meeting.open_to_public`. The
-  `committees.public` flag alone lets closed building and award committees
-  through.
-- Escape everything in map popups and other HTML built in JavaScript. Place
-  names come from OpenStreetMap, which anyone can edit.
-- The `(:district)` route scope is greedy: `/foo/bar` can be read as
-  district `foo`. Routes that must not be swallowed go above it (see the
-  comments in `config/routes.rb`).
+ALLRIS, Overpass and other sources block clients that send bursts of
+requests. Keep requests sequential and paced, and try a scraper on a few pages
+before a full run.
 
 ## Data quirks
 
@@ -207,11 +162,48 @@ Requires PostgreSQL and Redis services for full test suite. The CI pipeline in `
 - **A Drucksache counts for a Stadtteil** when it names the Stadtteil or one
   of its places lies inside it (`FeedQuery`). Counts and maps must use the
   same rule as the Stadtteil pages.
+- **Only some meetings are public.** Use `Meeting.open_to_public`; the
+  `committees.public` flag alone lets closed building and award committees
+  through.
 - **`agenda_items.decision` is empty** for many agenda items, especially in a
-  stale local database. Check outcomes and upcoming agendas against prod.
+  stale local database.
 - **Attachments are matched by name only.** When ALLRIS renames a file, the
   old attachment is deleted and its blob purged. Scanned PDFs have no text
   layer and get no text (there is no OCR).
+
+## Development notes
+
+- `annotate` (2.6.5) fails on Ruby 3.4 (`uninitialized constant Fixnum`).
+  Write the schema comment of a new model by hand.
+- The local development database is often an older prod dump and may have
+  drifted from `db/schema.rb`. After `db:migrate`, commit only the schema
+  lines your migration added, not the whole dump.
+- Caching is off in development unless `tmp/caching-dev.txt` exists
+  (`rails dev:cache`), so cached paths need that switch to be seen locally.
+- **Tests:** `District.lookup`, `District.by_number`, `Quarter` and the
+  gazetteers memoize per process. A test that changes such a row must clear
+  the memo, or the code under test keeps the old record. Time-dependent tests
+  use `travel_to`.
+
+### UI conventions
+
+- Bootstrap 5.3 classes first; add custom Sass only where Bootstrap has
+  nothing. `$primary` is the brand red (`#e10019`), so `btn-primary`,
+  `bg-primary` and friends are red. The navy of the navbar (`$blue`,
+  `#003064`) is available as `.text-bg-brand`; links use `$light-blue`
+  (`#005ca9`).
+- Page heroes are `.card.p-4.p-lg-5.bg-body-tertiary`. A page with its own
+  search field in the hero sets `@hero_search`, and the layout then leaves out
+  the navbar search.
+- Chips for places, Stadtteile, topics and Bezirke come from `ChipHelper`.
+  Lists of Drucksachen render `documents/_item` (full or compact) and load
+  their rows with `Document.for_list`. `/kitchensink` shows all of them with
+  real records; the route does not exist in production.
+- Escape everything in map popups and other HTML built in JavaScript. Place
+  names come from OpenStreetMap, which anyone can edit.
+- The `(:district)` route scope is greedy: `/foo/bar` can be read as
+  district `foo`. Routes that must not be swallowed go above it (see the
+  comments in `config/routes.rb`).
 
 ## Topics
 
@@ -222,34 +214,14 @@ thresholds set by `TopicCalibration`).
 
 - **Bump `Topic::VERSION`** after any rule change, then run
   `rake topics:reassign_later`. Changing only a `description` needs no bump.
-- **Measure against the gold sets** in `db/gold` (the README there has the
-  workflow and labelling rules). Read rule ideas off the tuning set's misses;
-  the test set is for measuring only, never for tuning. Precision matters more
+- **Measure against the gold sets** in `db/gold`; the README there has the
+  workflow and how to label. Read rule ideas off the tuning set's misses; the
+  test set is for measuring only, never for tuning. Precision matters more
   than recall.
-- **Labelling:** tag the main point(s) of a document, not aspects mentioned
-  along the way, but don't go minimal; the human labels average about 1.7
-  topics per document. An import never replaces a human label.
 - **Rollout:** classifiers are trained on a development machine
   (`rake topics:train`). After deploying, copy the `TopicModel` rows to prod
   (there is no task for that) and run `rake topics:reassign_later` there. The
   nightly embedding job also reclassifies new documents.
-
-## Production
-
-- Deploys run with `bundle exec cap production deploy`; merging a PR does not
-  deploy. Capistrano runs the migrations.
-- Prod is `deploy@bv-hh.de`, app in `/home/deploy/app/current` (rbenv). The
-  local database is stale, so current numbers come from a read-only script:
-  copy it to `/tmp` (`ssh deploy@bv-hh.de 'cat > /tmp/x.rb' < x.rb`), run
-  `cd /home/deploy/app/current && RAILS_ENV=production ~/.rbenv/bin/rbenv exec
-  bundle exec rails runner /tmp/x.rb`, and delete it afterwards. Anything that
-  writes to prod needs the maintainer's explicit go-ahead.
-- Prod runs PostgreSQL 18. Restore a prod dump with a matching `pg_restore`
-  (e.g. `docker run --network host postgres:18 pg_restore …`).
-- The `documents` table has about 240k rows on prod. A migration that rewrites
-  it locks the table for minutes: build indexes with
-  `algorithm: :concurrently`, set a short `lock_timeout`, and deploy in a quiet
-  hour.
 
 ## Geo registers
 
@@ -263,37 +235,31 @@ occasionally — there is no scheduled job.
 ```bash
 rake quarters:import   # 104 Stadtteil polygons, ALKIS WFS          (~2s)
 rake streets:import    # 9535 official street names, AdressService  (~40s)
-rake pois:import       # ~8000 named OpenStreetMap features         (~10min)
+rake pois:import       # ~8000 named OpenStreetMap features         (~10min, resumable)
 ```
 
 - **Restart web and workers afterwards.** `Quarter`, the Bezirk outlines and
   the gazetteers memoize per process; a process that touched one before the
   import keeps an empty memo.
 - **Import during a quiet window.** Each task does `delete_all` then re-inserts.
-- `pois:import` reads Overpass (one request per tag value, rotating endpoints on
-  failure) or a local osmium GeoJSON export: `rake "pois:import[pois.geojson]"`.
-- **It is resumable.** Answers are cached in `tmp/pois` as they arrive, so a run
-  that loses a query to a throttled instance can simply be re-run — only the
-  missing queries are retried. Nothing is written to the table until the set is
-  complete, because the import empties the table first and a partial set would
-  delete a whole category of places. `rake pois:clear_cache` forces a full
-  re-fetch; the cache expires by itself after three days.
-- `rake pois:coverage` reports which resolution step answers each extracted name
-  in the corpus. Read-only.
 - **After an import, `rake locations:reassign`, not `rake streets:reanalyze`.**
   Reanalysis re-reads every document and its attachments; an import mostly
   changes how a name resolves to a place, not which names were found.
   Reanalyse when the extraction itself changed, or after a POI or Stadtteil
   import that should find new names. `locations:sweep` needs neither — it
   enqueues exactly the documents it took a link from.
-- OpenStreetMap data is ODbL; the attribution is on `/imprint` and is required.
-- Residents per Stadtteil and Bezirk, for the maps shading them by Drucksachen per
-  resident, are hard-coded in `Population` from the Statistikamt Nord's
-  Stadtteil-Profile (source URL in the file). The attribution is on `/imprint`.
+- **Attribution is required** on `/imprint` for OpenStreetMap (ODbL), the
+  LGV registers, and the residents per Stadtteil and Bezirk hard-coded in
+  `Population` (Statistikamt Nord, source URL in the file).
 
-## Initial Setup
+## Production
 
-1. Create at least one district via `seeds.rb`
-2. Import the geo registers (see above)
-3. Run initial data sync: `CheckForDocumentUpdatesJob.perform_now(District.first)`
-4. Run meeting sync: `CheckForMeetingUpdatesJob.perform_now(District.first)`
+For maintainers; contributors have no access.
+
+- Deploys run with `bundle exec cap production deploy`; Capistrano runs the
+  migrations. Writes to prod, imports and deploys need the maintainer's
+  explicit go-ahead.
+- The `documents` table has about 240k rows on prod. A migration that rewrites
+  it locks the table for minutes: build indexes with
+  `algorithm: :concurrently`, set a short `lock_timeout`, and deploy in a quiet
+  hour.

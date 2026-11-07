@@ -51,6 +51,11 @@ lean on them.
 - A topic applies when the request, question or decision of the document is
   about it. A place or subject mentioned in passing does not count.
 - Assign every topic that applies. Usually one or two, sometimes none.
+- Tag the main point(s), not aspects that come along: a WC that is also
+  barrier-free is not Soziales, solar panels on a youth club are not Kinder &
+  Jugend. But don't go minimal either: the human labels average about 1.7
+  topics per document, and a blind re-label told to keep to "usually one"
+  (1.3 per document) lost about a fifth of the right tags.
 - Judge by the content, not by the committee it went to.
 - The topics and what each covers are in `config/topics.yml` (`label`,
   `description`). Money for a project counts as Sondermittel & Haushalt and
