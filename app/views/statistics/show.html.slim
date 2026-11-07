@@ -67,7 +67,7 @@
           ul.list-inline.small.mt-2
             - outcomes.each do |outcome, count|
               li.list-inline-item.me-3
-                span.outcome-swatch class="outcome-#{outcome}"
+                span.legend-swatch class="outcome-#{outcome}"
                 => DistrictStatistics::OUTCOMES[outcome]
                 span.text-secondary= number_with_delimiter(count)
 
@@ -83,19 +83,24 @@
                     = render 'outcome_bar', outcomes: topic_outcomes, label: topic.label
                   .col-2.text-end.small.text-secondary= number_with_delimiter(topic_outcomes.values.sum)
 
-  - quarters = @statistics.quarter_counts
-  - if quarters.any?
+  - choropleth = QuarterChoropleth.new(@statistics.quarter_areas)
+  - if choropleth.any?
     section#orte.mb-5
       .row.g-4
         .col-lg-4
           h2 Wo es um Orte geht
           p.text-secondary
-            ' Drucksachen, die einen Ort in diesem Stadtteil nennen. Eine Drucksache kann mehrere Stadtteile
+            ' Wie viele Drucksachen einen Stadtteil oder einen Ort darin nennen, gemessen an den Menschen, die dort
+              wohnen – sonst lägen die großen Stadtteile immer vorn. Eine Drucksache kann mehrere Stadtteile
               betreffen.
+          p.small.text-secondary
+            ' Die Farben teilen die Stadtteile des Bezirks in fünf etwa gleich große Gruppen.
+            = render 'quarters/population_source'
           = link_to 'Alle Orte auf der Karte', map_path
         .col-lg-8
-          = render 'ranking',
-                   items: quarters.map { |quarter, count| [quarter.name, count, quarter_path(district: @district, quarter: quarter.slug)] }
+          = render 'quarters/choropleth', choropleth:, district: @district
+          .mt-4
+            = render 'quarters/choropleth_table', choropleth:
 
   - monthly = @statistics.monthly_timeline
   - if monthly.any?

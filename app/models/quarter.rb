@@ -42,6 +42,11 @@ class Quarter < ApplicationRecord
   validates :key, presence: true
   validates :geometry, presence: true
 
+  # About 7 to 11 metres, in degrees.
+  SIMPLIFY_TOLERANCE = 0.0001
+  # Cells per side of the grid searched for a label point.
+  LABEL_GRID = 16
+
   scope :by_name, -> { order(:name) }
   scope :in_district, ->(number) { where(district_number: number) }
 
@@ -94,6 +99,12 @@ class Quarter < ApplicationRecord
       end
     end
 
+    # A district's Quarters by name, from the per-process cache, so what they
+    # memoize (simplified_geometry, label_point) is worked out once.
+    def cached_in_district(number)
+      all_cached.select { |quarter| quarter.district_number == number }
+    end
+
     # Drops the memoized polygons; call after (re)importing.
     def reset!
       @all_cached = nil
@@ -133,6 +144,33 @@ class Quarter < ApplicationRecord
     self.class.touching(self)
   end
 
+  # The boundary thinned for drawing a whole district at once: rounded like
+  # DistrictOutline and simplified to within SIMPLIFY_TOLERANCE, which takes a
+  # district's Stadtteile from 170 KB to about 12 KB. Same shape as geometry.
+  # Neighbours are simplified separately, so a shared edge can part by a few
+  # metres — invisible at the zoom that shows a whole district.
+  def simplified_geometry
+    @simplified_geometry ||= polygons.map do |rings|
+      rings.map { |ring| simplify(ring.map { |lng, lat| [lng.round(5), lat.round(5)] }) }
+    end
+  end
+
+  # Where a label on the map goes: [lng, lat, radius], the point of the
+  # largest polygon farthest from its edges, and that distance in degrees of
+  # latitude. A centroid can fall on a neighbour, or outside a crescent.
+  # A grid search, then a finer one around the best cell, is close enough
+  # for a label.
+  def label_point
+    @label_point ||= begin
+      rings = simplified_geometry.max_by { |polygon| ring_box_area(polygon.first) }
+      scale = Math.cos(rings.first.first.last * Math::PI / 180)
+      best = farthest_inside(rings, label_candidates(rings.first), scale) || rings.first.first
+      best = farthest_inside(rings, label_candidates(cell_around(best, rings.first)) + [best], scale)
+
+      [best[0].round(5), best[1].round(5), edge_distance(rings, best, scale).round(5)]
+    end
+  end
+
   # Every vertex of every ring, rounded so that the same point read twice
   # compares equal. Memoized on the cached instances, like the polygons.
   def boundary_points
@@ -148,6 +186,61 @@ class Quarter < ApplicationRecord
   end
 
   private
+
+  # Douglas–Peucker: keep the point farthest from the line between the ends
+  # if it strays more than the tolerance, and recurse on both halves.
+  def simplify(points)
+    return points if points.size < 3
+
+    first = points.first
+    last = points.last
+    distances = points[1...-1].map { |point| segment_distance(point, first, last) }
+    farthest = distances.each_with_index.max_by(&:first)
+    return [first, last] if farthest.first <= SIMPLIFY_TOLERANCE
+
+    index = farthest.last + 1
+    simplify(points[..index])[...-1] + simplify(points[index..])
+  end
+
+  # Points of a grid over the box around +points+, inside the polygon or not.
+  def label_candidates(points)
+    (min_lng, max_lng), (min_lat, max_lat) = points.transpose.map(&:minmax)
+    (0..LABEL_GRID).to_a.product((0..LABEL_GRID).to_a).map do |i, j|
+      [min_lng + ((max_lng - min_lng) * i / LABEL_GRID), min_lat + ((max_lat - min_lat) * j / LABEL_GRID)]
+    end
+  end
+
+  def farthest_inside(rings, points, scale)
+    points.select { |lng, lat| point_in_polygon?(rings, lat, lng) }.max_by { |point| edge_distance(rings, point, scale) }
+  end
+
+  # How far a point is from the nearest edge of the polygon, in degrees of
+  # latitude (longitude scaled by +scale+).
+  def edge_distance(rings, (lng, lat), scale)
+    point = [lng * scale, lat]
+    rings.map do |ring|
+      ring.each_cons(2).map { |(lng1, lat1), (lng2, lat2)| segment_distance(point, [lng1 * scale, lat1], [lng2 * scale, lat2]) }.min
+    end.min
+  end
+
+  # The corners of one grid cell either side of +point+.
+  def cell_around((lng, lat), ring)
+    step = ring.map(&:first).minmax.reduce(:-).abs / LABEL_GRID
+    [[lng - step, lat - step], [lng + step, lat + step]]
+  end
+
+  def ring_box_area(ring)
+    ring.transpose.map { |values| values.minmax.reduce(:-).abs }.reduce(:*)
+  end
+
+  # In degrees, which is fine for comparing against a tolerance this small.
+  def segment_distance((x, y), (x1, y1), (x2, y2))
+    dx = x2 - x1
+    dy = y2 - y1
+    length = (dx * dx) + (dy * dy)
+    t = length.zero? ? 0 : (((x - x1) * dx) + ((y - y1) * dy)).fdiv(length).clamp(0, 1)
+    Math.hypot(x - (x1 + (t * dx)), y - (y1 + (t * dy)))
+  end
 
   def within_bounds?(latitude, longitude)
     return true if min_lat.blank? # no precomputed box: fall through to the rings

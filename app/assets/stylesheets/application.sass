@@ -192,7 +192,29 @@ $outcome-colors: (adopted: #2a78d6, rejected: #d03b3b, withdrawn: #8a8986, open:
   &, .progress
     --bs-progress-height: 2rem
 
-.outcome-swatch
+// The map of a district's Stadtteile shaded by Drucksachen per resident
+// (quarter_choropleth_controller.js).
+.quarter-choropleth
+  height: 22rem
+
+  +media-breakpoint-up(md)
+    height: 30rem
+
+// A label on a Stadtteil: plain text on its shade, without Leaflet's bubble.
+.leaflet-tooltip.quarter-choropleth-label
+  background: none
+  border: none
+  box-shadow: none
+  padding: 0
+  font-size: .75rem
+  font-weight: 600
+  text-align: center
+
+  &::before
+    display: none
+
+// A colour key in a legend or table row.
+.legend-swatch
   display: inline-block
   width: .75rem
   height: .75rem

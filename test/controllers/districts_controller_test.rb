@@ -13,6 +13,8 @@ class DistrictsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'h1', text: 'Hamburg-Nord'
     assert_select 'input#hero-search.search-input', count: 1
+    assert_select '[data-controller=quarter-choropleth]'
+    assert_select 'h2', 'Wo beraten wird'
   end
 
   test 'GET show leads with the next plenary session and lists the next public meetings apart from it' do
