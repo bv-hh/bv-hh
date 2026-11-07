@@ -1,0 +1,15 @@
+/ One group of the Verwandte Drucksachen card: a heading and its Drucksachen
+/ as compact rows, the first few shown and the rest behind a toggle (lists of
+/ resolutions name two dozen). id makes the toggle's target unique on the page.
+- shown = 5
+.small.fw-semibold.text-secondary.pt-2= title
+.list-group.list-group-flush
+  - documents.first(shown).each do |document|
+    = render 'documents/item', document:, compact: true
+- if documents.size > shown
+  .collapse id="related-#{id}"
+    .list-group.list-group-flush
+      - documents.drop(shown).each do |document|
+        = render 'documents/item', document:, compact: true
+  button.btn.btn-link.btn-sm.px-0.pb-2 type='button' data-bs-toggle='collapse' data-bs-target="#related-#{id}" aria-expanded='false' aria-controls="related-#{id}"
+    = "#{documents.size - shown} weitere"

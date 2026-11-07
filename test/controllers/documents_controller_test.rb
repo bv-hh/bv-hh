@@ -58,6 +58,26 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{document_path(similar, district: altona)}']", text: similar.title
   end
 
+  test 'GET show lists the Drucksachen it names and those naming it, the rest of a long list behind a toggle' do
+    document = documents(:document_7)
+    referenced = documents(:document_227)
+    document.update!(full_text: "Siehe Drs. #{referenced.number}")
+    citing = Array.new(7) do |i|
+      Document.create!(district: document.district, number: "21-50#{i}0", title: "Nennt #{document.number} (#{i})",
+                       allris_id: 100 + i, full_text: "Bezug: Drs. #{document.number}")
+    end
+
+    get document_path(document, district: document.district)
+
+    assert_select '.card', text: /Verweist auf/ do
+      assert_select "a[href='#{document_path(referenced, district: document.district)}']"
+    end
+    assert_select '.card', text: /Erwähnt in/
+    citing.each { |linked| assert_select "a[href='#{document_path(linked, district: document.district)}']" }
+    assert_select '#related-citing.collapse .list-group-item', 2
+    assert_select 'button[data-bs-target="#related-citing"]', text: '2 weitere'
+  end
+
   test 'GET allris redirects to the document' do
     document = documents(:document_7)
     get allris_documents_path(district: districts.first, allris_id: document.allris_id)

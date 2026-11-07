@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -283,6 +283,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
     t.string "topics", default: [], null: false, array: true
     t.integer "topics_version"
     t.string "classified_topics", default: [], null: false, array: true
+    t.string "referenced_numbers", default: [], null: false, array: true
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, full_text), 'B'::\"char\")))", name: "documents_expr_idx", using: :gin
     t.index ["allris_id"], name: "index_documents_on_allris_id"
     t.index ["created_at"], name: "index_documents_on_created_at_public_complete", order: :desc, where: "((non_public = false) AND (title IS NOT NULL))"
@@ -293,6 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_190000) do
     t.index "(\nCASE\n    WHEN ((number)::text ~~ 'XIX-%'::text) THEN (('19'::text || SUBSTRING(number FROM 4)))::character varying\n    ELSE number\nEND)", name: "index_documents_on_number_by_date"
     t.index ["number"], name: "index_documents_on_number"
     t.index ["quarters"], name: "index_documents_on_quarters", using: :gin
+    t.index ["referenced_numbers"], name: "index_documents_on_referenced_numbers", using: :gin
     t.index ["stations"], name: "index_documents_on_stations", using: :gin
     t.index ["title"], name: "title_gin_trgm_idx", opclass: :gin_trgm_ops, using: :gin
     t.index ["title"], name: "title_gist_trgm_idx", opclass: :gist_trgm_ops, using: :gist
