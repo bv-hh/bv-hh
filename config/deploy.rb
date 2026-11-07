@@ -4,10 +4,13 @@
 lock '~> 3.20.0'
 
 set :application, 'bezirkr'
-set :repo_url, 'git@github.com:bv-hh/bv-hh.git'
+# The repository is public, so the server clones it over HTTPS and needs no
+# key for GitHub.
+set :repo_url, 'https://github.com/bv-hh/bv-hh.git'
 
-current_branch = `git branch`.match(/\* (\S+)\s/m)[1]
-set :branch, ENV.fetch('branch', nil) || current_branch || 'master'
+# A branch name or a commit; the deploy workflow passes the commit CI tested.
+current_branch = `git branch --show-current`.strip
+set :branch, ENV.fetch('branch', nil) || (current_branch unless current_branch.empty?) || 'main'
 
 set :deploy_to, '/home/deploy/app'
 
