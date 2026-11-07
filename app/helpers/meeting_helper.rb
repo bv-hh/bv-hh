@@ -36,17 +36,18 @@ module MeetingHelper
     decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
 
-    link_to minutes_meeting_path(agenda_item.meeting, anchor: agenda_item.id), class: "text-#{decision.color}", title: agenda_item.decision, data: { bs_toggle: :tooltip } do
-      icon(:fas, decision.icon)
-    end
+    options = { class: "text-#{decision.color}", title: agenda_item.decision, data: { bs_toggle: :tooltip } }
+    # Only items from ALLRIS have an anchor in the minutes.
+    return tag.span(icon(:fas, decision.icon), **options) if agenda_item.allris_id.blank?
+
+    link_to(minutes_meeting_path(agenda_item.meeting, anchor: agenda_item.id), **options) { icon(:fas, decision.icon) }
   end
 
   # What became of a Drucksache at a meeting, in words for a list: the
   # decision, or that the meeting is still to come. The darker
   # -emphasis colours, as the plain ones are too light for text.
   def decision_label(agenda_item)
-    coming = agenda_item.decision.blank? && agenda_item.meeting.date.future?
-    return tag.span(icon(:far, 'calendar', 'auf der Tagesordnung'), class: 'text-body') if coming
+    return tag.span(icon(:far, 'calendar', 'auf der Tagesordnung'), class: 'text-body') if agenda_item.coming?
 
     decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
@@ -61,7 +62,7 @@ module MeetingHelper
   # else the latest. Load agenda_items with their meetings first.
   def listed_agenda_item(document)
     latest = document.latest_agenda_item
-    return latest if latest.nil? || (latest.decision.blank? && latest.meeting.date.future?)
+    return latest if latest.nil? || latest.coming?
 
     document.deciding_agenda_item || latest
   end

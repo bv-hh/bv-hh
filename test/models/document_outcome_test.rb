@@ -4,6 +4,7 @@ require 'test_helper'
 
 class DocumentOutcomeTest < ActiveSupport::TestCase
   setup do
+    travel_to Time.zone.local(2026, 6, 15, 12)
     @document = Document.create!(district: districts(:hamburg_nord), number: '21-9000', title: 'Antrag', allris_id: 1)
     @committee = committees(:rega_ewi)
   end

@@ -206,6 +206,7 @@ class DistrictStatistics
   def outcomes
     @outcomes ||= begin
       decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id)).where.not(decision: nil)
+                            .where.not(meetings: { date: nil })
                             .order('meetings.date DESC, agenda_items.id DESC').pluck(:document_id, :decision)
 
       decisions.group_by(&:first).transform_values do |rows|

@@ -37,6 +37,7 @@ class MeetingHelperTest < ActionView::TestCase
   end
 
   test 'listed_agenda_item shows the meeting that decided, not a later one that recorded nothing' do
+    travel_to Time.zone.local(2026, 6, 15, 12)
     document = discussed([10.weeks.ago, 'abgelehnt'], [2.weeks.ago, ''])
     item = listed_agenda_item(document)
 
@@ -45,12 +46,14 @@ class MeetingHelperTest < ActionView::TestCase
   end
 
   test 'listed_agenda_item shows a coming meeting that has it on its agenda' do
+    travel_to Time.zone.local(2026, 6, 15, 12)
     document = discussed([10.weeks.ago, 'beschlossen'], [1.week.from_now, ''])
 
     assert_includes decision_label(listed_agenda_item(document)), 'auf der Tagesordnung'
   end
 
   test 'listed_agenda_item falls back to the latest meeting without any decision' do
+    travel_to Time.zone.local(2026, 6, 15, 12)
     document = discussed([10.weeks.ago, nil], [2.weeks.ago, nil])
 
     assert_equal 2.weeks.ago.to_date, listed_agenda_item(document).meeting.date

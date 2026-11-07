@@ -154,6 +154,11 @@ class AgendaItem < ApplicationRecord
     SETTLING.include?(outcome)
   end
 
+  # On the agenda of a meeting still to come, so no decision yet.
+  def coming?
+    decision.blank? && meeting&.date&.future?
+  end
+
   def as_json
     slice(:id, :meeting_id, :document_id, :title, :number, :decision).merge(minutes: strip_tags(minutes))
   end
