@@ -1,7 +1,8 @@
 / One Drucksache in a list.list-group-flush, loaded with Document.for_list.
 / compact: true leaves it at title, number, kind and date, for lists beside the
-/ main content; otherwise what became of it and where follow, then its Bezirk,
-/ topics and places as chips.
+/ main content, plus the Bezirk if district is passed and differs; otherwise
+/ what became of it and where follow, then its Bezirk, topics and places as
+/ chips.
 /
 / Optional locals of the full row:
 / - district: the Bezirk of the page (default @district). A Drucksache from
@@ -26,6 +27,8 @@
   .small.text-secondary
     span.fw-semibold.text-body>= words ? highlight_text(document.number, words) : document.number
     ' ·
+    - if compact && local_assigns.key?(:district) && document.district != local_assigns[:district]
+      = "#{document.district.name} · "
     = document.kind
     - if compact
       = " · #{l meeting.date}" if meeting

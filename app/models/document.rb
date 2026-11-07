@@ -454,6 +454,12 @@ class Document < ApplicationRecord
     end
   end
 
+  # Close in meaning, from any Bezirk, without the Verwandte Drucksachen; see
+  # SimilarDocuments.
+  def similar_documents(exclude: [])
+    SimilarDocuments.new(self, exclude:).to_a
+  end
+
   def as_json
     {
       id: id,
