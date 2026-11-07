@@ -82,7 +82,6 @@
           p.text-secondary
             ' Wie viele Drucksachen die Bezirksversammlungen in der laufenden Wahlperiode beraten haben, gemessen an
               den Menschen, die im Bezirk wohnen.
-          p.small.text-secondary= render 'choropleths/population_source'
           = link_to 'Alle Zahlen für Hamburg', statistics_path(anchor: 'orte')
         .col-lg-8
           = render 'choropleths/map', choropleth: Choropleth.new(CityStatistics.new.district_areas), unit: 'Bezirk',

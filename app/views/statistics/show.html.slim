@@ -96,7 +96,6 @@
               Drucksachen: Was eine Bezirksversammlung berät, betrifft ihren Bezirk.
           p.small.text-secondary
             ' Die Farben teilen die sieben Bezirke in bis zu fünf Gruppen.
-            = render 'choropleths/population_source'
         .col-lg-8
           - url = ->(district) { root_with_district_path(district:) }
           = render 'choropleths/map', choropleth:, url:, bounds: District.city_bounds, unit: 'Bezirk'
@@ -114,7 +113,6 @@
               betreffen.
           p.small.text-secondary
             ' Die Farben teilen die Stadtteile des Bezirks in fünf etwa gleich große Gruppen.
-            = render 'choropleths/population_source'
           = link_to 'Alle Orte auf der Karte', map_path
         .col-lg-8
           - url = ->(quarter) { quarter_path(district: quarter.district, quarter: quarter.slug) }
