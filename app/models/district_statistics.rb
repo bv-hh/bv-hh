@@ -54,10 +54,11 @@ class DistrictStatistics
   # The rest (vertagt, überwiesen, zurückgestellt) settle nothing.
   SETTLED_AS = { adopted: :adopted, amended: :adopted, rejected: :rejected, noted: :withdrawn, withdrawn: :withdrawn }.freeze
 
-  # The decision an agenda item records, as one of OUTCOMES, or nil when it
-  # settles nothing.
-  def self.outcome(decision)
-    SETTLED_AS[AgendaItem::OUTCOMES[decision]]
+  # The decision an agenda item records, by AgendaItem#outcome's rule: the
+  # one ALLRIS records, or else the one its text states. Nil when it settles
+  # nothing.
+  def self.outcome(decision, minutes_decision = nil)
+    SETTLED_AS[AgendaItem::OUTCOMES[decision] || minutes_decision&.to_sym]
   end
 
   def documents
@@ -205,12 +206,14 @@ class DistrictStatistics
   # rule of Document#deciding_agenda_item, here in one query for all.
   def outcomes
     @outcomes ||= begin
-      decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id)).where.not(decision: nil)
+      decisions = AgendaItem.joins(:meeting).where(document_id: documents.proposals.select(:id))
+                            .where('agenda_items.decision IS NOT NULL OR agenda_items.minutes_decision IS NOT NULL')
                             .where.not(meetings: { date: nil })
-                            .order('meetings.date DESC, agenda_items.id DESC').pluck(:document_id, :decision)
+                            .order('meetings.date DESC, agenda_items.id DESC')
+                            .pluck(:document_id, :decision, :minutes_decision)
 
       decisions.group_by(&:first).transform_values do |rows|
-        rows.lazy.filter_map { |_id, decision| self.class.outcome(decision) }.first
+        rows.lazy.filter_map { |_id, decision, minutes_decision| self.class.outcome(decision, minutes_decision) }.first
       end
     end
   end

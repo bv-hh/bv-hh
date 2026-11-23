@@ -30,6 +30,15 @@ class DistrictStatisticsTest < ActiveSupport::TestCase
     assert_nil outcomes[pending.id]
   end
 
+  test 'an Antrag ALLRIS leaves open counts with the decision its minutes state' do
+    document = proposal('21-9001')
+    AgendaItem.create!(meeting: meetings(:bv_oct), document:, title: document.title,
+                       minutes: '<p>Der Antrag wird mehrheitlich beschlossen.</p>')
+
+    assert_equal :adopted, DistrictStatistics.new(@district).send(:outcomes)[document.id]
+    assert_equal :adopted, document.reload.outcome
+  end
+
   test 'a meeting without a date does not count, as on the Drucksache page' do
     undated = Meeting.create!(committee: committees(:rega_ewi), district: @district, title: 'Ohne Datum', allris_id: 9_999_001)
     document = proposal('21-9001', 'ungeändert beschlossen' => meetings(:rega_ewi_oct), 'abgelehnt' => undated)

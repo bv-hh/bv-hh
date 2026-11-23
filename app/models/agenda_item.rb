@@ -7,6 +7,7 @@
 #  id          :bigint           not null, primary key
 #  decision    :string
 #  minutes     :text
+#  minutes_decision :string
 #  number      :string
 #  result      :text
 #  title       :string
@@ -41,9 +42,9 @@ class AgendaItem < ApplicationRecord
 
   # A decision as ALLRIS words it => what it means. Each Bezirk uses its own
   # handful of these and nothing else, so an unknown wording means no
-  # decision rather than a guess; the result text is no help either, it rarely
-  # states the decision. Harburg's "beschlossen / überwiesen" is a decision
-  # with a copy sent elsewhere.
+  # decision rather than a guess. Harburg's "beschlossen / überwiesen" is a
+  # decision with a copy sent elsewhere. Where ALLRIS shows "(offen)", the
+  # text often states the decision all the same (minutes_decision).
   OUTCOMES = {
     'zur Kenntnis genommen' => :noted,
     'ungeändert beschlossen' => :adopted,
@@ -74,7 +75,12 @@ class AgendaItem < ApplicationRecord
   scope :logged, -> { where.not(allris_id: nil) }
   scope :with_minutes, -> { where.not(minutes: nil) }
 
+  validates :minutes_decision, inclusion: { in: OUTCOMES.values.uniq.map(&:to_s) }, allow_nil: true
+
   before_save :cache_word_count
+  before_save :read_minutes_decision, if: lambda {
+    will_save_change_to_decision? || will_save_change_to_minutes? || will_save_change_to_result? || will_save_change_to_document_id?
+  }
   after_save_commit :assign_document_topics, if: :saved_change_to_document_id?
   scope :incomplete, lambda {
     joins(:meeting).where.not(allris_id: nil)
@@ -146,8 +152,21 @@ class AgendaItem < ApplicationRecord
       clean_text(html.xpath("//div[preceding-sibling::a[@name='allrisBS']]"))
   end
 
+  # One of OUTCOMES' values: the decision ALLRIS records, or else the one the
+  # text states (minutes_decision), or nil.
   def outcome
-    OUTCOMES[decision]
+    OUTCOMES[decision] || minutes_decision&.to_sym
+  end
+
+  # The outcome comes from the text, not from ALLRIS: lists say so.
+  def outcome_from_minutes?
+    OUTCOMES[decision].nil? && minutes_decision.present?
+  end
+
+  # Only for a Drucksache, the only items whose decision counts anywhere, and
+  # only while ALLRIS leaves the decision open (MinutesDecision).
+  def read_minutes_decision
+    self.minutes_decision = (MinutesDecision.outcome(self)&.to_s if document_id && OUTCOMES[decision].nil?)
   end
 
   def settling?

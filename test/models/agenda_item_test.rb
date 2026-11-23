@@ -9,6 +9,29 @@ class AgendaItemTest < ActiveSupport::TestCase
     @meeting = meetings(:rega_ewi_oct)
   end
 
+  test 'reads the decision from the minutes only while ALLRIS leaves it open' do
+    item = AgendaItem.create!(meeting: @meeting, document: documents(:document_7), title: 'Antrag',
+                              minutes: '<p>Der Antrag wird einstimmig beschlossen.</p>')
+
+    assert_equal 'adopted', item.minutes_decision
+    assert_equal :adopted, item.outcome
+    assert_predicate item, :outcome_from_minutes?
+
+    item.update!(decision: 'abgelehnt')
+
+    assert_nil item.minutes_decision
+    assert_equal :rejected, item.outcome
+    assert_not item.outcome_from_minutes?
+  end
+
+  test 'reads no decision from the minutes of an item without a Drucksache' do
+    item = AgendaItem.create!(meeting: @meeting, title: 'Genehmigung der Niederschrift',
+                              minutes: '<p>Die Niederschrift wird einstimmig beschlossen.</p>')
+
+    assert_nil item.minutes_decision
+    assert_nil item.outcome
+  end
+
   test 'linking a fetched document reassigns its topics' do
     document = @meeting.district.documents.create!(allris_id: 9_701, title: 'Neuer Radweg')
     item = @meeting.agenda_items.create!(number: 'Ö99')

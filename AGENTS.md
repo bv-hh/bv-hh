@@ -191,10 +191,12 @@ before a full run.
   `committees.public` flag alone lets closed building and award committees
   through.
 - **`agenda_items.decision` is empty** for many agenda items, especially in a
-  stale local database, often because ALLRIS itself shows "(offen)". Read it
-  through `AgendaItem#outcome`, and say where a Drucksache stands by
-  `Document#deciding_agenda_item`, the rule the statistics count by; the
-  result text rarely states the decision.
+  stale local database, often because ALLRIS itself shows "(offen)". Where
+  the text states the decision anyway, `MinutesDecision` reads it into
+  `minutes_decision`. Read both through `AgendaItem#outcome`, never
+  `decision` alone, and say where a Drucksache stands by
+  `Document#deciding_agenda_item`, the rule the statistics count by. After
+  changing `MinutesDecision`, run `rake agenda_items:decisions`.
 - **Attachments are matched by name only.** When ALLRIS renames a file, the
   old attachment is deleted and its blob purged. Scanned PDFs have no text
   layer and get no text (there is no OCR).
