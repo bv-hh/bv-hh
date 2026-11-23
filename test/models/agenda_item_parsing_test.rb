@@ -23,6 +23,8 @@ class AgendaItemParsingTest < ActiveSupport::TestCase
       assert_operator agenda_item.strip_tags(agenda_item.minutes).squish.length, :>=, 40,
                       "#{slug}: expected substantial minutes text"
       assert_equal AgendaItemParsingTest.page(slug).b, agenda_item.allris_page.body
+      assert agenda_item.decision.nil? || AgendaItem::OUTCOMES.key?(agenda_item.decision),
+             "#{slug}: the decision cell read #{agenda_item.decision.inspect}, not a decision ALLRIS words"
     end
   end
 

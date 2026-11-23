@@ -87,7 +87,23 @@ class AgendaItem < ApplicationRecord
   def retrieve_source
     return if allris_id.blank?
 
-    Net::HTTP.get(URI(allris_url))
+    uri = URI(allris_url)
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') { |http| source_from(http, uri.request_uri) }
+  end
+
+  # Wandsbek's ALLRIS at times sends an agenda item page to noauth.asp, from
+  # any client, unless the session has opened the item's meeting first. A
+  # plain fetch then left the item without minutes and decision for good,
+  # once its meeting fell out of the retry window. So on that redirect: open
+  # the meeting for a session cookie and ask once more with it.
+  def source_from(http, path)
+    source = http.get(path).body
+    return source unless source.to_s.include?(Meeting::AUTH_REDIRECT) && meeting&.allris_id
+
+    cookie = http.get("/bi/to010.asp?SILFDNR=#{meeting.allris_id}")['set-cookie']&.split(';')&.first
+    return source if cookie.blank?
+
+    http.get(path, 'Cookie' => cookie).body
   end
 
   def retrieve_from_allris!(source = nil)
