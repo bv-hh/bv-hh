@@ -16,6 +16,24 @@ class DocumentsHelperTest < ActionView::TestCase
     assert_equal document.content, document_format(document, :content)
   end
 
+  test 'mention_excerpt marks the exact number, not one inside a longer number before it' do
+    document = documents(:document_7) # 21-4776
+    item = AgendaItem.new(minutes: "<p>Drs. 21-4776.1 wurde beraten. #{'Füllwort ' * 30}Später wird Drs.21-4776 nachgereicht.</p>")
+
+    passage = mention_excerpt(item, document)
+
+    assert_includes passage, '<mark>21-4776</mark> nachgereicht'
+    assert passage.start_with?('…')
+  end
+
+  test 'mention_excerpt escapes the text and is nil where only the title names the number' do
+    document = documents(:document_7)
+
+    assert_includes mention_excerpt(AgendaItem.new(minutes: '<p>&lt;b&gt;Hinweis&lt;/b&gt; zu 21-4776</p>'), document),
+                    '&lt;b&gt;Hinweis&lt;/b&gt; zu <mark>21-4776</mark>'
+    assert_nil mention_excerpt(AgendaItem.new(title: 'Zu 21-4776', minutes: '<p>Ohne Nummer</p>'), document)
+  end
+
   test 'document_title is the title as text' do
     assert_equal 'Spiel & Sport', document_title(Document.new(title: 'Spiel &amp; Sport'))
   end

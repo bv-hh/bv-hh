@@ -78,6 +78,43 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'button[data-bs-target="#related-citing"]', text: '2 weitere'
   end
 
+  test 'GET show shows what the minutes of its meetings say, long minutes behind a toggle' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    meeting = Meeting.create!(committee:, district: committee.district, date: Date.new(2026, 5, 4), title: 'Sitzung', allris_id: 9_999_020)
+    short = AgendaItem.create!(meeting:, document:, number: 'Ö4', title: document.title, decision: 'ungeändert beschlossen',
+                               minutes: '<p>Die Verwaltung erläutert den Antrag.</p>')
+    long = AgendaItem.create!(meeting:, document:, number: 'Ö5', title: document.title,
+                              minutes: "<p>#{'Ausführliche Beratung. ' * 40}Schlusssatz.</p>")
+
+    get document_path(document, district: document.district)
+
+    assert_select '.card', text: /Aus den Sitzungen/ do
+      assert_select '.allris-content', text: /Die Verwaltung erläutert den Antrag/
+      assert_select "a[href='#{minutes_meeting_path(meeting, anchor: short.id)}']", text: 'TOP Ö4'
+      assert_select "#discussion-#{long.id}-excerpt.collapse.show button[data-bs-target='.discussion-#{long.id}']", text: 'weiterlesen'
+      assert_select "#discussion-#{long.id}-full.collapse", text: /Schlusssatz/
+    end
+  end
+
+  test 'GET show lists the meetings naming it under other items, with the passage' do
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    meeting = Meeting.create!(committee:, district: committee.district, date: Date.new(2026, 5, 4), title: 'Sitzung', allris_id: 9_999_030)
+    mentions = Array.new(7) do |i|
+      AgendaItem.create!(meeting:, number: "Ö#{i}", title: "Verschiedenes #{i}", minutes: "<p>Frage zum Stand von Drs. #{document.number}.</p>")
+    end
+
+    get document_path(document, district: document.district)
+
+    assert_select '.card', text: /Erwähnt unter anderen Tagesordnungspunkten/ do
+      assert_select "a[href='#{minutes_meeting_path(meeting, anchor: mentions.first.id)}']", text: 'Verschiedenes 0'
+      assert_select 'p mark', text: document.number
+      assert_select '#mentions-more.collapse .border-top', 2
+      assert_select 'button[data-bs-target="#mentions-more"]', text: '2 weitere'
+    end
+  end
+
   test 'GET show says where it stands by the meeting that decided, not a later one that recorded nothing' do
     travel_to Time.zone.local(2026, 6, 15, 12)
     document = documents(:document_7)

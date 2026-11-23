@@ -1,0 +1,12 @@
+/ An agenda item about something else that names the Drucksache: where and
+/ under which item, with the passage that names it where the minutes do.
+.py-2.border-top
+  .small.text-secondary
+    => l item.meeting.date
+    ' ·
+    => item.meeting.committee&.name || item.meeting.title
+    ' ·
+    = "TOP #{item.number}"
+  = link_to strip_tags(item.title), minutes_meeting_path(item.meeting, anchor: item.id)
+  - if (passage = mention_excerpt(item, document))
+    p.small.mb-0.mt-1= passage

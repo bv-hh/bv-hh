@@ -50,6 +50,38 @@
         .card-body.allris-content
           == document_format(@document, :resolution)
 
+    / What the minutes say about it: the meetings that discussed it, then
+    / those that named it under another item, the rest of a long list behind
+    / a toggle as in Verwandte Drucksachen.
+    - discussed = agenda_items.select { |item| Parsing.substance?(item.minutes) }
+    - mentions = @document.mentioning_agenda_items(exclude: linked.map(&:id)).limit(50).to_a
+    - if discussed.present? || mentions.present?
+      .card.mt-3
+        .card-header.fw-bold Aus den Sitzungen
+        .card-body.py-0
+          - if discussed.present?
+            .small.fw-semibold.text-secondary.pt-2 Beratung
+            - discussed.each do |item|
+              = render 'documents/discussion', item:
+          - if mentions.present?
+            .small.fw-semibold.text-secondary.pt-2 Erwähnt unter anderen Tagesordnungspunkten
+            - mentions.first(5).each do |item|
+              = render 'documents/mention', item:, document: @document
+            - if mentions.size > 5
+              .collapse#mentions-more
+                - mentions.drop(5).each do |item|
+                  = render 'documents/mention', item:, document: @document
+              button.btn.btn-link.btn-sm.px-0.pb-2 type='button' data-bs-toggle='collapse' data-bs-target='#mentions-more' aria-expanded='false' aria-controls='mentions-more'
+                = "#{mentions.size - 5} weitere"
+            / The list stops at 50; the minutes search finds the rest.
+            - if mentions.size == 50
+              .pb-2
+                = link_to 'Alle Erwähnungen in den Protokollen suchen',
+                    search_path(q: @document.number, tab: 'protokolle', district: @document.district), class: 'small'
+          p.small.text-secondary.border-top.py-2.mb-0
+            | Aus den öffentlichen Protokollen der Ausschüsse und der Bezirksversammlung. Sie fassen die Beratung
+              zusammen und geben sie nicht wörtlich wieder.
+
     - if linked.present?
       .card.mt-3
         .card-header.fw-bold Verwandte Drucksachen
