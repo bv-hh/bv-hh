@@ -341,7 +341,7 @@ class Document < ApplicationRecord
   # same rule. Load agenda_items with their meetings first, or pass them.
   def deciding_agenda_item(items = agenda_items)
     decided = items.select { |item| item.outcome && item.meeting&.date }.sort_by { |item| [item.meeting.date, item.id] }
-    decided.reverse.find(&:settling?) || decided.last
+    decided.rfind(&:settling?) || decided.last
   end
 
   # One of AgendaItem::OUTCOMES' values, or nil without a known decision.
