@@ -1,0 +1,29 @@
+/ One meeting that discussed the Drucksache, with what its minutes record:
+/ meeting and decision above, the text below. Longer minutes start as an
+/ excerpt whose toggle swaps it for the full text, very long ones link to the
+/ minutes instead of putting all of it on the page.
+- text = Parsing.text(item.minutes).to_s
+- minutes_path = minutes_meeting_path(item.meeting, anchor: item.id)
+.py-2.border-top
+  .small.text-secondary.mb-1
+    => l item.meeting.date
+    ' ·
+    => link_to item.meeting.committee&.name || item.meeting.title, meeting_path(item.meeting), class: 'link-secondary'
+    ' ·
+    => link_to "TOP #{item.number}", minutes_path, class: 'link-secondary'
+    = meeting_result_badge(item)
+  - if text.length <= 600
+    .allris-content
+      == meeting_format(item.minutes, item.meeting)
+  - else
+    .collapse.show id="discussion-#{item.id}-excerpt" class="discussion-#{item.id}"
+      p.mb-0
+        => truncate(text, length: 400, separator: ' ')
+        - if text.length > 5000
+          = link_to 'Im Protokoll weiterlesen', minutes_path
+        - else
+          button.btn.btn-link.p-0.align-baseline type='button' data-bs-toggle='collapse' data-bs-target=".discussion-#{item.id}" aria-expanded='false' aria-controls="discussion-#{item.id}-full"
+            | weiterlesen
+    - if text.length <= 5000
+      .collapse.allris-content id="discussion-#{item.id}-full" class="discussion-#{item.id}"
+        == meeting_format(item.minutes, item.meeting)

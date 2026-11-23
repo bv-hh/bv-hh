@@ -8,6 +8,7 @@
 #  decision    :string
 #  minutes     :text
 #  number      :string
+#  referenced_numbers :string     default([]), not null, is an Array
 #  result      :text
 #  title       :string
 #  word_count  :integer          default(0), not null
@@ -26,6 +27,7 @@
 #  agenda_items_title_gist_trgm_idx    (title) USING gist
 #  index_agenda_items_on_document_id   (document_id)
 #  index_agenda_items_on_meeting_id    (meeting_id)
+#  index_agenda_items_on_referenced_numbers  (referenced_numbers) USING gin
 #
 class AgendaItem < ApplicationRecord
   include Parsing
@@ -75,6 +77,9 @@ class AgendaItem < ApplicationRecord
   scope :with_minutes, -> { where.not(minutes: nil) }
 
   before_save :cache_word_count
+  before_save :extract_references, if: lambda {
+    will_save_change_to_title? || will_save_change_to_minutes? || will_save_change_to_result? || will_save_change_to_document_id?
+  }
   after_save_commit :assign_document_topics, if: :saved_change_to_document_id?
   scope :incomplete, lambda {
     joins(:meeting).where.not(allris_id: nil)
@@ -157,6 +162,19 @@ class AgendaItem < ApplicationRecord
   # On the agenda of a meeting still to come, so no decision yet.
   def coming?
     decision.blank? && meeting&.date&.future?
+  end
+
+  # The Drucksache numbers its title, minutes and result name, by the rule of
+  # Document.references_in, without the family of its own Drucksache. Read as
+  # numbers of its Bezirk (Document#mentioning_agenda_items).
+  def extract_references
+    self.referenced_numbers = Document.references_in(reference_text, document&.number)
+  end
+
+  # As text, so a number written with an entity ("22&ndash;0963") is found
+  # too. Titles carry markup as well.
+  def reference_text
+    [title, minutes, result].filter_map { |html| Parsing.text(html) }.join("\n")
   end
 
   def as_json

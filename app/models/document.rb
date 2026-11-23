@@ -514,6 +514,20 @@ class Document < ApplicationRecord
     district.documents.complete.where('documents.referenced_numbers @> ARRAY[?]::varchar[]', number).where.not(id:)
   end
 
+  # The agenda items of its Bezirk whose title, minutes or result name it,
+  # newest first, without its own (its Beratungsfolge lists those). By number
+  # exactly, as citing_documents. exclude takes the ids of Drucksachen listed
+  # elsewhere on the page, whose items would only repeat them: a follow-up
+  # names its origin in the title on every agenda it is on.
+  def mentioning_agenda_items(exclude: [])
+    return AgendaItem.none if number.blank?
+
+    AgendaItem.by_meeting.includes(meeting: :committee)
+              .where(meetings: { district_id: })
+              .where('agenda_items.referenced_numbers @> ARRAY[?]::varchar[]', number)
+              .where('agenda_items.document_id IS NULL OR agenda_items.document_id NOT IN (?)', [id, *exclude])
+  end
+
   # The Drucksachen linked to it by number, as the page and the MCP tool list
   # them: its family and what it names by date, what names it newest first, as
   # that is where a matter went on. Relations, so a caller chooses what to load.

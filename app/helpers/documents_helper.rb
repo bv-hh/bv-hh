@@ -68,6 +68,17 @@ module DocumentsHelper
     content.gsub(%r{<p[^>]*>[ \u00a0]*</p>}, ' ')
   end
 
+  # The passage of an agenda item's minutes or result that names document,
+  # with the number marked, or nil where only the title names it. By number
+  # exactly, as AgendaItem#extract_references: 22-0963 is not 22-0963.1.
+  def mention_excerpt(agenda_item, document)
+    number = Regexp.new("(?<![\\w.])#{Regexp.escape(document.number).sub('\-', '[-–]')}(?!\\d|\\.\\d)")
+    text = [agenda_item.minutes, agenda_item.result].filter_map { |html| Parsing.text(html) }.find { |t| t.match?(number) }
+    return if text.nil?
+
+    highlight(excerpt(text, number, radius: 120), number)
+  end
+
   def highlight_multi_excerpt(text, terms)
     multiple_terms = terms.squish.split
     multi_excerpt = multiple_terms.map do |term|
