@@ -92,6 +92,20 @@ class DocumentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: /Stand:\s+beschlossen\s+·\s+#{Regexp.escape(committee.name)}\s+·\s+#{I18n.l(10.weeks.ago.to_date)}/
   end
 
+  test 'GET show says when where it stands comes from the minutes, not from ALLRIS' do
+    travel_to Time.zone.local(2026, 6, 15, 12)
+    document = documents(:document_7)
+    committee = committees(:rega_ewi)
+    decided = Meeting.create!(committee:, district: committee.district, date: 10.weeks.ago.to_date, title: 'Sitzung', allris_id: 9_999_040)
+    AgendaItem.create!(meeting: decided, document:, title: document.title, minutes: '<p>Der Antrag wird einstimmig beschlossen.</p>')
+    later = Meeting.create!(committee:, district: committee.district, date: 2.weeks.ago.to_date, title: 'Sitzung', allris_id: 9_999_041)
+    AgendaItem.create!(meeting: later, document:, title: document.title)
+
+    get document_path(document, district: document.district)
+
+    assert_select 'p', text: /Stand:\s+beschlossen\s+\(laut Protokoll\)\s+·\s+#{Regexp.escape(committee.name)}/
+  end
+
   test 'GET show names a decision on the latest day once, whichever item comes first' do
     document = documents(:document_7)
     committee = committees(:rega_ewi)

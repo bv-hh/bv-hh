@@ -332,7 +332,7 @@ class Document < ApplicationRecord
   # with their meetings first, or pass them.
   def latest_agenda_item(items = agenda_items)
     items.select { |item| item.meeting&.date }
-         .max_by { |item| [item.meeting.date, item.decision.present? ? 1 : 0, item.id] }
+         .max_by { |item| [item.meeting.date, item.outcome ? 1 : 0, item.id] }
   end
 
   # The agenda item whose decision says where the Drucksache stands: the latest

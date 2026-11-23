@@ -32,6 +32,8 @@
     ' Stand:
     => meeting_result_badge(deciding)
     => MeetingHelper::OUTCOME_LABELS[deciding.outcome].label
+    - if deciding.outcome_from_minutes?
+      => tag.span('(laut Protokoll)', class: 'text-secondary')
     ' ·
     => link_to deciding.meeting.committee&.name || deciding.meeting.title, meeting_path(deciding.meeting)
     ' ·

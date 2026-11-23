@@ -36,7 +36,8 @@ module MeetingHelper
     decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
 
-    options = { class: "text-#{decision.color}", title: agenda_item.decision, data: { bs_toggle: :tooltip } }
+    title = agenda_item.outcome_from_minutes? ? "#{decision.label} (laut Protokoll)" : agenda_item.decision
+    options = { class: "text-#{decision.color}", title:, data: { bs_toggle: :tooltip } }
     # Only items from ALLRIS have an anchor in the minutes.
     return tag.span(icon(:fas, decision.icon), **options) if agenda_item.allris_id.blank?
 
@@ -52,7 +53,8 @@ module MeetingHelper
     decision = OUTCOME_LABELS[agenda_item.outcome]
     return if decision.nil?
 
-    tag.span(icon(:fas, decision.icon, decision.label), class: "text-#{decision.color}-emphasis")
+    title = 'laut Protokoll' if agenda_item.outcome_from_minutes?
+    tag.span(icon(:fas, decision.icon, decision.label), class: "text-#{decision.color}-emphasis", title:)
   end
 
   # The agenda item a list row of a Drucksache shows, decision, committee and

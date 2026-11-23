@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_stat_statements"
@@ -58,6 +58,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_220000) do
     t.string "decision"
     t.text "result"
     t.integer "word_count", default: 0, null: false
+    t.string "minutes_decision"
     t.index "((setweight(to_tsvector('german'::regconfig, (title)::text), 'A'::\"char\") || setweight(to_tsvector('german'::regconfig, minutes), 'B'::\"char\")))", name: "agenda_items_expr_idx", using: :gin
     t.index ["document_id"], name: "index_agenda_items_on_document_id"
     t.index ["meeting_id"], name: "index_agenda_items_on_meeting_id"
