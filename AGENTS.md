@@ -201,7 +201,7 @@ before a full run.
 
 ## Development notes
 
-- `annotate` (2.6.5) fails on Ruby 3.4 (`uninitialized constant Fixnum`).
+- `annotate` (2.6.5) fails on Ruby 3.4 and later (`uninitialized constant Fixnum`).
   Write the schema comment of a new model by hand.
 - The local development database is often an older prod dump and may have
   drifted from `db/schema.rb`. After `db:migrate`, commit only the schema

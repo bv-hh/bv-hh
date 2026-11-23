@@ -15,7 +15,7 @@ set :branch, ENV.fetch('branch', nil) || (current_branch unless current_branch.e
 set :deploy_to, '/home/deploy/app'
 
 set :rbenv_type, :user
-set :rbenv_ruby, '3.4.2'
+set :rbenv_ruby, '4.0.10'
 
 set :migration_role, :web
 
