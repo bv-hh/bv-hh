@@ -168,6 +168,11 @@ ALLRIS, Overpass and other sources block clients that send bursts of
 requests. Keep requests sequential and paced, and try a scraper on a few pages
 before a full run.
 
+ALLRIS (Wandsbek at least) at times redirects a public page to `noauth.asp`
+until the session has opened the meeting (`AgendaItem#source_from`). A
+redirect alone does not prove a page non-public, yet
+`Document#non_public_page?` reads it that way.
+
 ## Data quirks
 
 - **`documents.created_at` is the import date,** not a date of the Drucksache.
