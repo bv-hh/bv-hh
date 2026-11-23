@@ -7,11 +7,8 @@ namespace :agenda_items do
   desc 'Extract the Drucksache numbers each agenda item names from its stored title, minutes and result'
   task references: :environment do
     changed = 0
-    AgendaItem.left_joins(:document)
-              .select('agenda_items.id, agenda_items.title, agenda_items.minutes, agenda_items.result',
-                      'agenda_items.referenced_numbers, documents.number AS document_number')
-              .find_each.with_index(1) do |item, index|
-      numbers = Document.references_in(item.reference_text, item.document_number)
+    AgendaItem.select(:id, :title, :minutes, :result, :referenced_numbers).find_each.with_index(1) do |item, index|
+      numbers = Document.references_in(item.reference_text, nil)
       if numbers != item.referenced_numbers
         item.update_column(:referenced_numbers, numbers) # rubocop:disable Rails/SkipsModelValidations
         changed += 1

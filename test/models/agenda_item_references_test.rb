@@ -4,7 +4,10 @@ require 'test_helper'
 
 class AgendaItemReferencesTest < ActiveSupport::TestCase
   # A test below adds a Bezirk, which District.lookup would keep after rollback.
-  teardown { District.instance_variable_set(:@districts, nil) }
+  teardown do
+    District.instance_variable_set(:@districts, nil)
+    District.reset_shapes!
+  end
 
   setup do
     @document = documents(:document_7) # 21-4776, Hamburg-Nord
@@ -22,14 +25,22 @@ class AgendaItemReferencesTest < ActiveSupport::TestCase
     assert_equal %w[21-4512 21-4728.1 21-4800], agenda_item.referenced_numbers
   end
 
-  test "leaves out its own Drucksache's family and extracts again when the minutes change" do
-    agenda_item = item(document: @document, minutes: '<p>Zur Drs. 21-4776 und 21-4776.1, siehe auch 21-4512</p>')
+  test 'extracts again when the minutes change' do
+    agenda_item = item(document: @document, minutes: '<p>Zur Drs. 21-4776, siehe auch 21-4512</p>')
 
-    assert_equal %w[21-4512], agenda_item.referenced_numbers
+    assert_equal %w[21-4776 21-4512], agenda_item.referenced_numbers
 
     agenda_item.update!(minutes: '<p>Kein Bezug</p>')
 
     assert_empty agenda_item.referenced_numbers
+  end
+
+  test 'a Drucksache does not list the items of its family, even one saved while that was a stub without a number' do
+    follow_up = Document.create!(district: @document.district, allris_id: 9_998)
+    item(document: follow_up, minutes: '<p>Bezug: Drs. 21-4776</p>')
+    follow_up.update!(number: '21-4776.1', title: 'Nachtrag')
+
+    assert_empty @document.mentioning_agenda_items
   end
 
   test 'a Drucksache lists the items of its Bezirk naming it exactly, newest first, without its own' do

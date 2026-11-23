@@ -69,14 +69,27 @@ module DocumentsHelper
   end
 
   # The passage of an agenda item's minutes or result that names document,
-  # with the number marked, or nil where only the title names it. By number
-  # exactly, as AgendaItem#extract_references: 22-0963 is not 22-0963.1.
-  def mention_excerpt(agenda_item, document)
-    number = Regexp.new("(?<![\\w.])#{Regexp.escape(document.number).sub('\-', '[-–]')}(?!\\d|\\.\\d)")
-    text = [agenda_item.minutes, agenda_item.result].filter_map { |html| Parsing.text(html) }.find { |t| t.match?(number) }
-    return if text.nil?
+  # with the number marked, or nil where only the title names it. Found by
+  # Document::REFERENCE, the rule AgendaItem#extract_references follows, so
+  # 22-0963 is not read inside 22-0963.1. Cut at the match itself and escaped
+  # here: Rails' excerpt cuts at the first plain occurrence of the matched
+  # text, and highlight would turn decoded "<b>" in the text into markup.
+  def mention_excerpt(agenda_item, document, radius: 120)
+    [agenda_item.minutes, agenda_item.result].each do |html|
+      text = Parsing.text(html) or next
+      match = text.to_enum(:scan, Document::REFERENCE).map { Regexp.last_match }
+                  .find { |m| m[1].tr('–', '-') == document.number }
+      return marked_passage(text, *match.offset(1), radius) if match
+    end
+    nil
+  end
 
-    highlight(excerpt(text, number, radius: 120), number)
+  # text[from...to] marked, with radius characters around it cut at spaces.
+  def marked_passage(text, from, to, radius)
+    start = from > radius ? (text.rindex(/\s/, from - radius) || 0) : 0
+    stop = text.index(/\s/, to + radius) || text.length
+    safe_join([('…' if start.positive?), text[start...from].lstrip, tag.mark(text[from...to]),
+               text[to...stop], ('…' if stop < text.length)].compact)
   end
 
   def highlight_multi_excerpt(text, terms)

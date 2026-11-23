@@ -73,6 +73,11 @@
                   = render 'documents/mention', item:, document: @document
               button.btn.btn-link.btn-sm.px-0.pb-2 type='button' data-bs-toggle='collapse' data-bs-target='#mentions-more' aria-expanded='false' aria-controls='mentions-more'
                 = "#{mentions.size - 5} weitere"
+            / The list stops at 50; the minutes search finds the rest.
+            - if mentions.size == 50
+              .pb-2
+                = link_to 'Alle Erwähnungen in den Protokollen suchen',
+                    search_path(q: @document.number, tab: 'protokolle', district: @document.district), class: 'small'
           p.small.text-secondary.border-top.py-2.mb-0
             | Aus den öffentlichen Protokollen der Ausschüsse und der Bezirksversammlung. Sie fassen die Beratung
               zusammen und geben sie nicht wörtlich wieder.
